@@ -6,13 +6,17 @@ This Python application downloads, parses, and standardizes data from dancing co
 ## Quickstart
 1. **Install dependencies:**
    ```sh
-   uv pip install -r requirements.txt
+   uv add beautifulsoup4 polars pyarrow toml tqdm
    ```
-2. **Configure URLs:**
-   - Edit `config.toml` to add base URLs of competition events (see below).
-3. **Run the application:**
+2. **Install the package in editable mode:**
    ```sh
-   uvx python -m dancing_datacollection
+   uv pip install -e .
+   ```
+3. **Configure URLs:**
+   - Edit `config.toml` to add base URLs of competition events (see below).
+4. **Run the application:**
+   ```sh
+   uv run python -m dancing_datacollection
    ```
 
 ## Configuration File
@@ -38,6 +42,69 @@ This Python application downloads, parses, and standardizes data from dancing co
     app.log
     error.log
   ```
+- Each competition gets its own directory, named as `year-competition`.
+- Each data category is saved as a separate Parquet file.
+- All logs and errors are written to the `logs/` directory. See `error.log` for detailed error messages and stack traces.
+
+## Module Overview
+- `dancing_datacollection/main.py`: CLI entry point and workflow orchestration.
+- `dancing_datacollection/parsing_base.py`: Abstract base class for competition parsers.
+- `dancing_datacollection/parsing_topturnier.py`: Parser for TopTurnier HTML format.
+- `dancing_datacollection/output.py`: Output and schema validation utilities.
+- `dancing_datacollection/parsing_utils.py`: Download, deduplication, and helper functions.
+- `tests/`: Sample HTML files and test suite for all parsing logic.
+
+## Usage
+
+### Download and process competitions from remote URLs
+
+```sh
+uv run python -m dancing_datacollection
+```
+
+### Process all .htm files in a local directory (for testing/offline)
+
+```sh
+uv run python -m dancing_datacollection --local-dir tests/51-1105_ot_hgr2dstd
+```
+
+This will extract and deduplicate all participants from all `.htm` files in the specified directory and save them as a Parquet file in the appropriate output location.
+
+## Extensibility
+- To support a new HTML format, add a new parser class inheriting from `CompetitionParser` in a new module.
+- Register the new parser in the main workflow as needed.
+- Add tests and sample HTML files for the new format in `tests/`.
+
+## Development Workflow with uv
+- Add dependencies: `uv add <package>`
+- Install editable package: `uv pip install -e .`
+- Run scripts/tests: `uv run python ...`
 
 ## Further Details
 See `project-brief.md` for the full specification, requirements, and architecture.
+
+## Cancellation Handling
+- If a competition is canceled (e.g., due to insufficient participants), this is detected in `deck.htm`.
+- The application logs and prints a cancellation message, and skips writing any output files for that event.
+- No Parquet files are written for canceled competitions, so schema validation will skip them.
+
+## Respect for robots.txt
+- Before downloading or scraping any competition URL, the application checks the site's `robots.txt`.
+- If scraping is disallowed for the relevant user-agent, the URL is skipped and a warning is logged.
+- If `robots.txt` cannot be fetched, the application logs an error and defaults to allowing access.
+
+## Schema Validation & Troubleshooting
+- After processing, run the schema validation script to check all output files:
+  ```sh
+  uv run python tests/test_output_schema.py
+  ```
+- If a file fails validation, check the logs for details. Common reasons:
+  - The competition was canceled (no output files written)
+  - The source HTML was malformed or missing
+  - The event uses an unsupported format (add a new parser as below)
+
+## Extensibility: Adding a New Parser
+- To support a new HTML format, create a new parser class in `dancing_datacollection/parsing_template.py` (see template).
+- Implement the required extraction methods (`extract_participants`, `extract_judges`, etc.).
+- Register the new parser in the main workflow if needed.
+- Add tests for the new format in `tests/`.

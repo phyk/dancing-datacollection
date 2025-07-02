@@ -1,0 +1,71 @@
+Metadata-Version: 2.4
+Name: dancing-datacollection
+Version: 0.1.0
+Summary: Add your description here
+Requires-Python: >=3.13
+Description-Content-Type: text/markdown
+Requires-Dist: beautifulsoup4>=4.13.4
+Requires-Dist: polars>=1.31.0
+Requires-Dist: pyarrow>=20.0.0
+Requires-Dist: toml>=0.10.2
+Requires-Dist: tqdm>=4.67.1
+
+# Dancing Competition Data Collection
+
+## Overview
+This Python application downloads, parses, and standardizes data from dancing competitions, storing results in a structured, analysis-ready format. It is designed for extensibility and reliability, following the detailed specification in `project-brief.md`.
+
+## Quickstart
+1. **Install dependencies:**
+   ```sh
+   uv pip install -r requirements.txt
+   ```
+2. **Configure URLs:**
+   - Edit `config.toml` to add base URLs of competition events (see below).
+3. **Run the application:**
+   ```sh
+   uvx python -m dancing_datacollection
+   ```
+
+## Configuration File
+- The configuration file (`config.toml`) lists base URLs to check for new competitions.
+- Example:
+  ```toml
+  [sources]
+  urls = [
+    "https://hessen-tanzt.de/media/ht2024/"
+  ]
+  ```
+
+## Output Structure
+- Output is organized as:
+  ```
+  data/
+    2024-HessenTanzt/
+      judges.parquet
+      scores.parquet
+      final_scoring.parquet
+      ...
+  logs/
+    app.log
+    error.log
+  ```
+
+## Further Details
+See `project-brief.md` for the full specification, requirements, and architecture.
+
+## Usage
+
+### Download and process competitions from remote URLs
+
+```sh
+uv run python -m dancing_datacollection
+```
+
+### Process all .htm files in a local directory (for testing/offline)
+
+```sh
+uv run python -m dancing_datacollection --local-dir tests/51-1105_ot_hgr2dstd
+```
+
+This will extract and deduplicate all participants from all `.htm` files in the specified directory and save them as a Parquet file in the appropriate output location.

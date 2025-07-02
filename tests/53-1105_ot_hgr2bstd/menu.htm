@@ -1,0 +1,284 @@
+<!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.2//EN" "http://www.openmobilealliance.org/tech/DTD/xhtml-mobile12.dtd">
+<HTML>
+<HEAD>
+  <META http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <META name="Author" content="Hessischer Tanzsportverband e.V.">
+  <META name="GENERATOR" content="TopTurnierDigital">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <TITLE>11.05.2024 Hgr.II B Standard</TITLE>
+  <link rel="stylesheet" type="text/css" href="topturnier.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquerymobile/1.4.5/jquery.mobile.min.js"></script>
+<script type="text/javascript" language="JavaScript">
+$(document).ready(function(){
+    // Alle Skripte ausser jQuery und jQuery-Mobile
+    // (c) 2017 Stephan Rath Software
+    $.ajaxSetup ({ cache: false });	
+    // Animationen
+    $(".divbox").slideUp(0);
+    $(".groupheader").on("click",function() {
+      var actelem=$(this).index(".groupheader");
+        /* Ergwert einklappen */
+        if ( ($(".td2ww").eq(0).is( ":visible" )) || ($(".td2w").eq(0).is( ":visible" )) ) {
+            $(".td2w").css("display","none");
+            $(".td2ww").css("display","table-cell");
+            $(".td5w").css("display","none");
+            $(".ergwertinfo").css("background-color",$(".divbox").css("background-color"));
+        }
+      if ( $( ".divbox" ).eq(actelem).is( ":visible" )) {
+        $(".divbox").eq(actelem).slideUp(400, function(){
+          $(".tdbox").eq(actelem).css("display", "none");
+          $(".groupheader").eq(actelem).css("border-radius","4px");
+        });
+        $(".expander").eq(actelem).html("+");
+      }
+      else {
+        $(".divbox:visible").slideUp(400);
+        $(".groupheader").eq(actelem).css("border-radius","4px 4px 0 0");
+        $(".tdbox").eq(actelem).css("display", "block");
+        //$(".tabbox").eq(actelem).css("height", "auto");
+        $(".expander").eq(actelem).html("&ndash;");
+        $(".divbox").eq(actelem).slideDown(400, function() {
+          $(".divbox").eq(actelem).css("display","block");
+          for (i=0; i<$( ".divbox" ).length; i++)
+            if (i!=actelem) {
+              $(".tdbox").eq(i).css("display", "none");
+              $(".expander").eq(i).html("+");
+              $(".groupheader").eq(i).css("border-radius","4px");
+            }
+          $( window ).resize();
+        });
+      }
+    });
+    $.urlParam = function(name){
+        var results = new RegExp('[\#&]' + name + '=([^&#]*)').exec(window.location.href);
+        if (results==null) { return null; }
+        else { return results[1] || 0; }
+    }
+    var id = $.urlParam('id');
+    // Ergwert-Functions
+    function InitContent(nr,aktliste) {
+       $(".divbox").eq(aktliste).html($(".divbox").eq(aktliste).find(".extract").html() );
+       if (nr==2) { /* Startliste */
+            $("#z2").html( " ("+teiln+" Teilnehmer)" );
+       }
+       else if (nr==4) { /* ergwert */
+        $(".ergwertinfo").css("display","block");
+        $(".td2www").on("click",function() {
+            var actelem=$(this).index(".td2www");
+            expandCol(actelem);
+        });
+        $(".td3www").on("click",function() {
+            var actelem=$(this).index(".td3www");
+            var anzTanz = $(".td2ww").length;
+            if ($(".td2w").eq(actelem % anzTanz).is( ":visible" )) {
+                $(".td2w").css("display","none");
+                $(".td2ww").css("display","table-cell");
+                $(".td5w").css("display","none");
+                $(".ergwertinfo").css("background-color",$(".divbox").css("background-color"));
+            }
+            else
+                expandCol(actelem % anzTanz);
+        });
+        $(".td2ww").on("click",function() {
+            var actelem=$(this).index(".td2ww");
+            expandCol(actelem);
+        });
+        $(".td2w").on("click",function() {
+            var actelem=$(this).index(".td2w");
+            var anzTanz = $(".td2ww").length;
+            if (actelem<anzTanz) {
+                $(".td2w").css("display","none");
+                $(".td2ww").css("display","table-cell");
+                $(".td5w").css("display","none");
+                $(".ergwertinfo").css("background-color",$(".divbox").css("background-color"));
+            }
+        });
+        $(".td5w").on("click",function() {
+            $(".td2w").css("display","none");
+            $(".td2ww").css("display","table-cell");
+            $(".td5w").css("display","none");
+            $(".ergwertinfo").css("background-color",$(".divbox").css("background-color"));
+        });
+        function expandCol(dance) {
+          if ($(".td2ww").eq(dance).is( ":visible" )) {
+            var anzTanz = $(".td2ww").length;
+            var anzTotal= $(".td2w").length;
+            var anzTotal5=$(".td5w").length;
+            var anzWR=(anzTotal-anzTanz)/anzTanz;
+            $(".td2w").css("display","none");
+            $(".td2ww").css("display","table-cell");
+            $(".td5w").css("display","none");
+            $(".td2w").eq(dance).css("display","table-cell");
+            $(".td2ww").eq(dance).css("display","none");
+            $(".ergwertinfo").css("background-color",$(".divbox").css("background-color"));
+            // WR einblenden
+            for (i=anzTanz+dance*anzWR; i<anzTanz+(dance+1)*anzWR; i++) {
+               $(".td2w").eq(i).css("display","table-cell");
+            }
+            // wertungen einblenden
+            $(".tcol"+(dance+1)).css("display","table-cell");
+          }
+        }
+       }
+       else if (nr==5) { /* ERtab */
+            $(".td2c").hover(function() { });
+            $(".td3r").hover(function() { });
+       }
+       else if (nr==6) { /* Skating */
+            $( window ).resize();
+       }
+       else if (nr==7) { /* Gesamt */
+            $(".td2gc").hover(function() {
+                var actelem=$(this).index(".td2gc");
+                if ($(".tooltip2gc").eq(actelem).html().trim()=="")
+                    $(".tooltip2gc").eq(actelem).css("display","none");
+            });
+       }
+       if (id==nr) {
+           $(".divbox").eq(aktliste).slideDown(0);
+           $(".groupheader").eq(aktliste).css("border-radius","4px 4px 0 0");
+           $(".tdbox").eq(aktliste).css("display", "block");
+           $(".expander").eq(aktliste).html("&ndash;");
+       }
+    }
+    // Inhalte einbinden
+    var liste=0;
+    var listennr = new Array();
+//    $(".tdbox").css("display", "none");
+    $(".divbox").eq(liste).load("deck.htm", function() {
+        InitContent(1, 0);
+    } );
+    listennr[liste]=1; liste++;
+    $(".divbox").eq(liste).load("erg.htm", function() {
+        InitContent(3, 1);
+    } );
+    listennr[liste]=3; liste++;
+    $(".divbox").eq(liste).load("ergwert.htm", function() {
+        InitContent(4, 2);
+    } );
+    listennr[liste]=4; liste++;
+    $(".divbox").eq(liste).load("wert_er.htm", function() {
+        InitContent(5, 3);
+    } );
+    listennr[liste]=5; liste++;
+    $(".divbox").eq(liste).load("tabges.htm", function() {
+        InitContent(7, 4);
+    } );
+    listennr[liste]=7; liste++;
+    $( window ).resize( function() {
+        if ($( window ).width()<=600) {
+            /* Skatingtabelle */
+            if ($(".td2s").length>6) {
+                $(".td2s").css("display","none");
+                $(".td5s").css("display","none");
+            }
+        }
+        else {
+            /* Skatingtabelle */
+               $(".td2s").css("display","table-cell");
+               $(".td5s").css("display","table-cell");
+        }
+	if ($( window ).width()<=767) {
+		$(".ergwertinfo").css("display","none");
+	}
+    });
+    $.get("endrunde.jpg").done(function() { 
+       $('.erimgdiv').html('<a href="endrunde.jpg" target="_blank"><img src="endrunde.jpg" width=600 class="erimg"></a>'); 
+       $(".erimgdiv").css("display", "block"); }).fail(function() { $(".erimgdiv").css("display", "none");});
+    $( window ).resize();
+});
+</script>
+</HEAD>
+<body><div class="mainback">
+<div class="eventhead">
+<table border=0 width=100%>
+<tr><td>Hessen tanzt 2024 - Frankfurt am Main</td><td width=30>
+</td></tr>
+</table>
+</div>
+<div class="maincontainer">
+<div class="comphead">11.05.2024 - OT, Hgr.II B Standard &#34;2&#34;</div>
+<hr class="line">
+<div class="erimgdiv"></div>
+<noscript>
+<center><a href="deck.htm"><div class="compbutton" id="h1">Deckblatt</div></a></center>
+</noscript>
+<script>
+document.write("<div class='groupheader' id='h1'>");
+document.write("<span class='expander'>+</span> Deckblatt");
+document.write("<span id='z1'></span></div>");
+</script>
+<div class="tdbox" id="t1">
+<div class="divbox">Die Daten konnten nicht dynamisch eingef&uuml;gt werden. Bitte verwenden Sie den folgenden Button, um die 
+Information anzusehen:<br> 
+<center><a href="deck.htm"><div class="compbutton" id="h1">Deckblatt</div></a></center>
+Mit Firefox k&ouml;nnen Sie die Daten auch offline direkt ansehen.
+</div>
+</div>
+<noscript>
+<center><a href="erg.htm"><div class="compbutton" id="h3">Ergebnisliste</div></a></center>
+</noscript>
+<script>
+document.write("<div class='groupheader' id='h3'>");
+document.write("<span class='expander'>+</span> Ergebnisliste");
+document.write("<span id='z3'></span></div>");
+</script>
+<div class="tdbox" id="t3">
+<div class="divbox">Die Daten konnten nicht dynamisch eingef&uuml;gt werden. Bitte verwenden Sie den folgenden Button, um die 
+Information anzusehen:<br> 
+<center><a href="erg.htm"><div class="compbutton" id="h3">Ergebnisliste</div></a></center>
+Mit Firefox k&ouml;nnen Sie die Daten auch offline direkt ansehen.
+</div>
+</div>
+<noscript>
+<center><a href="ergwert.htm"><div class="compbutton" id="h4">Ergebnis mit Wertung</div></a></center>
+</noscript>
+<script>
+document.write("<div class='groupheader' id='h4'>");
+document.write("<span class='expander'>+</span> Ergebnis mit Wertung");
+document.write("<span id='z4'></span></div>");
+</script>
+<div class="tdbox" id="t4">
+<div class="divbox">Die Daten konnten nicht dynamisch eingef&uuml;gt werden. Bitte verwenden Sie den folgenden Button, um die 
+Information anzusehen:<br> 
+<center><a href="ergwert.htm"><div class="compbutton" id="h4">Ergebnis mit Wertung</div></a></center>
+Mit Firefox k&ouml;nnen Sie die Daten auch offline direkt ansehen.
+</div>
+</div>
+<noscript>
+<center><a href="wert_er.htm"><div class="compbutton" id="h5">Endrundentabelle</div></a></center>
+</noscript>
+<script>
+document.write("<div class='groupheader' id='h5'>");
+document.write("<span class='expander'>+</span> Endrundentabelle");
+document.write("<span id='z5'></span></div>");
+</script>
+<div class="tdbox" id="t5">
+<div class="divbox">Die Daten konnten nicht dynamisch eingef&uuml;gt werden. Bitte verwenden Sie den folgenden Button, um die 
+Information anzusehen:<br> 
+<center><a href="wert_er.htm"><div class="compbutton" id="h5">Endrundentabelle</div></a></center>
+Mit Firefox k&ouml;nnen Sie die Daten auch offline direkt ansehen.
+</div>
+</div>
+<noscript>
+<center><a href="tabges.htm"><div class="compbutton" id="h7">Wertungstabelle Gesamt</div></a></center>
+</noscript>
+<script>
+document.write("<div class='groupheader' id='h7'>");
+document.write("<span class='expander'>+</span> Wertungstabelle Gesamt");
+document.write("<span id='z7'></span></div>");
+</script>
+<div class="tdbox" id="t7">
+<div class="divbox">Die Daten konnten nicht dynamisch eingef&uuml;gt werden. Bitte verwenden Sie den folgenden Button, um die 
+Information anzusehen:<br> 
+<center><a href="tabges.htm"><div class="compbutton" id="h7">Wertungstabelle Gesamt</div></a></center>
+Mit Firefox k&ouml;nnen Sie die Daten auch offline direkt ansehen.
+</div>
+</div>
+  <P><FONT size="1" face="Arial">Diese Liste wurde mit <A TARGET="_blank" HREF="http://www.TopTurnier.de">TopTurnier f&uuml;r Windows V9.6b</A> erstellt.<br></FONT>
+</div></div></body>
+</HTML>

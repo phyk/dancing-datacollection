@@ -1,0 +1,17 @@
+README.md
+pyproject.toml
+dancing_datacollection/__init__.py
+dancing_datacollection/__main__.py
+dancing_datacollection/calculations.py
+dancing_datacollection/main.py
+dancing_datacollection/output.py
+dancing_datacollection/parsing_base.py
+dancing_datacollection/parsing_participants.py
+dancing_datacollection/parsing_topturnier.py
+dancing_datacollection/parsing_utils.py
+dancing_datacollection.egg-info/PKG-INFO
+dancing_datacollection.egg-info/SOURCES.txt
+dancing_datacollection.egg-info/dependency_links.txt
+dancing_datacollection.egg-info/requires.txt
+dancing_datacollection.egg-info/top_level.txt
+tests/test_parsing.py
