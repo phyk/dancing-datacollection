@@ -24,10 +24,17 @@ class TopTurnierParser(CompetitionParser):
                 couple_info = cells[1].get_text(" ", strip=True)
                 parsing_logger.debug(f'  couple_info: {couple_info}')
                 club, number = extract_club_and_number(cells[1])
+                try:
+                    number = int(number) if number is not None else None
+                except Exception:
+                    number = None
                 parsing_logger.debug(f'  club: {club}, number: {number}')
                 names = re.sub(r'\s*\(\d+\)', '', couple_info).strip()
                 parsing_logger.debug(f'  names (after removing number): {names}')
                 name_one, name_two = split_names(names)
+                # Remove club from name_two if present
+                if name_two and club and club in name_two:
+                    name_two = name_two.replace(club, '').strip()
                 parsing_logger.debug(f'  name_one: {name_one}, name_two: {name_two}')
                 if name_one and name_two and club and number:
                     participants.append({
@@ -97,8 +104,7 @@ class TopTurnierParser(CompetitionParser):
                     committee.append({
                         'role': role_key,
                         'name': name,
-                        'club': club,
-                        'raw_value': value_cell.get_text(" ", strip=True)
+                        'club': club
                     })
         parsing_logger.debug(f'extract_committee: END, total committee={len(committee)}')
         return committee
@@ -106,79 +112,112 @@ class TopTurnierParser(CompetitionParser):
     def extract_scores(self, html):
         parsing_logger.debug('extract_scores: START')
         soup = get_soup(html)
-        table = soup.find('table', class_='tab1')
-        parsing_logger.debug(f'Found table: {bool(table)}')
-        if not table:
-            return []
-        header = table.find_all('tr')[1]
-        couple_cells = header.find_all('td')[1:]
-        couples = []
-        for idx, cell in enumerate(couple_cells):
-            num = cell.get_text(strip=True)
-            tooltip = cell.find('span', class_='tooltip2gc')
-            names = tooltip.get_text(strip=True) if tooltip else ''
-            parsing_logger.debug(f'Couple {idx}: number={num}, names={names}')
-            couples.append({'number': num, 'names': names})
-        judge_row = table.find_all('tr')[2]
-        judge_cells = judge_row.find_all('td')[1:]
-        judge_codes = []
-        for idx, cell in enumerate(judge_cells):
-            code = cell.get_text(strip=True).split(')')[0]
-            parsing_logger.debug(f'Judge {idx}: code={code}')
-            judge_codes.append(code)
+        tables = soup.find_all('table', class_='tab1')
+        parsing_logger.debug(f'Found {len(tables)} tables with class tab1')
         scores = []
-        round_name = None
-        for row_idx, row in enumerate(table.find_all('tr')[3:]):
-            cells = row.find_all('td')
-            parsing_logger.debug(f'Row {row_idx+3}: {[c.get_text(" ", strip=True) for c in cells]}')
-            if not cells:
+        for table_idx, table in enumerate(tables):
+            rows = table.find_all('tr')
+            if len(rows) < 3:
+                parsing_logger.error(f'Not enough rows in scores table {table_idx}')
                 continue
-            if 'Ergebnis der' in cells[0].get_text():
-                round_name = cells[0].get_text(strip=True)
-                parsing_logger.debug(f'  round_name: {round_name}')
-                for i, cell in enumerate(cells[1:]):
-                    placement = cell.get_text(strip=True)
-                    if placement:
-                        entry = {
-                            'round': round_name,
-                            'number': couples[i]['number'] if i < len(couples) else '',
-                            'names': couples[i]['names'] if i < len(couples) else '',
-                            'placement': placement
-                        }
-                        parsing_logger.debug(f'  Ergebnis entry: {entry}')
-                        scores.append(entry)
-                continue
-            if 'Qualifiziert' in cells[0].get_text():
-                qual_round = cells[0].get_text(strip=True)
-                parsing_logger.debug(f'  qual_round: {qual_round}')
-                for i, cell in enumerate(cells[1:]):
-                    qualified = cell.get_text(strip=True)
-                    if qualified:
-                        entry = {
-                            'round': qual_round,
-                            'number': couples[i]['number'] if i < len(couples) else '',
-                            'names': couples[i]['names'] if i < len(couples) else '',
-                            'qualified': qualified
-                        }
-                        parsing_logger.debug(f'  Qualifiziert entry: {entry}')
-                        scores.append(entry)
-                continue
-            if len(cells) > 1 and cells[0].get('class', [''])[0].startswith('td3'):
-                for i, cell in enumerate(cells[1:]):
-                    judge_scores = cell.get_text("|", strip=True).split('|')
-                    entry = {
-                        'round': round_name,
-                        'number': couples[i]['number'] if i < len(couples) else '',
-                        'names': couples[i]['names'] if i < len(couples) else '',
-                        'judge_scores': judge_scores
-                    }
-                    parsing_logger.debug(f'  Judge scores entry: {entry}')
-                    scores.append(entry)
-        norm = []
-        for s in scores:
-            norm.append({k: s.get(k, None) for k in ['round', 'number', 'names']})
+            idx = 0
+            while idx < len(rows):
+                row = rows[idx]
+                cells = row.find_all('td')
+                # Detect start of a round
+                if len(cells) > 0 and 'Ergebnis der' in cells[0].get_text(strip=True):
+                    round_name = cells[0].get_text(strip=True)
+                    # Find the couple number row: look ahead for a row where most cells are numeric
+                    couple_row = None
+                    lookahead = 1
+                    while idx + lookahead < len(rows):
+                        candidate_cells = rows[idx + lookahead].find_all('td')[1:]
+                        if not candidate_cells:
+                            lookahead += 1
+                            continue
+                        numeric_count = 0
+                        for cell in candidate_cells:
+                            val = cell.get_text(strip=True)
+                            if val.isdigit():
+                                numeric_count += 1
+                        if numeric_count >= max(1, len(candidate_cells) // 2):
+                            couple_row = rows[idx + lookahead]
+                            break
+                        lookahead += 1
+                    if couple_row is None:
+                        parsing_logger.warning(f'No valid couple number row found for round {round_name} in table {table_idx}')
+                        idx += lookahead
+                        continue
+                    couple_cells = couple_row.find_all('td')[1:]
+                    couples = []
+                    for cidx, cell in enumerate(couple_cells):
+                        num = cell.get_text(strip=True)
+                        try:
+                            num = int(num)
+                        except Exception:
+                            continue
+                        couples.append(num)
+                    # Print all rows and their cell counts after the couple number row
+                    score_row_idx = idx + lookahead + 1
+                    debug_row_counter = 0
+                    while score_row_idx < len(rows):
+                        scells = rows[score_row_idx].find_all('td')
+                        parsing_logger.debug(f'AFTER COUPLE ROW: Table {table_idx}, Round {round_name}, Row {debug_row_counter}, Cell count: {len(scells)}, Content: {[cell.get_text(" ", strip=True) for cell in scells]}')
+                        debug_row_counter += 1
+                        score_row_idx += 1
+                    # Score rows: after couple_row, look for rows where first cell contains multiple judge codes/names (space-separated or multiple words)
+                    score_row_idx = idx + lookahead + 1
+                    dance_rows = []
+                    while score_row_idx < len(rows):
+                        scells = rows[score_row_idx].find_all('td')
+                        if len(scells) == len(couples) + 1:
+                            first_cell_text = scells[0].get_text(" ", strip=True)
+                            # Heuristic: if first cell contains more than 2 words, treat as judge codes/names
+                            if len(first_cell_text.split()) >= 2:
+                                dance_rows.append((score_row_idx, rows[score_row_idx]))
+                                score_row_idx += 1
+                                continue
+                        break
+                    num_dances = len(dance_rows)
+                    parsing_logger.debug(f'Number of score rows (dances) found for round {round_name} in table {table_idx}: {num_dances}')
+                    if num_dances < 3 or num_dances > 5:
+                        parsing_logger.warning(f'Unexpected number of dances (score rows): {num_dances} in round {round_name} in table {table_idx}')
+                    # Infer dances
+                    ballroom = ['Slow Waltz', 'Tango', 'Viennese Waltz', 'Slow Foxtrott', 'Quick Step']
+                    latin = ['Samba', 'Cha cha cha', 'Rumba', 'Paso Doble', 'Jive']
+                    title = soup.title.get_text() if soup.title else ''
+                    if 'Standard' in title or 'Ballroom' in title:
+                        dances = ballroom[:num_dances]
+                    else:
+                        dances = latin[:num_dances]
+                    parsing_logger.debug(f'Dances: {dances}')
+                    # Extract judge codes from the first cell of each dance row (split by space)
+                    for dance_idx, (drow_idx, drow) in enumerate(dance_rows):
+                        dcells = drow.find_all('td')
+                        judge_codes = [code.strip() for code in dcells[0].get_text(" ", strip=True).split() if code.strip()]
+                        for couple_idx, cell in enumerate(dcells[1:]):
+                            if couple_idx >= len(couples):
+                                continue
+                            # Split the cell by space to get scores for each judge
+                            votes = [v.strip() for v in cell.get_text(" ", strip=True).split() if v.strip()]
+                            if len(votes) != len(judge_codes):
+                                continue
+                            for judge_idx, vote in enumerate(votes):
+                                code = judge_codes[judge_idx]
+                                voted = bool(vote and vote.strip() and vote.strip() != '0')
+                                entry = {
+                                    'round': round_name,
+                                    'number': couples[couple_idx],
+                                    'judge_code': code,
+                                    'dance': dances[dance_idx],
+                                    'voted': voted
+                                }
+                                scores.append(entry)
+                    idx = score_row_idx
+                else:
+                    idx += 1
         parsing_logger.debug(f'extract_scores: END, total scores={len(scores)}')
-        return norm
+        return scores
 
     def extract_final_scoring(self, html):
         parsing_logger.debug('extract_final_scoring: START')
