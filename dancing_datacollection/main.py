@@ -1,37 +1,23 @@
 # Orchestration logic for the dancing datacollection project
 import argparse
-from dancing_datacollection.parsing_participants import extract_participants, extract_judges, extract_committee, extract_scores_from_tabges
-from dancing_datacollection.parsing_utils import download_html, extract_competition_links, deduplicate_participants
-from dancing_datacollection.output import save_competition_data, save_judges, save_committee, save_scores, save_final_scoring
-import toml
 import logging
-from tqdm import tqdm
 import os
+import toml
+from tqdm import tqdm
+from dancing_datacollection.parsing_utils import download_html, extract_competition_links, deduplicate_participants, setup_logging
+from dancing_datacollection.output import save_competition_data, save_judges, save_committee, save_scores, save_final_scoring
 from dancing_datacollection.parsing_topturnier import TopTurnierParser
 import urllib.robotparser
 import urllib.parse
 
+# Unified logging setup
+setup_logging()
+
 CONFIG_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'config.toml')
 LOG_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'logs')
-APP_LOG_PATH = os.path.join(LOG_DIR, 'app.log')
-ERROR_LOG_PATH = os.path.join(LOG_DIR, 'error.log')
 
-os.makedirs(LOG_DIR, exist_ok=True)
-
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s %(levelname)s %(message)s',
-    handlers=[
-        logging.FileHandler(APP_LOG_PATH),
-        logging.StreamHandler()
-    ]
-)
 logger = logging.getLogger(__name__)
-
 error_logger = logging.getLogger('error')
-error_handler = logging.FileHandler(ERROR_LOG_PATH)
-error_logger.addHandler(error_handler)
-error_logger.setLevel(logging.ERROR)
 
 def load_config():
     with open(CONFIG_PATH, 'r') as f:
@@ -50,12 +36,9 @@ def is_allowed_by_robots(url, user_agent='*'):
         return allowed
     except Exception as e:
         logging.error(f"Failed to check robots.txt at {robots_url}: {e}")
-        # If robots.txt cannot be fetched, default to allowed
         return True
 
 def process_local_dir(local_dir):
-    import glob
-    import codecs
     parser = TopTurnierParser()
     all_participants = []
     event_name = os.path.basename(local_dir)
@@ -75,8 +58,7 @@ def process_local_dir(local_dir):
             canceled = True
             logging.info(f"Competition {event_name} is canceled. Skipping all output files.")
             print(f"Competition {event_name} is canceled. Skipping all output files.")
-            # Optionally, write a minimal canceled.parquet or log entry here
-            return  # Skip writing any output files
+            return
         judges = parser.extract_judges(deck_html)
         logger.info(f"Judges found: {len(judges)}")
         print(f"Judges found: {len(judges)}")
@@ -110,7 +92,7 @@ def process_local_dir(local_dir):
         print(f"Processing {len(htm_files)} .htm files in {local_dir}...")
         for fpath in tqdm(htm_files, desc="Parsing .htm files", unit="file"):
             try:
-                with codecs.open(fpath, 'r', encoding='utf-8') as f:
+                with open(fpath, 'r', encoding='utf-8') as f:
                     html = f.read()
                 participants, _ = parser.extract_participants(html)
                 if participants:
@@ -131,9 +113,10 @@ def process_local_dir(local_dir):
     print(f"  Unique participants: {len(unique_participants)}")
 
 def main():
-    parser = argparse.ArgumentParser(description='Dancing Competition Data Collection')
-    parser.add_argument('--local-dir', type=str, help='Process all .htm files in a local directory (for testing/offline)')
-    args = parser.parse_args()
+    parser = TopTurnierParser()
+    arg_parser = argparse.ArgumentParser(description='Dancing Competition Data Collection')
+    arg_parser.add_argument('--local-dir', type=str, help='Process all .htm files in a local directory (for testing/offline)')
+    args = arg_parser.parse_args()
     if args.local_dir:
         process_local_dir(args.local_dir)
         return
@@ -164,15 +147,14 @@ def main():
                     comp_html = download_html(link)
                     if comp_html is not None:
                         success_count += 1
-                        from urllib.parse import urlparse
                         base_url = link.rsplit('/', 1)[0]
                         erg_url = f"{base_url}/erg.htm"
                         erg_html = download_html(erg_url)
                         if erg_html:
-                            participants, event_name = extract_participants(erg_html)
+                            participants, event_name = parser.extract_participants(erg_html)
                             logger.info(f"Parsed competition (erg.htm): {erg_url}")
                         else:
-                            participants, event_name = extract_participants(comp_html)
+                            participants, event_name = parser.extract_participants(comp_html)
                             logger.info(f"Parsed competition (index): {link}")
                         logger.info(f"  Participants: {len(participants)}")
                         print(f"Parsed competition: {link}")
@@ -182,7 +164,6 @@ def main():
                         deck_url = f"{base_url}/deck.htm"
                         deck_html = download_html(deck_url)
                         if deck_html:
-                            parser = TopTurnierParser()
                             judges = parser.extract_judges(deck_html)
                             logger.info(f"Judges found: {len(judges)}")
                             print(f"Judges found: {len(judges)}")
@@ -194,7 +175,6 @@ def main():
                         tabges_url = f"{base_url}/tabges.htm"
                         tabges_html = download_html(tabges_url)
                         if tabges_html:
-                            parser = TopTurnierParser()
                             scores = parser.extract_scores(tabges_html)
                             logger.info(f"Score entries found: {len(scores)}")
                             print(f"Score entries found: {len(scores)}")
@@ -221,5 +201,5 @@ def main():
             print(f"Skipping {url} due to download error.")
     print("All URLs processed.")
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main() 

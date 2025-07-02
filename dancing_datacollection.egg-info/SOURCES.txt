@@ -7,6 +7,7 @@ dancing_datacollection/main.py
 dancing_datacollection/output.py
 dancing_datacollection/parsing_base.py
 dancing_datacollection/parsing_participants.py
+dancing_datacollection/parsing_template.py
 dancing_datacollection/parsing_topturnier.py
 dancing_datacollection/parsing_utils.py
 dancing_datacollection.egg-info/PKG-INFO
@@ -14,4 +15,5 @@ dancing_datacollection.egg-info/SOURCES.txt
 dancing_datacollection.egg-info/dependency_links.txt
 dancing_datacollection.egg-info/requires.txt
 dancing_datacollection.egg-info/top_level.txt
+tests/test_output_schema.py
 tests/test_parsing.py
