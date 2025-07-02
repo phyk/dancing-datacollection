@@ -1,0 +1,13 @@
+[project]
+name = "dancing-datacollection"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "beautifulsoup4>=4.13.4",
+    "polars>=1.31.0",
+    "pyarrow>=20.0.0",
+    "toml>=0.10.2",
+    "tqdm>=4.67.1",
+]

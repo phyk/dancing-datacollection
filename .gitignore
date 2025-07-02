@@ -1,0 +1,7 @@
+# Ignore data output directory (not tracked by git)
+data/
+# (Allowed into context for local development and testing)
+
+# Ignore logs output directory (not tracked by git)
+logs/
+# (Allowed into context for local development and testing) 
