@@ -1,0 +1,7 @@
+---
+description: Anything related to modifying and creating tests
+globs: 
+alwaysApply: false
+---
+Tests should be grouped by topic. Any fixtures that are used across multiple tests should be put in conftest.py. When modifying a test file, and there are already tests for a different topic present, create a new file for the tests.
+All tests have to use ground truth for verification.

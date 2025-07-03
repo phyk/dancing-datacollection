@@ -125,46 +125,5 @@ def test_extract_final_scoring():
         assert entry["total"]
 
 
-def ground_truth_scores_51():
-    # This is a sample of expected (number, score) pairs from the first round in tabges.htm
-    return [
-        {"number": 600, "score": 1},
-        {"number": 600, "score": 3},
-        {"number": 600, "score": 2},
-        {"number": 600, "score": 3},
-        {"number": 600, "score": 3},
-        {"number": 601, "score": 2},
-        {"number": 601, "score": 1},
-        {"number": 601, "score": 1},
-        {"number": 601, "score": 3},
-        {"number": 601, "score": 1},
-        # ... more entries can be added for thoroughness ...
-    ]
-
-
-@pytest.mark.parametrize(
-    "sample_dir,ground_truth_func",
-    [
-        ("51-1105_ot_hgr2dstd", ground_truth_scores_51),
-    ],
-)
-def test_extract_scores_from_tabges(sample_dir, ground_truth_func):
-    parser = TopTurnierParser()
-    tabges_path = os.path.join(TEST_DIR, sample_dir, "tabges.htm")
-    if not os.path.exists(tabges_path):
-        pytest.skip(f"Missing {tabges_path}")
-    with open(tabges_path, "r", encoding="utf-8") as f:
-        html = f.read()
-    scores = parser.extract_scores(html)
-    assert isinstance(scores, list)
-    assert scores, "No scores extracted"
-    # Check that all ground truth entries are present in the extracted scores
-    for gt in ground_truth_func():
-        assert gt in scores, f"Missing score entry: {gt}"
-    # Check that all entries have required keys
-    for entry in scores:
-        assert "number" in entry and "score" in entry
-
-
 if __name__ == "__main__":
     main()

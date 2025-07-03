@@ -9,12 +9,9 @@ from .parsing.erg import extract_participants_from_erg, extract_judges_from_erg
 from .parsing.ergwert import (
     extract_participants_from_ergwert,
     extract_judges_from_ergwert,
+    extract_scores_from_ergwert,
 )
-from .parsing.tabges import (
-    extract_participants_from_tabges,
-    extract_judges_from_tabges,
-    extract_scores_from_tabges,
-)
+from .parsing.tabges import extract_participants_from_tabges, extract_judges_from_tabges
 from .parsing.wert_er import (
     extract_participants_from_wert_er,
     extract_judges_from_wert_er,
@@ -79,9 +76,14 @@ class TopTurnierParser(CompetitionParser):
         soup = get_soup(html)
         return extract_committee_from_deck(soup)
 
-    def extract_scores(self, html):
+    def extract_scores(self, html, filename=None):
+        if filename is None:
+            raise ValueError("filename argument is required for extract_scores")
         soup = get_soup(html)
-        return extract_scores_from_tabges(soup)
+        if filename.endswith('ergwert.htm'):
+            return extract_scores_from_ergwert(soup)
+        else:
+            return []
 
     def extract_final_scoring(self, html):
         parsing_logger.debug("extract_final_scoring: START")

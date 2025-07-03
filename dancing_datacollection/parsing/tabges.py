@@ -1,5 +1,6 @@
 from dancing_datacollection.data_defs.participant import Participant
 from dancing_datacollection.data_defs.judge import Judge
+from dancing_datacollection.data_defs.score import Score
 import re
 
 
@@ -73,60 +74,3 @@ def extract_judges_from_tabges(soup):
         if key not in unique:
             unique[key] = j
     return list(unique.values())
-
-
-def extract_scores_from_tabges(soup):
-    """
-    Extract scores from tabges.htm. Returns a list of dicts with at least 'number' and 'score' keys.
-    """
-    import re
-    print('extract_scores_from_tabges: START')
-    tables = soup.find_all('table', class_='tab1')
-    print(f'Found {len(tables)} tables with class tab1')
-    scores = []
-    for table_idx, table in enumerate(tables):
-        rows = table.find_all('tr')
-        couple_numbers = []
-        found_couples = False
-        for row_idx, row in enumerate(rows):
-            cells = row.find_all('td')
-            print(f'Table {table_idx} Row {row_idx}: {[c.get("class") for c in cells]}')
-            # Find the couple number header row
-            if any('td2gc' in (c.get('class') or []) for c in cells):
-                couple_numbers = []
-                for c in cells[1:]:
-                    text = c.get_text(strip=True)
-                    match = re.match(r'(\d+)', text)
-                    if match:
-                        num = int(match.group(1))
-                        couple_numbers.append(num)
-                    else:
-                        couple_numbers.append(None)
-                found_couples = True
-                print(f'Table {table_idx} Row {row_idx}: Found couple numbers: {couple_numbers}')
-                continue
-            # Parse score rows (class 'td5c')
-            if any('td5c' in (c.get('class') or []) for c in cells) and found_couples:
-                print(f'Table {table_idx} Row {row_idx}: Parsing score row')
-                for couple_idx, c in enumerate(cells[1:]):
-                    if couple_idx >= len(couple_numbers):
-                        continue
-                    couple_number = couple_numbers[couple_idx]
-                    if couple_number is None:
-                        continue
-                    values = c.get_text(" ", strip=True).replace('\xa0', '').split("\n")
-                    for value in values:
-                        value = value.strip()
-                        if value == '' or value == '&nbsp;':
-                            continue
-                        try:
-                            score = int(value)
-                        except Exception:
-                            continue
-                        entry = {
-                            'number': couple_number,
-                            'score': score,
-                        }
-                        scores.append(entry)
-    print(f'Extracted {len(scores)} scores in total')
-    return scores

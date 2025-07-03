@@ -77,7 +77,7 @@ def process_local_dir(local_dir):
             )
             print(f"Competition {event_name} is canceled. Skipping all output files.")
             return
-        judges = parser.extract_judges(deck_html)
+        judges = parser.extract_judges(deck_html, filename='deck.htm')
         logger.info(f"Judges found: {len(judges)}")
         print(f"Judges found: {len(judges)}")
         save_judges(event_name, judges)
@@ -215,7 +215,7 @@ def main():
                         deck_url = f"{base_url}/deck.htm"
                         deck_html = download_html(deck_url)
                         if deck_html:
-                            judges = parser.extract_judges(deck_html)
+                            judges = parser.extract_judges(deck_html, filename='deck.htm')
                             logger.info(f"Judges found: {len(judges)}")
                             print(f"Judges found: {len(judges)}")
                             save_judges(event_name, judges)

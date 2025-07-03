@@ -79,3 +79,27 @@ uv run python -m dancing_datacollection.main --local-dir tests/51-1105_ot_hgr2ds
 - Add type hints and docstrings for maintainability.
 - Write pytest-based unit tests for all extraction methods using real test cases, checking type, uniqueness, and non-emptiness.
 - Ensure all tests pass in CI and local runs.
+
+# Slow Waltz (Langsamer Walzer) - ergwert.htm header and first data row
+
+Header row (dances):
+<TD class="td2w" colspan="6" nowrap>Langsamer Walzer</TD>
+<TD class="td2ww">LW</TD>
+
+Judge code row (for Slow Waltz):
+<TD class="td2w">AT<span class="tooltip2w">B&auml;rschneider, Marcus</span></TD>
+<TD class="td2w">AX<span class="tooltip2w">Block, Robert</span></TD>
+<TD class="td2w">BW<span class="tooltip2w">Kirchwehm, Susanne</span></TD>
+<TD class="td2w">CJ<span class="tooltip2w">M&auml;ser, Erich</span></TD>
+<TD class="td2w">EK<span class="tooltip2w">Landauer, Peter</span></TD>
+<TD class="td2www">Su</TD>
+
+First data row (couple 610, Slow Waltz columns):
+<TD class="td5w tcol1">1<br>x<br>x<br>x</TD>
+<TD class="td5w tcol1">1<br>x<br>x<br>x</TD>
+<TD class="td5w tcol1">1<br>x<br>x<br>x</TD>
+<TD class="td5w tcol1">3<br>x<br>x<br>x</TD>
+<TD class="td5w tcol1">1<br>x<br>x<br>x</TD>
+<TD class="td3www">1,0<br>5<br>5<br>5</TD>
+
+# End Slow Waltz context
