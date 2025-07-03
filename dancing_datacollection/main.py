@@ -82,6 +82,7 @@ def process_local_dir(local_dir):
         print(f"Final scoring entries found: {len(final_scores)}")
         save_final_scoring(event_name, final_scores)
     htm_files = []
+    participants_by_file = {}
     for root, dirs, files in os.walk(local_dir):
         for fname in files:
             if fname.endswith('.htm'):
@@ -97,13 +98,24 @@ def process_local_dir(local_dir):
                 participants, _ = parser.extract_participants(html)
                 if participants:
                     logger.info(f"  Participants found in {os.path.basename(fpath)}: {len(participants)}")
+                    logger.debug(f"Participant numbers in {os.path.basename(fpath)}: {[p['number'] for p in participants if 'number' in p]}")
+                    participants_by_file[os.path.basename(fpath)] = set(p['number'] for p in participants if 'number' in p)
                     all_participants.extend(participants)
             except Exception as e:
                 error_logger.error(f"Error processing file {fpath}", exc_info=True)
                 print(f"Error processing file {fpath}. See error.log for details.")
     unique_participants = deduplicate_participants(all_participants)
     logger.info(f"Total unique participants in {local_dir}: {len(unique_participants)}")
-    print(f"Total unique participants in {local_dir}: {len(unique_participants)}")
+    logger.debug(f"Unique participant numbers: {[p['number'] for p in unique_participants if 'number' in p]}")
+    # Check for consistency of participant numbers across files
+    if participants_by_file:
+        all_sets = list(participants_by_file.values())
+        base_set = all_sets[0]
+        consistent = all(base_set == s for s in all_sets[1:])
+        if not consistent:
+            logger.warning(f"Inconsistent participant numbers across files: {participants_by_file}")
+        else:
+            logger.info("Participant numbers are consistent across all files.")
     save_competition_data(event_name, unique_participants)
     print("Summary:")
     print(f"  Judges: {len(judges)}")

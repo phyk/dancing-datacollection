@@ -24,7 +24,7 @@ def setup_logging(log_dir=None):
     root_logger = logging.getLogger()
     if not any(isinstance(h, logging.FileHandler) and getattr(h, 'baseFilename', None) == app_log_path for h in root_logger.handlers):
         root_logger.setLevel(logging.INFO)
-        app_handler = logging.FileHandler(app_log_path)
+        app_handler = logging.FileHandler(app_log_path, mode='w')
         app_handler.setLevel(logging.INFO)
         app_handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s %(message)s'))
         root_logger.addHandler(app_handler)
@@ -37,7 +37,7 @@ def setup_logging(log_dir=None):
     error_logger = logging.getLogger('error')
     if not any(isinstance(h, logging.FileHandler) and getattr(h, 'baseFilename', None) == error_log_path for h in error_logger.handlers):
         error_logger.setLevel(logging.ERROR)
-        error_handler = logging.FileHandler(error_log_path)
+        error_handler = logging.FileHandler(error_log_path, mode='w')
         error_handler.setLevel(logging.ERROR)
         error_handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s %(message)s'))
         error_logger.addHandler(error_handler)
@@ -47,7 +47,7 @@ def setup_logging(log_dir=None):
     parsing_logger = logging.getLogger('parsing_debug')
     if not any(isinstance(h, logging.FileHandler) and getattr(h, 'baseFilename', None) == parsing_debug_path for h in parsing_logger.handlers):
         parsing_logger.setLevel(logging.DEBUG)
-        parsing_handler = logging.FileHandler(parsing_debug_path)
+        parsing_handler = logging.FileHandler(parsing_debug_path, mode='w')
         parsing_handler.setLevel(logging.DEBUG)
         parsing_handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s %(message)s'))
         parsing_logger.addHandler(parsing_handler)

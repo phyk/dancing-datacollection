@@ -16,3 +16,6 @@ dependencies = [
 
 [tool.setuptools]
 packages = ["dancing_datacollection"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]

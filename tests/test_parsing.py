@@ -1,5 +1,19 @@
 import os
+import shutil
+from dancing_datacollection.parsing_utils import setup_logging
 from dancing_datacollection.parsing_topturnier import TopTurnierParser
+from dancing_datacollection.data_defs.judge import Judge
+
+# Set up logging before anything else
+setup_logging()
+
+# Clean logs directory before running tests
+LOG_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'logs')
+if os.path.exists(LOG_DIR):
+    for fname in os.listdir(LOG_DIR):
+        fpath = os.path.join(LOG_DIR, fname)
+        if os.path.isfile(fpath):
+            os.remove(fpath)
 
 TEST_DIR = os.path.dirname(__file__)
 SAMPLE_DIRS = [
@@ -47,14 +61,34 @@ def main():
             print(f"  Committee entries found: {len(committee)}")
         # Test scores extraction from tabges.htm
         tabges_path = os.path.join(dir_path, 'tabges.htm')
+        tabges_couples = set()
         if os.path.exists(tabges_path):
             with open(tabges_path, 'r', encoding='utf-8') as f:
                 tabges_html = f.read()
             scores = parser.extract_scores(tabges_html)
             print(f"  Score entries found: {len(scores)}")
+            # Extract unique couple numbers from scores
+            tabges_couples = set(s['number'] for s in scores if 'number' in s and s['number'] is not None)
+            print(f"  Unique couple numbers in tabges.htm: {len(tabges_couples)}")
             # Print a sample score entry
             if scores:
                 print(f"    Sample score entry: {scores[0]}")
+        # Test final scoring extraction from ergwert.htm
+        ergwert_path = os.path.join(dir_path, 'ergwert.htm')
+        ergwert_couples = set()
+        if os.path.exists(ergwert_path):
+            with open(ergwert_path, 'r', encoding='utf-8') as f:
+                ergwert_html = f.read()
+            final_scores = parser.extract_final_scoring(ergwert_html)
+            ergwert_couples = set(f['number'] for f in final_scores if 'number' in f and f['number'] is not None)
+            print(f"  Unique couple numbers in ergwert.htm: {len(ergwert_couples)}")
+        # Compare numbers
+        participant_numbers = set(p['number'] for p in unique_participants if 'number' in p and p['number'] is not None)
+        print(f"  Unique couple numbers in participants: {len(participant_numbers)}")
+        if tabges_couples and participant_numbers != tabges_couples:
+            print(f"WARNING: Mismatch between participants and tabges.htm couples! Participants: {len(participant_numbers)}, Tabges: {len(tabges_couples)}")
+        if ergwert_couples and participant_numbers != ergwert_couples:
+            print(f"WARNING: Mismatch between participants and ergwert.htm couples! Participants: {len(participant_numbers)}, Ergwert: {len(ergwert_couples)}")
 
 def test_extract_final_scoring():
     from dancing_datacollection.parsing_topturnier import TopTurnierParser
