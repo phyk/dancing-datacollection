@@ -64,4 +64,24 @@ class Participant:
         return True
 
     def __str__(self):
-        return f"Participant(name_one='{self.name_one}', name_two='{self.name_two}', number={self.number}, ranks={self.ranks}, club='{self.club}')" 
+        return f"Participant(name_one='{self.name_one}', name_two='{self.name_two}', number={self.number}, ranks={self.ranks}, club='{self.club}')"
+
+    def matches_partial(self, other: 'Participant') -> bool:
+        """Return True if number, name_one, and name_two match. Ignores club."""
+        if self.number != other.number:
+            return False
+        if self.name_one != other.name_one:
+            return False
+        if self.name_two != other.name_two:
+            return False
+        return True
+
+    def matches_full(self, other: 'Participant') -> bool:
+        """Return True if number, name_one, name_two, club, and ranks all match."""
+        return (
+            self.number == other.number and
+            self.name_one == other.name_one and
+            self.name_two == other.name_two and
+            self.club == other.club and
+            self.ranks == other.ranks
+        ) 

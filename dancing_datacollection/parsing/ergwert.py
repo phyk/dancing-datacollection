@@ -14,7 +14,9 @@ def extract_participants_from_ergwert(soup):
                     rank_str = cells[0].get_text(strip=True)
                     names_cell = cells[1]
                     number_cell = cells[2]
-                    names = names_cell.get_text(" ", strip=True)
+                    # Get only the text before the <br> for names
+                    names_texts = names_cell.find_all(string=True, recursive=False)
+                    names = names_texts[0].strip() if names_texts else names_cell.get_text(" ", strip=True)
                     club = None
                     club_tag = names_cell.find('i')
                     if club_tag:
