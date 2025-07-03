@@ -2,6 +2,8 @@
 - All runs of the project are done with `uv run python ...` to ensure the correct environment and dependencies are used.
 - All tests are run with `uv run pytest ...` to ensure the correct environment and dependencies are used.
 
+# For the current task summary and HTML file relevance, see current-tasks.md
+
 # Competition Dance Info
 - Any competition may contain either the Ballroom dances or the Latin dances.
 - **Ballroom dances:** Slow Waltz, Tango, Viennese Waltz, Slow Foxtrott, Quick Step
@@ -45,6 +47,22 @@ uv run python -m dancing_datacollection.main --local-dir tests/51-1105_ot_hgr2ds
 
 ---
 
+# Current Task Summary
+
+## Modularization Status
+
+### Extraction logic still implemented directly in TopTurnierParser (not in submodules):
+- extract_committee: Committee extraction is implemented directly in TopTurnierParser, not in a submodule.
+- extract_scores: Score extraction is implemented directly in TopTurnierParser, not in a submodule.
+- extract_final_scoring: Final scoring extraction is implemented directly in TopTurnierParser, not in a submodule.
+- parse_tabges_all, parse_erg_all, parse_deck_all: These are exploratory/debugging methods implemented directly in TopTurnierParser.
+- extract_finalists_from_erg: Finalist extraction from erg.htm is implemented directly in TopTurnierParser.
+- deduplicate_judges, make_judge: Utility methods for judge handling are implemented directly in TopTurnierParser.
+
+### All participant and judge extraction for erg.htm, ergwert.htm, tabges.htm, wert_er.htm, and deck.htm is now modularized and routed through submodules.
+
+---
+
 # HTML File Relevance
 - **deck.htm**: Used to extract judges and committee information.
 - **tabges.htm**: Used to extract scores for the first rounds and the final round (per round, per judge, per couple, per dance).
@@ -61,15 +79,3 @@ uv run python -m dancing_datacollection.main --local-dir tests/51-1105_ot_hgr2ds
 - Add type hints and docstrings for maintainability.
 - Write pytest-based unit tests for all extraction methods using real test cases, checking type, uniqueness, and non-emptiness.
 - Ensure all tests pass in CI and local runs.
-
-# Current Task Summary
-
-## Participant Extraction Test Status & TODOs
-- [x] erg.htm: Extraction robust, logic matches HTML, but strict matches_full on ranks causes failures for non-final rounds
-- [x] ergwert.htm: Extraction robust, logic matches HTML, passes tests
-- [x] tabges.htm: Extraction robust, logic matches HTML, but strict matches_full on ranks causes failures for non-final rounds
-- [ ] wert_er.htm: Extraction logic and ground truth alignment still needed
-
-**Next step:**
-Update the ground truth so that for participants where ranks cannot be extracted (i.e., from non-final rounds or from files that do not provide it), ranks=None is used. This will make the tests pass and reflect the actual extractable data.
- 

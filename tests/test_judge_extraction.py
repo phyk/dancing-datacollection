@@ -2,10 +2,13 @@ import os
 import pytest
 from dancing_datacollection.parsing_topturnier import TopTurnierParser
 from dancing_datacollection.data_defs.judge import Judge
+from dancing_datacollection.parsing.deck import extract_judges_from_deck
+
 
 def get_html(path):
-    with open(path, 'r', encoding='utf-8') as f:
+    with open(path, "r", encoding="utf-8") as f:
         return f.read()
+
 
 # Ground truth fixture for judges, now local to this test file
 @pytest.fixture(scope="module")
@@ -14,20 +17,40 @@ def true_judges():
         "51-1105_ot_hgr2dstd": [
             Judge(code="AT", name="Bärschneider, Marcus", club="TSC Blau-Gelb Hagen"),
             Judge(code="AX", name="Block, Robert", club="Schwarz-Rot-Club Wetzlar"),
-            Judge(code="BW", name="Kirchwehm, Susanne", club="TSC Ostseebad Schönberg 1984"),
+            Judge(
+                code="BW",
+                name="Kirchwehm, Susanne",
+                club="TSC Ostseebad Schönberg 1984",
+            ),
             Judge(code="CJ", name="Mäser, Erich", club="TSC Rot-Gold Büdingen"),
-            Judge(code="EK", name="Landauer, Peter", club="Tanzsportgemeinschaft Bavaria, Augsburg"),
+            Judge(
+                code="EK",
+                name="Landauer, Peter",
+                club="Tanzsportgemeinschaft Bavaria, Augsburg",
+            ),
         ],
         "52-1105_ot_hgr2cstd": [
-            Judge(code="AR", name="Appel, Hans-Jürgen", club="TTC Gelb-Weiss i. Post-SV Hannover"),
+            Judge(
+                code="AR",
+                name="Appel, Hans-Jürgen",
+                club="TTC Gelb-Weiss i. Post-SV Hannover",
+            ),
             Judge(code="CH", name="Mak, Annabel", club="Grün-Gold-Casino Wuppertal"),
             Judge(code="DC", name="Schöke, Manuel", club="TTC München"),
             Judge(code="DV", name="Becker, Marc", club="TTC Fortis Nova Maintal"),
-            Judge(code="EY", name="Schwarz, Sonja", club="TSZ Blau-Gold Casino, Darmstadt"),
+            Judge(
+                code="EY", name="Schwarz, Sonja", club="TSZ Blau-Gold Casino, Darmstadt"
+            ),
         ],
         "53-1105_ot_hgr2bstd": [
-            Judge(code="BI", name="Fleischer, Georg", club="Grün-Gold-Casino Wuppertal"),
-            Judge(code="CP", name="Peinke-Dean, Lutz", club="Tanzsportklub Residenz Dresden"),
+            Judge(
+                code="BI", name="Fleischer, Georg", club="Grün-Gold-Casino Wuppertal"
+            ),
+            Judge(
+                code="CP",
+                name="Peinke-Dean, Lutz",
+                club="Tanzsportklub Residenz Dresden",
+            ),
             Judge(code="DK", name="Wenzel, Harald", club="Rot-Weiss-Klub Kassel"),
             Judge(code="DL", name="Wied, Dr. Andrea", club="Markgräfler TSC, Müllheim"),
             Judge(code="DR", name="Zuber, Dr. Pascal", club="TSC Metropol Hofheim"),
@@ -36,14 +59,21 @@ def true_judges():
         ],
     }
 
-@pytest.mark.parametrize('sample_dir', [pytest.param(d) for d in ['51-1105_ot_hgr2dstd', '52-1105_ot_hgr2cstd', '53-1105_ot_hgr2bstd']])
+
+@pytest.mark.parametrize(
+    "sample_dir",
+    [
+        pytest.param(d)
+        for d in ["51-1105_ot_hgr2dstd", "52-1105_ot_hgr2cstd", "53-1105_ot_hgr2bstd"]
+    ],
+)
 def test_extract_judges(sample_dir, test_dir, true_judges):
     parser = TopTurnierParser()
-    tabges_path = os.path.join(test_dir, sample_dir, 'tabges.htm')
+    tabges_path = os.path.join(test_dir, sample_dir, "tabges.htm")
     if not os.path.exists(tabges_path):
         pytest.skip(f"Missing {tabges_path}")
     html = get_html(tabges_path)
-    judges = parser.extract_judges(html, filename='tabges.htm')
+    judges = parser.extract_judges(html, filename="tabges.htm")
     print(f"\n[DEBUG] Extracted judges for {sample_dir} (tabges.htm):")
     for j in judges:
         print(f"  code={j.code}, name={j.name}, club={j.club}")
@@ -61,16 +91,27 @@ def test_extract_judges(sample_dir, test_dir, true_judges):
         keys.add(key)
     # Check all ground truth judges are present (partial match)
     for gt_judge in gt_judges:
-        assert any(j.matches_partial(gt_judge) for j in judges), f"Missing judge: {gt_judge}"
+        assert any(
+            j.matches_partial(gt_judge) for j in judges
+        ), f"Missing judge: {gt_judge}"
 
-@pytest.mark.parametrize('sample_dir', [pytest.param(d) for d in ['51-1105_ot_hgr2dstd', '52-1105_ot_hgr2cstd', '53-1105_ot_hgr2bstd']])
+
+@pytest.mark.parametrize(
+    "sample_dir",
+    [
+        pytest.param(d)
+        for d in ["51-1105_ot_hgr2dstd", "52-1105_ot_hgr2cstd", "53-1105_ot_hgr2bstd"]
+    ],
+)
 def test_extract_judges_from_deck(sample_dir, test_dir, true_judges):
-    parser = TopTurnierParser()
-    deck_path = os.path.join(test_dir, sample_dir, 'deck.htm')
+    deck_path = os.path.join(test_dir, sample_dir, "deck.htm")
     if not os.path.exists(deck_path):
         pytest.skip(f"Missing {deck_path}")
     html = get_html(deck_path)
-    judges = parser.extract_judges_from_deck(html)
+    from bs4 import BeautifulSoup
+
+    soup = BeautifulSoup(html, "html.parser")
+    judges = extract_judges_from_deck(soup)
     print(f"\n[DEBUG] Extracted judges for {sample_dir} (deck.htm):")
     for j in judges:
         print(f"  code={j.code}, name={j.name}, club={j.club}")
@@ -88,16 +129,25 @@ def test_extract_judges_from_deck(sample_dir, test_dir, true_judges):
         keys.add(key)
     # Check all ground truth judges are present (full match)
     for gt_judge in gt_judges:
-        assert any(j.matches_full(gt_judge) for j in judges), f"Missing judge: {gt_judge}"
+        assert any(
+            j.matches_full(gt_judge) for j in judges
+        ), f"Missing judge: {gt_judge}"
 
-@pytest.mark.parametrize('sample_dir', [pytest.param(d) for d in ['51-1105_ot_hgr2dstd', '52-1105_ot_hgr2cstd', '53-1105_ot_hgr2bstd']])
+
+@pytest.mark.parametrize(
+    "sample_dir",
+    [
+        pytest.param(d)
+        for d in ["51-1105_ot_hgr2dstd", "52-1105_ot_hgr2cstd", "53-1105_ot_hgr2bstd"]
+    ],
+)
 def test_extract_judges_from_ergwert(sample_dir, test_dir, true_judges):
     parser = TopTurnierParser()
-    ergwert_path = os.path.join(test_dir, sample_dir, 'ergwert.htm')
+    ergwert_path = os.path.join(test_dir, sample_dir, "ergwert.htm")
     if not os.path.exists(ergwert_path):
         pytest.skip(f"Missing {ergwert_path}")
     html = get_html(ergwert_path)
-    judges = parser.extract_judges(html, filename='ergwert.htm')
+    judges = parser.extract_judges(html, filename="ergwert.htm")
     print(f"\n[DEBUG] Extracted judges for {sample_dir} (ergwert.htm):")
     for j in judges:
         print(f"  code={j.code}, name={j.name}, club={j.club}")
@@ -115,16 +165,25 @@ def test_extract_judges_from_ergwert(sample_dir, test_dir, true_judges):
         keys.add(key)
     # Check all ground truth judges are present (partial match)
     for gt_judge in gt_judges:
-        assert any(j.matches_partial(gt_judge) for j in judges), f"Missing judge: {gt_judge}"
+        assert any(
+            j.matches_partial(gt_judge) for j in judges
+        ), f"Missing judge: {gt_judge}"
 
-@pytest.mark.parametrize('sample_dir', [pytest.param(d) for d in ['51-1105_ot_hgr2dstd', '52-1105_ot_hgr2cstd', '53-1105_ot_hgr2bstd']])
+
+@pytest.mark.parametrize(
+    "sample_dir",
+    [
+        pytest.param(d)
+        for d in ["51-1105_ot_hgr2dstd", "52-1105_ot_hgr2cstd", "53-1105_ot_hgr2bstd"]
+    ],
+)
 def test_extract_judges_from_wert_er(sample_dir, test_dir, true_judges):
     parser = TopTurnierParser()
-    wert_er_path = os.path.join(test_dir, sample_dir, 'wert_er.htm')
+    wert_er_path = os.path.join(test_dir, sample_dir, "wert_er.htm")
     if not os.path.exists(wert_er_path):
         pytest.skip(f"Missing {wert_er_path}")
     html = get_html(wert_er_path)
-    judges = parser.extract_judges(html, filename='wert_er.htm')
+    judges = parser.extract_judges(html, filename="wert_er.htm")
     print(f"\n[DEBUG] Extracted judges for {sample_dir} (wert_er.htm):")
     for j in judges:
         print(f"  code={j.code}, name={j.name}, club={j.club}")
@@ -142,4 +201,6 @@ def test_extract_judges_from_wert_er(sample_dir, test_dir, true_judges):
         keys.add(key)
     # Check all ground truth judges are present (partial match)
     for gt_judge in gt_judges:
-        assert any(j.matches_partial(gt_judge) for j in judges), f"Missing judge: {gt_judge}" 
+        assert any(
+            j.matches_partial(gt_judge) for j in judges
+        ), f"Missing judge: {gt_judge}"

@@ -1,5 +1,3 @@
-import pytest
-from dancing_datacollection.data_defs.judge import Judge
 
 # @pytest.fixture(scope="module")
 # def true_judges():
@@ -28,4 +26,4 @@ from dancing_datacollection.data_defs.judge import Judge
 #             Judge(code="EL", name="Lein, Roland", club="TC Rot-Gold Würzburg"),
 #             Judge(code="EU", name="Reher, Thomas", club="TSC Werne"),
 #         ],
-#     } 
+#     }
