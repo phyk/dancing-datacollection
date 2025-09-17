@@ -677,15 +677,15 @@ def test_extract_participants_from_erg(sample_dir, test_dir, true_participants):
         key = (p.number, p.name_one, p.club)
         assert key not in keys, f"Duplicate participant {key} in {erg_path}"
         keys.add(key)
-        assert (
-            p.name_one is not None and p.number is not None
-        ), f"Missing required fields in {p}"
+        assert p.name_one is not None and p.number is not None, (
+            f"Missing required fields in {p}"
+        )
     # Check all ground truth participants are present (full match)
     expected = true_participants[sample_dir]
     for tp in expected:
-        assert any(
-            p.matches_full(tp) for p in participants
-        ), f"Missing participant: {tp}"
+        assert any(p.matches_full(tp) for p in participants), (
+            f"Missing participant: {tp}"
+        )
 
 
 @pytest.mark.parametrize(
@@ -713,15 +713,15 @@ def test_extract_participants_from_ergwert(sample_dir, test_dir, true_participan
         key = (p.number, p.name_one, p.club)
         assert key not in keys, f"Duplicate participant {key} in {ergwert_path}"
         keys.add(key)
-        assert (
-            p.name_one is not None and p.number is not None
-        ), f"Missing required fields in {p}"
+        assert p.name_one is not None and p.number is not None, (
+            f"Missing required fields in {p}"
+        )
     # Check all ground truth participants are present (full match)
     expected = true_participants[sample_dir]
     for tp in expected:
-        assert any(
-            p.matches_full(tp) for p in participants
-        ), f"Missing participant: {tp}"
+        assert any(p.matches_full(tp) for p in participants), (
+            f"Missing participant: {tp}"
+        )
 
 
 @pytest.mark.parametrize(
@@ -753,9 +753,9 @@ def test_extract_participants_from_tabges(sample_dir, test_dir, true_participant
     # Check all ground truth participants are present (partial match)
     expected = true_participants[sample_dir]
     for tp in expected:
-        assert any(
-            p.matches_partial(tp) for p in participants
-        ), f"Missing participant: {tp}"
+        assert any(p.matches_partial(tp) for p in participants), (
+            f"Missing participant: {tp}"
+        )
 
 
 @pytest.mark.parametrize(
@@ -783,12 +783,12 @@ def test_extract_participants_from_wert_er(sample_dir, test_dir, true_participan
         key = (p.number, p.name_one, p.club)
         assert key not in keys, f"Duplicate participant {key} in {wert_er_path}"
         keys.add(key)
-        assert (
-            p.name_one is not None and p.number is not None
-        ), f"Missing required fields in {p}"
+        assert p.name_one is not None and p.number is not None, (
+            f"Missing required fields in {p}"
+        )
     # Only check that each found participant is present in the ground truth (partial match)
     expected = true_participants[sample_dir]
     for p in participants:
-        assert any(
-            p.matches_partial(tp) for tp in expected
-        ), f"Extracted participant not in ground truth: {p}"
+        assert any(p.matches_partial(tp) for tp in expected), (
+            f"Extracted participant not in ground truth: {p}"
+        )

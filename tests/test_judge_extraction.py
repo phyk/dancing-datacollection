@@ -91,9 +91,9 @@ def test_extract_judges(sample_dir, test_dir, true_judges):
         keys.add(key)
     # Check all ground truth judges are present (partial match)
     for gt_judge in gt_judges:
-        assert any(
-            j.matches_partial(gt_judge) for j in judges
-        ), f"Missing judge: {gt_judge}"
+        assert any(j.matches_partial(gt_judge) for j in judges), (
+            f"Missing judge: {gt_judge}"
+        )
 
 
 @pytest.mark.parametrize(
@@ -129,9 +129,9 @@ def test_extract_judges_from_deck(sample_dir, test_dir, true_judges):
         keys.add(key)
     # Check all ground truth judges are present (full match)
     for gt_judge in gt_judges:
-        assert any(
-            j.matches_full(gt_judge) for j in judges
-        ), f"Missing judge: {gt_judge}"
+        assert any(j.matches_full(gt_judge) for j in judges), (
+            f"Missing judge: {gt_judge}"
+        )
 
 
 @pytest.mark.parametrize(
@@ -165,9 +165,9 @@ def test_extract_judges_from_ergwert(sample_dir, test_dir, true_judges):
         keys.add(key)
     # Check all ground truth judges are present (partial match)
     for gt_judge in gt_judges:
-        assert any(
-            j.matches_partial(gt_judge) for j in judges
-        ), f"Missing judge: {gt_judge}"
+        assert any(j.matches_partial(gt_judge) for j in judges), (
+            f"Missing judge: {gt_judge}"
+        )
 
 
 @pytest.mark.parametrize(
@@ -201,6 +201,6 @@ def test_extract_judges_from_wert_er(sample_dir, test_dir, true_judges):
         keys.add(key)
     # Check all ground truth judges are present (partial match)
     for gt_judge in gt_judges:
-        assert any(
-            j.matches_partial(gt_judge) for j in judges
-        ), f"Missing judge: {gt_judge}"
+        assert any(j.matches_partial(gt_judge) for j in judges), (
+            f"Missing judge: {gt_judge}"
+        )

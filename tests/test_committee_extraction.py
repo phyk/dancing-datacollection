@@ -79,6 +79,6 @@ def test_extract_committee(sample_dir, true_committee_func, test_dir):
     print(f"[DEBUG] Ground truth committee for {sample_dir}:")
     for entry in expected:
         print(entry)
-    assert (
-        committee == expected
-    ), f"Extracted committee does not match ground truth for {sample_dir}.\nExtracted: {committee}\nExpected: {expected}"
+    assert committee == expected, (
+        f"Extracted committee does not match ground truth for {sample_dir}.\nExtracted: {committee}\nExpected: {expected}"
+    )

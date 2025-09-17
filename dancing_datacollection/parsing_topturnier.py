@@ -80,7 +80,7 @@ class TopTurnierParser(CompetitionParser):
         if filename is None:
             raise ValueError("filename argument is required for extract_scores")
         soup = get_soup(html)
-        if filename.endswith('ergwert.htm'):
+        if filename.endswith("ergwert.htm"):
             return extract_scores_from_ergwert(soup)
         else:
             return []
@@ -97,7 +97,7 @@ class TopTurnierParser(CompetitionParser):
         for row_idx, row in enumerate(rows):
             cells = row.find_all("td")
             parsing_logger.debug(
-                f'Row {row_idx}: {[c.get_text(" ", strip=True) for c in cells]}'
+                f"Row {row_idx}: {[c.get_text(' ', strip=True) for c in cells]}"
             )
             if not cells or not cells[0].get("class", []):
                 continue
@@ -134,54 +134,19 @@ class TopTurnierParser(CompetitionParser):
 
     def parse_tabges_all(self, html):
         """
-        Parse all available information from tabges.htm, logging any unrecognized or ambiguous content.
-        Returns a dictionary with all found data, including unknown/extra fields.
+        Parse all available information from tabges.htm using pandas.read_html.
+        Returns a list of pandas.DataFrame objects, one per HTML table with class "tab1".
         """
         parsing_logger.debug("parse_tabges_all: START")
-        soup = get_soup(html)
-        tables = soup.find_all("table")
-        all_data = []
-        for table_idx, table in enumerate(tables):
-            table_data = {"table_idx": table_idx, "rows": []}
-            rows = table.find_all("tr")
-            for row_idx, row in enumerate(rows):
-                cells = row.find_all(["td", "th"])
-                cell_data = []
-                for cell_idx, cell in enumerate(cells):
-                    text = cell.get_text(" ", strip=True)
-                    cell_class = cell.get("class", [])
-                    cell_html = str(cell)
-                    cell_info = {
-                        "cell_idx": cell_idx,
-                        "text": text,
-                        "class": cell_class,
-                        "html": cell_html,
-                    }
-                    # Heuristic: if cell class or text is not recognized, log it for user review
-                    known_classes = {
-                        "td2",
-                        "td2c",
-                        "td2gc",
-                        "td1",
-                        "td3",
-                        "td3c",
-                        "td3cv",
-                        "td5c",
-                        "td5cv",
-                    }
-                    if not set(cell_class).intersection(known_classes):
-                        parsing_logger.warning(
-                            f"Unrecognized cell class in tabges.htm: Table {table_idx}, Row {row_idx}, Cell {cell_idx}, Class: {cell_class}, Text: {text}"
-                        )
-                    if text == "" or text == "\xa0":
-                        parsing_logger.info(
-                            f"Empty or ambiguous cell in tabges.htm: Table {table_idx}, Row {row_idx}, Cell {cell_idx}, HTML: {cell_html}"
-                        )
-                    cell_data.append(cell_info)
-                table_data["rows"].append({"row_idx": row_idx, "cells": cell_data})
-            all_data.append(table_data)
-        parsing_logger.debug("parse_tabges_all: END")
-        return all_data
+        try:
+            import pandas as pd  # Local import to avoid hard dependency at module import time
+            # Only parse TopTurnier scoring tables with class="tab1"; keep first row as data
+            dataframes = pd.read_html(html, attrs={"class": "tab1"}, header=None)
+        except Exception as e:
+            parsing_logger.error(f"parse_tabges_all failed via pandas.read_html: {e}")
+            return []
+        parsing_logger.debug(f"parse_tabges_all: END, tables={len(dataframes)}")
+        return dataframes
 
     def parse_erg_all(self, html):
         """
