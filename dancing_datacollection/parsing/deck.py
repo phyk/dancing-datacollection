@@ -1,6 +1,15 @@
 from dancing_datacollection.data_defs.judge import Judge
 from typing import List
 import logging
+from dancing_datacollection.parsing_utils import deduplicate_judges
+
+
+def merge_judges_prefer_club(*lists: List[Judge]) -> List[Judge]:
+    """Merge judge lists and deduplicate, preferring entries that have a non-empty club."""
+    merged: List[Judge] = []
+    for lst in lists:
+        merged.extend(lst)
+    return deduplicate_judges(merged)
 
 
 def extract_judges_from_deck(soup) -> List[Judge]:
@@ -57,10 +66,4 @@ def extract_judges_from_deck(soup) -> List[Judge]:
                 logger.warning(
                     f"Invalid judge skipped: code={code}, name={name}, club={club}, error={e}"
                 )
-    # Deduplicate by (code, name)
-    unique = {}
-    for j in judges:
-        key = (j.code, j.name)
-        if key not in unique:
-            unique[key] = j
-    return list(unique.values())
+    return deduplicate_judges(judges)

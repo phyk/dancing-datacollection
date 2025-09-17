@@ -4,6 +4,7 @@ import re
 from .parsing_utils import (
     get_soup,
     extract_club_and_number,
+    as_class_list,
 )
 from .parsing.erg import extract_participants_from_erg, extract_judges_from_erg
 from .parsing.ergwert import (
@@ -18,7 +19,7 @@ from .parsing.wert_er import (
 )
 import logging
 from dancing_datacollection.data_defs.judge import Judge
-from typing import List, Optional
+from typing import Any, List, Optional, cast
 from .parsing.deck import extract_judges_from_deck
 from .parsing.committee import extract_committee_from_deck
 
@@ -52,25 +53,21 @@ class TopTurnierParser(CompetitionParser):
         return participants, event_name
 
     def extract_judges(self, html, filename=None) -> List[Judge]:
-        """
-        Extract judges from the given HTML, using the filename to select the correct extraction method.
-        The filename must be one of: 'deck.htm', 'tabges.htm', 'ergwert.htm', 'wert_er.htm', 'erg.htm'.
-        """
+        """Dispatch judge extraction based on filename suffix."""
         if filename is None:
             raise ValueError("filename argument is required for extract_judges")
         soup = get_soup(html)
-        if filename.endswith("deck.htm"):
-            return extract_judges_from_deck(soup)
-        elif filename.endswith("tabges.htm"):
-            return extract_judges_from_tabges(soup)
-        elif filename.endswith("ergwert.htm"):
-            return extract_judges_from_ergwert(soup)
-        elif filename.endswith("wert_er.htm"):
-            return extract_judges_from_wert_er(soup)
-        elif filename.endswith("erg.htm"):
-            return extract_judges_from_erg(soup)
-        else:
-            raise ValueError(f"Unknown filename for judge extraction: {filename}")
+        handlers = {
+            "deck.htm": extract_judges_from_deck,
+            "tabges.htm": extract_judges_from_tabges,
+            "ergwert.htm": extract_judges_from_ergwert,
+            "wert_er.htm": extract_judges_from_wert_er,
+            "erg.htm": extract_judges_from_erg,
+        }
+        for suffix, func in handlers.items():
+            if filename.endswith(suffix):
+                return func(soup)
+        raise ValueError(f"Unknown filename for judge extraction: {filename}")
 
     def extract_committee(self, html):
         soup = get_soup(html)
@@ -87,21 +84,22 @@ class TopTurnierParser(CompetitionParser):
 
     def extract_final_scoring(self, html):
         parsing_logger.debug("extract_final_scoring: START")
-        soup = get_soup(html)
-        table = soup.find("table", class_="tab1")
+        soup: Any = get_soup(html)
+        table: Any = soup.find("table", class_="tab1")
         parsing_logger.debug(f"Found table: {bool(table)}")
         if not table:
             return []
-        rows = table.find_all("tr")
+        rows: List[Any] = table.find_all("tr")
         final_scores = []
         for row_idx, row in enumerate(rows):
-            cells = row.find_all("td")
+            cells: List[Any] = cast(Any, row).find_all("td")
             parsing_logger.debug(
                 f"Row {row_idx}: {[c.get_text(' ', strip=True) for c in cells]}"
             )
-            if not cells or not cells[0].get("class", []):
+            if not cells:
                 continue
-            if "td3cv" in cells[0].get("class", []):
+            classes0_list: List[str] = as_class_list(cells[0].get("class"))
+            if "td3cv" in classes0_list:
                 placement = cells[0].get_text(strip=True)
                 couple_cell = cells[1]
                 names = couple_cell.get_text(" ", strip=True)
@@ -110,11 +108,9 @@ class TopTurnierParser(CompetitionParser):
                 lw_score = cells[9].get_text(strip=True) if len(cells) > 9 else ""
                 tg_score = cells[15].get_text(strip=True) if len(cells) > 15 else ""
                 qs_score = cells[21].get_text(strip=True) if len(cells) > 21 else ""
-                total = (
-                    cells[-1].get_text(strip=True)
-                    if cells[-1].get("class", [""])[0].startswith("tddarkc")
-                    else ""
-                )
+                last_classes = as_class_list(cells[-1].get("class"))
+                last_class_first = last_classes[0] if last_classes else ""
+                total = cells[-1].get_text(strip=True) if last_class_first.startswith("tddarkc") else ""
                 entry = {
                     "placement": placement,
                     "names": names,
@@ -134,69 +130,33 @@ class TopTurnierParser(CompetitionParser):
 
     def parse_tabges_all(self, html):
         """
-        Parse all available information from tabges.htm using pandas.read_html.
-        Returns a list of pandas.DataFrame objects, one per HTML table with class "tab1".
+        Parse TopTurnier scoring tables in tabges.htm via pandas.read_html.
         """
         parsing_logger.debug("parse_tabges_all: START")
         try:
-            import pandas as pd  # Local import to avoid hard dependency at module import time
-            # Only parse TopTurnier scoring tables with class="tab1"; keep first row as data
-            dataframes = pd.read_html(html, attrs={"class": "tab1"}, header=None)
+            import pandas as pd
+            from io import StringIO
+            return pd.read_html(StringIO(html), attrs={"class": "tab1"}, header=None)
         except Exception as e:
             parsing_logger.error(f"parse_tabges_all failed via pandas.read_html: {e}")
             return []
-        parsing_logger.debug(f"parse_tabges_all: END, tables={len(dataframes)}")
-        return dataframes
 
     def parse_erg_all(self, html):
-        """
-        Parse all available information from erg.htm, logging any unrecognized or ambiguous content.
-        Returns a dictionary with all found data, including unknown/extra fields.
-        """
+        """Lightweight dump of erg.htm tables for inspection (dev aid)."""
         parsing_logger.debug("parse_erg_all: START")
-        soup = get_soup(html)
-        tables = soup.find_all("table")
-        all_data = []
-        for table_idx, table in enumerate(tables):
-            table_data = {"table_idx": table_idx, "rows": []}
-            rows = table.find_all("tr")
-            for row_idx, row in enumerate(rows):
-                cells = row.find_all(["td", "th"])
-                cell_data = []
-                for cell_idx, cell in enumerate(cells):
-                    text = cell.get_text(" ", strip=True)
-                    cell_class = cell.get("class", [])
-                    cell_html = str(cell)
-                    cell_info = {
-                        "cell_idx": cell_idx,
-                        "text": text,
-                        "class": cell_class,
-                        "html": cell_html,
-                    }
-                    known_classes = {
-                        "td2",
-                        "td2c",
-                        "td2gc",
-                        "td1",
-                        "td3",
-                        "td3c",
-                        "td3cv",
-                        "td5c",
-                        "td5cv",
-                    }
-                    if not set(cell_class).intersection(known_classes):
-                        parsing_logger.warning(
-                            f"Unrecognized cell class in erg.htm: Table {table_idx}, Row {row_idx}, Cell {cell_idx}, Class: {cell_class}, Text: {text}"
-                        )
-                    if text == "" or text == "\xa0":
-                        parsing_logger.info(
-                            f"Empty or ambiguous cell in erg.htm: Table {table_idx}, Row {row_idx}, Cell {cell_idx}, HTML: {cell_html}"
-                        )
-                    cell_data.append(cell_info)
-                table_data["rows"].append({"row_idx": row_idx, "cells": cell_data})
-            all_data.append(table_data)
+        soup: Any = get_soup(html)
+        result = []
+        for table_idx, table in enumerate(cast(Any, soup).find_all("table")):
+            rows_dump = []
+            for row_idx, row in enumerate(cast(Any, table).find_all("tr")):
+                cells: List[Any] = cast(Any, row).find_all(["td", "th"])
+                rows_dump.append({
+                    "row_idx": row_idx,
+                    "cells": [c.get_text(" ", strip=True) for c in cells],
+                })
+            result.append({"table_idx": table_idx, "rows": rows_dump})
         parsing_logger.debug("parse_erg_all: END")
-        return all_data
+        return result
 
     def parse_deck_all(self, html):
         """
@@ -204,18 +164,24 @@ class TopTurnierParser(CompetitionParser):
         Returns a dictionary with all found data, including unknown/extra fields.
         """
         parsing_logger.debug("parse_deck_all: START")
-        soup = get_soup(html)
-        tables = soup.find_all("table")
+        soup: Any = get_soup(html)
+        tables: List[Any] = cast(Any, soup).find_all("table")
         all_data = []
         for table_idx, table in enumerate(tables):
             table_data = {"table_idx": table_idx, "rows": []}
-            rows = table.find_all("tr")
+            rows: List[Any] = cast(Any, table).find_all("tr")
             for row_idx, row in enumerate(rows):
-                cells = row.find_all(["td", "th"])
+                cells: List[Any] = cast(Any, row).find_all(["td", "th"])
                 cell_data = []
                 for cell_idx, cell in enumerate(cells):
                     text = cell.get_text(" ", strip=True)
-                    cell_class = cell.get("class", [])
+                    raw_classes = cell.get("class")
+                    if isinstance(raw_classes, list):
+                        cell_class: List[str] = raw_classes
+                    elif isinstance(raw_classes, str):
+                        cell_class = [raw_classes]
+                    else:
+                        cell_class = []
                     cell_html = str(cell)
                     cell_info = {
                         "cell_idx": cell_idx,
@@ -249,174 +215,28 @@ class TopTurnierParser(CompetitionParser):
         return all_data
 
     def extract_finalists_from_erg(self, html):
-        """
-        Parse erg.htm: detect header row for dances, then for each couple row extract ranking, name_one, name_two, number, club, and for each dance cell, the judge rankings and overall score if present. Handles missing data for non-finalists. Returns a list of dicts, one per couple, with all extracted info.
-        """
+        """Developer helper to explore finalist rows in erg.htm."""
         parsing_logger.debug("extract_finalists_from_erg: START")
-        soup = BeautifulSoup(html, "html.parser")
-        tables = soup.find_all("table")
+        soup: Any = BeautifulSoup(html, "html.parser")
         couples = []
-        for table in tables:
-            rows = table.find_all("tr")
-            if not rows or len(rows) < 2:
-                continue
-            # Find header row with dances (look for cells with short text, e.g., 'LW', 'TG', etc.)
-            header_idx = None
-            dances = []
-            for idx, row in enumerate(rows):
-                cells = row.find_all(["td", "th"])
-                cell_texts = [c.get_text(strip=True) for c in cells]
-                if len(cells) >= 3 and all(2 <= len(t) <= 4 for t in cell_texts[2:]):
-                    header_idx = idx
-                    dances = cell_texts[2:]
-                    break
-            # If no dance header found, treat as non-finalist table (3 columns: ranking, names, club)
-            if header_idx is None or not dances:
-                # Try to find the first data row (skip headers like '2. Zwischenrunde', etc.)
-                for row in rows:
-                    cells = row.find_all(["td", "th"])
-                    if len(cells) != 3:
-                        continue
-                    ranking = cells[0].get_text(strip=True)
-                    name_text = cells[1].get_text(" ", strip=True)
-                    club = cells[2].get_text(strip=True)
-                    # Extract names and number
-                    name_number_match = re.match(r"(.+?)\((\d+)\)", name_text)
-                    if name_number_match:
-                        names = name_number_match.group(1).strip()
-                        number = name_number_match.group(2).strip()
-                    else:
-                        names = name_text.strip()
-                        number = None
-                    # Split names into name_one and name_two
-                    if " / " in names:
-                        name_one, name_two = [n.strip() for n in names.split(" / ", 1)]
-                    else:
-                        name_one, name_two = names, ""
-                    couples.append(
-                        {
-                            "ranking": ranking,
-                            "name_one": name_one,
-                            "name_two": name_two,
-                            "number": number,
-                            "club": club,
-                            "dances": {},
-                        }
-                    )
-                continue
-            # Parse couple rows after header (finalists)
-            for row in rows[header_idx + 1 :]:
-                cells = row.find_all(["td", "th"])
+        for table in cast(Any, soup).find_all("table"):
+            rows: List[Any] = cast(Any, table).find_all("tr")
+            for row in rows:
+                cells: List[Any] = cast(Any, row).find_all(["td", "th"])
                 if len(cells) < 3:
                     continue
-                # First cell: overall ranking
-                ranking = cells[0].get_text(strip=True)
-                # Second cell: names and club
-                name_cell = cells[1]
-                name_text = name_cell.get_text(" ", strip=True)
-                # Extract club from <i> tag
-                club_tag = name_cell.find("i")
-                club = club_tag.get_text(strip=True) if club_tag else ""
-                # Remove club from name_text if present
-                if club:
-                    name_text = name_text.replace(club, "").strip()
-                # Extract names and number
-                name_number_match = re.match(r"(.+?)\((\d+)\)", name_text)
-                if name_number_match:
-                    names = name_number_match.group(1).strip()
-                    number = name_number_match.group(2).strip()
-                else:
-                    names = name_text.strip()
-                    number = None
-                # Split names into name_one and name_two
-                if " / " in names:
-                    name_one, name_two = [n.strip() for n in names.split(" / ", 1)]
-                else:
-                    name_one, name_two = names, ""
-                # Dance cells
-                dance_results = {}
-                for dance, cell in zip(dances, cells[2:]):
-                    cell_html = str(cell)
-                    cell_soup = BeautifulSoup(cell_html, "html.parser")
-                    td_tag = cell_soup.find(["td", "th"])
-                    judge_ranks_text = ""
-                    if td_tag:
-                        for content in td_tag.contents:
-                            if getattr(content, "name", None) in ["br", "div"]:
-                                break
-                            if isinstance(content, str):
-                                judge_ranks_text += content.strip()
-                    judge_ranks = (
-                        [int(x) for x in judge_ranks_text if x.isdigit()]
-                        if judge_ranks_text
-                        else []
-                    )
-                    score_tag = cell_soup.find("div", class_="pz")
-                    if score_tag:
-                        try:
-                            overall_score = float(score_tag.get_text(strip=True))
-                        except Exception:
-                            overall_score = None
-                    else:
-                        score = None
-                        if td_tag and td_tag.br and td_tag.br.next_sibling:
-                            try:
-                                score = float(td_tag.br.next_sibling.strip())
-                            except Exception:
-                                score = None
-                        overall_score = score
-                    dance_results[dance] = {
-                        "judge_ranks": judge_ranks,
-                        "overall_score": overall_score,
-                    }
-                couples.append(
-                    {
-                        "ranking": ranking,
-                        "name_one": name_one,
-                        "name_two": name_two,
-                        "number": number,
-                        "club": club,
-                        "dances": dance_results,
-                    }
-                )
-        parsing_logger.debug(
-            f"extract_finalists_from_erg: END, total couples={len(couples)}"
-        )
+                classes = cells[0].get("class")
+                if "td3cv" in (classes if isinstance(classes, str) else " ".join(classes or [])):
+                    name_text = cells[1].get_text(" ", strip=True)
+                    m = re.search(r"\((\d+)\)", name_text)
+                    number = m.group(1) if m else None
+                    couples.append({"number": number, "name": name_text})
+        parsing_logger.debug("extract_finalists_from_erg: END")
         return couples
 
-    def deduplicate_judges(self, judges: List[Judge]) -> List[Judge]:
-        """
-        Deduplicate a list of Judge objects by (code, name).
-        Returns a list of unique Judge objects.
-        """
-        unique = {}
-        for j in judges:
-            key = (j.code, j.name)
-            if key not in unique:
-                unique[key] = j
-        return list(unique.values())
+    
 
-    def make_judge(
-        self, code: str, name: str, club: Optional[str] = "", logger=None
-    ) -> Optional[Judge]:
-        """
-        Safely create a Judge object, logging and returning None if creation fails.
-        Args:
-            code: Judge code (str)
-            name: Judge name (str)
-            club: Judge club (str or None)
-            logger: Optional logger for warnings
-        Returns:
-            Judge instance or None if invalid
-        """
-        try:
-            return Judge(code=code, name=name, club=club)
-        except Exception as e:
-            if logger:
-                logger.warning(
-                    f"Invalid judge skipped: code={code}, name={name}, club={club}, error={e}"
-                )
-            return None
+    
 
 
 def compare_all_html_data(directory):
@@ -445,20 +265,12 @@ def compare_all_html_data(directory):
     # Extract judges from each file
     judge_sets = {}
     judge_lists = {}
-    for src in ["deck", "tabges", "ergwert", "wert_er"]:
-        if src in html_files:
-            if src == "deck":
-                judges = parser.extract_judges_from_deck(html_files[src])
-            elif src == "tabges":
-                judges = parser.extract_judges(html_files[src])
-            elif src == "ergwert":
-                judges = parser.extract_judges(html_files[src])
-            elif src == "wert_er":
-                judges = parser.extract_judges(html_files[src])
-            else:
-                judges = []
-            judge_sets[src] = set(judges)
-            judge_lists[src] = judges
+    for source_name in ["deck", "tabges", "ergwert", "wert_er", "erg"]:
+        if source_name in html_files:
+            filename = f"{source_name}.htm"
+            judges = parser.extract_judges(html_files[source_name], filename=filename)
+            judge_sets[source_name] = set(judges)
+            judge_lists[source_name] = judges
 
     # Define judge_key before use
     def judge_key(j):
@@ -489,20 +301,21 @@ def compare_all_html_data(directory):
 
     # For each common judge, pick the dataclass with the most info (prefer club if available)
     best_judges = {}
-    for code_name in judge_keys_by_src[src]:
+    any_src_key = next(iter(judge_keys_by_src))
+    for code_name in judge_keys_by_src[any_src_key]:
         best = None
-        for src in judge_keys_by_src:
-            for j in judge_sets[src]:
+        for src_key in judge_keys_by_src:
+            for j in judge_sets[src_key]:
                 if judge_key(j) == code_name:
                     if not best or (j.club and not best.club):
                         best = j
         best_judges[code_name] = best
 
     # Log inconsistencies
-    for code_name in judge_keys_by_src[src]:
+    for code_name in judge_keys_by_src[any_src_key]:
         clubs = set()
-        for src in judge_keys_by_src:
-            for j in judge_sets[src]:
+        for src_key in judge_keys_by_src:
+            for j in judge_sets[src_key]:
                 if judge_key(j) == code_name:
                     clubs.add(j.club)
         # Only warn if all clubs are not None and there is more than one unique club

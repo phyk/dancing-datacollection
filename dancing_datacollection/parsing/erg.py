@@ -1,8 +1,15 @@
 from dancing_datacollection.data_defs.participant import Participant
 import re
+from typing import Any, List
+from dancing_datacollection.parsing_utils import get_soup
 
 
-def extract_participants_from_erg(soup):
+def extract_participants_from_erg(soup_or_html):
+    # Accept either soup or raw html for convenience
+    if isinstance(soup_or_html, str):
+        soup = get_soup(soup_or_html)
+    else:
+        soup = soup_or_html
     participants = []
     # Extract from erg.htm (detailed, final round)
     table = soup.find("table", class_="tab1")

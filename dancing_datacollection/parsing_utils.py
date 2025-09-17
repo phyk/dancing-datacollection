@@ -4,6 +4,7 @@ from urllib.parse import urljoin
 import logging
 import os
 import re
+from typing import Any, List, Optional
 
 
 def setup_logging(log_dir=None):
@@ -152,3 +153,41 @@ def extract_name_and_club_from_spans(cell):
     else:
         name = cell.get_text(strip=True)
     return name, club
+
+
+# ---------- Helper utilities for bs4 parsing and deduplication ----------
+
+def as_class_list(classes: Any) -> List[str]:
+    """Normalize a bs4 'class' attribute to a list of strings."""
+    if isinstance(classes, list):
+        return [str(c) for c in classes]
+    if isinstance(classes, str):
+        return [classes]
+    return []
+
+
+def element_has_class(element: Any, class_name: str) -> bool:
+    """Return True if a bs4 element has the given class name, robust to None/str/list."""
+    return class_name in as_class_list(getattr(element, 'attrs', {}).get('class')) if hasattr(element, 'attrs') else False
+
+
+def first_line_text(element: Any) -> str:
+    """Return the first logical line of text from a cell/tag."""
+    lines = element.get_text(separator="\n", strip=True).splitlines() if hasattr(element, 'get_text') else []
+    return lines[0] if lines else ""
+
+
+def deduplicate_judges(judges: List["Judge"]) -> List["Judge"]:
+    """Deduplicate judges by (code, name). Prefer entries with a non-empty club."""
+    best_by_key: dict[tuple[str, str], "Judge"] = {}
+    for j in judges:
+        key = (getattr(j, 'code', ''), getattr(j, 'name', ''))
+        if key not in best_by_key:
+            best_by_key[key] = j
+        else:
+            current = best_by_key[key]
+            current_club = getattr(current, 'club', None) or ""
+            new_club = getattr(j, 'club', None) or ""
+            if new_club and not current_club:
+                best_by_key[key] = j
+    return list(best_by_key.values())

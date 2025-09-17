@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import Any, Optional
 
 
 class CompetitionParser(ABC):
@@ -7,17 +8,17 @@ class CompetitionParser(ABC):
     """
 
     @abstractmethod
-    def extract_participants(self, html):
+    def extract_participants(self, html: str, filename: Optional[str] = None) -> Any:
         pass
 
     @abstractmethod
-    def extract_judges(self, html):
+    def extract_judges(self, html: str, filename: Optional[str] = None) -> Any:
         pass
 
     @abstractmethod
-    def extract_committee(self, html):
+    def extract_committee(self, html: str) -> Any:
         pass
 
     @abstractmethod
-    def extract_scores(self, html):
+    def extract_scores(self, html: str, filename: Optional[str] = None) -> Any:
         pass

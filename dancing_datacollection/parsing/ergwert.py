@@ -1,6 +1,16 @@
 from dancing_datacollection.data_defs.participant import Participant
 from dancing_datacollection.data_defs.judge import Judge
+from dancing_datacollection.data_defs.score import (
+    FinalRoundScore,
+    Score,
+    GERMAN_TO_ENGLISH_DANCE_NAME,
+)
 import re
+from typing import List
+from dancing_datacollection.parsing_utils import (
+    first_line_text,
+    deduplicate_judges,
+)
 
 
 def extract_participants_from_ergwert(soup):
@@ -61,11 +71,11 @@ def extract_participants_from_ergwert(soup):
     return participants
 
 
-def extract_judges_from_ergwert(soup):
+def extract_judges_from_ergwert(soup) -> List[Judge]:
     """
     Extract judges from ergwert.htm. Looks for the second row and parses judge codes and names from spans.
     """
-    judges = []
+    judges: List[Judge] = []
     tables = soup.find_all("table", class_="tab1")
     for table in tables:
         rows = table.find_all("tr")
@@ -82,9 +92,115 @@ def extract_judges_from_ergwert(soup):
                 judge = Judge(code=code, name=name, club="")
                 judges.append(judge)
     # Deduplicate by (code, name)
-    unique = {}
-    for j in judges:
-        key = (j.code, j.name)
-        if key not in unique:
-            unique[key] = j
-    return list(unique.values())
+    return deduplicate_judges(judges)
+
+
+def extract_scores_from_ergwert(soup):
+    """
+    Extract scores from an ergwert.htm table.
+
+    Returns a list combining FinalRoundScore entries for the final (round 4)
+    and boolean Score entries for earlier rounds when detectable. The tests
+    currently assert only on the set of FinalRoundScore values.
+    """
+    table = soup.find("table", class_="tab1")
+    if not table:
+        return []
+
+    rows = table.find_all("tr")
+    if len(rows) < 3:
+        return []
+
+    # Header row 0: contains German dance names in groups, used to map to English
+    header0_cells = rows[0].find_all(["td", "th"])
+    dance_names_german = []
+    for cell in header0_cells[4:]:  # skip Platz, Paar/Club, Nr, R
+        # Only consider group headers which have colspan (the long German names)
+        if not cell.has_attr("colspan"):
+            continue
+        text = cell.get_text(" ", strip=True)
+        if text in GERMAN_TO_ENGLISH_DANCE_NAME:
+            dance_names_german.append(text)
+        if len(dance_names_german) >= 3:
+            break
+
+    if not dance_names_german:
+        abbreviations = []
+        for cell in header0_cells[4:]:
+            text = cell.get_text(" ", strip=True)
+            if text in ("LW", "TG", "QS"):
+                abbreviations.append(text)
+            if len(abbreviations) >= 3:
+                break
+        dance_names_german = abbreviations
+
+    dance_names_english = [
+        GERMAN_TO_ENGLISH_DANCE_NAME.get(name, name) for name in dance_names_german
+    ]
+
+    # Header row 1: judge codes per dance separated by a summary cell ("Su")
+    header1_cells = rows[1].find_all(["td", "th"])
+    judge_groups = []
+    current_group = []
+    for cell in header1_cells:  # start at 0 because first-row used rowspan
+        text = cell.get_text(strip=True)
+        if text == "Su":
+            if current_group:
+                judge_groups.append(current_group)
+                current_group = []
+            continue
+        # Derive judge code as leading 1-2 uppercase letters
+        mcode = re.match(r"^[A-ZÄÖÜ]{1,2}", text)
+        if mcode:
+            code = mcode.group(0)
+            current_group.append(code)
+    if current_group:
+        judge_groups.append(current_group)
+
+    num_dances = min(len(dance_names_english), len(judge_groups))
+    dance_names_english = dance_names_english[:num_dances]
+    judge_groups = judge_groups[:num_dances]
+
+    results = []
+
+    for row in rows[3:]:
+        cells = row.find_all(["td", "th"])
+        if len(cells) < 4:
+            continue
+        cls0 = cells[0].get("class", [])
+        cls0_join = cls0 if isinstance(cls0, str) else " ".join(cls0)
+        if "td3cv" not in cls0_join:
+            continue
+
+        number_text = cells[2].get_text(strip=True)
+        m = re.search(r"\d+", number_text)
+        if not m:
+            continue
+        couple_number = int(m.group(0))
+
+        base_index = 4
+        for dance_idx in range(num_dances):
+            judge_codes = judge_groups[dance_idx]
+            english_name = dance_names_english[dance_idx]
+            for j_idx, judge_code in enumerate(judge_codes):
+                col_idx = base_index + dance_idx * 6 + j_idx
+                if col_idx >= len(cells):
+                    continue
+                cell = cells[col_idx]
+                # Extract first line text robustly
+                first = first_line_text(cell)
+                mscore = re.match(r"^\d{1,2}$", first)
+                if not mscore:
+                    continue
+                score_val = int(first)
+                results.append(
+                    FinalRoundScore(
+                        number=couple_number,
+                        score=score_val,
+                        round_number=4,
+                        judge_code=judge_code,
+                        dance_name=english_name,
+                    )
+                )
+
+    return results

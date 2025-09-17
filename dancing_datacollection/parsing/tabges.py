@@ -2,6 +2,8 @@ from dancing_datacollection.data_defs.participant import Participant
 from dancing_datacollection.data_defs.judge import Judge
 from dancing_datacollection.data_defs.score import Score
 import re
+from typing import List
+from dancing_datacollection.parsing_utils import deduplicate_judges
 
 
 def extract_participants_from_tabges(soup):
@@ -36,11 +38,11 @@ def extract_participants_from_tabges(soup):
     return participants
 
 
-def extract_judges_from_tabges(soup):
+def extract_judges_from_tabges(soup) -> List[Judge]:
     """
     Extract judges from tabges.htm. Looks for the Wertungsrichter row and parses judge codes and names.
     """
-    judges = []
+    judges: List[Judge] = []
     table = soup.find("table", class_="tab1")
     if not table:
         return judges
@@ -68,9 +70,4 @@ def extract_judges_from_tabges(soup):
                     judge = Judge(code=code, name=name, club=club)
                     judges.append(judge)
     # Deduplicate by (code, name)
-    unique = {}
-    for j in judges:
-        key = (j.code, j.name)
-        if key not in unique:
-            unique[key] = j
-    return list(unique.values())
+    return deduplicate_judges(judges)
