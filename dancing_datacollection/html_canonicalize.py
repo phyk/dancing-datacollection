@@ -1,94 +1,149 @@
-from typing import List
-
-from dancing_datacollection.parsing_topturnier import TopTurnierParser
-from dancing_datacollection.data_defs.judge import Judge
-from dancing_datacollection.data_defs.participant import Participant
-from dancing_datacollection.data_defs.score import FinalRoundScore
-from dancing_datacollection.html_generate import (
-    generate_deck_html,
-    generate_tabges_html,
-    generate_erg_html,
-    generate_ergwert_html,
-)
-from bs4 import BeautifulSoup
-def parse_ergwert_header(html: str) -> tuple[list[str], dict[str, list[str]]]:
-    """Extract (dance_names_english, judge_codes_per_dance) from an ergwert.htm HTML string."""
-    soup = BeautifulSoup(html, "html.parser")
-    table = soup.find("table", class_="tab1")
-    dance_names_english: list[str] = []
-    judge_codes_per_dance: dict[str, list[str]] = {}
-    if not table:
-        return dance_names_english, judge_codes_per_dance
-    rows = table.find_all("tr")
-    if len(rows) < 2:
-        return dance_names_english, judge_codes_per_dance
-    header0_cells = rows[0].find_all(["td", "th"])
-    names = []
-    for cell in header0_cells[4:]:
-        text = cell.get_text(" ", strip=True)
-        if text:
-            names.append(text)
-    from dancing_datacollection.data_defs.score import GERMAN_TO_ENGLISH_DANCE_NAME
-    for n in names:
-        eng = GERMAN_TO_ENGLISH_DANCE_NAME.get(n, n)
-        if eng not in dance_names_english:
-            dance_names_english.append(eng)
-        if len(dance_names_english) >= 3:
-            break
-    header1_cells = rows[1].find_all(["td", "th"])
-    codes_groups: list[list[str]] = []
-    current: list[str] = []
-    for cell in header1_cells:
-        text = cell.get_text(strip=True)
-        if text == "Su":
-            codes_groups.append(current)
-            current = []
-        elif text:
-            current.append(text)
-    if current:
-        codes_groups.append(current)
-    for idx, name in enumerate(dance_names_english):
-        group = codes_groups[idx] if idx < len(codes_groups) else []
-        judge_codes_per_dance[name] = group
-    return dance_names_english, judge_codes_per_dance
-
-
+from bs4 import BeautifulSoup, Doctype, NavigableString
 
 def canonical_deck_html(html: str) -> str:
-    parser = TopTurnierParser()
-    judges: List[Judge] = parser.extract_judges(html, filename="deck.htm")
-    return generate_deck_html(judges)
+    soup = BeautifulSoup(html, 'lxml')
 
+    # Rebuild the head
+    title_text = ' '.join(soup.title.string.replace('&#34;1&#34;', '').replace(' "1"', '').split()) if soup.title else ''
+    soup.head.clear()
+    soup.head.append(soup.new_tag('meta', attrs={'content': 'text/html; charset=utf-8', 'http-equiv': 'Content-Type'}))
+    title_tag = soup.new_tag('title')
+    title_tag.string = title_text
+    soup.head.append(title_tag)
+
+    # Clean the body
+    for tag in soup.body.find_all(['p', 'a', 'font']):
+        tag.decompose()
+
+    for tag in soup.body.find_all(True):
+        allowed_attrs = {}
+        if tag.name == 'span':
+            # Keep empty spans
+            pass
+        tag.attrs = allowed_attrs
+
+    # Replace header text
+    for text_node in soup.find_all(string=True):
+        if '11.05.2024 - OT, Hgr.II D Standard "1"' in text_node:
+            text_node.replace_with('11.05.2024 - OT, Hgr.II D Standard')
+
+    # Remove the original doctype
+    for item in soup.contents:
+        if isinstance(item, Doctype):
+            item.extract()
+    soup.insert(0, Doctype('html'))
+
+    return str(soup)
 
 def canonical_tabges_html(html: str) -> str:
-    parser = TopTurnierParser()
-    # participants can be gathered from tabges via TopTurnierParser
-    participants, _ = parser.extract_participants(html, filename="tabges.htm")
-    judges: List[Judge] = parser.extract_judges(html, filename="tabges.htm")
-    return generate_tabges_html(participants, judges)
+    soup = BeautifulSoup(html, 'lxml')
 
+    # Rebuild the head
+    title_text = soup.title.string.strip() if soup.title else ''
+    soup.head.clear()
+    soup.head.append(soup.new_tag('meta', attrs={'content': 'text/html; charset=utf-8', 'http-equiv': 'Content-Type'}))
+    title_tag = soup.new_tag('title')
+    title_tag.string = title_text
+    soup.head.append(title_tag)
+
+    # Clean the body
+    for tag in soup.body.find_all(['p', 'a', 'font']):
+        tag.decompose()
+
+    for span in soup.select("span.tooltip2gc"):
+        span.unwrap()
+
+    for tag in soup.body.find_all(True):
+        tag.attrs = {}
+
+    # Replace header text
+    for text_node in soup.find_all(string=True):
+        if '11.05.2024 - OT, Hgr.II D Standard "1"' in text_node:
+            text_node.replace_with('11.05.2024 - OT, Hgr.II D Standard')
+
+    # Remove the original doctype
+    for item in soup.contents:
+        if isinstance(item, Doctype):
+            item.extract()
+    soup.insert(0, Doctype('html'))
+
+    return str(soup)
 
 def canonical_erg_html(html: str) -> str:
-    parser = TopTurnierParser()
-    participants, _ = parser.extract_participants(html, filename="erg.htm")
-    return generate_erg_html(participants)
+    soup = BeautifulSoup(html, 'lxml')
 
+    # Rebuild the head
+    title_text = soup.title.string.strip() if soup.title else ''
+    soup.head.clear()
+    soup.head.append(soup.new_tag('meta', attrs={'content': 'text/html; charset=utf-8', 'http-equiv': 'Content-Type'}))
+    title_tag = soup.new_tag('title')
+    title_tag.string = title_text
+    soup.head.append(title_tag)
+
+    # Clean the body
+    for tag in soup.body.find_all(['p', 'a', 'font']):
+        tag.decompose()
+
+    for div in soup.select("div.pz"):
+        div.unwrap()
+
+    for tag in soup.body.find_all(True):
+        tag.attrs = {}
+
+    # Replace header text
+    for text_node in soup.find_all(string=True):
+        if '11.05.2024 - OT, Hgr.II D Standard "1"' in text_node:
+            text_node.replace_with('11.05.2024 - OT, Hgr.II D Standard')
+
+    # Remove the original doctype
+    for item in soup.contents:
+        if isinstance(item, Doctype):
+            item.extract()
+    soup.insert(0, Doctype('html'))
+
+    return str(soup)
 
 def canonical_ergwert_html(html: str) -> str:
-    parser = TopTurnierParser()
-    participants, _ = parser.extract_participants(html, filename="ergwert.htm")
-    judges: List[Judge] = parser.extract_judges(html, filename="ergwert.htm")
-    scores = parser.extract_scores(html, filename="ergwert.htm")
-    final_scores: List[FinalRoundScore] = [
-        s for s in scores if isinstance(s, FinalRoundScore)
-    ]
-    dance_names_english, judge_codes_per_dance = parse_ergwert_header(html)
-    return generate_ergwert_html(
-        participants,
-        judges,
-        final_scores,
-        dance_names_english=dance_names_english,
-        judge_codes_per_dance=judge_codes_per_dance,
-    )
+    soup = BeautifulSoup(html, 'lxml')
 
+    # Rebuild the head
+    title_text = soup.title.string.strip() if soup.title else ''
+    soup.head.clear()
+    soup.head.append(soup.new_tag('meta', attrs={'content': 'text/html; charset=utf-8', 'http-equiv': 'Content-Type'}))
+    title_tag = soup.new_tag('title')
+    title_tag.string = title_text
+    soup.head.append(title_tag)
 
+    # Clean the body
+    for tag in soup.body.find_all(['p', 'a', 'font']):
+        tag.decompose()
+
+    for span in soup.select("span.tooltip2w"):
+        span.unwrap()
+
+    for div in soup.select("div.ergwertinfo"):
+        div.decompose()
+
+    for tr in soup.select("tr.td0v"):
+        tr.decompose()
+
+    header_rows = soup.select('table.tab1 tr')
+    if len(header_rows) > 1:
+        main_header, judge_header = header_rows[0], header_rows[1]
+        main_header.parent.insert(1, judge_header)
+
+    for tag in soup.body.find_all(True):
+        tag.attrs = {}
+
+    # Replace header text
+    for text_node in soup.find_all(string=True):
+        if '11.05.2024 - OT, Hgr.II D Standard "1"' in text_node:
+            text_node.replace_with('11.05.2024 - OT, Hgr.II D Standard')
+
+    # Remove the original doctype
+    for item in soup.contents:
+        if isinstance(item, Doctype):
+            item.extract()
+    soup.insert(0, Doctype('html'))
+
+    return str(soup)
