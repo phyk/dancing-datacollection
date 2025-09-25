@@ -20,28 +20,41 @@ def html_51():
         "tabges": _load(base, "tabges.htm"),
         "erg": _load(base, "erg.htm"),
         "ergwert": _load(base, "ergwert.htm"),
+        "deck_golden": _load(base, "deck.golden.htm"),
+        "tabges_golden": _load(base, "tabges.golden.htm"),
+        "erg_golden": _load(base, "erg.golden.htm"),
+        "ergwert_golden": _load(base, "ergwert.golden.htm"),
     }
 
-def test_canonical_deck_idempotent(html_51):
-    original_html = html_51["deck"]
-    canonical_once = canonical_deck_html(original_html)
-    canonical_twice = canonical_deck_html(canonical_once)
-    assert canonical_once == canonical_twice
+def _run_golden_test(html, golden_html, canonical_func):
+    """Helper function to run a golden file test."""
+    canonical_output = canonical_func(html)
+    assert canonical_output == golden_html
 
-def test_canonical_tabges_idempotent(html_51):
-    original_html = html_51["tabges"]
-    canonical_once = canonical_tabges_html(original_html)
-    canonical_twice = canonical_tabges_html(canonical_once)
-    assert canonical_once == canonical_twice
+def test_canonical_deck(html_51):
+    _run_golden_test(
+        html_51["deck"],
+        html_51["deck_golden"],
+        canonical_deck_html,
+    )
 
-def test_canonical_erg_idempotent(html_51):
-    original_html = html_51["erg"]
-    canonical_once = canonical_erg_html(original_html)
-    canonical_twice = canonical_erg_html(canonical_once)
-    assert canonical_once == canonical_twice
+def test_canonical_tabges(html_51):
+    _run_golden_test(
+        html_51["tabges"],
+        html_51["tabges_golden"],
+        canonical_tabges_html,
+    )
 
-def test_canonical_ergwert_idempotent(html_51):
-    original_html = html_51["ergwert"]
-    canonical_once = canonical_ergwert_html(original_html)
-    canonical_twice = canonical_ergwert_html(canonical_once)
-    assert canonical_once == canonical_twice
+def test_canonical_erg(html_51):
+    _run_golden_test(
+        html_51["erg"],
+        html_51["erg_golden"],
+        canonical_erg_html,
+    )
+
+def test_canonical_ergwert(html_51):
+    _run_golden_test(
+        html_51["ergwert"],
+        html_51["ergwert_golden"],
+        canonical_ergwert_html,
+    )
