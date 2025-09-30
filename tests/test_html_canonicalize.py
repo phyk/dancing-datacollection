@@ -1,11 +1,6 @@
 import pathlib
 import pytest
-from dancing_datacollection.html_canonicalize import (
-    canonical_deck_html,
-    canonical_tabges_html,
-    canonical_erg_html,
-    canonical_ergwert_html,
-)
+from dancing_datacollection.html_canonicalize import canonicalize_html
 
 def _load(dirpath: pathlib.Path, name: str) -> str:
     p = dirpath / name
@@ -26,35 +21,8 @@ def html_51():
         "ergwert_golden": _load(base, "ergwert.golden.htm"),
     }
 
-def _run_golden_test(html, golden_html, canonical_func):
+@pytest.mark.parametrize("html_type", ["deck", "tabges", "erg", "ergwert"])
+def test_canonicalization(html_51, html_type):
     """Helper function to run a golden file test."""
-    canonical_output = canonical_func(html)
-    assert canonical_output == golden_html
-
-def test_canonical_deck(html_51):
-    _run_golden_test(
-        html_51["deck"],
-        html_51["deck_golden"],
-        canonical_deck_html,
-    )
-
-def test_canonical_tabges(html_51):
-    _run_golden_test(
-        html_51["tabges"],
-        html_51["tabges_golden"],
-        canonical_tabges_html,
-    )
-
-def test_canonical_erg(html_51):
-    _run_golden_test(
-        html_51["erg"],
-        html_51["erg_golden"],
-        canonical_erg_html,
-    )
-
-def test_canonical_ergwert(html_51):
-    _run_golden_test(
-        html_51["ergwert"],
-        html_51["ergwert_golden"],
-        canonical_ergwert_html,
-    )
+    canonical_output = canonicalize_html(html_51[html_type])
+    assert canonical_output == html_51[f"{html_type}_golden"]
