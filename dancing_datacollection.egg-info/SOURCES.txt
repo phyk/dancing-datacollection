@@ -15,10 +15,10 @@ dancing_datacollection.egg-info/dependency_links.txt
 dancing_datacollection.egg-info/requires.txt
 dancing_datacollection.egg-info/top_level.txt
 tests/test_committee_extraction.py
+tests/test_html_canonicalize.py
 tests/test_judge_extraction.py
 tests/test_output_schema.py
 tests/test_parsing.py
 tests/test_parsing_utils.py
 tests/test_participant_extraction.py
-tests/test_roundtrip_html_generation.py
 tests/test_score_extraction.py
