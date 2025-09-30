@@ -1,14 +1,17 @@
 from dancing_datacollection.data_defs.participant import Participant
 import re
-from typing import Any, List, Union
+from typing import Any, List, Union, cast
 from bs4 import BeautifulSoup
-from dancing_datacollection.parsing_utils import get_soup
+from dancing_datacollection.parsing_utils import get_soup, as_class_list, extract_club_and_number
 from dancing_datacollection.data_defs.results import (
     ResultRound,
     FinalRoundPlacing,
     PreliminaryRoundPlacing,
     DanceScore,
 )
+import logging
+
+parsing_logger = logging.getLogger("parsing_debug")
 
 
 def extract_results_from_erg(html: str) -> List[ResultRound]:
@@ -163,3 +166,41 @@ def extract_judges_from_erg(soup):
     erg.htm does not contain judge information in TopTurnier format. Always returns an empty list.
     """
     return []
+
+
+def parse_erg_all(html):
+    """Lightweight dump of erg.htm tables for inspection (dev aid)."""
+    parsing_logger.debug("parse_erg_all: START")
+    soup: Any = get_soup(html)
+    result = []
+    for table_idx, table in enumerate(cast(Any, soup).find_all("table")):
+        rows_dump = []
+        for row_idx, row in enumerate(cast(Any, table).find_all("tr")):
+            cells: List[Any] = cast(Any, row).find_all(["td", "th"])
+            rows_dump.append({
+                "row_idx": row_idx,
+                "cells": [c.get_text(" ", strip=True) for c in cells],
+            })
+        result.append({"table_idx": table_idx, "rows": rows_dump})
+    parsing_logger.debug("parse_erg_all: END")
+    return result
+
+def extract_finalists_from_erg(html):
+    """Developer helper to explore finalist rows in erg.htm."""
+    parsing_logger.debug("extract_finalists_from_erg: START")
+    soup: Any = BeautifulSoup(html, "html.parser")
+    couples = []
+    for table in cast(Any, soup).find_all("table"):
+        rows: List[Any] = cast(Any, table).find_all("tr")
+        for row in rows:
+            cells: List[Any] = cast(Any, row).find_all(["td", "th"])
+            if len(cells) < 3:
+                continue
+            classes = cells[0].get("class")
+            if "td3cv" in (classes if isinstance(classes, str) else " ".join(classes or [])):
+                name_text = cells[1].get_text(" ", strip=True)
+                m = re.search(r"\((\d+)\)", name_text)
+                number = m.group(1) if m else None
+                couples.append({"number": number, "name": name_text})
+    parsing_logger.debug("extract_finalists_from_erg: END")
+    return couples

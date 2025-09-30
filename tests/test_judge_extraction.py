@@ -1,8 +1,11 @@
 import os
 import pytest
-from dancing_datacollection.parsing_topturnier import TopTurnierParser
 from dancing_datacollection.data_defs.judge import Judge
 from dancing_datacollection.parsing.deck import extract_judges_from_deck
+from dancing_datacollection.parsing.tabges import extract_judges_from_tabges
+from dancing_datacollection.parsing.ergwert import extract_judges_from_ergwert
+from dancing_datacollection.parsing.wert_er import extract_judges_from_wert_er
+from dancing_datacollection.parsing_utils import get_soup
 
 
 def get_html(path):
@@ -68,12 +71,12 @@ def true_judges():
     ],
 )
 def test_extract_judges(sample_dir, test_dir, true_judges):
-    parser = TopTurnierParser()
     tabges_path = os.path.join(test_dir, sample_dir, "tabges.htm")
     if not os.path.exists(tabges_path):
         pytest.skip(f"Missing {tabges_path}")
     html = get_html(tabges_path)
-    judges = parser.extract_judges(html, filename="tabges.htm")
+    soup = get_soup(html)
+    judges = extract_judges_from_tabges(soup)
     print(f"\n[DEBUG] Extracted judges for {sample_dir} (tabges.htm):")
     for j in judges:
         print(f"  code={j.code}, name={j.name}, club={j.club}")
@@ -108,9 +111,7 @@ def test_extract_judges_from_deck(sample_dir, test_dir, true_judges):
     if not os.path.exists(deck_path):
         pytest.skip(f"Missing {deck_path}")
     html = get_html(deck_path)
-    from bs4 import BeautifulSoup
-
-    soup = BeautifulSoup(html, "html.parser")
+    soup = get_soup(html)
     judges = extract_judges_from_deck(soup)
     print(f"\n[DEBUG] Extracted judges for {sample_dir} (deck.htm):")
     for j in judges:
@@ -142,12 +143,12 @@ def test_extract_judges_from_deck(sample_dir, test_dir, true_judges):
     ],
 )
 def test_extract_judges_from_ergwert(sample_dir, test_dir, true_judges):
-    parser = TopTurnierParser()
     ergwert_path = os.path.join(test_dir, sample_dir, "ergwert.htm")
     if not os.path.exists(ergwert_path):
         pytest.skip(f"Missing {ergwert_path}")
     html = get_html(ergwert_path)
-    judges = parser.extract_judges(html, filename="ergwert.htm")
+    soup = get_soup(html)
+    judges = extract_judges_from_ergwert(soup)
     print(f"\n[DEBUG] Extracted judges for {sample_dir} (ergwert.htm):")
     for j in judges:
         print(f"  code={j.code}, name={j.name}, club={j.club}")
@@ -178,12 +179,12 @@ def test_extract_judges_from_ergwert(sample_dir, test_dir, true_judges):
     ],
 )
 def test_extract_judges_from_wert_er(sample_dir, test_dir, true_judges):
-    parser = TopTurnierParser()
     wert_er_path = os.path.join(test_dir, sample_dir, "wert_er.htm")
     if not os.path.exists(wert_er_path):
         pytest.skip(f"Missing {wert_er_path}")
     html = get_html(wert_er_path)
-    judges = parser.extract_judges(html, filename="wert_er.htm")
+    soup = get_soup(html)
+    judges = extract_judges_from_wert_er(soup)
     print(f"\n[DEBUG] Extracted judges for {sample_dir} (wert_er.htm):")
     for j in judges:
         print(f"  code={j.code}, name={j.name}, club={j.club}")

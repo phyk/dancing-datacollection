@@ -1,6 +1,7 @@
 import os
 import pytest
-from dancing_datacollection.parsing_topturnier import TopTurnierParser
+from dancing_datacollection.parsing.committee import extract_committee_from_deck
+from dancing_datacollection.parsing_utils import get_soup
 from dancing_datacollection.data_defs.committee import CommitteeMember
 
 
@@ -66,12 +67,12 @@ def true_committee_53():
     ],
 )
 def test_extract_committee(sample_dir, true_committee_func, test_dir):
-    parser = TopTurnierParser()
     deck_path = os.path.join(test_dir, sample_dir, "deck.htm")
     if not os.path.exists(deck_path):
         pytest.skip(f"Missing {deck_path}")
     html = get_html(deck_path)
-    committee = parser.extract_committee(html)
+    soup = get_soup(html)
+    committee = extract_committee_from_deck(soup)
     expected = true_committee_func()
     print(f"\n[DEBUG] Extracted committee for {sample_dir}:")
     for entry in committee:

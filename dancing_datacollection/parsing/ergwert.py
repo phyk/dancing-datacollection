@@ -10,7 +10,14 @@ from typing import List
 from dancing_datacollection.parsing_utils import (
     first_line_text,
     deduplicate_judges,
+    get_soup,
+    as_class_list,
+    extract_club_and_number,
 )
+from typing import Any, cast
+import logging
+
+parsing_logger = logging.getLogger("parsing_debug")
 
 
 def extract_participants_from_ergwert(soup):
@@ -204,3 +211,73 @@ def extract_scores_from_ergwert(soup):
                 )
 
     return results
+
+
+def parse_ergwert_all(html: str) -> List[List[List[str]]]:
+    """
+    Parse TopTurnier scoring tables in ergwert.htm using BeautifulSoup to preserve structure.
+    """
+    parsing_logger.debug("parse_ergwert_all: START")
+    soup = get_soup(html)
+    all_tables_data = []
+    for table in soup.find_all("table"):
+        table_data = []
+        for row in table.find_all("tr"):
+            row_data = [
+                str(cell.decode_contents()) for cell in row.find_all(["td", "th"])
+            ]
+            table_data.append(row_data)
+        all_tables_data.append(table_data)
+    parsing_logger.debug("parse_ergwert_all: END")
+    return all_tables_data
+
+
+def extract_final_scoring(html):
+    parsing_logger.debug("extract_final_scoring: START")
+    soup: Any = get_soup(html)
+    table: Any = soup.find("table", class_="tab1")
+    parsing_logger.debug(f"Found table: {bool(table)}")
+    if not table:
+        return []
+    rows: List[Any] = table.find_all("tr")
+    final_scores = []
+    for row_idx, row in enumerate(rows):
+        cells: List[Any] = cast(Any, row).find_all("td")
+        parsing_logger.debug(
+            f"Row {row_idx}: {[c.get_text(' ', strip=True) for c in cells]}"
+        )
+        if not cells:
+            continue
+        classes0_list: List[str] = as_class_list(cells[0].get("class"))
+        if "td3cv" in classes0_list:
+            placement = cells[0].get_text(strip=True)
+            couple_cell = cells[1]
+            names = couple_cell.get_text(" ", strip=True)
+            club, _ = extract_club_and_number(couple_cell)
+            number = cells[2].get_text(strip=True)
+            lw_score = cells[9].get_text(strip=True) if len(cells) > 9 else ""
+            tg_score = cells[15].get_text(strip=True) if len(cells) > 15 else ""
+            qs_score = cells[21].get_text(strip=True) if len(cells) > 21 else ""
+            last_classes = as_class_list(cells[-1].get("class"))
+            last_class_first = last_classes[0] if last_classes else ""
+            total = (
+                cells[-1].get_text(strip=True)
+                if last_class_first.startswith("tddarkc")
+                else ""
+            )
+            entry = {
+                "placement": placement,
+                "names": names,
+                "number": number,
+                "club": club,
+                "score_LW": lw_score,
+                "score_TG": tg_score,
+                "score_QS": qs_score,
+                "total": total,
+            }
+            parsing_logger.debug(f"  Final scoring entry: {entry}")
+            final_scores.append(entry)
+    parsing_logger.debug(
+        f"extract_final_scoring: END, total final_scores={len(final_scores)}"
+    )
+    return final_scores

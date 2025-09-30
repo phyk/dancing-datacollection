@@ -1,6 +1,8 @@
 import os
 import pytest
-from dancing_datacollection.parsing_topturnier import TopTurnierParser
+from dancing_datacollection.parsing.ergwert import extract_scores_from_ergwert
+from dancing_datacollection.parsing.tabges import parse_tabges_all
+from dancing_datacollection.parsing_utils import get_soup
 from dancing_datacollection.data_defs.score import FinalRoundScore, Score
 
 TEST_DIR = os.path.dirname(__file__)
@@ -1396,13 +1398,13 @@ def ground_truth_ergwert_scores_51():
     ],
 )
 def test_extract_scores_from_ergwert(sample_dir, ground_truth_func):
-    parser = TopTurnierParser()
     ergwert_path = os.path.join(TEST_DIR, sample_dir, "ergwert.htm")
     if not os.path.exists(ergwert_path):
         pytest.skip(f"Missing {ergwert_path}")
     with open(ergwert_path, "r", encoding="utf-8") as f:
         html = f.read()
-    scores = parser.extract_scores(html, filename="ergwert.htm")
+    soup = get_soup(html)
+    scores = extract_scores_from_ergwert(soup)
     # Only compare FinalRoundScore objects
     final_round_scores, all_other_scores = ground_truth_func()
     extracted_final = set(s for s in scores if type(s).__name__ == "FinalRoundScore")
@@ -1420,13 +1422,12 @@ def test_extract_scores_from_ergwert(sample_dir, ground_truth_func):
     ],
 )
 def test_parse_tabges_all(sample_dir):
-    parser = TopTurnierParser()
     tabges_path = os.path.join(TEST_DIR, sample_dir, "tabges.htm")
     if not os.path.exists(tabges_path):
         pytest.skip(f"Missing {tabges_path}")
     with open(tabges_path, "r", encoding="utf-8") as f:
         html = f.read()
-    tables = parser.parse_tabges_all(html)
+    tables = parse_tabges_all(html)
     assert isinstance(tables, list)
     assert tables, "No tables parsed from tabges.htm"
     assert isinstance(tables[0], list)

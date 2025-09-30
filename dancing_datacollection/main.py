@@ -9,6 +9,7 @@ from dancing_datacollection.parsing_utils import (
     extract_competition_links,
     deduplicate_participants,
     setup_logging,
+    get_soup,
 )
 from dancing_datacollection.output import (
     save_competition_data,
@@ -17,7 +18,17 @@ from dancing_datacollection.output import (
     save_scores,
     save_final_scoring,
 )
-from dancing_datacollection.parsing_topturnier import TopTurnierParser
+from dancing_datacollection.parsing.deck import extract_judges_from_deck
+from dancing_datacollection.parsing.committee import extract_committee_from_deck
+from dancing_datacollection.parsing.ergwert import (
+    extract_scores_from_ergwert,
+    extract_final_scoring,
+    extract_participants_from_ergwert,
+)
+from dancing_datacollection.parsing.erg import extract_participants_from_erg
+from dancing_datacollection.parsing.tabges import extract_participants_from_tabges
+from dancing_datacollection.parsing.wert_er import extract_participants_from_wert_er
+import re
 import urllib.robotparser
 import urllib.parse
 
@@ -54,8 +65,28 @@ def is_allowed_by_robots(url, user_agent="*"):
         return True
 
 
+def extract_participants_and_event_name(html, filename):
+    soup = get_soup(html)
+    participants = []
+    if filename.endswith("erg.htm"):
+        participants = extract_participants_from_erg(soup)
+    elif filename.endswith("ergwert.htm"):
+        participants = extract_participants_from_ergwert(soup)
+    elif filename.endswith("tabges.htm"):
+        participants = extract_participants_from_tabges(soup)
+    elif filename.endswith("wert_er.htm"):
+        participants = extract_participants_from_wert_er(soup)
+    else:
+        logger.warning(f"Unknown filename for participant extraction: {filename}")
+        participants = []
+
+    title_tag = soup.find("title")
+    event_name = title_tag.get_text(strip=True) if title_tag else "unknown_event"
+    event_name = re.sub(r"[^\w\d-]+", "_", event_name)[:64]
+    return participants, event_name
+
+
 def process_local_dir(local_dir):
-    parser = TopTurnierParser()
     all_participants = []
     event_name = os.path.basename(local_dir)
     judges = []
@@ -77,28 +108,31 @@ def process_local_dir(local_dir):
             )
             print(f"Competition {event_name} is canceled. Skipping all output files.")
             return
-        judges = parser.extract_judges(deck_html, filename="deck.htm")
+        soup = get_soup(deck_html)
+        judges = extract_judges_from_deck(soup)
         logger.info(f"Judges found: {len(judges)}")
         print(f"Judges found: {len(judges)}")
         save_judges(event_name, judges)
-        committee = parser.extract_committee(deck_html)
+        committee = extract_committee_from_deck(soup)
         logger.info(f"Committee entries found: {len(committee)}")
         print(f"Committee entries found: {len(committee)}")
         save_committee(event_name, committee)
     if os.path.exists(tabges_path):
-        with open(tabges_path, "r", encoding="utf-8") as f:
-            tabges_html = f.read()
-        scores = parser.extract_scores(tabges_html)
+        scores = []
         logger.info(f"Score entries found: {len(scores)}")
         print(f"Score entries found: {len(scores)}")
         save_scores(event_name, scores)
     if os.path.exists(ergwert_path):
         with open(ergwert_path, "r", encoding="utf-8") as f:
             ergwert_html = f.read()
-        final_scores = parser.extract_final_scoring(ergwert_html)
+        final_scores = extract_final_scoring(ergwert_html)
         logger.info(f"Final scoring entries found: {len(final_scores)}")
         print(f"Final scoring entries found: {len(final_scores)}")
         save_final_scoring(event_name, final_scores)
+        # Also extract scores from ergwert
+        scores.extend(extract_scores_from_ergwert(get_soup(ergwert_html)))
+        save_scores(event_name, scores)
+
     htm_files = []
     participants_by_file = {}
     for root, dirs, files in os.walk(local_dir):
@@ -113,16 +147,18 @@ def process_local_dir(local_dir):
             try:
                 with open(fpath, "r", encoding="utf-8") as f:
                     html = f.read()
-                participants, _ = parser.extract_participants(html)
+                participants, _ = extract_participants_and_event_name(
+                    html, os.path.basename(fpath)
+                )
                 if participants:
                     logger.info(
                         f"  Participants found in {os.path.basename(fpath)}: {len(participants)}"
                     )
                     logger.debug(
-                        f"Participant numbers in {os.path.basename(fpath)}: {[p['number'] for p in participants if 'number' in p]}"
+                        f"Participant numbers in {os.path.basename(fpath)}: {[p.number for p in participants if p.number]}"
                     )
                     participants_by_file[os.path.basename(fpath)] = set(
-                        p["number"] for p in participants if "number" in p
+                        p.number for p in participants if p.number
                     )
                     all_participants.extend(participants)
             except Exception:
@@ -131,7 +167,7 @@ def process_local_dir(local_dir):
     unique_participants = deduplicate_participants(all_participants)
     logger.info(f"Total unique participants in {local_dir}: {len(unique_participants)}")
     logger.debug(
-        f"Unique participant numbers: {[p['number'] for p in unique_participants if 'number' in p]}"
+        f"Unique participant numbers: {[p.number for p in unique_participants if p.number]}"
     )
     # Check for consistency of participant numbers across files
     if participants_by_file:
@@ -154,7 +190,6 @@ def process_local_dir(local_dir):
 
 
 def main():
-    parser = TopTurnierParser()
     arg_parser = argparse.ArgumentParser(
         description="Dancing Competition Data Collection"
     )
@@ -198,13 +233,18 @@ def main():
                         erg_url = f"{base_url}/erg.htm"
                         erg_html = download_html(erg_url)
                         if erg_html:
-                            participants, event_name = parser.extract_participants(
-                                erg_html
+                            participants, event_name = (
+                                extract_participants_and_event_name(
+                                    erg_html, "erg.htm"
+                                )
                             )
                             logger.info(f"Parsed competition (erg.htm): {erg_url}")
                         else:
-                            participants, event_name = parser.extract_participants(
-                                comp_html
+                            filename_from_link = link.rsplit("/", 1)[-1]
+                            participants, event_name = (
+                                extract_participants_and_event_name(
+                                    comp_html, filename_from_link
+                                )
                             )
                             logger.info(f"Parsed competition (index): {link}")
                         logger.info(f"  Participants: {len(participants)}")
@@ -215,32 +255,35 @@ def main():
                         deck_url = f"{base_url}/deck.htm"
                         deck_html = download_html(deck_url)
                         if deck_html:
-                            judges = parser.extract_judges(
-                                deck_html, filename="deck.htm"
-                            )
+                            soup = get_soup(deck_html)
+                            judges = extract_judges_from_deck(soup)
                             logger.info(f"Judges found: {len(judges)}")
                             print(f"Judges found: {len(judges)}")
                             save_judges(event_name, judges)
-                            committee = parser.extract_committee(deck_html)
+                            committee = extract_committee_from_deck(soup)
                             logger.info(f"Committee entries found: {len(committee)}")
                             print(f"Committee entries found: {len(committee)}")
                             save_committee(event_name, committee)
                         tabges_url = f"{base_url}/tabges.htm"
                         tabges_html = download_html(tabges_url)
                         if tabges_html:
-                            scores = parser.extract_scores(tabges_html)
+                            scores = []
                             logger.info(f"Score entries found: {len(scores)}")
                             print(f"Score entries found: {len(scores)}")
                             save_scores(event_name, scores)
                         ergwert_url = f"{base_url}/ergwert.htm"
                         ergwert_html = download_html(ergwert_url)
                         if ergwert_html:
-                            final_scores = parser.extract_final_scoring(ergwert_html)
+                            final_scores = extract_final_scoring(ergwert_html)
                             logger.info(
                                 f"Final scoring entries found: {len(final_scores)}"
                             )
                             print(f"Final scoring entries found: {len(final_scores)}")
                             save_final_scoring(event_name, final_scores)
+                            scores = extract_scores_from_ergwert(
+                                get_soup(ergwert_html)
+                            )
+                            save_scores(event_name, scores)
                     else:
                         logger.warning(f"Failed to download competition page: {link}")
                 except Exception:
