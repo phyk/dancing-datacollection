@@ -1,3 +1,4 @@
+import re
 from bs4 import BeautifulSoup, Doctype
 
 def canonicalize_html(html: str) -> str:
@@ -13,7 +14,7 @@ def canonicalize_html(html: str) -> str:
     title_text = ''
     if soup.head and soup.head.title and soup.head.title.string:
         text = soup.head.title.string.replace('\xa0', ' ')
-        text = text.replace('"1"', '').replace(' "1"', '')
+        text = re.sub(r'"\d+"$', '', text.strip())
         title_text = ' '.join(text.split())
 
     if soup.head:
@@ -38,7 +39,7 @@ def canonicalize_html(html: str) -> str:
         # 3. Normalize all text content.
         for node in soup.body.find_all(string=True):
             text = node.string.replace('\xa0', ' ')
-            text = text.replace('"1"', '').replace(' "1"', '')
+            text = re.sub(r'"\d+"$', '', text.strip())
             normalized_text = ' '.join(text.split())
             if normalized_text != node.string:
                 node.replace_with(normalized_text)
