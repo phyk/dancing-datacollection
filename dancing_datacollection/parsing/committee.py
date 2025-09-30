@@ -1,4 +1,4 @@
-from dancing_datacollection.data_defs.participant import CommitteeMember
+from dancing_datacollection.data_defs.committee import CommitteeMember
 from dancing_datacollection.parsing_utils import extract_name_and_club_from_spans
 import logging
 

@@ -1,123 +1,160 @@
 from dancing_datacollection.data_defs.participant import Participant
 import re
-from typing import Any, List
+from typing import Any, List, Union
+from bs4 import BeautifulSoup
 from dancing_datacollection.parsing_utils import get_soup
+from dancing_datacollection.data_defs.results import (
+    ResultRound,
+    FinalRoundPlacing,
+    PreliminaryRoundPlacing,
+    DanceScore,
+)
 
 
-def extract_participants_from_erg(soup_or_html):
-    # Accept either soup or raw html for convenience
-    if isinstance(soup_or_html, str):
-        soup = get_soup(soup_or_html)
-    else:
-        soup = soup_or_html
-    participants = []
-    # Extract from erg.htm (detailed, final round)
-    table = soup.find("table", class_="tab1")
-    if table:
-        rows = table.find_all("tr")
-        for row_idx, row in enumerate(rows):
-            cells = row.find_all("td")
-            if len(cells) < 3:
-                continue
-            # 1. Extract rank as list of ints
-            rank_str = cells[0].get_text(strip=True)
-            ranks = Participant._parse_ranks(rank_str)
-            # 2. Extract names and number
-            couple_cell = cells[1]
-            names_texts = couple_cell.find_all(string=True, recursive=False)
-            names = (
-                names_texts[0].strip()
-                if names_texts
-                else couple_cell.get_text(" ", strip=True)
-            )
-            # 3. Extract club
-            club = None
-            club_tag = couple_cell.find("i")
-            if club_tag:
-                club = club_tag.get_text(strip=True)
-            elif len(cells) > 2:
-                club = cells[2].get_text(strip=True)
-            # 4. Extract number
-            number = None
-            match = re.search(r"\((\d+)\)", names)
-            if match:
-                number = int(match.group(1))
-            # 5. Extract name_one and name_two
-            name_one = None
-            name_two = None
-            if "/" in names:
-                name_one, name_two = [n.strip() for n in names.split("/", 1)]
-                name_two = re.sub(r"\(\d+\)", "", name_two).strip()
-            else:
-                name_one = names.strip()
-            # 6. Only add if required fields are present
-            if name_one and number:
-                try:
-                    p = Participant(
-                        name_one=name_one,
-                        name_two=name_two,
-                        number=number,
-                        ranks=ranks,
-                        club=club,
-                    )
-                    participants.append(p)
-                except Exception as e:
-                    print(f"Invalid participant skipped (erg): {e}", flush=True)
-    # Extract from tab2 and similar tables (earlier rounds)
-    for table in soup.find_all("table"):
-        if table.get("class") and "tab1" in table.get("class", []):
-            continue  # already processed above
-        rows = table.find_all("tr")
-        for row in rows:
+def extract_results_from_erg(html: str) -> List[ResultRound]:
+    soup = get_soup(html)
+    results: List[ResultRound] = []
+
+    # Skip title table
+    result_tables = soup.find_all("table")[1:]
+    if not result_tables:
+        return []
+
+    # First table is always the final round
+    final_round_table = result_tables[0]
+    final_rows = final_round_table.find_all("tr")
+    if final_rows:
+        round_name = final_rows[0].get_text(strip=True)
+        header_cells = final_rows[1].find_all("td")
+        dance_names = [h.get_text(strip=True) for h in header_cells[2:-1]]
+        placings = []
+        for row in final_rows[2:]:
             cells = row.find_all("td")
             if len(cells) < 2:
                 continue
-            # 1. Extract rank as list of ints
-            rank_str = cells[0].get_text(strip=True)
-            ranks = Participant._parse_ranks(rank_str)
-            # 2. Extract names and number
-            names = (
-                cells[1].get_text(" ", strip=True)
-                if len(cells) > 1
-                else cells[0].get_text(" ", strip=True)
+
+            rank = cells[0].get_text(strip=True)
+            couple_cell = cells[1]
+            name_text = couple_cell.get_text(separator="|", strip=True)
+            name_parts = name_text.split("|")
+            full_name = name_parts[0]
+            number_match = re.search(r"\((\d+)\)", full_name)
+            number = int(number_match.group(1)) if number_match else None
+            clean_name = re.sub(r"\s*\(\d+\)", "", full_name).strip()
+            name_one, name_two = (
+                (clean_name.split(" / ", 1) + [None])[:2]
+                if " / " in clean_name
+                else (clean_name, None)
             )
-            # 3. Extract club
-            club = cells[2].get_text(strip=True) if len(cells) > 2 else None
-            # 4. Extract number
-            number = None
-            match = re.search(r"\((\d+)\)", names)
-            if match:
-                number = int(match.group(1))
-            # 5. Extract name_one and name_two
-            name_one = None
-            name_two = None
-            if "/" in names:
-                name_one, name_two = [n.strip() for n in names.split("/", 1)]
-                name_two = re.sub(r"\(\d+\)", "", name_two).strip()
-            else:
-                name_one = names.strip()
-            # 6. Only add if required fields are present and deduplicate
-            if name_one and number:
-                if not any(
-                    p.number == number
-                    and p.name_one == name_one
-                    and p.name_two == name_two
-                    and p.club == club
-                    for p in participants
-                ):
-                    try:
-                        p = Participant(
-                            name_one=name_one,
-                            name_two=name_two,
-                            number=number,
-                            ranks=ranks,
-                            club=club,
-                        )
-                        participants.append(p)
-                    except Exception as e:
-                        print(
-                            f"Invalid participant skipped (erg, tab2): {e}", flush=True
-                        )
+            club_tag = couple_cell.find("i")
+            club = club_tag.get_text(strip=True) if club_tag else None
+
+            try:
+                ranks = Participant._parse_ranks(rank)
+                participant = Participant(
+                    name_one=name_one,
+                    name_two=name_two,
+                    number=number,
+                    club=club,
+                    ranks=ranks,
+                )
+            except ValueError:
+                continue
+
+            dance_scores = {}
+            for i, dn in enumerate(dance_names):
+                score_cell_html = str(cells[i + 2].decode_contents())
+                parts = score_cell_html.split("<br/>")
+                marks = parts[0].strip()
+                place_str_match = (
+                    re.search(r"[\d\.]+", parts[1]) if len(parts) > 1 else None
+                )
+                place = float(place_str_match.group(0)) if place_str_match else 0.0
+                dance_scores[dn] = DanceScore(marks=marks, place=place)
+
+            total_score_str = cells[-1].get_text(strip=True)
+            total_score = float(total_score_str) if total_score_str else 0.0
+
+            placing = FinalRoundPlacing(
+                rank=rank,
+                participant=participant,
+                dance_scores=dance_scores,
+                total_score=total_score,
+            )
+            placings.append(placing)
+
+        if placings:
+            results.append(ResultRound(name=round_name, placings=placings))
+
+    # Second table contains all preliminary rounds
+    if len(result_tables) > 1:
+        prelim_table = result_tables[1]
+        current_round_name = None
+        current_placings = []
+
+        for row in prelim_table.find_all("tr"):
+            cells = row.find_all("td")
+            if len(cells) == 1:
+                if current_round_name and current_placings:
+                    results.append(
+                        ResultRound(name=current_round_name, placings=current_placings)
+                    )
+                current_round_name = cells[0].get_text(strip=True)
+                current_placings = []
+            elif len(cells) >= 2 and current_round_name:
+                rank = cells[0].get_text(strip=True)
+                name_text = cells[1].get_text(strip=True)
+                club = cells[2].get_text(strip=True) if len(cells) > 2 else None
+
+                number_match = re.search(r"\((\d+)\)", name_text)
+                number = int(number_match.group(1)) if number_match else None
+                clean_name = re.sub(r"\s*\(\d+\)", "", name_text).strip()
+                name_one, name_two = (
+                    (clean_name.split(" / ", 1) + [None])[:2]
+                    if " / " in clean_name
+                    else (clean_name, None)
+                )
+
+                try:
+                    ranks = Participant._parse_ranks(rank)
+                    participant = Participant(
+                        name_one=name_one,
+                        name_two=name_two,
+                        number=number,
+                        club=club,
+                        ranks=ranks,
+                    )
+                except ValueError:
+                    continue
+
+                placing = PreliminaryRoundPlacing(rank=rank, participant=participant)
+                current_placings.append(placing)
+
+        if current_round_name and current_placings:
+            results.append(
+                ResultRound(name=current_round_name, placings=current_placings)
+            )
+
+    return results
+
+
+def extract_participants_from_erg(soup_or_html):
+    """
+    Maintains compatibility with the old interface by extracting a flat list of participants.
+    """
+    if isinstance(soup_or_html, str):
+        html = soup_or_html
+    else:
+        html = str(soup_or_html)
+
+    results = extract_results_from_erg(html)
+    participants = []
+    seen_numbers = set()
+    for res_round in results:
+        for placing in res_round.placings:
+            if placing.participant.number not in seen_numbers:
+                participants.append(placing.participant)
+                seen_numbers.add(placing.participant.number)
     return participants
 
 

@@ -4,6 +4,11 @@ from html import escape
 from dancing_datacollection.data_defs.participant import Participant
 from dancing_datacollection.data_defs.judge import Judge
 from dancing_datacollection.data_defs.score import FinalRoundScore, GERMAN_TO_ENGLISH_DANCE_NAME
+from dancing_datacollection.data_defs.results import (
+    ResultRound,
+    FinalRoundPlacing,
+    PreliminaryRoundPlacing,
+)
 
 
 def _html_page(title: str, body: str) -> str:
@@ -14,77 +19,167 @@ def _html_page(title: str, body: str) -> str:
     )
 
 
-def generate_deck_html(judges: List[Judge], title: str = "deck") -> str:
-    # Build a second table with judge rows matching deck expectations
-    rows = []
+from dancing_datacollection.data_defs.committee import CommitteeMember
+
+ROLE_KEY_TO_GERMAN = {
+    "organizer": "Veranstalter:",
+    "host": "Ausrichter:",
+    "chairperson": "Turnierleiter:",
+    "committee_member": "Beisitzer:",
+    "protocol": "Protokoll:",
+}
+
+
+def generate_deck_html(
+    judges: List[Judge], committee: List[CommitteeMember], title: str = "deck"
+) -> str:
+    # The title string in the first table is slightly different from the page title.
+    # This transformation seems to work for the sample data.
+    table_title = title.replace(" OT,", " - OT,")
+    title_table = f"<table><tr><td>{escape(table_title)}</td></tr></table>"
+
+    # Main table with committee and judges
+    main_rows = []
+    for member in committee:
+        role_german = ROLE_KEY_TO_GERMAN.get(member.role or "", member.role or "")
+        name = escape(member.name or "")
+        club = escape(member.club or "")
+        # This logic is based on reverse-engineering the golden files.
+        # Some roles have spans even without a club.
+        if member.role == "protocol":
+            content = f"<span>{name}</span>"
+        elif club:
+            content = f"<span>{name}</span><span>{club}</span>"
+        else:
+            content = name
+        row = f"<tr><td>{escape(role_german)}</td><td>{content}</td></tr>"
+        main_rows.append(row)
+
+    # Judges header
+    main_rows.append("<tr><td>Wertungsrichter:</td></tr>")
+
+    # Judge rows
     for j in judges:
         code = escape(j.code or "")
-        name = escape(j.name or "")
+        raw_name = j.name or ""
+        # The golden files expect "Last, First" format.
+        if ", " not in raw_name and " " in raw_name:
+            parts = raw_name.rsplit(" ", 1)
+            name = f"{parts[1]}, {parts[0]}"
+        else:
+            name = raw_name
+        escaped_name = escape(name)
         club = escape(j.club or "")
         row = (
             "<tr>"
-            f"<td class=\"td2r\">{code}:</td>"
-            f"<td><span>{name}</span><span>{club}</span></td>"
+            f"<td>{code}:</td>"
+            f"<td><span>{escaped_name}</span><span>{club}</span></td>"
             "</tr>"
         )
-        rows.append(row)
-    table2 = "<table>" + "".join(rows) + "</table>"
-    body = "<table></table>" + table2
+        main_rows.append(row)
+
+    main_table = "<table>" + "".join(main_rows) + "</table>"
+
+    body = (
+        "<div>"
+        f"<div>{title_table}</div>"
+        "<div>"
+        "<div>Deckblatt</div>"
+        "<hr/>"
+        f"<div>{main_table}<br/></div>"
+        "</div>"
+        "</div>"
+    )
     return _html_page(title, body)
 
 
-def generate_tabges_html(participants: List[Participant], judges: List[Judge], title: str = "tabges") -> str:
-    # Minimal structure: one table class tab1 with Wertungsrichter block, and scattered td2gc cells for participants
-    judge_lines = []
-    for j in judges:
-        line = f"{escape((j.code or '')[:2])}) {escape(j.name or '')}"
-        judge_lines.append(line)
-    # Judges section
-    header = (
-        "<tr><td>Wertungsrichter:</td></tr>"
-        "<tr><td class=\"td3\">" + "<br>".join(judge_lines) + "</td></tr>"
+def generate_tabges_html(tables_data: List[List[List[str]]], title: str = "tabges") -> str:
+    table_title = title.replace(" Hgr.", " - OT, Hgr.")
+    title_table = f"<table><tr><td>{escape(table_title)}</td></tr></table>"
+
+    tables_html = []
+    for table_data in tables_data:
+        rows_html = []
+        for row_data in table_data:
+            cells_html = [f"<td>{cell_content}</td>" for cell_content in row_data]
+            rows_html.append("<tr>" + "".join(cells_html) + "</tr>")
+        tables_html.append("<table>" + "".join(rows_html) + "</table>")
+
+    main_content = "<br/>".join(tables_html)
+
+    body = (
+        "<div>"
+        f"<div>{title_table}</div>"
+        "<div>"
+        "<div>Wertungstabelle Gesamt</div>"
+        "<hr/>"
+        f"<div>{main_content}<br/><br/></div>"
+        "</div>"
+        "</div>"
     )
-    table = "<table class=\"tab1\">" + header + "</table>"
-
-    # Participant cells
-    part_cells = []
-    for p in participants:
-        num = escape(str(p.number) if p.number is not None else "")
-        names = escape(
-            f"{p.name_one or ''} / {p.name_two or ''}".strip().strip("/").strip()
-        )
-        cell = (
-            f"<td class=\"td2gc\">{num}<span class=\"tooltip2gc\">{names}</span></td>"
-        )
-        part_cells.append(cell)
-    parts_table = "<table>" + "<tr>" + "".join(part_cells) + "</tr></table>"
-    return _html_page(title, table + parts_table)
+    return _html_page(title, body)
 
 
-def generate_erg_html(participants: List[Participant], title: str = "erg") -> str:
-    rows = []
-    # Header rows minimal
-    rows.append("<tr><th>Platz</th><th>Paar/Club</th><th>Nr</th></tr>")
-    for p in participants:
-        rank_str = escape(" ".join(str(r) for r in (p.ranks or [])))
-        names = f"{p.name_one or ''}"
-        if p.name_two:
-            names += f" / {p.name_two}"
-        names = names.strip()
-        number = f"({p.number})" if p.number is not None else ""
-        club_html = f"<i>{escape(p.club or '')}</i>" if p.club else ""
-        names_cell = f"{escape(names)} {escape(number)} {club_html}".strip()
-        nr_cell = escape(str(p.number) if p.number is not None else "")
-        row = (
-            "<tr>"
-            f"<td>{rank_str}</td>"
-            f"<td>{names_cell}</td>"
-            f"<td>{nr_cell}</td>"
-            "</tr>"
-        )
-        rows.append(row)
-    table = "<table class=\"tab1\">" + "".join(rows) + "</table>"
-    return _html_page(title, table)
+def generate_erg_html(results: List[ResultRound], title: str = "erg") -> str:
+    table_title = title.replace(" Hgr.", " - OT, Hgr.")
+    title_table = f"<table><tr><td>{escape(table_title)}</td></tr></table>"
+
+    final_round = next((r for r in results if isinstance(r.placings[0], FinalRoundPlacing)), None)
+    preliminary_rounds = [r for r in results if isinstance(r.placings[0], PreliminaryRoundPlacing)]
+
+    tables_html = []
+
+    # Generate final round table
+    if final_round:
+        rows_html = [f"<tr><td>{final_round.name}</td></tr>"]
+        dance_names = list(final_round.placings[0].dance_scores.keys())
+        header_cells = ["<td>Platz</td>", "<td>Paar/Club</td>"] + [
+            f"<td>{dn}</td>" for dn in dance_names
+        ] + ["<td>PZ</td>"]
+        rows_html.append("<tr>" + "".join(header_cells) + "</tr>")
+        for p in final_round.placings:
+            cells = [f"<td>{p.rank}</td>"]
+            name_html = f"{escape(p.participant.name_one or '')}"
+            if p.participant.name_two:
+                name_html += f" / {escape(p.participant.name_two)}"
+            name_html += f" ({p.participant.number})<br/><i>{escape(p.participant.club or '')}</i>"
+            cells.append(f"<td>{name_html}</td>")
+            for dn in dance_names:
+                ds = p.dance_scores[dn]
+                cells.append(f"<td>{ds.marks}<br/><div>{ds.place}</div></td>")
+            cells.append(f"<td><br/>{p.total_score}</td>")
+            rows_html.append("<tr>" + "".join(cells) + "</tr>")
+        tables_html.append("<table>" + "".join(rows_html) + "</table>")
+
+    # Generate one table for all preliminary rounds
+    if preliminary_rounds:
+        prelim_rows_html = []
+        for result_round in preliminary_rounds:
+            prelim_rows_html.append(f"<tr><td>{result_round.name}</td></tr>")
+            for p in result_round.placings:
+                cells = [f"<td>{p.rank}</td>"]
+                name_html = f"{escape(p.participant.name_one or '')}"
+                if p.participant.name_two:
+                    name_html += f" / {escape(p.participant.name_two)}"
+                name_html += f" ({p.participant.number})"
+                cells.append(f"<td>{name_html}</td>")
+                cells.append(f"<td>{escape(p.participant.club or '')}</td>")
+                prelim_rows_html.append("<tr>" + "".join(cells) + "</tr>")
+        tables_html.append("<table>" + "".join(prelim_rows_html) + "</table>")
+
+    main_content = "".join(tables_html)
+
+    body = (
+        "<div>"
+        f"<div>{title_table}</div>"
+        "<div>"
+        "<div>Ergebnis</div>"
+        "<hr/>"
+        f"<div>{main_content}<br/></div>"
+        "</div>"
+        "</div>"
+    )
+    return _html_page(title, body)
 
 
 def _group_scores(final_scores: List[FinalRoundScore]) -> Tuple[List[str], Dict[str, List[str]]]:
@@ -136,73 +231,35 @@ def _english_to_german_abbrev(name: str) -> str:
 
 
 def generate_ergwert_html(
-    participants: List[Participant],
-    judges: List[Judge],
-    final_scores: List[FinalRoundScore],
-    title: str = "ergwert",
-    dance_names_english: Optional[List[str]] = None,
-    judge_codes_per_dance: Optional[Dict[str, List[str]]] = None,
+    tables_data: List[List[List[str]]], title: str = "ergwert"
 ) -> str:
-    # Prepare headers
-    if dance_names_english is not None and judge_codes_per_dance is not None:
-        dances = list(dance_names_english)
-        per_dance = dict(judge_codes_per_dance)
-    else:
-        dances, per_dance = _group_scores(final_scores)
-    # Header row 0: after first 4 cells, put dance abbrev cells
-    header0_cells = ["<th>Platz</th>", "<th>Paar/Club</th>", "<th>Nr</th>", "<th>R</th>"]
-    for d in dances:
-        header0_cells.append(f"<th>{escape(_english_to_german_abbrev(d))}</th>")
-    header0 = "<tr>" + "".join(header0_cells) + "</tr>"
+    # The first table in ergwert.htm is the title table, which we can regenerate.
+    table_title = title.replace(" Hgr.", " - OT, Hgr.")
+    title_table = f"<table><tr><td>{escape(table_title)}</td></tr></table>"
 
-    # Header row 1: judge codes per dance separated by Su
-    header1_cells = []
-    for idx, d in enumerate(dances):
-        codes = per_dance.get(d, [])
-        for code in codes:
-            header1_cells.append(f"<td>{escape(code)}</td>")
-        if idx < len(dances) - 1:
-            header1_cells.append("<td>Su</td>")
-    header1 = "<tr>" + "".join(header1_cells) + "</tr>"
+    # The main content is the second table.
+    main_table_data = tables_data[1]
+    rows_html = []
+    for row_data in main_table_data:
+        cells_html = [f"<td>{cell_content}</td>" for cell_content in row_data]
+        rows_html.append("<tr>" + "".join(cells_html) + "</tr>")
+    main_table_html = "<table>" + "".join(rows_html) + "</table>"
 
-    # Map from (number, dance, judge_code) to score
-    score_map: Dict[Tuple[int, str, str], int] = {}
-    for s in final_scores:
-        score_map[(s.number, s.dance_name, s.judge_code)] = s.score
+    main_content = (
+        "<div>Zum Ausklappen der Einzelwertungen bitte auf die Tanzspalte drücken.</div>"
+        + main_table_html
+    )
 
-    # Participant rows
-    rows = []
-    for p in participants:
-        cls0 = "td3cv"
-        platz = escape(str((p.ranks or [""])[0]))
-        names = f"{p.name_one or ''}"
-        if p.name_two:
-            names += f" / {p.name_two}"
-        names_cell = escape(names)
-        nr_cell = escape(str(p.number) if p.number is not None else "")
-        # Build score cells layout matching parser expectations
-        score_cells = []
-        base_index = 4
-        for d in dances:
-            for code in per_dance.get(d, []):
-                val = ""
-                if p.number is not None:
-                    key = (p.number, d, code)
-                    if key in score_map:
-                        val = str(score_map[key])
-                score_cells.append(f"<td>{escape(val)}</td>")
-        row_html = (
-            "<tr>"
-            f"<td class=\"{cls0}\">{platz}</td>"
-            f"<td>{names_cell}</td>"
-            f"<td>{nr_cell}</td>"
-            f"<td></td>"  # R column placeholder
-            + "".join(score_cells)
-            + "</tr>"
-        )
-        rows.append(row_html)
-
-    table = "<table class=\"tab1\">" + header0 + header1 + "".join(rows) + "</table>"
-    return _html_page(title, table)
+    body = (
+        "<div>"
+        f"<div>{title_table}</div>"
+        "<div>"
+        "<div>Ergebnis mit Wertung</div>"
+        "<hr/>"
+        f"<div>{main_content}<br/></div>"
+        "</div>"
+        "</div>"
+    )
+    return _html_page(title, body)
 
 

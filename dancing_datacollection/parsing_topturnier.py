@@ -128,18 +128,22 @@ class TopTurnierParser(CompetitionParser):
         )
         return final_scores
 
-    def parse_tabges_all(self, html):
+    def parse_tabges_all(self, html: str) -> List[List[List[str]]]:
         """
-        Parse TopTurnier scoring tables in tabges.htm via pandas.read_html.
+        Parse TopTurnier scoring tables in tabges.htm using BeautifulSoup to preserve structure.
+        Returns a list of tables, where each table is a list of rows, and each row is a list of cell HTML content.
         """
         parsing_logger.debug("parse_tabges_all: START")
-        try:
-            import pandas as pd
-            from io import StringIO
-            return pd.read_html(StringIO(html), attrs={"class": "tab1"}, header=None)
-        except Exception as e:
-            parsing_logger.error(f"parse_tabges_all failed via pandas.read_html: {e}")
-            return []
+        soup = get_soup(html)
+        all_tables_data = []
+        for table in soup.find_all("table", class_="tab1"):
+            table_data = []
+            for row in table.find_all("tr"):
+                row_data = [str(cell.decode_contents()) for cell in row.find_all("td")]
+                table_data.append(row_data)
+            all_tables_data.append(table_data)
+        parsing_logger.debug("parse_tabges_all: END")
+        return all_tables_data
 
     def parse_erg_all(self, html):
         """Lightweight dump of erg.htm tables for inspection (dev aid)."""
@@ -157,6 +161,24 @@ class TopTurnierParser(CompetitionParser):
             result.append({"table_idx": table_idx, "rows": rows_dump})
         parsing_logger.debug("parse_erg_all: END")
         return result
+
+    def parse_ergwert_all(self, html: str) -> List[List[List[str]]]:
+        """
+        Parse TopTurnier scoring tables in ergwert.htm using BeautifulSoup to preserve structure.
+        """
+        parsing_logger.debug("parse_ergwert_all: START")
+        soup = get_soup(html)
+        all_tables_data = []
+        for table in soup.find_all("table"):
+            table_data = []
+            for row in table.find_all("tr"):
+                row_data = [
+                    str(cell.decode_contents()) for cell in row.find_all(["td", "th"])
+                ]
+                table_data.append(row_data)
+            all_tables_data.append(table_data)
+        parsing_logger.debug("parse_ergwert_all: END")
+        return all_tables_data
 
     def parse_deck_all(self, html):
         """
