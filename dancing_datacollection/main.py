@@ -4,7 +4,7 @@ import logging
 import os
 import toml
 from tqdm import tqdm
-from dancing_datacollection.parsing_utils import (
+from dancing_datacollection.parsing.parsing_utils import (
     download_html,
     extract_competition_links,
     deduplicate_participants,
@@ -213,9 +213,7 @@ def main():
                         erg_html = download_html(erg_url)
                         if erg_html:
                             participants, event_name = (
-                                extract_participants_and_event_name(
-                                    erg_html, "erg.htm"
-                                )
+                                extract_participants_and_event_name(erg_html, "erg.htm")
                             )
                             logger.info(f"Parsed competition (erg.htm): {erg_url}")
                         else:
@@ -259,9 +257,7 @@ def main():
                             )
                             print(f"Final scoring entries found: {len(final_scores)}")
                             save_final_scoring(event_name, final_scores)
-                            scores = extract_scores_from_ergwert(
-                                get_soup(ergwert_html)
-                            )
+                            scores = extract_scores_from_ergwert(get_soup(ergwert_html))
                             save_scores(event_name, scores)
                     else:
                         logger.warning(f"Failed to download competition page: {link}")

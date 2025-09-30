@@ -2,7 +2,7 @@ import os
 import pytest
 from dancing_datacollection.parsing.ergwert import extract_scores_from_ergwert
 from dancing_datacollection.parsing.tabges import parse_tabges_all
-from dancing_datacollection.parsing_utils import get_soup
+from dancing_datacollection.parsing.parsing_utils import get_soup
 from dancing_datacollection.data_defs.score import FinalRoundScore, Score
 
 TEST_DIR = os.path.dirname(__file__)

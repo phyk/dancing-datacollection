@@ -4,7 +4,7 @@ from dancing_datacollection.parsing.erg import extract_participants_from_erg
 from dancing_datacollection.parsing.ergwert import extract_participants_from_ergwert
 from dancing_datacollection.parsing.tabges import extract_participants_from_tabges
 from dancing_datacollection.parsing.wert_er import extract_participants_from_wert_er
-from dancing_datacollection.parsing_utils import get_soup
+from dancing_datacollection.parsing.parsing_utils import get_soup
 from dancing_datacollection.data_defs.participant import Participant
 
 

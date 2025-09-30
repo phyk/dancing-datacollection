@@ -5,7 +5,7 @@ from dancing_datacollection.parsing.deck import extract_judges_from_deck
 from dancing_datacollection.parsing.tabges import extract_judges_from_tabges
 from dancing_datacollection.parsing.ergwert import extract_judges_from_ergwert
 from dancing_datacollection.parsing.wert_er import extract_judges_from_wert_er
-from dancing_datacollection.parsing_utils import get_soup
+from dancing_datacollection.parsing.parsing_utils import get_soup
 
 
 def get_html(path):

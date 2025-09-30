@@ -1,7 +1,7 @@
 import pytest
 from bs4 import BeautifulSoup
 
-from dancing_datacollection.parsing_utils import (
+from dancing_datacollection.parsing.parsing_utils import (
     as_class_list,
     element_has_class,
     first_line_text,
@@ -59,20 +59,24 @@ def test_split_names_whitespace_fallback():
 
 def test_extract_name_and_club_from_spans_prefers_spans():
     from bs4 import BeautifulSoup
-    soup = BeautifulSoup('<td><span>Alice & Bob</span><span>Club X</span></td>', 'html.parser')
-    td = soup.find('td')
+
+    soup = BeautifulSoup(
+        "<td><span>Alice & Bob</span><span>Club X</span></td>", "html.parser"
+    )
+    td = soup.find("td")
     name, club = extract_name_and_club_from_spans(td)
-    assert name == 'Alice & Bob'
-    assert club == 'Club X'
+    assert name == "Alice & Bob"
+    assert club == "Club X"
 
 
 def test_extract_name_and_club_from_spans_single_span():
     from bs4 import BeautifulSoup
-    soup = BeautifulSoup('<td><span>Alice & Bob</span></td>', 'html.parser')
-    td = soup.find('td')
+
+    soup = BeautifulSoup("<td><span>Alice & Bob</span></td>", "html.parser")
+    td = soup.find("td")
     name, club = extract_name_and_club_from_spans(td)
-    assert name == 'Alice & Bob'
-    assert club == ''
+    assert name == "Alice & Bob"
+    assert club == ""
 
 
 def test_deduplicate_participants_by_number_name_club():
@@ -84,6 +88,5 @@ def test_deduplicate_participants_by_number_name_club():
     ]
     out = deduplicate_participants(items)
     keys = {(p["number"], p["names"], p["club"]) for p in out}
-    assert (1, 'A / B', 'X') in keys
-    assert (2, 'C / D', 'Y') in keys
-
+    assert (1, "A / B", "X") in keys
+    assert (2, "C / D", "Y") in keys

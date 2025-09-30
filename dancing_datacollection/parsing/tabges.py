@@ -3,7 +3,7 @@ from dancing_datacollection.data_defs.judge import Judge
 from dancing_datacollection.data_defs.score import Score
 import re
 from typing import List
-from dancing_datacollection.parsing_utils import deduplicate_judges, get_soup
+from dancing_datacollection.parsing.parsing_utils import deduplicate_judges, get_soup
 import logging
 
 parsing_logger = logging.getLogger("parsing_debug")

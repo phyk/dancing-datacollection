@@ -1,5 +1,8 @@
 import logging
-from dancing_datacollection.parsing_utils import get_soup, extract_event_name_from_soup
+from dancing_datacollection.parsing.parsing_utils import (
+    get_soup,
+    extract_event_name_from_soup,
+)
 from dancing_datacollection.parsing.erg import extract_participants_from_erg
 from dancing_datacollection.parsing.ergwert import extract_participants_from_ergwert
 from dancing_datacollection.parsing.tabges import extract_participants_from_tabges

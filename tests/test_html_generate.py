@@ -13,7 +13,7 @@ from dancing_datacollection.parsing.committee import extract_committee_from_deck
 from dancing_datacollection.parsing.ergwert import parse_ergwert_all
 from dancing_datacollection.parsing.tabges import parse_tabges_all
 from dancing_datacollection.parsing.erg import extract_results_from_erg
-from dancing_datacollection.parsing_utils import get_soup
+from dancing_datacollection.parsing.parsing_utils import get_soup
 
 TEST_DIR = os.path.dirname(__file__)
 SAMPLE_DIRS = [
@@ -21,6 +21,7 @@ SAMPLE_DIRS = [
     "52-1105_ot_hgr2cstd",
     "53-1105_ot_hgr2bstd",
 ]
+
 
 def read_file_content(path):
     with open(path, "r", encoding="utf-8") as f:
