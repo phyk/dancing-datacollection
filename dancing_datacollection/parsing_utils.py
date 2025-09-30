@@ -191,3 +191,12 @@ def deduplicate_judges(judges: List["Judge"]) -> List["Judge"]:
             if new_club and not current_club:
                 best_by_key[key] = j
     return list(best_by_key.values())
+
+
+def extract_event_name_from_soup(soup: BeautifulSoup) -> str:
+    """Extracts and sanitizes the event name from the <title> tag of a BeautifulSoup object."""
+    title_tag = soup.find("title")
+    event_name = title_tag.get_text(strip=True) if title_tag else "unknown_event"
+    # Sanitize the event name to be used as a directory/file name
+    event_name = re.sub(r"[^\w\d-]+", "_", event_name)[:64]
+    return event_name
