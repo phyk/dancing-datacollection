@@ -1,7 +1,7 @@
 import os
 import pytest
 from dancing_datacollection.parsing_topturnier import TopTurnierParser
-from dancing_datacollection.data_defs.participant import CommitteeMember
+from dancing_datacollection.data_defs.committee import CommitteeMember
 
 
 def get_html(path):

@@ -90,11 +90,3 @@ class Participant:
         )
 
 
-@dataclass(frozen=True, eq=True)
-class CommitteeMember:
-    role: str
-    name: str
-    club: str = ""
-
-    def __repr__(self):
-        return f"CommitteeMember(role={self.role!r}, name={self.name!r}, club={self.club!r})"
