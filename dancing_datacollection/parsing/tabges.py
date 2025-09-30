@@ -3,7 +3,10 @@ from dancing_datacollection.data_defs.judge import Judge
 from dancing_datacollection.data_defs.score import Score
 import re
 from typing import List
-from dancing_datacollection.parsing_utils import deduplicate_judges
+from dancing_datacollection.parsing_utils import deduplicate_judges, get_soup
+import logging
+
+parsing_logger = logging.getLogger("parsing_debug")
 
 
 def extract_participants_from_tabges(soup):
@@ -71,3 +74,21 @@ def extract_judges_from_tabges(soup) -> List[Judge]:
                     judges.append(judge)
     # Deduplicate by (code, name)
     return deduplicate_judges(judges)
+
+
+def parse_tabges_all(html: str) -> List[List[List[str]]]:
+    """
+    Parse TopTurnier scoring tables in tabges.htm using BeautifulSoup to preserve structure.
+    Returns a list of tables, where each table is a list of rows, and each row is a list of cell HTML content.
+    """
+    parsing_logger.debug("parse_tabges_all: START")
+    soup = get_soup(html)
+    all_tables_data = []
+    for table in soup.find_all("table", class_="tab1"):
+        table_data = []
+        for row in table.find_all("tr"):
+            row_data = [str(cell.decode_contents()) for cell in row.find_all("td")]
+            table_data.append(row_data)
+        all_tables_data.append(table_data)
+    parsing_logger.debug("parse_tabges_all: END")
+    return all_tables_data

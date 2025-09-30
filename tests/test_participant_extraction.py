@@ -1,6 +1,10 @@
 import os
 import pytest
-from dancing_datacollection.parsing_topturnier import TopTurnierParser
+from dancing_datacollection.parsing.erg import extract_participants_from_erg
+from dancing_datacollection.parsing.ergwert import extract_participants_from_ergwert
+from dancing_datacollection.parsing.tabges import extract_participants_from_tabges
+from dancing_datacollection.parsing.wert_er import extract_participants_from_wert_er
+from dancing_datacollection.parsing_utils import get_soup
 from dancing_datacollection.data_defs.participant import Participant
 
 
@@ -660,12 +664,11 @@ def true_participants():
     ],
 )
 def test_extract_participants_from_erg(sample_dir, test_dir, true_participants):
-    parser = TopTurnierParser()
     erg_path = os.path.join(test_dir, sample_dir, "erg.htm")
     if not os.path.exists(erg_path):
         pytest.skip(f"Missing {erg_path}")
     html = get_html(erg_path)
-    participants, _ = parser.extract_participants(html, filename="erg.htm")
+    participants = extract_participants_from_erg(html)
     assert isinstance(participants, list)
     assert all(isinstance(p, Participant) for p in participants)
     assert participants, f"No participants extracted from {erg_path}"
@@ -696,12 +699,12 @@ def test_extract_participants_from_erg(sample_dir, test_dir, true_participants):
     ],
 )
 def test_extract_participants_from_ergwert(sample_dir, test_dir, true_participants):
-    parser = TopTurnierParser()
     ergwert_path = os.path.join(test_dir, sample_dir, "ergwert.htm")
     if not os.path.exists(ergwert_path):
         pytest.skip(f"Missing {ergwert_path}")
     html = get_html(ergwert_path)
-    participants, _ = parser.extract_participants(html, filename="ergwert.htm")
+    soup = get_soup(html)
+    participants = extract_participants_from_ergwert(soup)
     assert isinstance(participants, list)
     assert all(isinstance(p, Participant) for p in participants)
     assert participants, f"No participants extracted from {ergwert_path}"
@@ -732,12 +735,12 @@ def test_extract_participants_from_ergwert(sample_dir, test_dir, true_participan
     ],
 )
 def test_extract_participants_from_tabges(sample_dir, test_dir, true_participants):
-    parser = TopTurnierParser()
     tabges_path = os.path.join(test_dir, sample_dir, "tabges.htm")
     if not os.path.exists(tabges_path):
         pytest.skip(f"Missing {tabges_path}")
     html = get_html(tabges_path)
-    participants, _ = parser.extract_participants(html, filename="tabges.htm")
+    soup = get_soup(html)
+    participants = extract_participants_from_tabges(soup)
     assert isinstance(participants, list)
     assert all(isinstance(p, Participant) for p in participants)
     assert participants, f"No participants extracted from {tabges_path}"
@@ -766,12 +769,12 @@ def test_extract_participants_from_tabges(sample_dir, test_dir, true_participant
     ],
 )
 def test_extract_participants_from_wert_er(sample_dir, test_dir, true_participants):
-    parser = TopTurnierParser()
     wert_er_path = os.path.join(test_dir, sample_dir, "wert_er.htm")
     if not os.path.exists(wert_er_path):
         pytest.skip(f"Missing {wert_er_path}")
     html = get_html(wert_er_path)
-    participants, _ = parser.extract_participants(html, filename="wert_er.htm")
+    soup = get_soup(html)
+    participants = extract_participants_from_wert_er(soup)
     assert isinstance(participants, list)
     assert all(isinstance(p, Participant) for p in participants)
     assert participants, f"No participants extracted from {wert_er_path}"

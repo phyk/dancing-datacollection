@@ -1,6 +1,16 @@
 import os
-from dancing_datacollection.parsing_utils import setup_logging
-from dancing_datacollection.parsing_topturnier import TopTurnierParser
+from dancing_datacollection.parsing_utils import setup_logging, get_soup
+from dancing_datacollection.parsing.deck import extract_judges_from_deck
+from dancing_datacollection.parsing.committee import extract_committee_from_deck
+from dancing_datacollection.parsing.ergwert import (
+    extract_scores_from_ergwert,
+    extract_final_scoring,
+    extract_participants_from_ergwert,
+)
+from dancing_datacollection.parsing.erg import extract_participants_from_erg
+from dancing_datacollection.parsing.tabges import extract_participants_from_tabges
+from dancing_datacollection.parsing.wert_er import extract_participants_from_wert_er
+from dancing_datacollection.data_defs.participant import Participant
 import pytest
 
 # Set up logging before anything else
@@ -22,8 +32,21 @@ SAMPLE_DIRS = [
 ]
 
 
+def extract_participants(html, filename):
+    """Helper to dispatch participant extraction based on filename."""
+    soup = get_soup(html)
+    if filename.endswith("erg.htm"):
+        return extract_participants_from_erg(soup)
+    elif filename.endswith("ergwert.htm"):
+        return extract_participants_from_ergwert(soup)
+    elif filename.endswith("tabges.htm"):
+        return extract_participants_from_tabges(soup)
+    elif filename.endswith("wert_er.htm"):
+        return extract_participants_from_wert_er(soup)
+    return []
+
+
 def main():
-    parser = TopTurnierParser()
     for sample_dir in SAMPLE_DIRS:
         dir_path = os.path.join(TEST_DIR, sample_dir)
         if not os.path.isdir(dir_path):
@@ -37,15 +60,15 @@ def main():
                 fpath = os.path.join(dir_path, fname)
                 with open(fpath, "r", encoding="utf-8") as f:
                     html = f.read()
-                participants, _ = parser.extract_participants(html)
+                participants = extract_participants(html, fname)
                 if participants:
                     print(f"  Participants found in {fname}: {len(participants)}")
                     all_participants.extend(participants)
-        # Deduplicate by (number, names, club)
+        # Deduplicate by (number, name_one, name_two, club)
         seen = set()
         unique_participants = []
         for p in all_participants:
-            key = (p.get("number"), p.get("names"), p.get("club"))
+            key = (p.number, p.name_one, p.name_two, p.club)
             if key not in seen:
                 seen.add(key)
                 unique_participants.append(p)
@@ -57,50 +80,34 @@ def main():
         if os.path.exists(deck_path):
             with open(deck_path, "r", encoding="utf-8") as f:
                 deck_html = f.read()
-            judges = parser.extract_judges(deck_html)
+            soup = get_soup(deck_html)
+            judges = extract_judges_from_deck(soup)
             print(f"  Judges found: {len(judges)}")
-            committee = parser.extract_committee(deck_html)
+            committee = extract_committee_from_deck(soup)
             print(f"  Committee entries found: {len(committee)}")
-        # Test scores extraction from tabges.htm
-        tabges_path = os.path.join(dir_path, "tabges.htm")
-        tabges_couples = set()
-        if os.path.exists(tabges_path):
-            with open(tabges_path, "r", encoding="utf-8") as f:
-                tabges_html = f.read()
-            scores = parser.extract_scores(tabges_html)
-            print(f"  Score entries found: {len(scores)}")
-            # Extract unique couple numbers from scores
-            tabges_couples = set(
-                s["number"] for s in scores if "number" in s and s["number"] is not None
-            )
-            print(f"  Unique couple numbers in tabges.htm: {len(tabges_couples)}")
-            # Print a sample score entry
-            if scores:
-                print(f"    Sample score entry: {scores[0]}")
-        # Test final scoring extraction from ergwert.htm
+        # Test scores and final scoring extraction from ergwert.htm
         ergwert_path = os.path.join(dir_path, "ergwert.htm")
         ergwert_couples = set()
         if os.path.exists(ergwert_path):
             with open(ergwert_path, "r", encoding="utf-8") as f:
                 ergwert_html = f.read()
-            final_scores = parser.extract_final_scoring(ergwert_html)
+            soup = get_soup(ergwert_html)
+            scores = extract_scores_from_ergwert(soup)
+            print(f"  Score entries found: {len(scores)}")
+            final_scores = extract_final_scoring(ergwert_html)
+            print(f"  Final scoring entries found: {len(final_scores)}")
             ergwert_couples = set(
                 f["number"]
                 for f in final_scores
                 if "number" in f and f["number"] is not None
             )
             print(f"  Unique couple numbers in ergwert.htm: {len(ergwert_couples)}")
+
         # Compare numbers
         participant_numbers = set(
-            p["number"]
-            for p in unique_participants
-            if "number" in p and p["number"] is not None
+            p.number for p in unique_participants if p.number is not None
         )
         print(f"  Unique couple numbers in participants: {len(participant_numbers)}")
-        if tabges_couples and participant_numbers != tabges_couples:
-            print(
-                f"WARNING: Mismatch between participants and tabges.htm couples! Participants: {len(participant_numbers)}, Tabges: {len(tabges_couples)}"
-            )
         if ergwert_couples and participant_numbers != ergwert_couples:
             print(
                 f"WARNING: Mismatch between participants and ergwert.htm couples! Participants: {len(participant_numbers)}, Ergwert: {len(ergwert_couples)}"
@@ -108,12 +115,9 @@ def main():
 
 
 def test_extract_final_scoring():
-    from dancing_datacollection.parsing_topturnier import TopTurnierParser
-
-    parser = TopTurnierParser()
     with open("tests/51-1105_ot_hgr2dstd/ergwert.htm", encoding="utf-8") as f:
         html = f.read()
-    final_scores = parser.extract_final_scoring(html)
+    final_scores = extract_final_scoring(html)
     assert isinstance(final_scores, list)
     assert final_scores, "No final scores extracted"
     for entry in final_scores:

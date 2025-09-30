@@ -1,7 +1,10 @@
 from dancing_datacollection.data_defs.judge import Judge
-from typing import List
+from typing import List, Any, cast
 import logging
-from dancing_datacollection.parsing_utils import deduplicate_judges
+from dancing_datacollection.parsing_utils import deduplicate_judges, get_soup
+
+
+parsing_logger = logging.getLogger("parsing_debug")
 
 
 def merge_judges_prefer_club(*lists: List[Judge]) -> List[Judge]:
@@ -67,3 +70,60 @@ def extract_judges_from_deck(soup) -> List[Judge]:
                     f"Invalid judge skipped: code={code}, name={name}, club={club}, error={e}"
                 )
     return deduplicate_judges(judges)
+
+
+def parse_deck_all(html):
+    """
+    Parse all available information from deck.htm, logging any unrecognized or ambiguous content.
+    Returns a dictionary with all found data, including unknown/extra fields.
+    """
+    parsing_logger.debug("parse_deck_all: START")
+    soup: Any = get_soup(html)
+    tables: List[Any] = cast(Any, soup).find_all("table")
+    all_data = []
+    for table_idx, table in enumerate(tables):
+        table_data = {"table_idx": table_idx, "rows": []}
+        rows: List[Any] = cast(Any, table).find_all("tr")
+        for row_idx, row in enumerate(rows):
+            cells: List[Any] = cast(Any, row).find_all(["td", "th"])
+            cell_data = []
+            for cell_idx, cell in enumerate(cells):
+                text = cell.get_text(" ", strip=True)
+                raw_classes = cell.get("class")
+                if isinstance(raw_classes, list):
+                    cell_class: List[str] = raw_classes
+                elif isinstance(raw_classes, str):
+                    cell_class = [raw_classes]
+                else:
+                    cell_class = []
+                cell_html = str(cell)
+                cell_info = {
+                    "cell_idx": cell_idx,
+                    "text": text,
+                    "class": cell_class,
+                    "html": cell_html,
+                }
+                known_classes = {
+                    "td2",
+                    "td2c",
+                    "td2gc",
+                    "td1",
+                    "td3",
+                    "td3c",
+                    "td3cv",
+                    "td5c",
+                    "td5cv",
+                }
+                if not set(cell_class).intersection(known_classes):
+                    parsing_logger.warning(
+                        f"Unrecognized cell class in deck.htm: Table {table_idx}, Row {row_idx}, Cell {cell_idx}, Class: {cell_class}, Text: {text}"
+                    )
+                if text == "" or text == "\xa0":
+                    parsing_logger.info(
+                        f"Empty or ambiguous cell in deck.htm: Table {table_idx}, Row {row_idx}, Cell {cell_idx}, HTML: {cell_html}"
+                    )
+                cell_data.append(cell_info)
+            table_data["rows"].append({"row_idx": row_idx, "cells": cell_data})
+        all_data.append(table_data)
+    parsing_logger.debug("parse_deck_all: END")
+    return all_data
