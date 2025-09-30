@@ -1,15 +1,18 @@
 import pathlib
+
 import pytest
+
 from dancing_datacollection.html_canonicalize import canonicalize_html
+
 
 def _load(dirpath: pathlib.Path, name: str) -> str:
     p = dirpath / name
     assert p.exists(), f"Missing {name} in {dirpath}"
     return p.read_text(encoding="utf-8")
 
-@pytest.fixture(scope="module")
-def html_51():
-    base = pathlib.Path(__file__).parent / "51-1105_ot_hgr2dstd"
+
+def _load_golden_data(base_dir_name: str):
+    base = pathlib.Path(__file__).parent / base_dir_name
     return {
         "deck": _load(base, "deck.htm"),
         "tabges": _load(base, "tabges.htm"),
@@ -21,8 +24,26 @@ def html_51():
         "ergwert_golden": _load(base, "ergwert.golden.htm"),
     }
 
+
+@pytest.fixture(scope="module")
+def html_51():
+    return _load_golden_data("51-1105_ot_hgr2dstd")
+
+
+@pytest.fixture(scope="module")
+def html_52():
+    return _load_golden_data("52-1105_ot_hgr2cstd")
+
+
+@pytest.fixture(scope="module")
+def html_53():
+    return _load_golden_data("53-1105_ot_hgr2bstd")
+
+
+@pytest.mark.parametrize("html_data_fixture", ["html_51", "html_52", "html_53"])
 @pytest.mark.parametrize("html_type", ["deck", "tabges", "erg", "ergwert"])
-def test_canonicalization(html_51, html_type):
+def test_canonicalization(html_data_fixture, html_type, request):
     """Helper function to run a golden file test."""
-    canonical_output = canonicalize_html(html_51[html_type])
-    assert canonical_output == html_51[f"{html_type}_golden"]
+    html_data = request.getfixturevalue(html_data_fixture)
+    canonical_output = canonicalize_html(html_data[html_type])
+    assert canonical_output == html_data[f"{html_type}_golden"]
