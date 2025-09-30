@@ -18,17 +18,17 @@ from dancing_datacollection.output import (
     save_scores,
     save_final_scoring,
 )
-from dancing_datacollection.parsing.deck import extract_judges_from_deck
-from dancing_datacollection.parsing.committee import extract_committee_from_deck
+from dancing_datacollection.parsing.deck import (
+    extract_judges_from_deck,
+    extract_committee_from_deck,
+)
 from dancing_datacollection.parsing.ergwert import (
     extract_scores_from_ergwert,
     extract_final_scoring,
-    extract_participants_from_ergwert,
 )
-from dancing_datacollection.parsing.erg import extract_participants_from_erg
-from dancing_datacollection.parsing.tabges import extract_participants_from_tabges
-from dancing_datacollection.parsing.wert_er import extract_participants_from_wert_er
-import re
+from dancing_datacollection.parsing.participant import (
+    extract_participants_and_event_name,
+)
 import urllib.robotparser
 import urllib.parse
 
@@ -63,27 +63,6 @@ def is_allowed_by_robots(url, user_agent="*"):
     except Exception as e:
         logging.error(f"Failed to check robots.txt at {robots_url}: {e}")
         return True
-
-
-def extract_participants_and_event_name(html, filename):
-    soup = get_soup(html)
-    participants = []
-    if filename.endswith("erg.htm"):
-        participants = extract_participants_from_erg(soup)
-    elif filename.endswith("ergwert.htm"):
-        participants = extract_participants_from_ergwert(soup)
-    elif filename.endswith("tabges.htm"):
-        participants = extract_participants_from_tabges(soup)
-    elif filename.endswith("wert_er.htm"):
-        participants = extract_participants_from_wert_er(soup)
-    else:
-        logger.warning(f"Unknown filename for participant extraction: {filename}")
-        participants = []
-
-    title_tag = soup.find("title")
-    event_name = title_tag.get_text(strip=True) if title_tag else "unknown_event"
-    event_name = re.sub(r"[^\w\d-]+", "_", event_name)[:64]
-    return participants, event_name
 
 
 def process_local_dir(local_dir):
