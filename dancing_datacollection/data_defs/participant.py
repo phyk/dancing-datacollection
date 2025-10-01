@@ -1,10 +1,11 @@
-from typing import Optional, List, Any
 import re
-from pydantic import BaseModel, field_validator, ConfigDict
+from typing import Any, List, Optional, Union
+
+from pydantic import BaseModel, ConfigDict, field_validator
 
 
 class Participant(BaseModel):
-    model_config = ConfigDict(frozen=True, extra='forbid')
+    model_config = ConfigDict(frozen=True, extra="forbid")
 
     name_one: str
     number: int
@@ -12,22 +13,19 @@ class Participant(BaseModel):
     ranks: Optional[List[int]] = None
     club: Optional[str] = None
 
-    @field_validator("name_one", "name_two", "club", mode="before")
+    @field_validator("name_one", "name_two", "club")
     @classmethod
-    def _normalize_str(cls, v: Any) -> Optional[str]:
+    def _normalize_str(cls, v: Optional[str]) -> Optional[str]:
         if v is None:
             return None
-        if not isinstance(v, str):
-            return v
-
         normalized = re.sub(r"\s+", " ", v.strip())
-        if not normalized:
-            return None
-        return normalized
+        return normalized or None
 
     @field_validator("ranks", mode="before")
     @classmethod
-    def _parse_ranks(cls, v: Any) -> Optional[List[int]]:
+    def _parse_ranks(
+        cls, v: Optional[Union[str, int, List[Any]]]
+    ) -> Optional[List[int]]:
         if v is None:
             return None
 
@@ -47,13 +45,11 @@ class Participant(BaseModel):
         """Return True if number, name_one, and name_two match. Ignores club."""
         if not isinstance(other, Participant):
             return False
-        if self.number != other.number:
-            return False
-        if self.name_one != other.name_one:
-            return False
-        if self.name_two != other.name_two:
-            return False
-        return True
+        return (
+            self.number == other.number
+            and self.name_one == other.name_one
+            and self.name_two == other.name_two
+        )
 
     def matches_full(self, other: "Participant") -> bool:
         """Return True if number, name_one, name_two, club, and ranks all match."""

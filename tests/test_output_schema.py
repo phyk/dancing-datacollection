@@ -1,6 +1,10 @@
+import logging
 import os
 import sys
+
 from dancing_datacollection.output import validate_schema
+
+logging.basicConfig(level=logging.INFO, format="%(message)s")
 
 data_dir = "data"
 expected_files = {
@@ -23,9 +27,7 @@ expected_files = {
         "names",
         "number",
         "club",
-        "score_LW",
-        "score_TG",
-        "score_QS",
+        "scores",
         "total",
     ],
 }
@@ -33,12 +35,12 @@ expected_files = {
 failures = []
 
 
-def validate_all():
+def validate_all() -> None:
     for comp_dir in os.listdir(data_dir):
         comp_path = os.path.join(data_dir, comp_dir)
         if not os.path.isdir(comp_path):
             continue
-        print(f"Validating {comp_dir}...")
+        logging.info("Validating %s...", comp_dir)
         for fname, columns in expected_files.items():
             fpath = os.path.join(comp_path, fname)
             if os.path.exists(fpath):
@@ -46,14 +48,14 @@ def validate_all():
                 if not ok:
                     failures.append(f"{comp_dir}/{fname}")
             else:
-                print(f"  (skipped missing {fname})")
+                logging.info("  (skipped missing %s)", fname)
     if failures:
-        print("\nFAILED schema validation for:")
+        logging.error("\nFAILED schema validation for:")
         for f in failures:
-            print("  ", f)
+            logging.error("  %s", f)
         sys.exit(1)
     else:
-        print("\nAll output files passed schema validation.")
+        logging.info("\nAll output files passed schema validation.")
 
 
 if __name__ == "__main__":

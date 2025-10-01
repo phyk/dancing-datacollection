@@ -1,286 +1,528 @@
 import os
+from typing import Callable, List, Tuple
+
 import pytest
-from dancing_datacollection.parsing.ergwert import extract_scores_from_ergwert
-from dancing_datacollection.parsing.tabges import parse_tabges_all
-from dancing_datacollection.parsing.parsing_utils import get_soup
+
+from dancing_datacollection.data_defs.dances import Dance
 from dancing_datacollection.data_defs.score import FinalRoundScore, Score
+from dancing_datacollection.parsing.ergwert import extract_scores_from_ergwert
+from dancing_datacollection.parsing.parsing_utils import get_soup
+from dancing_datacollection.parsing.tabges import parse_tabges_all
 
 TEST_DIR = os.path.dirname(__file__)
 
 
-def ground_truth_ergwert_scores_51():
-    # Returns (final_round_scores, all_other_scores)
-    # All scores for all couples and all rounds, ordered by round (descending), number, dance, judge
+def ground_truth_ergwert_scores_51() -> Tuple[List[FinalRoundScore], List[Score]]:
     final_round_scores = [
         FinalRoundScore(
-            number=610, score=1, round_number=4, judge_code="AT", dance_name="Quickstep"
+            number=610,
+            score=1,
+            round_number=4,
+            judge_code="AT",
+            dance_name=Dance.QUICKSTEP,
         ),
         FinalRoundScore(
-            number=610, score=1, round_number=4, judge_code="AX", dance_name="Quickstep"
+            number=610,
+            score=1,
+            round_number=4,
+            judge_code="AX",
+            dance_name=Dance.QUICKSTEP,
         ),
         FinalRoundScore(
-            number=610, score=1, round_number=4, judge_code="BW", dance_name="Quickstep"
+            number=610,
+            score=1,
+            round_number=4,
+            judge_code="BW",
+            dance_name=Dance.QUICKSTEP,
         ),
         FinalRoundScore(
-            number=610, score=3, round_number=4, judge_code="CJ", dance_name="Quickstep"
+            number=610,
+            score=3,
+            round_number=4,
+            judge_code="CJ",
+            dance_name=Dance.QUICKSTEP,
         ),
         FinalRoundScore(
-            number=610, score=1, round_number=4, judge_code="EK", dance_name="Quickstep"
+            number=610,
+            score=1,
+            round_number=4,
+            judge_code="EK",
+            dance_name=Dance.QUICKSTEP,
         ),
         FinalRoundScore(
-            number=610, score=1, round_number=4, judge_code="AT", dance_name="SlowWaltz"
+            number=610,
+            score=1,
+            round_number=4,
+            judge_code="AT",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         FinalRoundScore(
-            number=610, score=1, round_number=4, judge_code="AX", dance_name="SlowWaltz"
+            number=610,
+            score=1,
+            round_number=4,
+            judge_code="AX",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         FinalRoundScore(
-            number=610, score=1, round_number=4, judge_code="BW", dance_name="SlowWaltz"
+            number=610,
+            score=1,
+            round_number=4,
+            judge_code="BW",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         FinalRoundScore(
-            number=610, score=3, round_number=4, judge_code="CJ", dance_name="SlowWaltz"
+            number=610,
+            score=3,
+            round_number=4,
+            judge_code="CJ",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         FinalRoundScore(
-            number=610, score=1, round_number=4, judge_code="EK", dance_name="SlowWaltz"
+            number=610,
+            score=1,
+            round_number=4,
+            judge_code="EK",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         FinalRoundScore(
-            number=610, score=1, round_number=4, judge_code="AT", dance_name="Tango"
+            number=610, score=1, round_number=4, judge_code="AT", dance_name=Dance.TANGO
         ),
         FinalRoundScore(
-            number=610, score=1, round_number=4, judge_code="AX", dance_name="Tango"
+            number=610, score=1, round_number=4, judge_code="AX", dance_name=Dance.TANGO
         ),
         FinalRoundScore(
-            number=610, score=1, round_number=4, judge_code="BW", dance_name="Tango"
+            number=610, score=1, round_number=4, judge_code="BW", dance_name=Dance.TANGO
         ),
         FinalRoundScore(
-            number=610, score=4, round_number=4, judge_code="CJ", dance_name="Tango"
+            number=610, score=4, round_number=4, judge_code="CJ", dance_name=Dance.TANGO
         ),
         FinalRoundScore(
-            number=610, score=1, round_number=4, judge_code="EK", dance_name="Tango"
+            number=610, score=1, round_number=4, judge_code="EK", dance_name=Dance.TANGO
         ),
         FinalRoundScore(
-            number=616, score=2, round_number=4, judge_code="AT", dance_name="SlowWaltz"
+            number=616,
+            score=2,
+            round_number=4,
+            judge_code="AT",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         FinalRoundScore(
-            number=616, score=2, round_number=4, judge_code="AX", dance_name="SlowWaltz"
+            number=616,
+            score=2,
+            round_number=4,
+            judge_code="AX",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         FinalRoundScore(
-            number=616, score=2, round_number=4, judge_code="BW", dance_name="SlowWaltz"
+            number=616,
+            score=2,
+            round_number=4,
+            judge_code="BW",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         FinalRoundScore(
-            number=616, score=1, round_number=4, judge_code="CJ", dance_name="SlowWaltz"
+            number=616,
+            score=1,
+            round_number=4,
+            judge_code="CJ",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         FinalRoundScore(
-            number=616, score=5, round_number=4, judge_code="EK", dance_name="SlowWaltz"
+            number=616,
+            score=5,
+            round_number=4,
+            judge_code="EK",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         FinalRoundScore(
-            number=616, score=3, round_number=4, judge_code="AT", dance_name="Tango"
+            number=616, score=3, round_number=4, judge_code="AT", dance_name=Dance.TANGO
         ),
         FinalRoundScore(
-            number=616, score=3, round_number=4, judge_code="AX", dance_name="Tango"
+            number=616, score=3, round_number=4, judge_code="AX", dance_name=Dance.TANGO
         ),
         FinalRoundScore(
-            number=616, score=2, round_number=4, judge_code="BW", dance_name="Tango"
+            number=616, score=2, round_number=4, judge_code="BW", dance_name=Dance.TANGO
         ),
         FinalRoundScore(
-            number=616, score=5, round_number=4, judge_code="CJ", dance_name="Tango"
+            number=616, score=5, round_number=4, judge_code="CJ", dance_name=Dance.TANGO
         ),
         FinalRoundScore(
-            number=616, score=3, round_number=4, judge_code="EK", dance_name="Tango"
+            number=616, score=3, round_number=4, judge_code="EK", dance_name=Dance.TANGO
         ),
         FinalRoundScore(
-            number=616, score=3, round_number=4, judge_code="AT", dance_name="Quickstep"
+            number=616,
+            score=3,
+            round_number=4,
+            judge_code="AT",
+            dance_name=Dance.QUICKSTEP,
         ),
         FinalRoundScore(
-            number=616, score=4, round_number=4, judge_code="AX", dance_name="Quickstep"
+            number=616,
+            score=4,
+            round_number=4,
+            judge_code="AX",
+            dance_name=Dance.QUICKSTEP,
         ),
         FinalRoundScore(
-            number=616, score=2, round_number=4, judge_code="BW", dance_name="Quickstep"
+            number=616,
+            score=2,
+            round_number=4,
+            judge_code="BW",
+            dance_name=Dance.QUICKSTEP,
         ),
         FinalRoundScore(
-            number=616, score=4, round_number=4, judge_code="CJ", dance_name="Quickstep"
+            number=616,
+            score=4,
+            round_number=4,
+            judge_code="CJ",
+            dance_name=Dance.QUICKSTEP,
         ),
         FinalRoundScore(
-            number=616, score=4, round_number=4, judge_code="EK", dance_name="Quickstep"
+            number=616,
+            score=4,
+            round_number=4,
+            judge_code="EK",
+            dance_name=Dance.QUICKSTEP,
         ),
         FinalRoundScore(
-            number=617, score=4, round_number=4, judge_code="AT", dance_name="SlowWaltz"
+            number=617,
+            score=4,
+            round_number=4,
+            judge_code="AT",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         FinalRoundScore(
-            number=617, score=3, round_number=4, judge_code="AX", dance_name="SlowWaltz"
+            number=617,
+            score=3,
+            round_number=4,
+            judge_code="AX",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         FinalRoundScore(
-            number=617, score=3, round_number=4, judge_code="BW", dance_name="SlowWaltz"
+            number=617,
+            score=3,
+            round_number=4,
+            judge_code="BW",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         FinalRoundScore(
-            number=617, score=5, round_number=4, judge_code="CJ", dance_name="SlowWaltz"
+            number=617,
+            score=5,
+            round_number=4,
+            judge_code="CJ",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         FinalRoundScore(
-            number=617, score=2, round_number=4, judge_code="EK", dance_name="SlowWaltz"
+            number=617,
+            score=2,
+            round_number=4,
+            judge_code="EK",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         FinalRoundScore(
-            number=617, score=5, round_number=4, judge_code="AT", dance_name="Tango"
+            number=617, score=5, round_number=4, judge_code="AT", dance_name=Dance.TANGO
         ),
         FinalRoundScore(
-            number=617, score=6, round_number=4, judge_code="AX", dance_name="Tango"
+            number=617, score=6, round_number=4, judge_code="AX", dance_name=Dance.TANGO
         ),
         FinalRoundScore(
-            number=617, score=3, round_number=4, judge_code="BW", dance_name="Tango"
+            number=617, score=3, round_number=4, judge_code="BW", dance_name=Dance.TANGO
         ),
         FinalRoundScore(
-            number=617, score=1, round_number=4, judge_code="CJ", dance_name="Tango"
+            number=617, score=1, round_number=4, judge_code="CJ", dance_name=Dance.TANGO
         ),
         FinalRoundScore(
-            number=617, score=6, round_number=4, judge_code="EK", dance_name="Tango"
+            number=617, score=6, round_number=4, judge_code="EK", dance_name=Dance.TANGO
         ),
         FinalRoundScore(
-            number=617, score=5, round_number=4, judge_code="AT", dance_name="Quickstep"
+            number=617,
+            score=5,
+            round_number=4,
+            judge_code="AT",
+            dance_name=Dance.QUICKSTEP,
         ),
         FinalRoundScore(
-            number=617, score=3, round_number=4, judge_code="AX", dance_name="Quickstep"
+            number=617,
+            score=3,
+            round_number=4,
+            judge_code="AX",
+            dance_name=Dance.QUICKSTEP,
         ),
         FinalRoundScore(
-            number=617, score=3, round_number=4, judge_code="BW", dance_name="Quickstep"
+            number=617,
+            score=3,
+            round_number=4,
+            judge_code="BW",
+            dance_name=Dance.QUICKSTEP,
         ),
         FinalRoundScore(
-            number=617, score=2, round_number=4, judge_code="CJ", dance_name="Quickstep"
+            number=617,
+            score=2,
+            round_number=4,
+            judge_code="CJ",
+            dance_name=Dance.QUICKSTEP,
         ),
         FinalRoundScore(
-            number=617, score=5, round_number=4, judge_code="EK", dance_name="Quickstep"
+            number=617,
+            score=5,
+            round_number=4,
+            judge_code="EK",
+            dance_name=Dance.QUICKSTEP,
         ),
         FinalRoundScore(
-            number=611, score=6, round_number=4, judge_code="AT", dance_name="SlowWaltz"
+            number=611,
+            score=6,
+            round_number=4,
+            judge_code="AT",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         FinalRoundScore(
-            number=611, score=4, round_number=4, judge_code="AX", dance_name="SlowWaltz"
+            number=611,
+            score=4,
+            round_number=4,
+            judge_code="AX",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         FinalRoundScore(
-            number=611, score=6, round_number=4, judge_code="BW", dance_name="SlowWaltz"
+            number=611,
+            score=6,
+            round_number=4,
+            judge_code="BW",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         FinalRoundScore(
-            number=611, score=4, round_number=4, judge_code="CJ", dance_name="SlowWaltz"
+            number=611,
+            score=4,
+            round_number=4,
+            judge_code="CJ",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         FinalRoundScore(
-            number=611, score=3, round_number=4, judge_code="EK", dance_name="SlowWaltz"
+            number=611,
+            score=3,
+            round_number=4,
+            judge_code="EK",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         FinalRoundScore(
-            number=611, score=6, round_number=4, judge_code="AT", dance_name="Tango"
+            number=611, score=6, round_number=4, judge_code="AT", dance_name=Dance.TANGO
         ),
         FinalRoundScore(
-            number=611, score=2, round_number=4, judge_code="AX", dance_name="Tango"
+            number=611, score=2, round_number=4, judge_code="AX", dance_name=Dance.TANGO
         ),
         FinalRoundScore(
-            number=611, score=6, round_number=4, judge_code="BW", dance_name="Tango"
+            number=611, score=6, round_number=4, judge_code="BW", dance_name=Dance.TANGO
         ),
         FinalRoundScore(
-            number=611, score=3, round_number=4, judge_code="CJ", dance_name="Tango"
+            number=611, score=3, round_number=4, judge_code="CJ", dance_name=Dance.TANGO
         ),
         FinalRoundScore(
-            number=611, score=2, round_number=4, judge_code="EK", dance_name="Tango"
+            number=611, score=2, round_number=4, judge_code="EK", dance_name=Dance.TANGO
         ),
         FinalRoundScore(
-            number=611, score=6, round_number=4, judge_code="AT", dance_name="Quickstep"
+            number=611,
+            score=6,
+            round_number=4,
+            judge_code="AT",
+            dance_name=Dance.QUICKSTEP,
         ),
         FinalRoundScore(
-            number=611, score=2, round_number=4, judge_code="AX", dance_name="Quickstep"
+            number=611,
+            score=2,
+            round_number=4,
+            judge_code="AX",
+            dance_name=Dance.QUICKSTEP,
         ),
         FinalRoundScore(
-            number=611, score=4, round_number=4, judge_code="BW", dance_name="Quickstep"
+            number=611,
+            score=4,
+            round_number=4,
+            judge_code="BW",
+            dance_name=Dance.QUICKSTEP,
         ),
         FinalRoundScore(
-            number=611, score=5, round_number=4, judge_code="CJ", dance_name="Quickstep"
+            number=611,
+            score=5,
+            round_number=4,
+            judge_code="CJ",
+            dance_name=Dance.QUICKSTEP,
         ),
         FinalRoundScore(
-            number=611, score=2, round_number=4, judge_code="EK", dance_name="Quickstep"
+            number=611,
+            score=2,
+            round_number=4,
+            judge_code="EK",
+            dance_name=Dance.QUICKSTEP,
         ),
         FinalRoundScore(
-            number=619, score=3, round_number=4, judge_code="AT", dance_name="SlowWaltz"
+            number=619,
+            score=3,
+            round_number=4,
+            judge_code="AT",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         FinalRoundScore(
-            number=619, score=5, round_number=4, judge_code="AX", dance_name="SlowWaltz"
+            number=619,
+            score=5,
+            round_number=4,
+            judge_code="AX",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         FinalRoundScore(
-            number=619, score=4, round_number=4, judge_code="BW", dance_name="SlowWaltz"
+            number=619,
+            score=4,
+            round_number=4,
+            judge_code="BW",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         FinalRoundScore(
-            number=619, score=2, round_number=4, judge_code="CJ", dance_name="SlowWaltz"
+            number=619,
+            score=2,
+            round_number=4,
+            judge_code="CJ",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         FinalRoundScore(
-            number=619, score=6, round_number=4, judge_code="EK", dance_name="SlowWaltz"
+            number=619,
+            score=6,
+            round_number=4,
+            judge_code="EK",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         FinalRoundScore(
-            number=619, score=2, round_number=4, judge_code="AT", dance_name="Tango"
+            number=619, score=2, round_number=4, judge_code="AT", dance_name=Dance.TANGO
         ),
         FinalRoundScore(
-            number=619, score=4, round_number=4, judge_code="AX", dance_name="Tango"
+            number=619, score=4, round_number=4, judge_code="AX", dance_name=Dance.TANGO
         ),
         FinalRoundScore(
-            number=619, score=4, round_number=4, judge_code="BW", dance_name="Tango"
+            number=619, score=4, round_number=4, judge_code="BW", dance_name=Dance.TANGO
         ),
         FinalRoundScore(
-            number=619, score=2, round_number=4, judge_code="CJ", dance_name="Tango"
+            number=619, score=2, round_number=4, judge_code="CJ", dance_name=Dance.TANGO
         ),
         FinalRoundScore(
-            number=619, score=5, round_number=4, judge_code="EK", dance_name="Tango"
+            number=619, score=5, round_number=4, judge_code="EK", dance_name=Dance.TANGO
         ),
         FinalRoundScore(
-            number=619, score=2, round_number=4, judge_code="AT", dance_name="Quickstep"
+            number=619,
+            score=2,
+            round_number=4,
+            judge_code="AT",
+            dance_name=Dance.QUICKSTEP,
         ),
         FinalRoundScore(
-            number=619, score=6, round_number=4, judge_code="AX", dance_name="Quickstep"
+            number=619,
+            score=6,
+            round_number=4,
+            judge_code="AX",
+            dance_name=Dance.QUICKSTEP,
         ),
         FinalRoundScore(
-            number=619, score=5, round_number=4, judge_code="BW", dance_name="Quickstep"
+            number=619,
+            score=5,
+            round_number=4,
+            judge_code="BW",
+            dance_name=Dance.QUICKSTEP,
         ),
         FinalRoundScore(
-            number=619, score=1, round_number=4, judge_code="CJ", dance_name="Quickstep"
+            number=619,
+            score=1,
+            round_number=4,
+            judge_code="CJ",
+            dance_name=Dance.QUICKSTEP,
         ),
         FinalRoundScore(
-            number=619, score=6, round_number=4, judge_code="EK", dance_name="Quickstep"
+            number=619,
+            score=6,
+            round_number=4,
+            judge_code="EK",
+            dance_name=Dance.QUICKSTEP,
         ),
         FinalRoundScore(
-            number=615, score=5, round_number=4, judge_code="AT", dance_name="SlowWaltz"
+            number=615,
+            score=5,
+            round_number=4,
+            judge_code="AT",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         FinalRoundScore(
-            number=615, score=6, round_number=4, judge_code="AX", dance_name="SlowWaltz"
+            number=615,
+            score=6,
+            round_number=4,
+            judge_code="AX",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         FinalRoundScore(
-            number=615, score=5, round_number=4, judge_code="BW", dance_name="SlowWaltz"
+            number=615,
+            score=5,
+            round_number=4,
+            judge_code="BW",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         FinalRoundScore(
-            number=615, score=6, round_number=4, judge_code="CJ", dance_name="SlowWaltz"
+            number=615,
+            score=6,
+            round_number=4,
+            judge_code="CJ",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         FinalRoundScore(
-            number=615, score=4, round_number=4, judge_code="EK", dance_name="SlowWaltz"
+            number=615,
+            score=4,
+            round_number=4,
+            judge_code="EK",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         FinalRoundScore(
-            number=615, score=4, round_number=4, judge_code="AT", dance_name="Tango"
+            number=615, score=4, round_number=4, judge_code="AT", dance_name=Dance.TANGO
         ),
         FinalRoundScore(
-            number=615, score=5, round_number=4, judge_code="AX", dance_name="Tango"
+            number=615, score=5, round_number=4, judge_code="AX", dance_name=Dance.TANGO
         ),
         FinalRoundScore(
-            number=615, score=5, round_number=4, judge_code="BW", dance_name="Tango"
+            number=615, score=5, round_number=4, judge_code="BW", dance_name=Dance.TANGO
         ),
         FinalRoundScore(
-            number=615, score=6, round_number=4, judge_code="CJ", dance_name="Tango"
+            number=615, score=6, round_number=4, judge_code="CJ", dance_name=Dance.TANGO
         ),
         FinalRoundScore(
-            number=615, score=4, round_number=4, judge_code="EK", dance_name="Tango"
+            number=615, score=4, round_number=4, judge_code="EK", dance_name=Dance.TANGO
         ),
         FinalRoundScore(
-            number=615, score=4, round_number=4, judge_code="AT", dance_name="Quickstep"
+            number=615,
+            score=4,
+            round_number=4,
+            judge_code="AT",
+            dance_name=Dance.QUICKSTEP,
         ),
         FinalRoundScore(
-            number=615, score=5, round_number=4, judge_code="AX", dance_name="Quickstep"
+            number=615,
+            score=5,
+            round_number=4,
+            judge_code="AX",
+            dance_name=Dance.QUICKSTEP,
         ),
         FinalRoundScore(
-            number=615, score=6, round_number=4, judge_code="BW", dance_name="Quickstep"
+            number=615,
+            score=6,
+            round_number=4,
+            judge_code="BW",
+            dance_name=Dance.QUICKSTEP,
         ),
         FinalRoundScore(
-            number=615, score=6, round_number=4, judge_code="CJ", dance_name="Quickstep"
+            number=615,
+            score=6,
+            round_number=4,
+            judge_code="CJ",
+            dance_name=Dance.QUICKSTEP,
         ),
         FinalRoundScore(
-            number=615, score=3, round_number=4, judge_code="EK", dance_name="Quickstep"
+            number=615,
+            score=3,
+            round_number=4,
+            judge_code="EK",
+            dance_name=Dance.QUICKSTEP,
         ),
     ]
     all_other_scores = [
@@ -289,1524 +531,3479 @@ def ground_truth_ergwert_scores_51():
             score=True,
             round_number=1,
             judge_code="AT",
-            dance_name="Quickstep",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
             number=600,
             score=True,
             round_number=1,
             judge_code="AX",
-            dance_name="Quickstep",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
             number=600,
             score=True,
             round_number=1,
             judge_code="BW",
-            dance_name="Quickstep",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
             number=600,
             score=True,
             round_number=1,
             judge_code="CJ",
-            dance_name="Quickstep",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
             number=600,
             score=True,
             round_number=1,
             judge_code="EK",
-            dance_name="Quickstep",
-        ),
-        Score(
-            number=600,
-            score=False,
-            round_number=1,
-            judge_code="AT",
-            dance_name="Tango",
-        ),
-        Score(
-            number=600,
-            score=True,
-            round_number=1,
-            judge_code="AX",
-            dance_name="Tango",
-        ),
-        Score(
-            number=600,
-            score=False,
-            round_number=1,
-            judge_code="BW",
-            dance_name="Tango",
-        ),
-        Score(
-            number=600,
-            score=True,
-            round_number=1,
-            judge_code="CJ",
-            dance_name="Tango",
-        ),
-        Score(
-            number=600,
-            score=True,
-            round_number=1,
-            judge_code="EK",
-            dance_name="Tango",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
             number=600,
             score=False,
             round_number=1,
             judge_code="AT",
-            dance_name="SlowWaltz",
+            dance_name=Dance.TANGO,
         ),
         Score(
             number=600,
             score=True,
             round_number=1,
             judge_code="AX",
-            dance_name="SlowWaltz",
+            dance_name=Dance.TANGO,
+        ),
+        Score(
+            number=600,
+            score=False,
+            round_number=1,
+            judge_code="BW",
+            dance_name=Dance.TANGO,
+        ),
+        Score(
+            number=600,
+            score=True,
+            round_number=1,
+            judge_code="CJ",
+            dance_name=Dance.TANGO,
+        ),
+        Score(
+            number=600,
+            score=True,
+            round_number=1,
+            judge_code="EK",
+            dance_name=Dance.TANGO,
+        ),
+        Score(
+            number=600,
+            score=False,
+            round_number=1,
+            judge_code="AT",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        Score(
+            number=600,
+            score=True,
+            round_number=1,
+            judge_code="AX",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
             number=600,
             score=True,
             round_number=1,
             judge_code="BW",
-            dance_name="SlowWaltz",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
             number=600,
             score=True,
             round_number=1,
             judge_code="CJ",
-            dance_name="SlowWaltz",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
             number=600,
             score=True,
             round_number=1,
             judge_code="EK",
-            dance_name="SlowWaltz",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
             number=602,
             score=True,
             round_number=3,
             judge_code="AT",
-            dance_name="Quickstep",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
             number=602,
             score=True,
             round_number=3,
             judge_code="AX",
-            dance_name="Quickstep",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
             number=602,
             score=True,
             round_number=3,
             judge_code="BW",
-            dance_name="Quickstep",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
             number=602,
             score=True,
             round_number=3,
             judge_code="CJ",
-            dance_name="Quickstep",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
             number=602,
             score=True,
             round_number=3,
             judge_code="AT",
-            dance_name="SlowWaltz",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
             number=602,
             score=True,
             round_number=3,
             judge_code="CJ",
-            dance_name="SlowWaltz",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
-            number=602, score=True, round_number=3, judge_code="AT", dance_name="Tango"
+            number=602, score=True, round_number=3, judge_code="AT", dance_name=Dance.TANGO
         ),
         Score(
-            number=602, score=True, round_number=3, judge_code="AX", dance_name="Tango"
+            number=602, score=True, round_number=3, judge_code="AX", dance_name=Dance.TANGO
         ),
         Score(
-            number=602, score=True, round_number=3, judge_code="BW", dance_name="Tango"
+            number=602, score=True, round_number=3, judge_code="BW", dance_name=Dance.TANGO
         ),
         Score(
-            number=602, score=True, round_number=3, judge_code="EK", dance_name="Tango"
+            number=602, score=True, round_number=3, judge_code="EK", dance_name=Dance.TANGO
         ),
         Score(
             number=603,
             score=True,
             round_number=3,
             judge_code="AT",
-            dance_name="Quickstep",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
             number=603,
             score=True,
             round_number=3,
             judge_code="AX",
-            dance_name="Quickstep",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
             number=603,
             score=True,
             round_number=3,
             judge_code="BW",
-            dance_name="Quickstep",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
             number=603,
             score=True,
             round_number=3,
             judge_code="CJ",
-            dance_name="Quickstep",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
             number=603,
             score=True,
             round_number=3,
             judge_code="EK",
-            dance_name="Quickstep",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
             number=603,
             score=True,
             round_number=3,
             judge_code="AT",
-            dance_name="SlowWaltz",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
             number=603,
             score=True,
             round_number=3,
             judge_code="AX",
-            dance_name="SlowWaltz",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
             number=603,
             score=True,
             round_number=3,
             judge_code="BW",
-            dance_name="SlowWaltz",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
             number=603,
             score=True,
             round_number=3,
             judge_code="CJ",
-            dance_name="SlowWaltz",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
             number=603,
             score=True,
             round_number=3,
             judge_code="EK",
-            dance_name="SlowWaltz",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
-            number=603, score=True, round_number=3, judge_code="AT", dance_name="Tango"
+            number=603, score=True, round_number=3, judge_code="AT", dance_name=Dance.TANGO
         ),
         Score(
-            number=603, score=True, round_number=3, judge_code="AX", dance_name="Tango"
+            number=603, score=True, round_number=3, judge_code="AX", dance_name=Dance.TANGO
         ),
         Score(
-            number=603, score=True, round_number=3, judge_code="BW", dance_name="Tango"
+            number=603, score=True, round_number=3, judge_code="BW", dance_name=Dance.TANGO
         ),
         Score(
-            number=603, score=True, round_number=3, judge_code="CJ", dance_name="Tango"
+            number=603, score=True, round_number=3, judge_code="CJ", dance_name=Dance.TANGO
         ),
         Score(
             number=604,
             score=True,
             round_number=3,
             judge_code="BW",
-            dance_name="Quickstep",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
             number=604,
             score=True,
             round_number=3,
             judge_code="CJ",
-            dance_name="Quickstep",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
             number=604,
             score=True,
             round_number=3,
             judge_code="BW",
-            dance_name="SlowWaltz",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
             number=604,
             score=True,
             round_number=3,
             judge_code="CJ",
-            dance_name="SlowWaltz",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
             number=604,
             score=True,
             round_number=3,
             judge_code="EK",
-            dance_name="SlowWaltz",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
-            number=604, score=True, round_number=3, judge_code="BW", dance_name="Tango"
+            number=604, score=True, round_number=3, judge_code="BW", dance_name=Dance.TANGO
         ),
         Score(
-            number=604, score=True, round_number=3, judge_code="CJ", dance_name="Tango"
+            number=604, score=True, round_number=3, judge_code="CJ", dance_name=Dance.TANGO
         ),
         Score(
-            number=604, score=True, round_number=3, judge_code="EK", dance_name="Tango"
-        ),
-        Score(
-            number=606,
-            score=True,
-            round_number=3,
-            judge_code="AT",
-            dance_name="Quickstep",
-        ),
-        Score(
-            number=606,
-            score=True,
-            round_number=3,
-            judge_code="BW",
-            dance_name="Quickstep",
-        ),
-        Score(
-            number=606,
-            score=True,
-            round_number=3,
-            judge_code="EK",
-            dance_name="Quickstep",
+            number=604, score=True, round_number=3, judge_code="EK", dance_name=Dance.TANGO
         ),
         Score(
             number=606,
             score=True,
             round_number=3,
             judge_code="AT",
-            dance_name="SlowWaltz",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
             number=606,
             score=True,
             round_number=3,
             judge_code="BW",
-            dance_name="SlowWaltz",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
             number=606,
             score=True,
             round_number=3,
             judge_code="EK",
-            dance_name="SlowWaltz",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
-            number=606, score=True, round_number=3, judge_code="BW", dance_name="Tango"
+            number=606,
+            score=True,
+            round_number=3,
+            judge_code="AT",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
-            number=606, score=True, round_number=3, judge_code="EK", dance_name="Tango"
+            number=606,
+            score=True,
+            round_number=3,
+            judge_code="BW",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        Score(
+            number=606,
+            score=True,
+            round_number=3,
+            judge_code="EK",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        Score(
+            number=606, score=True, round_number=3, judge_code="BW", dance_name=Dance.TANGO
+        ),
+        Score(
+            number=606, score=True, round_number=3, judge_code="EK", dance_name=Dance.TANGO
         ),
         Score(
             number=607,
             score=True,
             round_number=3,
             judge_code="AT",
-            dance_name="Quickstep",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
             number=607,
             score=True,
             round_number=3,
             judge_code="AX",
-            dance_name="Quickstep",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
             number=607,
             score=True,
             round_number=3,
             judge_code="EK",
-            dance_name="Quickstep",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
             number=607,
             score=True,
             round_number=3,
             judge_code="AT",
-            dance_name="SlowWaltz",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
             number=607,
             score=True,
             round_number=3,
             judge_code="AX",
-            dance_name="SlowWaltz",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
             number=607,
             score=True,
             round_number=3,
             judge_code="BW",
-            dance_name="SlowWaltz",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
             number=607,
             score=True,
             round_number=3,
             judge_code="EK",
-            dance_name="SlowWaltz",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
-            number=607, score=True, round_number=3, judge_code="AX", dance_name="Tango"
+            number=607, score=True, round_number=3, judge_code="AX", dance_name=Dance.TANGO
         ),
         Score(
-            number=607, score=True, round_number=3, judge_code="CJ", dance_name="Tango"
+            number=607, score=True, round_number=3, judge_code="CJ", dance_name=Dance.TANGO
         ),
         Score(
             number=609,
             score=True,
             round_number=3,
             judge_code="AT",
-            dance_name="Quickstep",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
             number=609,
             score=True,
             round_number=3,
             judge_code="AX",
-            dance_name="Quickstep",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
             number=609,
             score=True,
             round_number=3,
             judge_code="BW",
-            dance_name="Quickstep",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
             number=609,
             score=True,
             round_number=3,
             judge_code="CJ",
-            dance_name="Quickstep",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
             number=609,
             score=True,
             round_number=3,
             judge_code="EK",
-            dance_name="Quickstep",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
             number=609,
             score=True,
             round_number=3,
             judge_code="AX",
-            dance_name="SlowWaltz",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
             number=609,
             score=True,
             round_number=3,
             judge_code="BW",
-            dance_name="SlowWaltz",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
             number=609,
             score=True,
             round_number=3,
             judge_code="CJ",
-            dance_name="SlowWaltz",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
-            number=609, score=True, round_number=3, judge_code="AT", dance_name="Tango"
+            number=609, score=True, round_number=3, judge_code="AT", dance_name=Dance.TANGO
         ),
         Score(
-            number=609, score=True, round_number=3, judge_code="AX", dance_name="Tango"
+            number=609, score=True, round_number=3, judge_code="AX", dance_name=Dance.TANGO
         ),
         Score(
-            number=609, score=True, round_number=3, judge_code="BW", dance_name="Tango"
+            number=609, score=True, round_number=3, judge_code="BW", dance_name=Dance.TANGO
         ),
         Score(
-            number=609, score=True, round_number=3, judge_code="CJ", dance_name="Tango"
+            number=609, score=True, round_number=3, judge_code="CJ", dance_name=Dance.TANGO
         ),
         Score(
-            number=609, score=True, round_number=3, judge_code="EK", dance_name="Tango"
+            number=609, score=True, round_number=3, judge_code="EK", dance_name=Dance.TANGO
         ),
         Score(
             number=610,
             score=True,
             round_number=3,
             judge_code="AT",
-            dance_name="Quickstep",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
             number=610,
             score=True,
             round_number=3,
             judge_code="AX",
-            dance_name="Quickstep",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
             number=610,
             score=True,
             round_number=3,
             judge_code="BW",
-            dance_name="Quickstep",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
             number=610,
             score=True,
             round_number=3,
             judge_code="CJ",
-            dance_name="Quickstep",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
             number=610,
             score=True,
             round_number=3,
             judge_code="EK",
-            dance_name="Quickstep",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
             number=610,
             score=True,
             round_number=3,
             judge_code="AT",
-            dance_name="SlowWaltz",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
             number=610,
             score=True,
             round_number=3,
             judge_code="AX",
-            dance_name="SlowWaltz",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
             number=610,
             score=True,
             round_number=3,
             judge_code="BW",
-            dance_name="SlowWaltz",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
             number=610,
             score=True,
             round_number=3,
             judge_code="CJ",
-            dance_name="SlowWaltz",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
             number=610,
             score=True,
             round_number=3,
             judge_code="EK",
-            dance_name="SlowWaltz",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
-            number=610, score=True, round_number=3, judge_code="AT", dance_name="Tango"
+            number=610, score=True, round_number=3, judge_code="AT", dance_name=Dance.TANGO
         ),
         Score(
-            number=610, score=True, round_number=3, judge_code="AX", dance_name="Tango"
+            number=610, score=True, round_number=3, judge_code="AX", dance_name=Dance.TANGO
         ),
         Score(
-            number=610, score=True, round_number=3, judge_code="BW", dance_name="Tango"
+            number=610, score=True, round_number=3, judge_code="BW", dance_name=Dance.TANGO
         ),
         Score(
-            number=610, score=True, round_number=3, judge_code="CJ", dance_name="Tango"
+            number=610, score=True, round_number=3, judge_code="CJ", dance_name=Dance.TANGO
         ),
         Score(
-            number=610, score=True, round_number=3, judge_code="EK", dance_name="Tango"
+            number=610, score=True, round_number=3, judge_code="EK", dance_name=Dance.TANGO
         ),
         Score(
             number=611,
             score=True,
             round_number=3,
             judge_code="AX",
-            dance_name="Quickstep",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
             number=611,
             score=True,
             round_number=3,
             judge_code="BW",
-            dance_name="Quickstep",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
             number=611,
             score=True,
             round_number=3,
             judge_code="EK",
-            dance_name="Quickstep",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
             number=611,
             score=True,
             round_number=3,
             judge_code="AX",
-            dance_name="SlowWaltz",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
             number=611,
             score=True,
             round_number=3,
             judge_code="BW",
-            dance_name="SlowWaltz",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
             number=611,
             score=True,
             round_number=3,
             judge_code="EK",
-            dance_name="SlowWaltz",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
-            number=611, score=True, round_number=3, judge_code="AX", dance_name="Tango"
+            number=611, score=True, round_number=3, judge_code="AX", dance_name=Dance.TANGO
         ),
         Score(
-            number=611, score=True, round_number=3, judge_code="EK", dance_name="Tango"
+            number=611, score=True, round_number=3, judge_code="EK", dance_name=Dance.TANGO
         ),
         Score(
             number=612,
             score=True,
             round_number=3,
             judge_code="AX",
-            dance_name="Quickstep",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
             number=612,
             score=True,
             round_number=3,
             judge_code="BW",
-            dance_name="Quickstep",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
             number=612,
             score=True,
             round_number=3,
             judge_code="CJ",
-            dance_name="Quickstep",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
             number=612,
             score=True,
             round_number=3,
             judge_code="EK",
-            dance_name="Quickstep",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
             number=612,
             score=True,
             round_number=3,
             judge_code="AT",
-            dance_name="SlowWaltz",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
             number=612,
             score=True,
             round_number=3,
             judge_code="BW",
-            dance_name="SlowWaltz",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
             number=612,
             score=True,
             round_number=3,
             judge_code="CJ",
-            dance_name="SlowWaltz",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
             number=612,
             score=True,
             round_number=3,
             judge_code="EK",
-            dance_name="SlowWaltz",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
-            number=612, score=True, round_number=3, judge_code="BW", dance_name="Tango"
+            number=612, score=True, round_number=3, judge_code="BW", dance_name=Dance.TANGO
         ),
         Score(
-            number=612, score=True, round_number=3, judge_code="EK", dance_name="Tango"
+            number=612, score=True, round_number=3, judge_code="EK", dance_name=Dance.TANGO
         ),
         Score(
             number=613,
             score=True,
             round_number=3,
             judge_code="AT",
-            dance_name="Quickstep",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
             number=613,
             score=True,
             round_number=3,
             judge_code="BW",
-            dance_name="Quickstep",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
             number=613,
             score=True,
             round_number=3,
             judge_code="CJ",
-            dance_name="Quickstep",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
             number=613,
             score=True,
             round_number=3,
             judge_code="EK",
-            dance_name="Quickstep",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
             number=613,
             score=True,
             round_number=3,
             judge_code="AT",
-            dance_name="SlowWaltz",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
             number=613,
             score=True,
             round_number=3,
             judge_code="AX",
-            dance_name="SlowWaltz",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
             number=613,
             score=True,
             round_number=3,
             judge_code="BW",
-            dance_name="SlowWaltz",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
             number=613,
             score=True,
             round_number=3,
             judge_code="CJ",
-            dance_name="SlowWaltz",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
             number=613,
             score=True,
             round_number=3,
             judge_code="EK",
-            dance_name="SlowWaltz",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
-            number=613, score=True, round_number=3, judge_code="AT", dance_name="Tango"
+            number=613, score=True, round_number=3, judge_code="AT", dance_name=Dance.TANGO
         ),
         Score(
-            number=613, score=True, round_number=3, judge_code="AX", dance_name="Tango"
+            number=613, score=True, round_number=3, judge_code="AX", dance_name=Dance.TANGO
         ),
         Score(
-            number=613, score=True, round_number=3, judge_code="BW", dance_name="Tango"
+            number=613, score=True, round_number=3, judge_code="BW", dance_name=Dance.TANGO
         ),
         Score(
-            number=613, score=True, round_number=3, judge_code="EK", dance_name="Tango"
+            number=613, score=True, round_number=3, judge_code="EK", dance_name=Dance.TANGO
         ),
         Score(
             number=615,
             score=True,
             round_number=3,
             judge_code="BW",
-            dance_name="Quickstep",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
             number=615,
             score=True,
             round_number=3,
             judge_code="CJ",
-            dance_name="Quickstep",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
             number=615,
             score=True,
             round_number=3,
             judge_code="AT",
-            dance_name="SlowWaltz",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
             number=615,
             score=True,
             round_number=3,
             judge_code="AX",
-            dance_name="SlowWaltz",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
             number=615,
             score=True,
             round_number=3,
             judge_code="EK",
-            dance_name="SlowWaltz",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
-            number=615, score=True, round_number=3, judge_code="AX", dance_name="Tango"
+            number=615, score=True, round_number=3, judge_code="AX", dance_name=Dance.TANGO
         ),
         Score(
-            number=615, score=True, round_number=3, judge_code="BW", dance_name="Tango"
+            number=615, score=True, round_number=3, judge_code="BW", dance_name=Dance.TANGO
         ),
         Score(
             number=616,
             score=True,
             round_number=3,
             judge_code="AT",
-            dance_name="Quickstep",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
             number=616,
             score=True,
             round_number=3,
             judge_code="BW",
-            dance_name="Quickstep",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
             number=616,
             score=True,
             round_number=3,
             judge_code="CJ",
-            dance_name="Quickstep",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
             number=616,
             score=True,
             round_number=3,
             judge_code="EK",
-            dance_name="Quickstep",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
             number=616,
             score=True,
             round_number=3,
             judge_code="AT",
-            dance_name="SlowWaltz",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
             number=616,
             score=True,
             round_number=3,
             judge_code="AX",
-            dance_name="SlowWaltz",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
             number=616,
             score=True,
             round_number=3,
             judge_code="BW",
-            dance_name="SlowWaltz",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
             number=616,
             score=True,
             round_number=3,
             judge_code="CJ",
-            dance_name="SlowWaltz",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
-            number=616, score=True, round_number=3, judge_code="AT", dance_name="Tango"
+            number=616, score=True, round_number=3, judge_code="AT", dance_name=Dance.TANGO
         ),
         Score(
-            number=616, score=True, round_number=3, judge_code="AX", dance_name="Tango"
+            number=616, score=True, round_number=3, judge_code="AX", dance_name=Dance.TANGO
         ),
         Score(
-            number=616, score=True, round_number=3, judge_code="BW", dance_name="Tango"
+            number=616, score=True, round_number=3, judge_code="BW", dance_name=Dance.TANGO
         ),
         Score(
-            number=616, score=True, round_number=3, judge_code="EK", dance_name="Tango"
+            number=616, score=True, round_number=3, judge_code="EK", dance_name=Dance.TANGO
         ),
         Score(
             number=617,
             score=True,
             round_number=3,
             judge_code="AT",
-            dance_name="Quickstep",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
             number=617,
             score=True,
             round_number=3,
             judge_code="AX",
-            dance_name="Quickstep",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
             number=617,
             score=True,
             round_number=3,
             judge_code="BW",
-            dance_name="Quickstep",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
             number=617,
             score=True,
             round_number=3,
             judge_code="AT",
-            dance_name="SlowWaltz",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
             number=617,
             score=True,
             round_number=3,
             judge_code="BW",
-            dance_name="SlowWaltz",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
             number=617,
             score=True,
             round_number=3,
             judge_code="EK",
-            dance_name="SlowWaltz",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
-            number=617, score=True, round_number=3, judge_code="AT", dance_name="Tango"
+            number=617, score=True, round_number=3, judge_code="AT", dance_name=Dance.TANGO
         ),
         Score(
-            number=617, score=True, round_number=3, judge_code="AX", dance_name="Tango"
+            number=617, score=True, round_number=3, judge_code="AX", dance_name=Dance.TANGO
         ),
         Score(
-            number=617, score=True, round_number=3, judge_code="BW", dance_name="Tango"
+            number=617, score=True, round_number=3, judge_code="BW", dance_name=Dance.TANGO
         ),
         Score(
-            number=617, score=True, round_number=3, judge_code="CJ", dance_name="Tango"
+            number=617, score=True, round_number=3, judge_code="CJ", dance_name=Dance.TANGO
         ),
         Score(
-            number=617, score=True, round_number=3, judge_code="EK", dance_name="Tango"
-        ),
-        Score(
-            number=619,
-            score=True,
-            round_number=3,
-            judge_code="AT",
-            dance_name="Quickstep",
-        ),
-        Score(
-            number=619,
-            score=True,
-            round_number=3,
-            judge_code="BW",
-            dance_name="Quickstep",
-        ),
-        Score(
-            number=619,
-            score=True,
-            round_number=3,
-            judge_code="CJ",
-            dance_name="Quickstep",
+            number=617, score=True, round_number=3, judge_code="EK", dance_name=Dance.TANGO
         ),
         Score(
             number=619,
             score=True,
             round_number=3,
             judge_code="AT",
-            dance_name="SlowWaltz",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
             number=619,
             score=True,
             round_number=3,
             judge_code="BW",
-            dance_name="SlowWaltz",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
             number=619,
             score=True,
             round_number=3,
             judge_code="CJ",
-            dance_name="SlowWaltz",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        Score(
+            number=619,
+            score=True,
+            round_number=3,
+            judge_code="AT",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        Score(
+            number=619,
+            score=True,
+            round_number=3,
+            judge_code="BW",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        Score(
+            number=619,
+            score=True,
+            round_number=3,
+            judge_code="CJ",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
             number=619,
             score=True,
             round_number=3,
             judge_code="EK",
-            dance_name="SlowWaltz",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
-            number=619, score=True, round_number=3, judge_code="AT", dance_name="Tango"
+            number=619, score=True, round_number=3, judge_code="AT", dance_name=Dance.TANGO
         ),
         Score(
-            number=619, score=True, round_number=3, judge_code="BW", dance_name="Tango"
+            number=619, score=True, round_number=3, judge_code="BW", dance_name=Dance.TANGO
         ),
         Score(
-            number=619, score=True, round_number=3, judge_code="CJ", dance_name="Tango"
+            number=619, score=True, round_number=3, judge_code="CJ", dance_name=Dance.TANGO
         ),
         Score(
             number=620,
             score=True,
             round_number=3,
             judge_code="CJ",
-            dance_name="Quickstep",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
             number=620,
             score=True,
             round_number=3,
             judge_code="EK",
-            dance_name="Quickstep",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
             number=620,
             score=True,
             round_number=3,
             judge_code="AX",
-            dance_name="SlowWaltz",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
             number=620,
             score=True,
             round_number=3,
             judge_code="BW",
-            dance_name="SlowWaltz",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
             number=620,
             score=True,
             round_number=3,
             judge_code="CJ",
-            dance_name="SlowWaltz",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
             number=620,
             score=True,
             round_number=3,
             judge_code="EK",
-            dance_name="SlowWaltz",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
-            number=620, score=True, round_number=3, judge_code="AX", dance_name="Tango"
+            number=620, score=True, round_number=3, judge_code="AX", dance_name=Dance.TANGO
         ),
         Score(
-            number=620, score=True, round_number=3, judge_code="BW", dance_name="Tango"
+            number=620, score=True, round_number=3, judge_code="BW", dance_name=Dance.TANGO
         ),
         Score(
-            number=620, score=True, round_number=3, judge_code="CJ", dance_name="Tango"
-        ),
-        Score(
-            number=621,
-            score=True,
-            round_number=3,
-            judge_code="AX",
-            dance_name="Quickstep",
-        ),
-        Score(
-            number=621,
-            score=True,
-            round_number=3,
-            judge_code="CJ",
-            dance_name="Quickstep",
-        ),
-        Score(
-            number=621,
-            score=True,
-            round_number=3,
-            judge_code="EK",
-            dance_name="Quickstep",
+            number=620, score=True, round_number=3, judge_code="CJ", dance_name=Dance.TANGO
         ),
         Score(
             number=621,
             score=True,
             round_number=3,
             judge_code="AX",
-            dance_name="SlowWaltz",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
             number=621,
             score=True,
             round_number=3,
             judge_code="CJ",
-            dance_name="SlowWaltz",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
             number=621,
             score=True,
             round_number=3,
             judge_code="EK",
-            dance_name="SlowWaltz",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
-            number=621, score=True, round_number=3, judge_code="AT", dance_name="Tango"
+            number=621,
+            score=True,
+            round_number=3,
+            judge_code="AX",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
-            number=621, score=True, round_number=3, judge_code="AX", dance_name="Tango"
+            number=621,
+            score=True,
+            round_number=3,
+            judge_code="CJ",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
-            number=621, score=True, round_number=3, judge_code="EK", dance_name="Tango"
+            number=621,
+            score=True,
+            round_number=3,
+            judge_code="EK",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        Score(
+            number=621, score=True, round_number=3, judge_code="AT", dance_name=Dance.TANGO
+        ),
+        Score(
+            number=621, score=True, round_number=3, judge_code="AX", dance_name=Dance.TANGO
+        ),
+        Score(
+            number=621, score=True, round_number=3, judge_code="EK", dance_name=Dance.TANGO
         ),
         Score(
             number=624,
             score=True,
             round_number=3,
             judge_code="AX",
-            dance_name="Quickstep",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
             number=624,
             score=True,
             round_number=3,
             judge_code="BW",
-            dance_name="Quickstep",
+            dance_name=Dance.QUICKSTEP,
         ),
         Score(
             number=624,
             score=True,
             round_number=3,
             judge_code="AT",
-            dance_name="SlowWaltz",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
             number=624,
             score=True,
             round_number=3,
             judge_code="AX",
-            dance_name="SlowWaltz",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
             number=624,
             score=True,
             round_number=3,
             judge_code="BW",
-            dance_name="SlowWaltz",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
             number=624,
             score=True,
             round_number=3,
             judge_code="CJ",
-            dance_name="SlowWaltz",
+            dance_name=Dance.SLOW_WALTZ,
         ),
         Score(
-            number=624, score=True, round_number=3, judge_code="AT", dance_name="Tango"
+            number=624, score=True, round_number=3, judge_code="AT", dance_name=Dance.TANGO
         ),
         Score(
-            number=624, score=True, round_number=3, judge_code="CJ", dance_name="Tango"
+            number=624, score=True, round_number=3, judge_code="CJ", dance_name=Dance.TANGO
         ),
     ]
     return final_round_scores, all_other_scores
 
 
-def ground_truth_ergwert_scores_52():
+def ground_truth_ergwert_scores_52() -> Tuple[List[FinalRoundScore], List[Score]]:
     # Final round scores for 52-1105_ot_hgr2cstd/ergwert.htm
     final_round_scores = [
         # Couple 519
-        FinalRoundScore(number=519, score=5, round_number=4, judge_code='AR', dance_name='SlowWaltz'),
-        FinalRoundScore(number=519, score=1, round_number=4, judge_code='CH', dance_name='SlowWaltz'),
-        FinalRoundScore(number=519, score=6, round_number=4, judge_code='DC', dance_name='SlowWaltz'),
-        FinalRoundScore(number=519, score=2, round_number=4, judge_code='DV', dance_name='SlowWaltz'),
-        FinalRoundScore(number=519, score=3, round_number=4, judge_code='EY', dance_name='SlowWaltz'),
-        FinalRoundScore(number=519, score=3, round_number=4, judge_code='AR', dance_name='Tango'),
-        FinalRoundScore(number=519, score=2, round_number=4, judge_code='CH', dance_name='Tango'),
-        FinalRoundScore(number=519, score=3, round_number=4, judge_code='DC', dance_name='Tango'),
-        FinalRoundScore(number=519, score=1, round_number=4, judge_code='DV', dance_name='Tango'),
-        FinalRoundScore(number=519, score=1, round_number=4, judge_code='EY', dance_name='Tango'),
-        FinalRoundScore(number=519, score=6, round_number=4, judge_code='AR', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=519, score=1, round_number=4, judge_code='CH', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=519, score=5, round_number=4, judge_code='DC', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=519, score=1, round_number=4, judge_code='DV', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=519, score=3, round_number=4, judge_code='EY', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=519, score=5, round_number=4, judge_code='AR', dance_name='Quickstep'),
-        FinalRoundScore(number=519, score=1, round_number=4, judge_code='CH', dance_name='Quickstep'),
-        FinalRoundScore(number=519, score=5, round_number=4, judge_code='DC', dance_name='Quickstep'),
-        FinalRoundScore(number=519, score=1, round_number=4, judge_code='DV', dance_name='Quickstep'),
-        FinalRoundScore(number=519, score=2, round_number=4, judge_code='EY', dance_name='Quickstep'),
+        FinalRoundScore(
+            number=519,
+            score=5,
+            round_number=4,
+            judge_code="AR",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=519,
+            score=1,
+            round_number=4,
+            judge_code="CH",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=519,
+            score=6,
+            round_number=4,
+            judge_code="DC",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=519,
+            score=2,
+            round_number=4,
+            judge_code="DV",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=519,
+            score=3,
+            round_number=4,
+            judge_code="EY",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=519, score=3, round_number=4, judge_code="AR", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=519, score=2, round_number=4, judge_code="CH", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=519, score=3, round_number=4, judge_code="DC", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=519, score=1, round_number=4, judge_code="DV", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=519, score=1, round_number=4, judge_code="EY", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=519,
+            score=6,
+            round_number=4,
+            judge_code="AR",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=519,
+            score=1,
+            round_number=4,
+            judge_code="CH",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=519,
+            score=5,
+            round_number=4,
+            judge_code="DC",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=519,
+            score=1,
+            round_number=4,
+            judge_code="DV",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=519,
+            score=3,
+            round_number=4,
+            judge_code="EY",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=519,
+            score=5,
+            round_number=4,
+            judge_code="AR",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=519,
+            score=1,
+            round_number=4,
+            judge_code="CH",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=519,
+            score=5,
+            round_number=4,
+            judge_code="DC",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=519,
+            score=1,
+            round_number=4,
+            judge_code="DV",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=519,
+            score=2,
+            round_number=4,
+            judge_code="EY",
+            dance_name=Dance.QUICKSTEP,
+        ),
         # Couple 521
-        FinalRoundScore(number=521, score=4, round_number=4, judge_code='AR', dance_name='SlowWaltz'),
-        FinalRoundScore(number=521, score=2, round_number=4, judge_code='CH', dance_name='SlowWaltz'),
-        FinalRoundScore(number=521, score=1, round_number=4, judge_code='DC', dance_name='SlowWaltz'),
-        FinalRoundScore(number=521, score=3, round_number=4, judge_code='DV', dance_name='SlowWaltz'),
-        FinalRoundScore(number=521, score=2, round_number=4, judge_code='EY', dance_name='SlowWaltz'),
-        FinalRoundScore(number=521, score=5, round_number=4, judge_code='AR', dance_name='Tango'),
-        FinalRoundScore(number=521, score=1, round_number=4, judge_code='CH', dance_name='Tango'),
-        FinalRoundScore(number=521, score=6, round_number=4, judge_code='DC', dance_name='Tango'),
-        FinalRoundScore(number=521, score=4, round_number=4, judge_code='DV', dance_name='Tango'),
-        FinalRoundScore(number=521, score=3, round_number=4, judge_code='EY', dance_name='Tango'),
-        FinalRoundScore(number=521, score=4, round_number=4, judge_code='AR', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=521, score=3, round_number=4, judge_code='CH', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=521, score=1, round_number=4, judge_code='DC', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=521, score=4, round_number=4, judge_code='DV', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=521, score=2, round_number=4, judge_code='EY', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=521, score=4, round_number=4, judge_code='AR', dance_name='Quickstep'),
-        FinalRoundScore(number=521, score=2, round_number=4, judge_code='CH', dance_name='Quickstep'),
-        FinalRoundScore(number=521, score=3, round_number=4, judge_code='DC', dance_name='Quickstep'),
-        FinalRoundScore(number=521, score=3, round_number=4, judge_code='DV', dance_name='Quickstep'),
-        FinalRoundScore(number=521, score=3, round_number=4, judge_code='EY', dance_name='Quickstep'),
+        FinalRoundScore(
+            number=521,
+            score=4,
+            round_number=4,
+            judge_code="AR",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=521,
+            score=2,
+            round_number=4,
+            judge_code="CH",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=521,
+            score=1,
+            round_number=4,
+            judge_code="DC",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=521,
+            score=3,
+            round_number=4,
+            judge_code="DV",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=521,
+            score=2,
+            round_number=4,
+            judge_code="EY",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=521, score=5, round_number=4, judge_code="AR", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=521, score=1, round_number=4, judge_code="CH", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=521, score=6, round_number=4, judge_code="DC", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=521, score=4, round_number=4, judge_code="DV", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=521, score=3, round_number=4, judge_code="EY", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=521,
+            score=4,
+            round_number=4,
+            judge_code="AR",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=521,
+            score=3,
+            round_number=4,
+            judge_code="CH",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=521,
+            score=1,
+            round_number=4,
+            judge_code="DC",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=521,
+            score=4,
+            round_number=4,
+            judge_code="DV",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=521,
+            score=2,
+            round_number=4,
+            judge_code="EY",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=521,
+            score=4,
+            round_number=4,
+            judge_code="AR",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=521,
+            score=2,
+            round_number=4,
+            judge_code="CH",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=521,
+            score=3,
+            round_number=4,
+            judge_code="DC",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=521,
+            score=3,
+            round_number=4,
+            judge_code="DV",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=521,
+            score=3,
+            round_number=4,
+            judge_code="EY",
+            dance_name=Dance.QUICKSTEP,
+        ),
         # Couple 516
-        FinalRoundScore(number=516, score=1, round_number=4, judge_code='AR', dance_name='SlowWaltz'),
-        FinalRoundScore(number=516, score=5, round_number=4, judge_code='CH', dance_name='SlowWaltz'),
-        FinalRoundScore(number=516, score=4, round_number=4, judge_code='DC', dance_name='SlowWaltz'),
-        FinalRoundScore(number=516, score=4, round_number=4, judge_code='DV', dance_name='SlowWaltz'),
-        FinalRoundScore(number=516, score=1, round_number=4, judge_code='EY', dance_name='SlowWaltz'),
-        FinalRoundScore(number=516, score=1, round_number=4, judge_code='AR', dance_name='Tango'),
-        FinalRoundScore(number=516, score=4, round_number=4, judge_code='CH', dance_name='Tango'),
-        FinalRoundScore(number=516, score=2, round_number=4, judge_code='DC', dance_name='Tango'),
-        FinalRoundScore(number=516, score=3, round_number=4, judge_code='DV', dance_name='Tango'),
-        FinalRoundScore(number=516, score=2, round_number=4, judge_code='EY', dance_name='Tango'),
-        FinalRoundScore(number=516, score=1, round_number=4, judge_code='AR', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=516, score=4, round_number=4, judge_code='CH', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=516, score=4, round_number=4, judge_code='DC', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=516, score=5, round_number=4, judge_code='DV', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=516, score=1, round_number=4, judge_code='EY', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=516, score=1, round_number=4, judge_code='AR', dance_name='Quickstep'),
-        FinalRoundScore(number=516, score=6, round_number=4, judge_code='CH', dance_name='Quickstep'),
-        FinalRoundScore(number=516, score=2, round_number=4, judge_code='DC', dance_name='Quickstep'),
-        FinalRoundScore(number=516, score=5, round_number=4, judge_code='DV', dance_name='Quickstep'),
-        FinalRoundScore(number=516, score=1, round_number=4, judge_code='EY', dance_name='Quickstep'),
+        FinalRoundScore(
+            number=516,
+            score=1,
+            round_number=4,
+            judge_code="AR",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=516,
+            score=5,
+            round_number=4,
+            judge_code="CH",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=516,
+            score=4,
+            round_number=4,
+            judge_code="DC",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=516,
+            score=4,
+            round_number=4,
+            judge_code="DV",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=516,
+            score=1,
+            round_number=4,
+            judge_code="EY",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=516, score=1, round_number=4, judge_code="AR", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=516, score=4, round_number=4, judge_code="CH", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=516, score=2, round_number=4, judge_code="DC", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=516, score=3, round_number=4, judge_code="DV", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=516, score=2, round_number=4, judge_code="EY", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=516,
+            score=1,
+            round_number=4,
+            judge_code="AR",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=516,
+            score=4,
+            round_number=4,
+            judge_code="CH",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=516,
+            score=4,
+            round_number=4,
+            judge_code="DC",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=516,
+            score=5,
+            round_number=4,
+            judge_code="DV",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=516,
+            score=1,
+            round_number=4,
+            judge_code="EY",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=516,
+            score=1,
+            round_number=4,
+            judge_code="AR",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=516,
+            score=6,
+            round_number=4,
+            judge_code="CH",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=516,
+            score=2,
+            round_number=4,
+            judge_code="DC",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=516,
+            score=5,
+            round_number=4,
+            judge_code="DV",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=516,
+            score=1,
+            round_number=4,
+            judge_code="EY",
+            dance_name=Dance.QUICKSTEP,
+        ),
         # Couple 523
-        FinalRoundScore(number=523, score=2, round_number=4, judge_code='AR', dance_name='SlowWaltz'),
-        FinalRoundScore(number=523, score=4, round_number=4, judge_code='CH', dance_name='SlowWaltz'),
-        FinalRoundScore(number=523, score=3, round_number=4, judge_code='DC', dance_name='SlowWaltz'),
-        FinalRoundScore(number=523, score=6, round_number=4, judge_code='DV', dance_name='SlowWaltz'),
-        FinalRoundScore(number=523, score=4, round_number=4, judge_code='EY', dance_name='SlowWaltz'),
-        FinalRoundScore(number=523, score=2, round_number=4, judge_code='AR', dance_name='Tango'),
-        FinalRoundScore(number=523, score=6, round_number=4, judge_code='CH', dance_name='Tango'),
-        FinalRoundScore(number=523, score=4, round_number=4, judge_code='DC', dance_name='Tango'),
-        FinalRoundScore(number=523, score=6, round_number=4, judge_code='DV', dance_name='Tango'),
-        FinalRoundScore(number=523, score=5, round_number=4, judge_code='EY', dance_name='Tango'),
-        FinalRoundScore(number=523, score=3, round_number=4, judge_code='AR', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=523, score=5, round_number=4, judge_code='CH', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=523, score=2, round_number=4, judge_code='DC', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=523, score=3, round_number=4, judge_code='DV', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=523, score=5, round_number=4, judge_code='EY', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=523, score=2, round_number=4, judge_code='AR', dance_name='Quickstep'),
-        FinalRoundScore(number=523, score=5, round_number=4, judge_code='CH', dance_name='Quickstep'),
-        FinalRoundScore(number=523, score=4, round_number=4, judge_code='DC', dance_name='Quickstep'),
-        FinalRoundScore(number=523, score=4, round_number=4, judge_code='DV', dance_name='Quickstep'),
-        FinalRoundScore(number=523, score=4, round_number=4, judge_code='EY', dance_name='Quickstep'),
+        FinalRoundScore(
+            number=523,
+            score=2,
+            round_number=4,
+            judge_code="AR",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=523,
+            score=4,
+            round_number=4,
+            judge_code="CH",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=523,
+            score=3,
+            round_number=4,
+            judge_code="DC",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=523,
+            score=6,
+            round_number=4,
+            judge_code="DV",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=523,
+            score=4,
+            round_number=4,
+            judge_code="EY",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=523, score=2, round_number=4, judge_code="AR", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=523, score=6, round_number=4, judge_code="CH", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=523, score=4, round_number=4, judge_code="DC", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=523, score=6, round_number=4, judge_code="DV", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=523, score=5, round_number=4, judge_code="EY", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=523,
+            score=3,
+            round_number=4,
+            judge_code="AR",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=523,
+            score=5,
+            round_number=4,
+            judge_code="CH",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=523,
+            score=2,
+            round_number=4,
+            judge_code="DC",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=523,
+            score=3,
+            round_number=4,
+            judge_code="DV",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=523,
+            score=5,
+            round_number=4,
+            judge_code="EY",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=523,
+            score=2,
+            round_number=4,
+            judge_code="AR",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=523,
+            score=5,
+            round_number=4,
+            judge_code="CH",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=523,
+            score=4,
+            round_number=4,
+            judge_code="DC",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=523,
+            score=4,
+            round_number=4,
+            judge_code="DV",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=523,
+            score=4,
+            round_number=4,
+            judge_code="EY",
+            dance_name=Dance.QUICKSTEP,
+        ),
         # Couple 528
-        FinalRoundScore(number=528, score=6, round_number=4, judge_code='AR', dance_name='SlowWaltz'),
-        FinalRoundScore(number=528, score=3, round_number=4, judge_code='CH', dance_name='SlowWaltz'),
-        FinalRoundScore(number=528, score=5, round_number=4, judge_code='DC', dance_name='SlowWaltz'),
-        FinalRoundScore(number=528, score=1, round_number=4, judge_code='DV', dance_name='SlowWaltz'),
-        FinalRoundScore(number=528, score=5, round_number=4, judge_code='EY', dance_name='SlowWaltz'),
-        FinalRoundScore(number=528, score=6, round_number=4, judge_code='AR', dance_name='Tango'),
-        FinalRoundScore(number=528, score=3, round_number=4, judge_code='CH', dance_name='Tango'),
-        FinalRoundScore(number=528, score=5, round_number=4, judge_code='DC', dance_name='Tango'),
-        FinalRoundScore(number=528, score=2, round_number=4, judge_code='DV', dance_name='Tango'),
-        FinalRoundScore(number=528, score=6, round_number=4, judge_code='EY', dance_name='Tango'),
-        FinalRoundScore(number=528, score=5, round_number=4, judge_code='AR', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=528, score=2, round_number=4, judge_code='CH', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=528, score=6, round_number=4, judge_code='DC', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=528, score=2, round_number=4, judge_code='DV', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=528, score=4, round_number=4, judge_code='EY', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=528, score=6, round_number=4, judge_code='AR', dance_name='Quickstep'),
-        FinalRoundScore(number=528, score=3, round_number=4, judge_code='CH', dance_name='Quickstep'),
-        FinalRoundScore(number=528, score=6, round_number=4, judge_code='DC', dance_name='Quickstep'),
-        FinalRoundScore(number=528, score=2, round_number=4, judge_code='DV', dance_name='Quickstep'),
-        FinalRoundScore(number=528, score=6, round_number=4, judge_code='EY', dance_name='Quickstep'),
+        FinalRoundScore(
+            number=528,
+            score=6,
+            round_number=4,
+            judge_code="AR",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=528,
+            score=3,
+            round_number=4,
+            judge_code="CH",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=528,
+            score=5,
+            round_number=4,
+            judge_code="DC",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=528,
+            score=1,
+            round_number=4,
+            judge_code="DV",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=528,
+            score=5,
+            round_number=4,
+            judge_code="EY",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=528, score=6, round_number=4, judge_code="AR", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=528, score=3, round_number=4, judge_code="CH", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=528, score=5, round_number=4, judge_code="DC", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=528, score=2, round_number=4, judge_code="DV", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=528, score=6, round_number=4, judge_code="EY", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=528,
+            score=5,
+            round_number=4,
+            judge_code="AR",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=528,
+            score=2,
+            round_number=4,
+            judge_code="CH",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=528,
+            score=6,
+            round_number=4,
+            judge_code="DC",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=528,
+            score=2,
+            round_number=4,
+            judge_code="DV",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=528,
+            score=4,
+            round_number=4,
+            judge_code="EY",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=528,
+            score=6,
+            round_number=4,
+            judge_code="AR",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=528,
+            score=3,
+            round_number=4,
+            judge_code="CH",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=528,
+            score=6,
+            round_number=4,
+            judge_code="DC",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=528,
+            score=2,
+            round_number=4,
+            judge_code="DV",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=528,
+            score=6,
+            round_number=4,
+            judge_code="EY",
+            dance_name=Dance.QUICKSTEP,
+        ),
         # Couple 505
-        FinalRoundScore(number=505, score=3, round_number=4, judge_code='AR', dance_name='SlowWaltz'),
-        FinalRoundScore(number=505, score=6, round_number=4, judge_code='CH', dance_name='SlowWaltz'),
-        FinalRoundScore(number=505, score=2, round_number=4, judge_code='DC', dance_name='SlowWaltz'),
-        FinalRoundScore(number=505, score=5, round_number=4, judge_code='DV', dance_name='SlowWaltz'),
-        FinalRoundScore(number=505, score=6, round_number=4, judge_code='EY', dance_name='SlowWaltz'),
-        FinalRoundScore(number=505, score=4, round_number=4, judge_code='AR', dance_name='Tango'),
-        FinalRoundScore(number=505, score=5, round_number=4, judge_code='CH', dance_name='Tango'),
-        FinalRoundScore(number=505, score=1, round_number=4, judge_code='DC', dance_name='Tango'),
-        FinalRoundScore(number=505, score=5, round_number=4, judge_code='DV', dance_name='Tango'),
-        FinalRoundScore(number=505, score=4, round_number=4, judge_code='EY', dance_name='Tango'),
-        FinalRoundScore(number=505, score=2, round_number=4, judge_code='AR', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=505, score=6, round_number=4, judge_code='CH', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=505, score=3, round_number=4, judge_code='DC', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=505, score=6, round_number=4, judge_code='DV', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=505, score=6, round_number=4, judge_code='EY', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=505, score=3, round_number=4, judge_code='AR', dance_name='Quickstep'),
-        FinalRoundScore(number=505, score=4, round_number=4, judge_code='CH', dance_name='Quickstep'),
-        FinalRoundScore(number=505, score=1, round_number=4, judge_code='DC', dance_name='Quickstep'),
-        FinalRoundScore(number=505, score=6, round_number=4, judge_code='DV', dance_name='Quickstep'),
-        FinalRoundScore(number=505, score=5, round_number=4, judge_code='EY', dance_name='Quickstep'),
+        FinalRoundScore(
+            number=505,
+            score=3,
+            round_number=4,
+            judge_code="AR",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=505,
+            score=6,
+            round_number=4,
+            judge_code="CH",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=505,
+            score=2,
+            round_number=4,
+            judge_code="DC",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=505,
+            score=5,
+            round_number=4,
+            judge_code="DV",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=505,
+            score=6,
+            round_number=4,
+            judge_code="EY",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=505, score=4, round_number=4, judge_code="AR", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=505, score=5, round_number=4, judge_code="CH", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=505, score=1, round_number=4, judge_code="DC", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=505, score=5, round_number=4, judge_code="DV", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=505, score=4, round_number=4, judge_code="EY", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=505,
+            score=2,
+            round_number=4,
+            judge_code="AR",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=505,
+            score=6,
+            round_number=4,
+            judge_code="CH",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=505,
+            score=3,
+            round_number=4,
+            judge_code="DC",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=505,
+            score=6,
+            round_number=4,
+            judge_code="DV",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=505,
+            score=6,
+            round_number=4,
+            judge_code="EY",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=505,
+            score=3,
+            round_number=4,
+            judge_code="AR",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=505,
+            score=4,
+            round_number=4,
+            judge_code="CH",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=505,
+            score=1,
+            round_number=4,
+            judge_code="DC",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=505,
+            score=6,
+            round_number=4,
+            judge_code="DV",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=505,
+            score=5,
+            round_number=4,
+            judge_code="EY",
+            dance_name=Dance.QUICKSTEP,
+        ),
     ]
     return final_round_scores, []
 
 
-def ground_truth_ergwert_scores_53():
-    # Final round scores for 53-1105_ot_hgr2bstd/ergwert.htm
+def ground_truth_ergwert_scores_53() -> Tuple[List[FinalRoundScore], List[Score]]:
     final_round_scores = [
-        FinalRoundScore(number=400, score=4, round_number=4, judge_code='EL', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=400, score=2, round_number=4, judge_code='CP', dance_name='Tango'),
-        FinalRoundScore(number=400, score=2, round_number=4, judge_code='DL', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=401, score=1, round_number=4, judge_code='BI', dance_name='Quickstep'),
-        FinalRoundScore(number=401, score=1, round_number=4, judge_code='CP', dance_name='Quickstep'),
-        FinalRoundScore(number=401, score=1, round_number=4, judge_code='DK', dance_name='Quickstep'),
-        FinalRoundScore(number=401, score=1, round_number=4, judge_code='DL', dance_name='Quickstep'),
-        FinalRoundScore(number=401, score=2, round_number=4, judge_code='DR', dance_name='Quickstep'),
-        FinalRoundScore(number=401, score=1, round_number=4, judge_code='EL', dance_name='Quickstep'),
-        FinalRoundScore(number=401, score=2, round_number=4, judge_code='EU', dance_name='Quickstep'),
-        FinalRoundScore(number=401, score=1, round_number=4, judge_code='BI', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=401, score=1, round_number=4, judge_code='CP', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=401, score=2, round_number=4, judge_code='DK', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=401, score=1, round_number=4, judge_code='DL', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=401, score=3, round_number=4, judge_code='DR', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=401, score=1, round_number=4, judge_code='EU', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=401, score=2, round_number=4, judge_code='BI', dance_name='SlowWaltz'),
-        FinalRoundScore(number=401, score=1, round_number=4, judge_code='CP', dance_name='SlowWaltz'),
-        FinalRoundScore(number=401, score=1, round_number=4, judge_code='DK', dance_name='SlowWaltz'),
-        FinalRoundScore(number=401, score=1, round_number=4, judge_code='DL', dance_name='SlowWaltz'),
-        FinalRoundScore(number=401, score=1, round_number=4, judge_code='DR', dance_name='SlowWaltz'),
-        FinalRoundScore(number=401, score=1, round_number=4, judge_code='EL', dance_name='SlowWaltz'),
-        FinalRoundScore(number=401, score=4, round_number=4, judge_code='EU', dance_name='SlowWaltz'),
-        FinalRoundScore(number=401, score=4, round_number=4, judge_code='BI', dance_name='Tango'),
-        FinalRoundScore(number=401, score=2, round_number=4, judge_code='DK', dance_name='Tango'),
-        FinalRoundScore(number=401, score=2, round_number=4, judge_code='DL', dance_name='Tango'),
-        FinalRoundScore(number=401, score=1, round_number=4, judge_code='DR', dance_name='Tango'),
-        FinalRoundScore(number=401, score=1, round_number=4, judge_code='EL', dance_name='Tango'),
-        FinalRoundScore(number=401, score=2, round_number=4, judge_code='EU', dance_name='Tango'),
-        FinalRoundScore(number=401, score=2, round_number=4, judge_code='BI', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=401, score=1, round_number=4, judge_code='CP', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=401, score=3, round_number=4, judge_code='DK', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=401, score=2, round_number=4, judge_code='DR', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=401, score=2, round_number=4, judge_code='EL', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=401, score=1, round_number=4, judge_code='EU', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=403, score=0, round_number=4, judge_code='EL', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=403, score=1, round_number=4, judge_code='CP', dance_name='Tango'),
-        FinalRoundScore(number=403, score=1, round_number=4, judge_code='DL', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=404, score=2, round_number=4, judge_code='EL', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=404, score=4, round_number=4, judge_code='CP', dance_name='Tango'),
-        FinalRoundScore(number=404, score=5, round_number=4, judge_code='DL', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=405, score=3, round_number=4, judge_code='BI', dance_name='Quickstep'),
-        FinalRoundScore(number=405, score=4, round_number=4, judge_code='CP', dance_name='Quickstep'),
-        FinalRoundScore(number=405, score=3, round_number=4, judge_code='DK', dance_name='Quickstep'),
-        FinalRoundScore(number=405, score=6, round_number=4, judge_code='DL', dance_name='Quickstep'),
-        FinalRoundScore(number=405, score=4, round_number=4, judge_code='DR', dance_name='Quickstep'),
-        FinalRoundScore(number=405, score=5, round_number=4, judge_code='EL', dance_name='Quickstep'),
-        FinalRoundScore(number=405, score=6, round_number=4, judge_code='EU', dance_name='Quickstep'),
-        FinalRoundScore(number=405, score=3, round_number=4, judge_code='BI', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=405, score=5, round_number=4, judge_code='CP', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=405, score=4, round_number=4, judge_code='DK', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=405, score=5, round_number=4, judge_code='DL', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=405, score=5, round_number=4, judge_code='DR', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=405, score=3, round_number=4, judge_code='EU', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=405, score=3, round_number=4, judge_code='BI', dance_name='SlowWaltz'),
-        FinalRoundScore(number=405, score=4, round_number=4, judge_code='CP', dance_name='SlowWaltz'),
-        FinalRoundScore(number=405, score=3, round_number=4, judge_code='DK', dance_name='SlowWaltz'),
-        FinalRoundScore(number=405, score=5, round_number=4, judge_code='DL', dance_name='SlowWaltz'),
-        FinalRoundScore(number=405, score=5, round_number=4, judge_code='DR', dance_name='SlowWaltz'),
-        FinalRoundScore(number=405, score=5, round_number=4, judge_code='EL', dance_name='SlowWaltz'),
-        FinalRoundScore(number=405, score=6, round_number=4, judge_code='EU', dance_name='SlowWaltz'),
-        FinalRoundScore(number=405, score=6, round_number=4, judge_code='BI', dance_name='Tango'),
-        FinalRoundScore(number=405, score=3, round_number=4, judge_code='DK', dance_name='Tango'),
-        FinalRoundScore(number=405, score=4, round_number=4, judge_code='DL', dance_name='Tango'),
-        FinalRoundScore(number=405, score=4, round_number=4, judge_code='DR', dance_name='Tango'),
-        FinalRoundScore(number=405, score=6, round_number=4, judge_code='EL', dance_name='Tango'),
-        FinalRoundScore(number=405, score=5, round_number=4, judge_code='EU', dance_name='Tango'),
-        FinalRoundScore(number=405, score=5, round_number=4, judge_code='BI', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=405, score=6, round_number=4, judge_code='CP', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=405, score=6, round_number=4, judge_code='DK', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=405, score=3, round_number=4, judge_code='DR', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=405, score=4, round_number=4, judge_code='EL', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=405, score=3, round_number=4, judge_code='EU', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=406, score=2, round_number=4, judge_code='EL', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=406, score=4, round_number=4, judge_code='CP', dance_name='Tango'),
-        FinalRoundScore(number=406, score=3, round_number=4, judge_code='DL', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=408, score=4, round_number=4, judge_code='BI', dance_name='Quickstep'),
-        FinalRoundScore(number=408, score=5, round_number=4, judge_code='CP', dance_name='Quickstep'),
-        FinalRoundScore(number=408, score=5, round_number=4, judge_code='DK', dance_name='Quickstep'),
-        FinalRoundScore(number=408, score=2, round_number=4, judge_code='DL', dance_name='Quickstep'),
-        FinalRoundScore(number=408, score=5, round_number=4, judge_code='DR', dance_name='Quickstep'),
-        FinalRoundScore(number=408, score=3, round_number=4, judge_code='EL', dance_name='Quickstep'),
-        FinalRoundScore(number=408, score=3, round_number=4, judge_code='EU', dance_name='Quickstep'),
-        FinalRoundScore(number=408, score=5, round_number=4, judge_code='BI', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=408, score=2, round_number=4, judge_code='CP', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=408, score=3, round_number=4, judge_code='DK', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=408, score=4, round_number=4, judge_code='DL', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=408, score=2, round_number=4, judge_code='DR', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=408, score=4, round_number=4, judge_code='EU', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=408, score=5, round_number=4, judge_code='BI', dance_name='SlowWaltz'),
-        FinalRoundScore(number=408, score=5, round_number=4, judge_code='CP', dance_name='SlowWaltz'),
-        FinalRoundScore(number=408, score=5, round_number=4, judge_code='DK', dance_name='SlowWaltz'),
-        FinalRoundScore(number=408, score=3, round_number=4, judge_code='DL', dance_name='SlowWaltz'),
-        FinalRoundScore(number=408, score=4, round_number=4, judge_code='DR', dance_name='SlowWaltz'),
-        FinalRoundScore(number=408, score=2, round_number=4, judge_code='EL', dance_name='SlowWaltz'),
-        FinalRoundScore(number=408, score=3, round_number=4, judge_code='EU', dance_name='SlowWaltz'),
-        FinalRoundScore(number=408, score=3, round_number=4, judge_code='BI', dance_name='Tango'),
-        FinalRoundScore(number=408, score=4, round_number=4, judge_code='DK', dance_name='Tango'),
-        FinalRoundScore(number=408, score=5, round_number=4, judge_code='DL', dance_name='Tango'),
-        FinalRoundScore(number=408, score=6, round_number=4, judge_code='DR', dance_name='Tango'),
-        FinalRoundScore(number=408, score=3, round_number=4, judge_code='EL', dance_name='Tango'),
-        FinalRoundScore(number=408, score=4, round_number=4, judge_code='EU', dance_name='Tango'),
-        FinalRoundScore(number=408, score=4, round_number=4, judge_code='BI', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=408, score=2, round_number=4, judge_code='CP', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=408, score=4, round_number=4, judge_code='DK', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=408, score=5, round_number=4, judge_code='DR', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=408, score=5, round_number=4, judge_code='EL', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=408, score=5, round_number=4, judge_code='EU', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=409, score=1, round_number=4, judge_code='EL', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=409, score=2, round_number=4, judge_code='CP', dance_name='Tango'),
-        FinalRoundScore(number=409, score=2, round_number=4, judge_code='DL', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=411, score=2, round_number=4, judge_code='EL', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=411, score=2, round_number=4, judge_code='CP', dance_name='Tango'),
-        FinalRoundScore(number=411, score=2, round_number=4, judge_code='DL', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=412, score=1, round_number=4, judge_code='EL', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=412, score=3, round_number=4, judge_code='CP', dance_name='Tango'),
-        FinalRoundScore(number=412, score=2, round_number=4, judge_code='DL', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=413, score=3, round_number=4, judge_code='EL', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=413, score=5, round_number=4, judge_code='CP', dance_name='Tango'),
-        FinalRoundScore(number=413, score=3, round_number=4, judge_code='DL', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=414, score=4, round_number=4, judge_code='EL', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=414, score=1, round_number=4, judge_code='CP', dance_name='Tango'),
-        FinalRoundScore(number=414, score=0, round_number=4, judge_code='DL', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=415, score=5, round_number=4, judge_code='BI', dance_name='Quickstep'),
-        FinalRoundScore(number=415, score=6, round_number=4, judge_code='CP', dance_name='Quickstep'),
-        FinalRoundScore(number=415, score=2, round_number=4, judge_code='DK', dance_name='Quickstep'),
-        FinalRoundScore(number=415, score=5, round_number=4, judge_code='DL', dance_name='Quickstep'),
-        FinalRoundScore(number=415, score=6, round_number=4, judge_code='DR', dance_name='Quickstep'),
-        FinalRoundScore(number=415, score=6, round_number=4, judge_code='EL', dance_name='Quickstep'),
-        FinalRoundScore(number=415, score=4, round_number=4, judge_code='EU', dance_name='Quickstep'),
-        FinalRoundScore(number=415, score=2, round_number=4, judge_code='BI', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=415, score=6, round_number=4, judge_code='CP', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=415, score=6, round_number=4, judge_code='DK', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=415, score=6, round_number=4, judge_code='DL', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=415, score=4, round_number=4, judge_code='DR', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=415, score=5, round_number=4, judge_code='EU', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=415, score=4, round_number=4, judge_code='BI', dance_name='SlowWaltz'),
-        FinalRoundScore(number=415, score=6, round_number=4, judge_code='CP', dance_name='SlowWaltz'),
-        FinalRoundScore(number=415, score=2, round_number=4, judge_code='DK', dance_name='SlowWaltz'),
-        FinalRoundScore(number=415, score=6, round_number=4, judge_code='DL', dance_name='SlowWaltz'),
-        FinalRoundScore(number=415, score=6, round_number=4, judge_code='DR', dance_name='SlowWaltz'),
-        FinalRoundScore(number=415, score=6, round_number=4, judge_code='EL', dance_name='SlowWaltz'),
-        FinalRoundScore(number=415, score=2, round_number=4, judge_code='EU', dance_name='SlowWaltz'),
-        FinalRoundScore(number=415, score=2, round_number=4, judge_code='BI', dance_name='Tango'),
-        FinalRoundScore(number=415, score=6, round_number=4, judge_code='DK', dance_name='Tango'),
-        FinalRoundScore(number=415, score=6, round_number=4, judge_code='DL', dance_name='Tango'),
-        FinalRoundScore(number=415, score=2, round_number=4, judge_code='DR', dance_name='Tango'),
-        FinalRoundScore(number=415, score=4, round_number=4, judge_code='EL', dance_name='Tango'),
-        FinalRoundScore(number=415, score=6, round_number=4, judge_code='EU', dance_name='Tango'),
-        FinalRoundScore(number=415, score=6, round_number=4, judge_code='BI', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=415, score=5, round_number=4, judge_code='CP', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=415, score=2, round_number=4, judge_code='DK', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=415, score=4, round_number=4, judge_code='DR', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=415, score=6, round_number=4, judge_code='EL', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=415, score=2, round_number=4, judge_code='EU', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=416, score=5, round_number=4, judge_code='EL', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=416, score=4, round_number=4, judge_code='CP', dance_name='Tango'),
-        FinalRoundScore(number=416, score=5, round_number=4, judge_code='DL', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=417, score=5, round_number=4, judge_code='EL', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=417, score=3, round_number=4, judge_code='CP', dance_name='Tango'),
-        FinalRoundScore(number=417, score=2, round_number=4, judge_code='DL', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=418, score=3, round_number=4, judge_code='EL', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=418, score=0, round_number=4, judge_code='CP', dance_name='Tango'),
-        FinalRoundScore(number=418, score=2, round_number=4, judge_code='DL', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=419, score=0, round_number=4, judge_code='EL', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=419, score=2, round_number=4, judge_code='CP', dance_name='Tango'),
-        FinalRoundScore(number=419, score=2, round_number=4, judge_code='DL', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=420, score=3, round_number=4, judge_code='EL', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=420, score=4, round_number=4, judge_code='CP', dance_name='Tango'),
-        FinalRoundScore(number=420, score=3, round_number=4, judge_code='DL', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=421, score=2, round_number=4, judge_code='BI', dance_name='Quickstep'),
-        FinalRoundScore(number=421, score=2, round_number=4, judge_code='CP', dance_name='Quickstep'),
-        FinalRoundScore(number=421, score=4, round_number=4, judge_code='DK', dance_name='Quickstep'),
-        FinalRoundScore(number=421, score=4, round_number=4, judge_code='DL', dance_name='Quickstep'),
-        FinalRoundScore(number=421, score=3, round_number=4, judge_code='DR', dance_name='Quickstep'),
-        FinalRoundScore(number=421, score=2, round_number=4, judge_code='EL', dance_name='Quickstep'),
-        FinalRoundScore(number=421, score=1, round_number=4, judge_code='EU', dance_name='Quickstep'),
-        FinalRoundScore(number=421, score=4, round_number=4, judge_code='BI', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=421, score=4, round_number=4, judge_code='CP', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=421, score=5, round_number=4, judge_code='DK', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=421, score=2, round_number=4, judge_code='DL', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=421, score=1, round_number=4, judge_code='DR', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=421, score=2, round_number=4, judge_code='EU', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=421, score=1, round_number=4, judge_code='BI', dance_name='SlowWaltz'),
-        FinalRoundScore(number=421, score=2, round_number=4, judge_code='CP', dance_name='SlowWaltz'),
-        FinalRoundScore(number=421, score=4, round_number=4, judge_code='DK', dance_name='SlowWaltz'),
-        FinalRoundScore(number=421, score=4, round_number=4, judge_code='DL', dance_name='SlowWaltz'),
-        FinalRoundScore(number=421, score=3, round_number=4, judge_code='DR', dance_name='SlowWaltz'),
-        FinalRoundScore(number=421, score=3, round_number=4, judge_code='EL', dance_name='SlowWaltz'),
-        FinalRoundScore(number=421, score=1, round_number=4, judge_code='EU', dance_name='SlowWaltz'),
-        FinalRoundScore(number=421, score=1, round_number=4, judge_code='BI', dance_name='Tango'),
-        FinalRoundScore(number=421, score=1, round_number=4, judge_code='DK', dance_name='Tango'),
-        FinalRoundScore(number=421, score=1, round_number=4, judge_code='DL', dance_name='Tango'),
-        FinalRoundScore(number=421, score=3, round_number=4, judge_code='DR', dance_name='Tango'),
-        FinalRoundScore(number=421, score=5, round_number=4, judge_code='EL', dance_name='Tango'),
-        FinalRoundScore(number=421, score=3, round_number=4, judge_code='EU', dance_name='Tango'),
-        FinalRoundScore(number=421, score=3, round_number=4, judge_code='BI', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=421, score=4, round_number=4, judge_code='CP', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=421, score=1, round_number=4, judge_code='DK', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=421, score=1, round_number=4, judge_code='DR', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=421, score=1, round_number=4, judge_code='EL', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=421, score=4, round_number=4, judge_code='EU', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=422, score=2, round_number=4, judge_code='EL', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=422, score=0, round_number=4, judge_code='CP', dance_name='Tango'),
-        FinalRoundScore(number=422, score=2, round_number=4, judge_code='DL', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=423, score=6, round_number=4, judge_code='BI', dance_name='Quickstep'),
-        FinalRoundScore(number=423, score=3, round_number=4, judge_code='CP', dance_name='Quickstep'),
-        FinalRoundScore(number=423, score=6, round_number=4, judge_code='DK', dance_name='Quickstep'),
-        FinalRoundScore(number=423, score=3, round_number=4, judge_code='DL', dance_name='Quickstep'),
-        FinalRoundScore(number=423, score=1, round_number=4, judge_code='DR', dance_name='Quickstep'),
-        FinalRoundScore(number=423, score=4, round_number=4, judge_code='EL', dance_name='Quickstep'),
-        FinalRoundScore(number=423, score=5, round_number=4, judge_code='EU', dance_name='Quickstep'),
-        FinalRoundScore(number=423, score=6, round_number=4, judge_code='BI', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=423, score=3, round_number=4, judge_code='CP', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=423, score=1, round_number=4, judge_code='DK', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=423, score=3, round_number=4, judge_code='DL', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=423, score=6, round_number=4, judge_code='DR', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=423, score=6, round_number=4, judge_code='EU', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=423, score=6, round_number=4, judge_code='BI', dance_name='SlowWaltz'),
-        FinalRoundScore(number=423, score=3, round_number=4, judge_code='CP', dance_name='SlowWaltz'),
-        FinalRoundScore(number=423, score=6, round_number=4, judge_code='DK', dance_name='SlowWaltz'),
-        FinalRoundScore(number=423, score=2, round_number=4, judge_code='DL', dance_name='SlowWaltz'),
-        FinalRoundScore(number=423, score=2, round_number=4, judge_code='DR', dance_name='SlowWaltz'),
-        FinalRoundScore(number=423, score=4, round_number=4, judge_code='EL', dance_name='SlowWaltz'),
-        FinalRoundScore(number=423, score=5, round_number=4, judge_code='EU', dance_name='SlowWaltz'),
-        FinalRoundScore(number=423, score=5, round_number=4, judge_code='BI', dance_name='Tango'),
-        FinalRoundScore(number=423, score=5, round_number=4, judge_code='DK', dance_name='Tango'),
-        FinalRoundScore(number=423, score=3, round_number=4, judge_code='DL', dance_name='Tango'),
-        FinalRoundScore(number=423, score=5, round_number=4, judge_code='DR', dance_name='Tango'),
-        FinalRoundScore(number=423, score=2, round_number=4, judge_code='EL', dance_name='Tango'),
-        FinalRoundScore(number=423, score=1, round_number=4, judge_code='EU', dance_name='Tango'),
-        FinalRoundScore(number=423, score=1, round_number=4, judge_code='BI', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=423, score=3, round_number=4, judge_code='CP', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=423, score=5, round_number=4, judge_code='DK', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=423, score=6, round_number=4, judge_code='DR', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=423, score=3, round_number=4, judge_code='EL', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=423, score=6, round_number=4, judge_code='EU', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=424, score=3, round_number=4, judge_code='EL', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=424, score=3, round_number=4, judge_code='CP', dance_name='Tango'),
-        FinalRoundScore(number=424, score=5, round_number=4, judge_code='DL', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=425, score=3, round_number=4, judge_code='EL', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=425, score=3, round_number=4, judge_code='CP', dance_name='Tango'),
-        FinalRoundScore(number=425, score=1, round_number=4, judge_code='DL', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=426, score=1, round_number=4, judge_code='EL', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=426, score=1, round_number=4, judge_code='CP', dance_name='Tango'),
-        FinalRoundScore(number=426, score=1, round_number=4, judge_code='DL', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=427, score=2, round_number=4, judge_code='EL', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=427, score=2, round_number=4, judge_code='CP', dance_name='Tango'),
-        FinalRoundScore(number=427, score=1, round_number=4, judge_code='DL', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=428, score=5, round_number=4, judge_code='EL', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=428, score=1, round_number=4, judge_code='CP', dance_name='Tango'),
-        FinalRoundScore(number=428, score=5, round_number=4, judge_code='DL', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=429, score=2, round_number=4, judge_code='EL', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=429, score=2, round_number=4, judge_code='CP', dance_name='Tango'),
-        FinalRoundScore(number=429, score=1, round_number=4, judge_code='DL', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=430, score=0, round_number=4, judge_code='EL', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=430, score=0, round_number=4, judge_code='CP', dance_name='Tango'),
-        FinalRoundScore(number=430, score=2, round_number=4, judge_code='DL', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=431, score=3, round_number=4, judge_code='EL', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=431, score=4, round_number=4, judge_code='CP', dance_name='Tango'),
-        FinalRoundScore(number=431, score=2, round_number=4, judge_code='DL', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=432, score=1, round_number=4, judge_code='EL', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=432, score=0, round_number=4, judge_code='CP', dance_name='Tango'),
-        FinalRoundScore(number=432, score=0, round_number=4, judge_code='DL', dance_name='VienneseWaltz'),
-        FinalRoundScore(number=434, score=0, round_number=4, judge_code='EL', dance_name='SlowFoxtrott'),
-        FinalRoundScore(number=434, score=2, round_number=4, judge_code='CP', dance_name='Tango'),
-        FinalRoundScore(number=434, score=1, round_number=4, judge_code='DL', dance_name='VienneseWaltz'),
+        FinalRoundScore(
+            number=400, score=4, round_number=4, judge_code="EL", dance_name=Dance.SLOW_FOXTROT
+        ),
+        FinalRoundScore(
+            number=400, score=2, round_number=4, judge_code="CP", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=400,
+            score=2,
+            round_number=4,
+            judge_code="DL",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=401,
+            score=1,
+            round_number=4,
+            judge_code="BI",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=401,
+            score=1,
+            round_number=4,
+            judge_code="CP",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=401,
+            score=1,
+            round_number=4,
+            judge_code="DK",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=401,
+            score=1,
+            round_number=4,
+            judge_code="DL",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=401,
+            score=2,
+            round_number=4,
+            judge_code="DR",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=401,
+            score=1,
+            round_number=4,
+            judge_code="EL",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=401,
+            score=2,
+            round_number=4,
+            judge_code="EU",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=401,
+            score=1,
+            round_number=4,
+            judge_code="BI",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=401,
+            score=1,
+            round_number=4,
+            judge_code="CP",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=401,
+            score=2,
+            round_number=4,
+            judge_code="DK",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=401,
+            score=1,
+            round_number=4,
+            judge_code="DL",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=401,
+            score=3,
+            round_number=4,
+            judge_code="DR",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=401,
+            score=1,
+            round_number=4,
+            judge_code="EU",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=401,
+            score=2,
+            round_number=4,
+            judge_code="BI",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=401,
+            score=1,
+            round_number=4,
+            judge_code="CP",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=401,
+            score=1,
+            round_number=4,
+            judge_code="DK",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=401,
+            score=1,
+            round_number=4,
+            judge_code="DL",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=401,
+            score=1,
+            round_number=4,
+            judge_code="DR",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=401,
+            score=1,
+            round_number=4,
+            judge_code="EL",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=401,
+            score=4,
+            round_number=4,
+            judge_code="EU",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=401, score=4, round_number=4, judge_code="BI", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=401, score=2, round_number=4, judge_code="DK", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=401, score=2, round_number=4, judge_code="DL", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=401, score=1, round_number=4, judge_code="DR", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=401, score=1, round_number=4, judge_code="EL", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=401, score=2, round_number=4, judge_code="EU", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=401,
+            score=2,
+            round_number=4,
+            judge_code="BI",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=401,
+            score=1,
+            round_number=4,
+            judge_code="CP",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=401,
+            score=3,
+            round_number=4,
+            judge_code="DK",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=401,
+            score=2,
+            round_number=4,
+            judge_code="DR",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=401,
+            score=2,
+            round_number=4,
+            judge_code="EL",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=401,
+            score=1,
+            round_number=4,
+            judge_code="EU",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=403,
+            score=0,
+            round_number=4,
+            judge_code="EL",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=403, score=1, round_number=4, judge_code="CP", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=403,
+            score=1,
+            round_number=4,
+            judge_code="DL",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=404,
+            score=2,
+            round_number=4,
+            judge_code="EL",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=404, score=4, round_number=4, judge_code="CP", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=404,
+            score=5,
+            round_number=4,
+            judge_code="DL",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=405,
+            score=3,
+            round_number=4,
+            judge_code="BI",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=405,
+            score=4,
+            round_number=4,
+            judge_code="CP",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=405,
+            score=3,
+            round_number=4,
+            judge_code="DK",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=405,
+            score=6,
+            round_number=4,
+            judge_code="DL",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=405,
+            score=4,
+            round_number=4,
+            judge_code="DR",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=405,
+            score=5,
+            round_number=4,
+            judge_code="EL",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=405,
+            score=6,
+            round_number=4,
+            judge_code="EU",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=405,
+            score=3,
+            round_number=4,
+            judge_code="BI",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=405,
+            score=5,
+            round_number=4,
+            judge_code="CP",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=405,
+            score=4,
+            round_number=4,
+            judge_code="DK",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=405,
+            score=5,
+            round_number=4,
+            judge_code="DL",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=405,
+            score=5,
+            round_number=4,
+            judge_code="DR",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=405,
+            score=3,
+            round_number=4,
+            judge_code="EU",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=405,
+            score=3,
+            round_number=4,
+            judge_code="BI",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=405,
+            score=4,
+            round_number=4,
+            judge_code="CP",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=405,
+            score=3,
+            round_number=4,
+            judge_code="DK",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=405,
+            score=5,
+            round_number=4,
+            judge_code="DL",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=405,
+            score=5,
+            round_number=4,
+            judge_code="DR",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=405,
+            score=5,
+            round_number=4,
+            judge_code="EL",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=405,
+            score=6,
+            round_number=4,
+            judge_code="EU",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=405, score=6, round_number=4, judge_code="BI", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=405, score=3, round_number=4, judge_code="DK", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=405, score=4, round_number=4, judge_code="DL", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=405, score=4, round_number=4, judge_code="DR", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=405, score=6, round_number=4, judge_code="EL", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=405, score=5, round_number=4, judge_code="EU", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=405,
+            score=5,
+            round_number=4,
+            judge_code="BI",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=405,
+            score=6,
+            round_number=4,
+            judge_code="CP",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=405,
+            score=6,
+            round_number=4,
+            judge_code="DK",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=405,
+            score=3,
+            round_number=4,
+            judge_code="DR",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=405,
+            score=4,
+            round_number=4,
+            judge_code="EL",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=405,
+            score=3,
+            round_number=4,
+            judge_code="EU",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=406,
+            score=2,
+            round_number=4,
+            judge_code="EL",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=406, score=4, round_number=4, judge_code="CP", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=406,
+            score=3,
+            round_number=4,
+            judge_code="DL",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=408,
+            score=4,
+            round_number=4,
+            judge_code="BI",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=408,
+            score=5,
+            round_number=4,
+            judge_code="CP",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=408,
+            score=5,
+            round_number=4,
+            judge_code="DK",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=408,
+            score=2,
+            round_number=4,
+            judge_code="DL",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=408,
+            score=5,
+            round_number=4,
+            judge_code="DR",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=408,
+            score=3,
+            round_number=4,
+            judge_code="EL",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=408,
+            score=3,
+            round_number=4,
+            judge_code="EU",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=408,
+            score=5,
+            round_number=4,
+            judge_code="BI",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=408,
+            score=2,
+            round_number=4,
+            judge_code="CP",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=408,
+            score=3,
+            round_number=4,
+            judge_code="DK",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=408,
+            score=4,
+            round_number=4,
+            judge_code="DL",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=408,
+            score=2,
+            round_number=4,
+            judge_code="DR",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=408,
+            score=4,
+            round_number=4,
+            judge_code="EU",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=408,
+            score=5,
+            round_number=4,
+            judge_code="BI",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=408,
+            score=5,
+            round_number=4,
+            judge_code="CP",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=408,
+            score=5,
+            round_number=4,
+            judge_code="DK",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=408,
+            score=3,
+            round_number=4,
+            judge_code="DL",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=408,
+            score=4,
+            round_number=4,
+            judge_code="DR",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=408,
+            score=2,
+            round_number=4,
+            judge_code="EL",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=408,
+            score=3,
+            round_number=4,
+            judge_code="EU",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=408, score=3, round_number=4, judge_code="BI", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=408, score=4, round_number=4, judge_code="DK", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=408, score=5, round_number=4, judge_code="DL", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=408, score=6, round_number=4, judge_code="DR", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=408, score=3, round_number=4, judge_code="EL", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=408, score=4, round_number=4, judge_code="EU", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=408,
+            score=4,
+            round_number=4,
+            judge_code="BI",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=408,
+            score=2,
+            round_number=4,
+            judge_code="CP",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=408,
+            score=4,
+            round_number=4,
+            judge_code="DK",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=408,
+            score=5,
+            round_number=4,
+            judge_code="DR",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=408,
+            score=5,
+            round_number=4,
+            judge_code="EL",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=408,
+            score=5,
+            round_number=4,
+            judge_code="EU",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=409,
+            score=1,
+            round_number=4,
+            judge_code="EL",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=409, score=2, round_number=4, judge_code="CP", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=409,
+            score=2,
+            round_number=4,
+            judge_code="DL",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=411,
+            score=2,
+            round_number=4,
+            judge_code="EL",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=411, score=2, round_number=4, judge_code="CP", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=411,
+            score=2,
+            round_number=4,
+            judge_code="DL",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=412,
+            score=1,
+            round_number=4,
+            judge_code="EL",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=412, score=3, round_number=4, judge_code="CP", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=412,
+            score=2,
+            round_number=4,
+            judge_code="DL",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=413,
+            score=3,
+            round_number=4,
+            judge_code="EL",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=413, score=5, round_number=4, judge_code="CP", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=413,
+            score=3,
+            round_number=4,
+            judge_code="DL",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=414,
+            score=4,
+            round_number=4,
+            judge_code="EL",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=414, score=1, round_number=4, judge_code="CP", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=414,
+            score=0,
+            round_number=4,
+            judge_code="DL",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=415,
+            score=5,
+            round_number=4,
+            judge_code="BI",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=415,
+            score=6,
+            round_number=4,
+            judge_code="CP",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=415,
+            score=2,
+            round_number=4,
+            judge_code="DK",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=415,
+            score=5,
+            round_number=4,
+            judge_code="DL",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=415,
+            score=6,
+            round_number=4,
+            judge_code="DR",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=415,
+            score=6,
+            round_number=4,
+            judge_code="EL",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=415,
+            score=4,
+            round_number=4,
+            judge_code="EU",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=415,
+            score=2,
+            round_number=4,
+            judge_code="BI",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=415,
+            score=6,
+            round_number=4,
+            judge_code="CP",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=415,
+            score=6,
+            round_number=4,
+            judge_code="DK",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=415,
+            score=6,
+            round_number=4,
+            judge_code="DL",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=415,
+            score=4,
+            round_number=4,
+            judge_code="DR",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=415,
+            score=5,
+            round_number=4,
+            judge_code="EU",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=415,
+            score=4,
+            round_number=4,
+            judge_code="BI",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=415,
+            score=6,
+            round_number=4,
+            judge_code="CP",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=415,
+            score=2,
+            round_number=4,
+            judge_code="DK",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=415,
+            score=6,
+            round_number=4,
+            judge_code="DL",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=415,
+            score=6,
+            round_number=4,
+            judge_code="DR",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=415,
+            score=6,
+            round_number=4,
+            judge_code="EL",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=415,
+            score=2,
+            round_number=4,
+            judge_code="EU",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=415, score=2, round_number=4, judge_code="BI", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=415, score=6, round_number=4, judge_code="DK", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=415, score=6, round_number=4, judge_code="DL", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=415, score=2, round_number=4, judge_code="DR", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=415, score=4, round_number=4, judge_code="EL", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=415, score=6, round_number=4, judge_code="EU", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=415,
+            score=6,
+            round_number=4,
+            judge_code="BI",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=415,
+            score=5,
+            round_number=4,
+            judge_code="CP",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=415,
+            score=2,
+            round_number=4,
+            judge_code="DK",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=415,
+            score=4,
+            round_number=4,
+            judge_code="DR",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=415,
+            score=6,
+            round_number=4,
+            judge_code="EL",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=415,
+            score=2,
+            round_number=4,
+            judge_code="EU",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=416,
+            score=5,
+            round_number=4,
+            judge_code="EL",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=416, score=4, round_number=4, judge_code="CP", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=416,
+            score=5,
+            round_number=4,
+            judge_code="DL",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=417,
+            score=5,
+            round_number=4,
+            judge_code="EL",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=417, score=3, round_number=4, judge_code="CP", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=417,
+            score=2,
+            round_number=4,
+            judge_code="DL",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=418,
+            score=3,
+            round_number=4,
+            judge_code="EL",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=418, score=0, round_number=4, judge_code="CP", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=418,
+            score=2,
+            round_number=4,
+            judge_code="DL",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=419,
+            score=0,
+            round_number=4,
+            judge_code="EL",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=419, score=2, round_number=4, judge_code="CP", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=419,
+            score=2,
+            round_number=4,
+            judge_code="DL",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=420,
+            score=3,
+            round_number=4,
+            judge_code="EL",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=420, score=4, round_number=4, judge_code="CP", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=420,
+            score=3,
+            round_number=4,
+            judge_code="DL",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=421,
+            score=2,
+            round_number=4,
+            judge_code="BI",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=421,
+            score=2,
+            round_number=4,
+            judge_code="CP",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=421,
+            score=4,
+            round_number=4,
+            judge_code="DK",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=421,
+            score=4,
+            round_number=4,
+            judge_code="DL",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=421,
+            score=3,
+            round_number=4,
+            judge_code="DR",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=421,
+            score=2,
+            round_number=4,
+            judge_code="EL",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=421,
+            score=1,
+            round_number=4,
+            judge_code="EU",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=421,
+            score=4,
+            round_number=4,
+            judge_code="BI",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=421,
+            score=4,
+            round_number=4,
+            judge_code="CP",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=421,
+            score=5,
+            round_number=4,
+            judge_code="DK",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=421,
+            score=2,
+            round_number=4,
+            judge_code="DL",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=421,
+            score=1,
+            round_number=4,
+            judge_code="DR",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=421,
+            score=2,
+            round_number=4,
+            judge_code="EU",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=421,
+            score=1,
+            round_number=4,
+            judge_code="BI",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=421,
+            score=2,
+            round_number=4,
+            judge_code="CP",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=421,
+            score=4,
+            round_number=4,
+            judge_code="DK",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=421,
+            score=4,
+            round_number=4,
+            judge_code="DL",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=421,
+            score=3,
+            round_number=4,
+            judge_code="DR",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=421,
+            score=3,
+            round_number=4,
+            judge_code="EL",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=421,
+            score=1,
+            round_number=4,
+            judge_code="EU",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=421, score=1, round_number=4, judge_code="BI", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=421, score=1, round_number=4, judge_code="DK", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=421, score=1, round_number=4, judge_code="DL", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=421, score=3, round_number=4, judge_code="DR", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=421, score=5, round_number=4, judge_code="EL", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=421, score=3, round_number=4, judge_code="EU", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=421,
+            score=3,
+            round_number=4,
+            judge_code="BI",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=421,
+            score=4,
+            round_number=4,
+            judge_code="CP",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=421,
+            score=1,
+            round_number=4,
+            judge_code="DK",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=421,
+            score=1,
+            round_number=4,
+            judge_code="DR",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=421,
+            score=1,
+            round_number=4,
+            judge_code="EL",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=421,
+            score=4,
+            round_number=4,
+            judge_code="EU",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=422,
+            score=2,
+            round_number=4,
+            judge_code="EL",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=422, score=0, round_number=4, judge_code="CP", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=422,
+            score=2,
+            round_number=4,
+            judge_code="DL",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=423,
+            score=6,
+            round_number=4,
+            judge_code="BI",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=423,
+            score=3,
+            round_number=4,
+            judge_code="CP",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=423,
+            score=6,
+            round_number=4,
+            judge_code="DK",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=423,
+            score=3,
+            round_number=4,
+            judge_code="DL",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=423,
+            score=1,
+            round_number=4,
+            judge_code="DR",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=423,
+            score=4,
+            round_number=4,
+            judge_code="EL",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=423,
+            score=5,
+            round_number=4,
+            judge_code="EU",
+            dance_name=Dance.QUICKSTEP,
+        ),
+        FinalRoundScore(
+            number=423,
+            score=6,
+            round_number=4,
+            judge_code="BI",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=423,
+            score=3,
+            round_number=4,
+            judge_code="CP",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=423,
+            score=1,
+            round_number=4,
+            judge_code="DK",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=423,
+            score=3,
+            round_number=4,
+            judge_code="DL",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=423,
+            score=6,
+            round_number=4,
+            judge_code="DR",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=423,
+            score=6,
+            round_number=4,
+            judge_code="EU",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=423,
+            score=6,
+            round_number=4,
+            judge_code="BI",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=423,
+            score=3,
+            round_number=4,
+            judge_code="CP",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=423,
+            score=6,
+            round_number=4,
+            judge_code="DK",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=423,
+            score=2,
+            round_number=4,
+            judge_code="DL",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=423,
+            score=2,
+            round_number=4,
+            judge_code="DR",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=423,
+            score=4,
+            round_number=4,
+            judge_code="EL",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=423,
+            score=5,
+            round_number=4,
+            judge_code="EU",
+            dance_name=Dance.SLOW_WALTZ,
+        ),
+        FinalRoundScore(
+            number=423, score=5, round_number=4, judge_code="BI", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=423, score=5, round_number=4, judge_code="DK", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=423, score=3, round_number=4, judge_code="DL", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=423, score=5, round_number=4, judge_code="DR", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=423, score=2, round_number=4, judge_code="EL", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=423, score=1, round_number=4, judge_code="EU", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=423,
+            score=1,
+            round_number=4,
+            judge_code="BI",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=423,
+            score=3,
+            round_number=4,
+            judge_code="CP",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=423,
+            score=5,
+            round_number=4,
+            judge_code="DK",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=423,
+            score=6,
+            round_number=4,
+            judge_code="DR",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=423,
+            score=3,
+            round_number=4,
+            judge_code="EL",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=423,
+            score=6,
+            round_number=4,
+            judge_code="EU",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=424,
+            score=3,
+            round_number=4,
+            judge_code="EL",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=424, score=3, round_number=4, judge_code="CP", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=424,
+            score=5,
+            round_number=4,
+            judge_code="DL",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=425,
+            score=3,
+            round_number=4,
+            judge_code="EL",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=425, score=3, round_number=4, judge_code="CP", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=425,
+            score=1,
+            round_number=4,
+            judge_code="DL",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=426,
+            score=1,
+            round_number=4,
+            judge_code="EL",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=426, score=1, round_number=4, judge_code="CP", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=426,
+            score=1,
+            round_number=4,
+            judge_code="DL",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=427,
+            score=2,
+            round_number=4,
+            judge_code="EL",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=427, score=2, round_number=4, judge_code="CP", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=427,
+            score=1,
+            round_number=4,
+            judge_code="DL",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=428,
+            score=5,
+            round_number=4,
+            judge_code="EL",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=428, score=1, round_number=4, judge_code="CP", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=428,
+            score=5,
+            round_number=4,
+            judge_code="DL",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=429,
+            score=2,
+            round_number=4,
+            judge_code="EL",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=429, score=2, round_number=4, judge_code="CP", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=429,
+            score=1,
+            round_number=4,
+            judge_code="DL",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=430,
+            score=0,
+            round_number=4,
+            judge_code="EL",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=430, score=0, round_number=4, judge_code="CP", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=430,
+            score=2,
+            round_number=4,
+            judge_code="DL",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=431,
+            score=3,
+            round_number=4,
+            judge_code="EL",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=431, score=4, round_number=4, judge_code="CP", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=431,
+            score=2,
+            round_number=4,
+            judge_code="DL",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=432,
+            score=1,
+            round_number=4,
+            judge_code="EL",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=432, score=0, round_number=4, judge_code="CP", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=432,
+            score=0,
+            round_number=4,
+            judge_code="DL",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
+        FinalRoundScore(
+            number=434,
+            score=0,
+            round_number=4,
+            judge_code="EL",
+            dance_name=Dance.SLOW_FOXTROT,
+        ),
+        FinalRoundScore(
+            number=434, score=2, round_number=4, judge_code="CP", dance_name=Dance.TANGO
+        ),
+        FinalRoundScore(
+            number=434,
+            score=1,
+            round_number=4,
+            judge_code="DL",
+            dance_name=Dance.VIENNESE_WALTZ,
+        ),
     ]
     return final_round_scores, []
 
 
 @pytest.mark.parametrize(
-    "sample_dir,ground_truth_func",
+    ("sample_dir", "ground_truth_func"),
     [
         ("51-1105_ot_hgr2dstd", ground_truth_ergwert_scores_51),
         ("52-1105_ot_hgr2cstd", ground_truth_ergwert_scores_52),
         ("53-1105_ot_hgr2bstd", ground_truth_ergwert_scores_53),
     ],
 )
-def test_extract_scores_from_ergwert(sample_dir, ground_truth_func):
+def test_extract_scores_from_ergwert(
+    sample_dir: str, ground_truth_func: Callable[[], Tuple[List[FinalRoundScore], List[Score]]]
+) -> None:
     ergwert_path = os.path.join(TEST_DIR, sample_dir, "ergwert.htm")
     if not os.path.exists(ergwert_path):
         pytest.skip(f"Missing {ergwert_path}")
@@ -1816,7 +4013,7 @@ def test_extract_scores_from_ergwert(sample_dir, ground_truth_func):
     scores = extract_scores_from_ergwert(soup)
     # Only compare FinalRoundScore objects
     final_round_scores, all_other_scores = ground_truth_func()
-    extracted_final = set(s for s in scores if type(s).__name__ == "FinalRoundScore")
+    extracted_final = {s for s in scores if isinstance(s, FinalRoundScore)}
     ground_truth_final = set(final_round_scores)
     assert ground_truth_final == extracted_final, (
         f"Missing: {ground_truth_final - extracted_final}\n"
@@ -1830,7 +4027,7 @@ def test_extract_scores_from_ergwert(sample_dir, ground_truth_func):
         "51-1105_ot_hgr2dstd",
     ],
 )
-def test_parse_tabges_all(sample_dir):
+def test_parse_tabges_all(sample_dir: str) -> None:
     tabges_path = os.path.join(TEST_DIR, sample_dir, "tabges.htm")
     if not os.path.exists(tabges_path):
         pytest.skip(f"Missing {tabges_path}")

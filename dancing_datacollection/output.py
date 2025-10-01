@@ -1,70 +1,64 @@
-import os
-import polars as pl
 import logging
+import os
 from dataclasses import asdict
-from typing import List
+from typing import Any, List
+
+import polars as pl
 
 from dancing_datacollection.data_defs.committee import CommitteeMember
 from dancing_datacollection.data_defs.final_scoring import FinalScoring
 from dancing_datacollection.data_defs.judge import Judge
 from dancing_datacollection.data_defs.participant import Participant
-from dancing_datacollection.data_defs.score import FinalRoundScore, Score
-
 
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
 
 
-def validate_schema(path, required_columns):
+def validate_schema(path: str, required_columns: List[str]) -> bool:
     try:
         df = pl.read_parquet(path)
         missing = [col for col in required_columns if col not in df.columns]
         if missing:
             logging.error(
-                f"Schema validation failed for {path}: missing columns {missing}"
+                "Schema validation failed for %s: missing columns %s", path, missing
             )
-            print(f"Schema validation failed for {path}: missing columns {missing}")
             return False
         # If this is participants.parquet, check number is int
-        if os.path.basename(path) == "participants.parquet":
-            if df["number"].dtype != pl.Int64:
-                logging.error(
-                    f"Schema validation failed for {path}: 'number' column is not integer type"
-                )
-                print(
-                    f"Schema validation failed for {path}: 'number' column is not integer type"
-                )
-                return False
+        if (
+            os.path.basename(path) == "participants.parquet"
+            and df["number"].dtype != pl.Int64
+        ):
+            logging.error(
+                "Schema validation failed for %s: 'number' column is not integer type",
+                path,
+            )
+            return False
         # If this is scores.parquet, check number is int and voted is bool
         if os.path.basename(path) == "scores.parquet":
             if df["number"].dtype != pl.Int64:
                 logging.error(
-                    f"Schema validation failed for {path}: 'number' column is not integer type"
-                )
-                print(
-                    f"Schema validation failed for {path}: 'number' column is not integer type"
+                    "Schema validation failed for %s: 'number' column is not integer type",
+                    path,
                 )
                 return False
             if df["voted"].dtype != pl.Boolean:
                 logging.error(
-                    f"Schema validation failed for {path}: 'voted' column is not boolean type"
-                )
-                print(
-                    f"Schema validation failed for {path}: 'voted' column is not boolean type"
+                    "Schema validation failed for %s: 'voted' column is not boolean type",
+                    path,
                 )
                 return False
-        logging.info(f"Schema validation passed for {path}")
-        print(f"Schema validation passed for {path}")
+        logging.info("Schema validation passed for %s", path)
         return True
-    except Exception as e:
-        logging.error(f"Schema validation error for {path}: {e}")
-        print(f"Schema validation error for {path}: {e}")
+    except (pl.exceptions.PolarsError, IOError) as e:
+        logging.error("Schema validation error for %s: %s", path, e)
         return False
 
 
-def save_competition_data(event_name: str, participants: List[Participant]):
+def save_competition_data(
+    event_name: str, participants: List[Participant]
+) -> None:
     comp_dir = os.path.join(DATA_DIR, event_name)
     os.makedirs(comp_dir, exist_ok=True)
-    expected_cols = ["name_one", "name_two", "club", "number"]
+    expected_cols = ["name_one", "name_two", "club", "number", "ranks"]
     if participants:
         part_df = pl.DataFrame([asdict(p) for p in participants])
         for col in expected_cols:
@@ -81,16 +75,16 @@ def save_competition_data(event_name: str, participants: List[Participant]):
                 "name_two": pl.Utf8,
                 "club": pl.Utf8,
                 "number": pl.Int64,
+                "ranks": pl.List(pl.Int64),
             },
         )
     part_path = os.path.join(comp_dir, "participants.parquet")
     part_df.write_parquet(part_path)
-    logging.info(f"Saved participants to {part_path}")
-    print(f"Saved participants to {part_path}")
+    logging.info("Saved participants to %s", part_path)
     validate_schema(part_path, expected_cols)
 
 
-def save_judges(event_name: str, judges: List[Judge]):
+def save_judges(event_name: str, judges: List[Judge]) -> None:
     comp_dir = os.path.join(DATA_DIR, event_name)
     os.makedirs(comp_dir, exist_ok=True)
     expected_cols = ["code", "name", "club"]
@@ -107,12 +101,11 @@ def save_judges(event_name: str, judges: List[Judge]):
         )
     judges_path = os.path.join(comp_dir, "judges.parquet")
     judges_df.write_parquet(judges_path)
-    logging.info(f"Saved judges to {judges_path}")
-    print(f"Saved judges to {judges_path}")
+    logging.info("Saved judges to %s", judges_path)
     validate_schema(judges_path, expected_cols)
 
 
-def save_committee(event_name: str, committee: List[CommitteeMember]):
+def save_committee(event_name: str, committee: List[CommitteeMember]) -> None:
     comp_dir = os.path.join(DATA_DIR, event_name)
     os.makedirs(comp_dir, exist_ok=True)
     expected_cols = ["role", "name", "club"]
@@ -129,12 +122,11 @@ def save_committee(event_name: str, committee: List[CommitteeMember]):
         )
     committee_path = os.path.join(comp_dir, "committee.parquet")
     committee_df.write_parquet(committee_path)
-    logging.info(f"Saved committee to {committee_path}")
-    print(f"Saved committee to {committee_path}")
+    logging.info("Saved committee to %s", committee_path)
     validate_schema(committee_path, expected_cols)
 
 
-def save_scores(event_name, scores):
+def save_scores(event_name: str, scores: List[Any]) -> None:
     comp_dir = os.path.join(DATA_DIR, event_name)
     os.makedirs(comp_dir, exist_ok=True)
     expected_cols = ["round", "number", "judge_code", "dance", "voted"]
@@ -150,7 +142,7 @@ def save_scores(event_name, scores):
             entry["number"] = (
                 int(entry["number"]) if entry["number"] is not None else None
             )
-        except Exception:
+        except (ValueError, TypeError):
             entry["number"] = None
         entry["voted"] = bool(entry["voted"]) if entry["voted"] is not None else False
         norm.append(entry)
@@ -170,12 +162,11 @@ def save_scores(event_name, scores):
         scores_df = pl.DataFrame({col: [] for col in expected_cols})
     scores_path = os.path.join(comp_dir, "scores.parquet")
     scores_df.write_parquet(scores_path)
-    logging.info(f"Saved scores to {scores_path}")
-    print(f"Saved scores to {scores_path}")
+    logging.info("Saved scores to %s", scores_path)
     validate_schema(scores_path, expected_cols)
 
 
-def save_final_scoring(event_name: str, final_scores: List[FinalScoring]):
+def save_final_scoring(event_name: str, final_scores: List[FinalScoring]) -> None:
     comp_dir = os.path.join(DATA_DIR, event_name)
     os.makedirs(comp_dir, exist_ok=True)
     expected_cols = [
@@ -183,17 +174,26 @@ def save_final_scoring(event_name: str, final_scores: List[FinalScoring]):
         "names",
         "number",
         "club",
-        "score_LW",
-        "score_TG",
-        "score_QS",
+        "scores",
         "total",
     ]
     if final_scores:
-        final_df = pl.DataFrame([asdict(f) for f in final_scores])
-        for col in expected_cols:
+        final_list = []
+        for f in final_scores:
+            row = asdict(f)
+            scores = row.pop("scores", {})
+            for dance, score in scores.items():
+                row[f"score_{dance.value}"] = score
+            final_list.append(row)
+        final_df = pl.DataFrame(final_list)
+        # Dynamically create expected columns based on actual data
+        dynamic_cols = [c for c in final_df.columns if c.startswith("score_")]
+        all_expected_cols = expected_cols[:-2] + dynamic_cols + ["total"]
+
+        for col in all_expected_cols:
             if col not in final_df.columns:
                 final_df = final_df.with_columns(pl.lit(None).alias(col))
-        final_df = final_df.select(expected_cols)
+        final_df = final_df.select(all_expected_cols)
     else:
         final_df = pl.DataFrame(
             {col: [] for col in expected_cols},
@@ -202,14 +202,13 @@ def save_final_scoring(event_name: str, final_scores: List[FinalScoring]):
                 "names": pl.Utf8,
                 "number": pl.Utf8,
                 "club": pl.Utf8,
-                "score_LW": pl.Utf8,
-                "score_TG": pl.Utf8,
-                "score_QS": pl.Utf8,
+                "scores": pl.Utf8,
                 "total": pl.Utf8,
             },
         )
     final_path = os.path.join(comp_dir, "final_scoring.parquet")
     final_df.write_parquet(final_path)
-    logging.info(f"Saved final scoring to {final_path}")
-    print(f"Saved final scoring to {final_path}")
+    logging.info("Saved final scoring to %s", final_path)
+    if "scores" not in final_df.columns:
+        final_df = final_df.with_columns(pl.lit(None, dtype=pl.Utf8).alias("scores"))
     validate_schema(final_path, expected_cols)
