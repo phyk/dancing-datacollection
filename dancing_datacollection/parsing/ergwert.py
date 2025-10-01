@@ -1,7 +1,7 @@
 from pydantic import ValidationError
 from dancing_datacollection.data_defs.participant import Participant
 from dancing_datacollection.data_defs.judge import Judge
-from dancing_datacollection.data_defs.dances import GERMAN_TO_ENGLISH_DANCE_NAME
+from dancing_datacollection.data_defs.dances import Dance, GERMAN_TO_ENGLISH_DANCE_NAME
 from dancing_datacollection.data_defs.final_scoring import FinalScoring
 from dancing_datacollection.data_defs.score import (
     FinalRoundScore,
@@ -255,9 +255,14 @@ def extract_final_scoring(html) -> List[FinalScoring]:
             names = couple_cell.get_text(" ", strip=True)
             club, _ = extract_club_and_number(couple_cell)
             number = cells[2].get_text(strip=True)
-            lw_score = cells[9].get_text(strip=True) if len(cells) > 9 else ""
-            tg_score = cells[15].get_text(strip=True) if len(cells) > 15 else ""
-            qs_score = cells[21].get_text(strip=True) if len(cells) > 21 else ""
+            scores = {}
+            if len(cells) > 9:
+                scores[Dance.SLOW_WALTZ] = cells[9].get_text(strip=True)
+            if len(cells) > 15:
+                scores[Dance.TANGO] = cells[15].get_text(strip=True)
+            if len(cells) > 21:
+                scores[Dance.QUICKSTEP] = cells[21].get_text(strip=True)
+
             last_classes = as_class_list(cells[-1].get("class"))
             last_class_first = last_classes[0] if last_classes else ""
             total = (
@@ -270,9 +275,7 @@ def extract_final_scoring(html) -> List[FinalScoring]:
                 names=names,
                 number=number,
                 club=club,
-                score_LW=lw_score,
-                score_TG=tg_score,
-                score_QS=qs_score,
+                scores=scores,
                 total=total,
             )
             parsing_logger.debug(f"  Final scoring entry: {entry}")

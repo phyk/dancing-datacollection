@@ -3,7 +3,10 @@ from html import escape
 
 from dancing_datacollection.data_defs.participant import Participant
 from dancing_datacollection.data_defs.judge import Judge
-from dancing_datacollection.data_defs.dances import GERMAN_TO_ENGLISH_DANCE_NAME
+from dancing_datacollection.data_defs.dances import (
+    GERMAN_TO_ENGLISH_DANCE_NAME,
+    ENGLISH_TO_GERMAN_DANCE_NAME,
+)
 from dancing_datacollection.data_defs.score import FinalRoundScore
 from dancing_datacollection.data_defs.results import (
     ResultRound,
@@ -135,7 +138,7 @@ def generate_erg_html(results: List[ResultRound], title: str = "erg") -> str:
         rows_html = [f"<tr><td>{final_round.name}</td></tr>"]
         dance_names = list(final_round.placings[0].dance_scores.keys())
         header_cells = ["<td>Platz</td>", "<td>Paar/Club</td>"] + [
-            f"<td>{dn}</td>" for dn in dance_names
+            f"<td>{ENGLISH_TO_GERMAN_DANCE_NAME.get(dn, str(dn))}</td>" for dn in dance_names
         ] + ["<td>PZ</td>"]
         rows_html.append("<tr>" + "".join(header_cells) + "</tr>")
         for p in final_round.placings:
@@ -262,5 +265,3 @@ def generate_ergwert_html(
         "</div>"
     )
     return _html_page(title, body)
-
-
