@@ -1,20 +1,26 @@
+import logging
 import os
-from dancing_datacollection.parsing.parsing_utils import setup_logging, get_soup
-from dancing_datacollection.parsing.deck import extract_judges_from_deck
-from dancing_datacollection.parsing.deck import extract_committee_from_deck
-from dancing_datacollection.parsing.ergwert import (
-    extract_scores_from_ergwert,
-    extract_final_scoring,
-    extract_participants_from_ergwert,
+from typing import List
+
+from dancing_datacollection.data_defs.participant import Participant
+from dancing_datacollection.parsing.deck import (
+    extract_committee_from_deck,
+    extract_judges_from_deck,
 )
 from dancing_datacollection.parsing.erg import extract_participants_from_erg
+from dancing_datacollection.parsing.ergwert import (
+    extract_final_scoring,
+    extract_participants_from_ergwert,
+    extract_scores_from_ergwert,
+)
+from dancing_datacollection.parsing.parsing_utils import get_soup, setup_logging
 from dancing_datacollection.parsing.tabges import extract_participants_from_tabges
 from dancing_datacollection.parsing.wert_er import extract_participants_from_wert_er
-from dancing_datacollection.data_defs.participant import Participant
-import pytest
 
 # Set up logging before anything else
 setup_logging()
+logging.basicConfig(level=logging.INFO, format="%(message)s")
+
 
 # Clean logs directory before running tests
 LOG_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "logs")
@@ -32,29 +38,29 @@ SAMPLE_DIRS = [
 ]
 
 
-def extract_participants(html, filename):
+def extract_participants(html: str, filename: str) -> List[Participant]:
     """Helper to dispatch participant extraction based on filename."""
     soup = get_soup(html)
     if filename.endswith("erg.htm"):
         return extract_participants_from_erg(soup)
-    elif filename.endswith("ergwert.htm"):
+    if filename.endswith("ergwert.htm"):
         return extract_participants_from_ergwert(soup)
-    elif filename.endswith("tabges.htm"):
+    if filename.endswith("tabges.htm"):
         return extract_participants_from_tabges(soup)
-    elif filename.endswith("wert_er.htm"):
+    if filename.endswith("wert_er.htm"):
         return extract_participants_from_wert_er(soup)
     return []
 
 
-def main():
+def main() -> None:
     for sample_dir in SAMPLE_DIRS:
         dir_path = os.path.join(TEST_DIR, sample_dir)
         if not os.path.isdir(dir_path):
-            print(f"Directory not found: {dir_path}")
+            logging.error("Directory not found: %s", dir_path)
             continue
-        print(f"\nExploring files in {sample_dir}:")
+        logging.info("\nExploring files in %s:", sample_dir)
         # Test participants extraction
-        all_participants = []
+        all_participants: List[Participant] = []
         for fname in os.listdir(dir_path):
             if fname.endswith(".htm"):
                 fpath = os.path.join(dir_path, fname)
@@ -62,18 +68,22 @@ def main():
                     html = f.read()
                 participants = extract_participants(html, fname)
                 if participants:
-                    print(f"  Participants found in {fname}: {len(participants)}")
+                    logging.info(
+                        "  Participants found in %s: %d", fname, len(participants)
+                    )
                     all_participants.extend(participants)
         # Deduplicate by (number, name_one, name_two, club)
         seen = set()
-        unique_participants = []
+        unique_participants: List[Participant] = []
         for p in all_participants:
             key = (p.number, p.name_one, p.name_two, p.club)
             if key not in seen:
                 seen.add(key)
                 unique_participants.append(p)
-        print(
-            f"Summary for {sample_dir}: {len(unique_participants)} unique participants found."
+        logging.info(
+            "Summary for %s: %d unique participants found.",
+            sample_dir,
+            len(unique_participants),
         )
         # Test judges and committee extraction from deck.htm
         deck_path = os.path.join(dir_path, "deck.htm")
@@ -82,9 +92,9 @@ def main():
                 deck_html = f.read()
             soup = get_soup(deck_html)
             judges = extract_judges_from_deck(soup)
-            print(f"  Judges found: {len(judges)}")
+            logging.info("  Judges found: %d", len(judges))
             committee = extract_committee_from_deck(soup)
-            print(f"  Committee entries found: {len(committee)}")
+            logging.info("  Committee entries found: %d", len(committee))
         # Test scores and final scoring extraction from ergwert.htm
         ergwert_path = os.path.join(dir_path, "ergwert.htm")
         ergwert_couples = set()
@@ -93,28 +103,32 @@ def main():
                 ergwert_html = f.read()
             soup = get_soup(ergwert_html)
             scores = extract_scores_from_ergwert(soup)
-            print(f"  Score entries found: {len(scores)}")
+            logging.info("  Score entries found: %d", len(scores))
             final_scores = extract_final_scoring(ergwert_html)
-            print(f"  Final scoring entries found: {len(final_scores)}")
-            ergwert_couples = set(
-                f.number
-                for f in final_scores
-                if f.number is not None
+            logging.info("  Final scoring entries found: %d", len(final_scores))
+            ergwert_couples = {
+                f.number for f in final_scores if f.number is not None
+            }
+            logging.info(
+                "  Unique couple numbers in ergwert.htm: %d", len(ergwert_couples)
             )
-            print(f"  Unique couple numbers in ergwert.htm: {len(ergwert_couples)}")
 
         # Compare numbers
-        participant_numbers = set(
+        participant_numbers = {
             p.number for p in unique_participants if p.number is not None
+        }
+        logging.info(
+            "  Unique couple numbers in participants: %d", len(participant_numbers)
         )
-        print(f"  Unique couple numbers in participants: {len(participant_numbers)}")
         if ergwert_couples and participant_numbers != ergwert_couples:
-            print(
-                f"WARNING: Mismatch between participants and ergwert.htm couples! Participants: {len(participant_numbers)}, Ergwert: {len(ergwert_couples)}"
+            logging.warning(
+                "WARNING: Mismatch between participants and ergwert.htm couples! Participants: %d, Ergwert: %d",
+                len(participant_numbers),
+                len(ergwert_couples),
             )
 
 
-def test_extract_final_scoring():
+def test_extract_final_scoring() -> None:
     with open("tests/51-1105_ot_hgr2dstd/ergwert.htm", encoding="utf-8") as f:
         html = f.read()
     final_scores = extract_final_scoring(html)

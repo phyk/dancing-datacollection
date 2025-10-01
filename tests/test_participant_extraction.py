@@ -1,21 +1,24 @@
 import os
+from typing import Dict, List
+
 import pytest
+
+from dancing_datacollection.data_defs.participant import Participant
 from dancing_datacollection.parsing.erg import extract_participants_from_erg
 from dancing_datacollection.parsing.ergwert import extract_participants_from_ergwert
+from dancing_datacollection.parsing.parsing_utils import get_soup
 from dancing_datacollection.parsing.tabges import extract_participants_from_tabges
 from dancing_datacollection.parsing.wert_er import extract_participants_from_wert_er
-from dancing_datacollection.parsing.parsing_utils import get_soup
-from dancing_datacollection.data_defs.participant import Participant
 
 
-def get_html(path):
+def get_html(path: str) -> str:
     with open(path, "r", encoding="utf-8") as f:
         return f.read()
 
 
 # Exhaustive ground truth participants for each test case, as Participant objects
 @pytest.fixture(scope="module")
-def true_participants():
+def true_participants() -> Dict[str, List[Participant]]:
     return {
         "51-1105_ot_hgr2dstd": [
             Participant(
@@ -663,7 +666,9 @@ def true_participants():
         for d in ["51-1105_ot_hgr2dstd", "52-1105_ot_hgr2cstd", "53-1105_ot_hgr2bstd"]
     ],
 )
-def test_extract_participants_from_erg(sample_dir, test_dir, true_participants):
+def test_extract_participants_from_erg(
+    sample_dir: str, test_dir: str, true_participants: Dict[str, List[Participant]]
+) -> None:
     erg_path = os.path.join(test_dir, sample_dir, "erg.htm")
     if not os.path.exists(erg_path):
         pytest.skip(f"Missing {erg_path}")
@@ -672,17 +677,13 @@ def test_extract_participants_from_erg(sample_dir, test_dir, true_participants):
     assert isinstance(participants, list)
     assert all(isinstance(p, Participant) for p in participants)
     assert participants, f"No participants extracted from {erg_path}"
-    print(f"[DEBUG] Extracted participants for {sample_dir} (erg.htm):")
-    for p in participants:
-        print(p)
     keys = set()
     for p in participants:
         key = (p.number, p.name_one, p.club)
         assert key not in keys, f"Duplicate participant {key} in {erg_path}"
         keys.add(key)
-        assert p.name_one is not None and p.number is not None, (
-            f"Missing required fields in {p}"
-        )
+        assert p.name_one is not None
+        assert p.number is not None
     # Check all ground truth participants are present (full match)
     expected = true_participants[sample_dir]
     for tp in expected:
@@ -698,7 +699,9 @@ def test_extract_participants_from_erg(sample_dir, test_dir, true_participants):
         for d in ["51-1105_ot_hgr2dstd", "52-1105_ot_hgr2cstd", "53-1105_ot_hgr2bstd"]
     ],
 )
-def test_extract_participants_from_ergwert(sample_dir, test_dir, true_participants):
+def test_extract_participants_from_ergwert(
+    sample_dir: str, test_dir: str, true_participants: Dict[str, List[Participant]]
+) -> None:
     ergwert_path = os.path.join(test_dir, sample_dir, "ergwert.htm")
     if not os.path.exists(ergwert_path):
         pytest.skip(f"Missing {ergwert_path}")
@@ -708,17 +711,13 @@ def test_extract_participants_from_ergwert(sample_dir, test_dir, true_participan
     assert isinstance(participants, list)
     assert all(isinstance(p, Participant) for p in participants)
     assert participants, f"No participants extracted from {ergwert_path}"
-    print(f"[DEBUG] Extracted participants for {sample_dir} (ergwert.htm):")
-    for p in participants:
-        print(p)
     keys = set()
     for p in participants:
         key = (p.number, p.name_one, p.club)
         assert key not in keys, f"Duplicate participant {key} in {ergwert_path}"
         keys.add(key)
-        assert p.name_one is not None and p.number is not None, (
-            f"Missing required fields in {p}"
-        )
+        assert p.name_one is not None
+        assert p.number is not None
     # Check all ground truth participants are present (full match)
     expected = true_participants[sample_dir]
     for tp in expected:
@@ -734,7 +733,9 @@ def test_extract_participants_from_ergwert(sample_dir, test_dir, true_participan
         for d in ["51-1105_ot_hgr2dstd", "52-1105_ot_hgr2cstd", "53-1105_ot_hgr2bstd"]
     ],
 )
-def test_extract_participants_from_tabges(sample_dir, test_dir, true_participants):
+def test_extract_participants_from_tabges(
+    sample_dir: str, test_dir: str, true_participants: Dict[str, List[Participant]]
+) -> None:
     tabges_path = os.path.join(test_dir, sample_dir, "tabges.htm")
     if not os.path.exists(tabges_path):
         pytest.skip(f"Missing {tabges_path}")
@@ -744,9 +745,6 @@ def test_extract_participants_from_tabges(sample_dir, test_dir, true_participant
     assert isinstance(participants, list)
     assert all(isinstance(p, Participant) for p in participants)
     assert participants, f"No participants extracted from {tabges_path}"
-    print(f"[DEBUG] Extracted participants for {sample_dir} (tabges.htm):")
-    for p in participants:
-        print(p)
     keys = set()
     for p in participants:
         key = (p.number, p.name_one, p.club)
@@ -768,7 +766,9 @@ def test_extract_participants_from_tabges(sample_dir, test_dir, true_participant
         for d in ["51-1105_ot_hgr2dstd", "52-1105_ot_hgr2cstd", "53-1105_ot_hgr2bstd"]
     ],
 )
-def test_extract_participants_from_wert_er(sample_dir, test_dir, true_participants):
+def test_extract_participants_from_wert_er(
+    sample_dir: str, test_dir: str, true_participants: Dict[str, List[Participant]]
+) -> None:
     wert_er_path = os.path.join(test_dir, sample_dir, "wert_er.htm")
     if not os.path.exists(wert_er_path):
         pytest.skip(f"Missing {wert_er_path}")
@@ -778,17 +778,13 @@ def test_extract_participants_from_wert_er(sample_dir, test_dir, true_participan
     assert isinstance(participants, list)
     assert all(isinstance(p, Participant) for p in participants)
     assert participants, f"No participants extracted from {wert_er_path}"
-    print(f"[DEBUG] Extracted participants for {sample_dir} (wert_er.htm):")
-    for p in participants:
-        print(p)
     keys = set()
     for p in participants:
         key = (p.number, p.name_one, p.club)
         assert key not in keys, f"Duplicate participant {key} in {wert_er_path}"
         keys.add(key)
-        assert p.name_one is not None and p.number is not None, (
-            f"Missing required fields in {p}"
-        )
+        assert p.name_one is not None
+        assert p.number is not None
     # Only check that each found participant is present in the ground truth (partial match)
     expected = true_participants[sample_dir]
     for p in participants:

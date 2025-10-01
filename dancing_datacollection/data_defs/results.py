@@ -1,7 +1,9 @@
+from typing import Dict, List, Optional, Union
+
 from pydantic import BaseModel, ConfigDict
-from typing import List, Optional, Dict, Union
-from .participant import Participant
+
 from .dances import Dance
+from .participant import Participant
 
 
 class DanceScore(BaseModel):
@@ -25,6 +27,8 @@ class PreliminaryRoundPlacing(BaseModel):
     model_config = ConfigDict(frozen=True, extra='forbid')
     rank: str
     participant: Participant
+    dance_scores: Optional[Dict[Dance, DanceScore]] = None
+    total_score: Optional[float] = None
 
 
 class ResultRound(BaseModel):

@@ -1,13 +1,19 @@
-import urllib.request
-from bs4 import BeautifulSoup
-from urllib.parse import urljoin
 import logging
 import os
 import re
-from typing import Any, List, Optional
+import urllib.request
+from typing import List, Optional, Tuple, Union
+from urllib.error import URLError
+from urllib.parse import urljoin
+
+from bs4 import BeautifulSoup
+from bs4.element import Tag
+
+from dancing_datacollection.data_defs.judge import Judge
+from dancing_datacollection.data_defs.participant import Participant
 
 
-def setup_logging(log_dir=None):
+def setup_logging(log_dir: Optional[str] = None) -> None:
     """
     Set up logging for the application. Configures:
     - Root logger (INFO to app.log and console)
@@ -77,46 +83,51 @@ def setup_logging(log_dir=None):
     parsing_logger.debug("TEST: parsing_debug logger setup complete")
 
 
-def download_html(url):
+def download_html(url: str) -> Optional[str]:
     try:
-        logging.info(f"Downloading: {url}")
-        with urllib.request.urlopen(url) as response:
+        logging.info("Downloading: %s", url)
+        with urllib.request.urlopen(url) as response:  # noqa: S310
             html = response.read().decode("utf-8")
-        logging.info(f"Downloaded {len(html)} characters from {url}")
+        logging.info("Downloaded %d characters from %s", len(html), url)
         return html
-    except Exception as e:
-        logging.error(f"Failed to download {url}: {e}")
+    except URLError as e:
+        logging.error("Failed to download %s: %s", url, e)
         return None
 
 
-def extract_competition_links(html, base_url):
+def extract_competition_links(html: str, base_url: str) -> List[str]:
     soup = BeautifulSoup(html, "html.parser")
-    links = []
+    links: List[str] = []
     for a in soup.find_all("a", href=True):
-        href = a["href"]
-        if href.endswith(".htm") or href.endswith(".html"):
-            full_url = urljoin(base_url, href)
-            links.append(full_url)
+        if isinstance(a, Tag):
+            href = a.get("href")
+            if isinstance(href, str) and (
+                href.endswith(".htm") or href.endswith(".html")
+            ):
+                full_url = urljoin(base_url, href)
+                links.append(full_url)
     return links
 
 
-def deduplicate_participants(participants):
+def deduplicate_participants(
+    participants: List[Participant],
+) -> List[Participant]:
     seen = set()
-    unique = []
+    unique: List[Participant] = []
     for p in participants:
-        key = (p.get("number"), p.get("names"), p.get("club"))
+        key = (p.number, p.name_one, p.name_two, p.club)
         if key not in seen:
             seen.add(key)
             unique.append(p)
     return unique
 
 
-def get_soup(html):
+def get_soup(html: str) -> BeautifulSoup:
     """Return a BeautifulSoup object for the given HTML."""
     return BeautifulSoup(html, "html.parser")
 
 
-def extract_club_and_number(cell):
+def extract_club_and_number(cell: Tag) -> Tuple[Optional[str], Optional[str]]:
     """Extract club (from <i>) and number (from (number) in text) from a table cell."""
     club_tag = cell.find("i")
     club = club_tag.get_text(strip=True) if club_tag else None
@@ -126,7 +137,7 @@ def extract_club_and_number(cell):
     return club, number
 
 
-def split_names(names):
+def split_names(names: str) -> Tuple[Optional[str], Optional[str]]:
     """Split names string into name_one and name_two using common delimiters or whitespace."""
     for delim in [" / ", " & ", " und ", " and "]:
         if delim in names:
@@ -140,7 +151,7 @@ def split_names(names):
     return None, None
 
 
-def extract_name_and_club_from_spans(cell):
+def extract_name_and_club_from_spans(cell: Tag) -> Tuple[str, str]:
     """Extract name and club from <span> tags in a cell, or fallback to cell text."""
     spans = cell.find_all("span")
     name = ""
@@ -157,7 +168,8 @@ def extract_name_and_club_from_spans(cell):
 
 # ---------- Helper utilities for bs4 parsing and deduplication ----------
 
-def as_class_list(classes: Any) -> List[str]:
+
+def as_class_list(classes: Optional[Union[str, List[str]]]) -> List[str]:
     """Normalize a bs4 'class' attribute to a list of strings."""
     if isinstance(classes, list):
         return [str(c) for c in classes]
@@ -166,29 +178,33 @@ def as_class_list(classes: Any) -> List[str]:
     return []
 
 
-def element_has_class(element: Any, class_name: str) -> bool:
+def element_has_class(element: Optional[Tag], class_name: str) -> bool:
     """Return True if a bs4 element has the given class name, robust to None/str/list."""
-    return class_name in as_class_list(getattr(element, 'attrs', {}).get('class')) if hasattr(element, 'attrs') else False
+    return (
+        class_name in as_class_list(getattr(element, "attrs", {}).get("class"))
+        if hasattr(element, "attrs")
+        else False
+    )
 
 
-def first_line_text(element: Any) -> str:
+def first_line_text(element: Optional[Tag]) -> str:
     """Return the first logical line of text from a cell/tag."""
-    lines = element.get_text(separator="\n", strip=True).splitlines() if hasattr(element, 'get_text') else []
+    if not isinstance(element, Tag):
+        return ""
+    lines = element.get_text(separator="\n", strip=True).splitlines()
     return lines[0] if lines else ""
 
 
-def deduplicate_judges(judges: List["Judge"]) -> List["Judge"]:
+def deduplicate_judges(judges: List[Judge]) -> List[Judge]:
     """Deduplicate judges by (code, name). Prefer entries with a non-empty club."""
-    best_by_key: dict[tuple[str, str], "Judge"] = {}
+    best_by_key: dict[tuple[str, str], Judge] = {}
     for j in judges:
-        key = (getattr(j, 'code', ''), getattr(j, 'name', ''))
+        key = (j.code, j.name)
         if key not in best_by_key:
             best_by_key[key] = j
         else:
             current = best_by_key[key]
-            current_club = getattr(current, 'club', None) or ""
-            new_club = getattr(j, 'club', None) or ""
-            if new_club and not current_club:
+            if j.club and not current.club:
                 best_by_key[key] = j
     return list(best_by_key.values())
 

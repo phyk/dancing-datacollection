@@ -1,18 +1,18 @@
-from typing import List, Dict, Tuple, Optional
 from html import escape
+from typing import Dict, List, Tuple
 
-from dancing_datacollection.data_defs.participant import Participant
-from dancing_datacollection.data_defs.judge import Judge
+from dancing_datacollection.data_defs.committee import CommitteeMember
 from dancing_datacollection.data_defs.dances import (
-    GERMAN_TO_ENGLISH_DANCE_NAME,
     ENGLISH_TO_GERMAN_DANCE_NAME,
+    GERMAN_TO_ENGLISH_DANCE_NAME,
 )
-from dancing_datacollection.data_defs.score import FinalRoundScore
+from dancing_datacollection.data_defs.judge import Judge
 from dancing_datacollection.data_defs.results import (
-    ResultRound,
     FinalRoundPlacing,
     PreliminaryRoundPlacing,
+    ResultRound,
 )
+from dancing_datacollection.data_defs.score import FinalRoundScore
 
 
 def _html_page(title: str, body: str) -> str:
@@ -21,9 +21,6 @@ def _html_page(title: str, body: str) -> str:
         f"<title>{escape(title)}</title>"
         "</head><body>" + body + "</body></html>"
     )
-
-
-from dancing_datacollection.data_defs.committee import CommitteeMember
 
 ROLE_KEY_TO_GERMAN = {
     "organizer": "Veranstalter:",
@@ -136,25 +133,32 @@ def generate_erg_html(results: List[ResultRound], title: str = "erg") -> str:
     # Generate final round table
     if final_round:
         rows_html = [f"<tr><td>{final_round.name}</td></tr>"]
-        dance_names = list(final_round.placings[0].dance_scores.keys())
-        header_cells = ["<td>Platz</td>", "<td>Paar/Club</td>"] + [
-            f"<td>{ENGLISH_TO_GERMAN_DANCE_NAME.get(dn, str(dn))}</td>" for dn in dance_names
-        ] + ["<td>PZ</td>"]
-        rows_html.append("<tr>" + "".join(header_cells) + "</tr>")
-        for p in final_round.placings:
-            cells = [f"<td>{p.rank}</td>"]
-            name_html = f"{escape(p.participant.name_one or '')}"
-            if p.participant.name_two:
-                name_html += f" / {escape(p.participant.name_two)}"
-            name_html += f" ({p.participant.number})<br/><i>{escape(p.participant.club or '')}</i>"
-            cells.append(f"<td>{name_html}</td>")
-            for dn in dance_names:
-                ds = p.dance_scores[dn]
-                marks_str = "".join(map(str, ds.marks))
-                cells.append(f"<td>{marks_str}<br/><div>{ds.place}</div></td>")
-            cells.append(f"<td><br/>{p.total_score}</td>")
-            rows_html.append("<tr>" + "".join(cells) + "</tr>")
-        tables_html.append("<table>" + "".join(rows_html) + "</table>")
+        # This is safe because we know the first placing of a final round is a FinalRoundPlacing
+        first_placing = final_round.placings[0]
+        if isinstance(first_placing, FinalRoundPlacing):
+            dance_names = list(first_placing.dance_scores.keys())
+            header_cells = ["<td>Platz</td>", "<td>Paar/Club</td>"] + [
+                f"<td>{ENGLISH_TO_GERMAN_DANCE_NAME.get(dn, str(dn))}</td>"
+                for dn in dance_names
+            ] + ["<td>PZ</td>"]
+            rows_html.append("<tr>" + "".join(header_cells) + "</tr>")
+            for p in final_round.placings:
+                if isinstance(p, FinalRoundPlacing):
+                    cells = [f"<td>{p.rank}</td>"]
+                    name_html = f"{escape(p.participant.name_one or '')}"
+                    if p.participant.name_two:
+                        name_html += f" / {escape(p.participant.name_two)}"
+                    name_html += f" ({p.participant.number})<br/><i>{escape(p.participant.club or '')}</i>"
+                    cells.append(f"<td>{name_html}</td>")
+                    for dn in dance_names:
+                        ds = p.dance_scores[dn]
+                        marks_str = "".join(map(str, ds.marks))
+                        cells.append(
+                            f"<td>{marks_str}<br/><div>{ds.place}</div></td>"
+                        )
+                    cells.append(f"<td><br/>{p.total_score}</td>")
+                    rows_html.append("<tr>" + "".join(cells) + "</tr>")
+            tables_html.append("<table>" + "".join(rows_html) + "</table>")
 
     # Generate one table for all preliminary rounds
     if preliminary_rounds:
@@ -208,7 +212,7 @@ def _group_scores(final_scores: List[FinalRoundScore]) -> Tuple[List[str], Dict[
         "VienneseWaltz",  # WW
         "SlowFoxtrott",   # SF
     ]
-    others = sorted(name for name in per_dance.keys() if name not in preferred)
+    others = sorted(name for name in per_dance if name not in preferred)
     ordered = [d for d in preferred if d in per_dance] + others
     dances = ordered[:3]
 

@@ -1,17 +1,22 @@
 import logging
-from dancing_datacollection.parsing.parsing_utils import (
-    get_soup,
-    extract_event_name_from_soup,
-)
+from typing import List, Tuple
+
+from dancing_datacollection.data_defs.participant import Participant
 from dancing_datacollection.parsing.erg import extract_participants_from_erg
 from dancing_datacollection.parsing.ergwert import extract_participants_from_ergwert
+from dancing_datacollection.parsing.parsing_utils import (
+    extract_event_name_from_soup,
+    get_soup,
+)
 from dancing_datacollection.parsing.tabges import extract_participants_from_tabges
 from dancing_datacollection.parsing.wert_er import extract_participants_from_wert_er
 
 logger = logging.getLogger(__name__)
 
 
-def extract_participants_and_event_name(html: str, filename: str):
+def extract_participants_and_event_name(
+    html: str, filename: str
+) -> Tuple[List[Participant], str]:
     """
     Extracts participants and the event name from HTML content.
 
@@ -28,7 +33,7 @@ def extract_participants_and_event_name(html: str, filename: str):
     """
     soup = get_soup(html)
     event_name = extract_event_name_from_soup(soup)
-    participants = []
+    participants: List[Participant] = []
 
     if filename.endswith("erg.htm"):
         participants = extract_participants_from_erg(soup)
@@ -39,6 +44,6 @@ def extract_participants_and_event_name(html: str, filename: str):
     elif filename.endswith("wert_er.htm"):
         participants = extract_participants_from_wert_er(soup)
     else:
-        logger.warning(f"Unknown filename for participant extraction: {filename}")
+        logger.warning("Unknown filename for participant extraction: %s", filename)
 
     return participants, event_name

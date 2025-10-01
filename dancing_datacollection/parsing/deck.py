@@ -1,13 +1,17 @@
+import logging
+from typing import Any, Dict, List, cast
+
+from bs4 import BeautifulSoup
+from bs4.element import Tag
+from pydantic import ValidationError
+
 from dancing_datacollection.data_defs.committee import CommitteeMember
 from dancing_datacollection.data_defs.judge import Judge
-from typing import List, Any, cast
-import logging
 from dancing_datacollection.parsing.parsing_utils import (
     deduplicate_judges,
-    get_soup,
     extract_name_and_club_from_spans,
+    get_soup,
 )
-
 
 parsing_logger = logging.getLogger("parsing_debug")
 
@@ -20,7 +24,7 @@ def merge_judges_prefer_club(*lists: List[Judge]) -> List[Judge]:
     return deduplicate_judges(merged)
 
 
-def extract_judges_from_deck(soup) -> List[Judge]:
+def extract_judges_from_deck(soup: BeautifulSoup) -> List[Judge]:
     """
     Extract judges from deck.htm using the annotated structure:
     Table 1, rows 6-10: cell 0 is judge code (remove colon), cell 1 is 'Last, First Club'.
@@ -33,16 +37,25 @@ def extract_judges_from_deck(soup) -> List[Judge]:
     if len(tables) < 2:
         logger.warning("Expected at least 2 tables in deck.htm")
         return judges
-    rows = tables[1].find_all("tr")
+    table = tables[1]
+    if not isinstance(table, Tag):
+        return judges
+    rows = table.find_all("tr")
     for row in rows:
+        if not isinstance(row, Tag):
+            continue
         cells = row.find_all(["td", "th"])
         if len(cells) < 2:
             continue
         # Only process rows where the first cell has class 'td2r' (judge rows)
-        if "td2r" in (cells[0].get("class") or []):
-            code = cells[0].get_text(strip=True).replace(":", "")
+        cell0 = cells[0]
+        if isinstance(cell0, Tag) and "td2r" in (cell0.get("class") or []):
+            code = cell0.get_text(strip=True).replace(":", "")
             # Use spans to extract name and club
-            spans = cells[1].find_all("span")
+            cell1 = cells[1]
+            if not isinstance(cell1, Tag):
+                continue
+            spans = cell1.find_all("span")
             if len(spans) >= 2:
                 name_raw = (
                     spans[0]
@@ -58,26 +71,30 @@ def extract_judges_from_deck(soup) -> List[Judge]:
                     .replace("\u00a0", "")
                     .strip()
                 )
-                if "," in name_raw:
+                if ", " in name_raw:
                     last, first = [x.strip() for x in name_raw.split(",", 1)]
                     name = f"{first} {last}"
                 else:
                     name = name_raw
             else:
-                name = cells[1].get_text(strip=True)
+                name = cell1.get_text(strip=True)
                 club = ""
-            logger.debug(f"  Judge: code={code}, name={name}, club={club}")
+            logger.debug("  Judge: code=%s, name=%s, club=%s", code, name, club)
             try:
                 judge = Judge(code=code, name=name, club=club)
                 judges.append(judge)
-            except Exception as e:
+            except ValidationError as e:
                 logger.warning(
-                    f"Invalid judge skipped: code={code}, name={name}, club={club}, error={e}"
+                    "Invalid judge skipped: code=%s, name=%s, club=%s, error=%s",
+                    code,
+                    name,
+                    club,
+                    e,
                 )
     return deduplicate_judges(judges)
 
 
-def parse_deck_all(html):
+def parse_deck_all(html: str) -> List[Dict[str, Any]]:
     """
     Parse all available information from deck.htm, logging any unrecognized or ambiguous content.
     Returns a dictionary with all found data, including unknown/extra fields.
@@ -87,7 +104,7 @@ def parse_deck_all(html):
     tables: List[Any] = cast(Any, soup).find_all("table")
     all_data = []
     for table_idx, table in enumerate(tables):
-        table_data = {"table_idx": table_idx, "rows": []}
+        table_data: Dict[str, Any] = {"table_idx": table_idx, "rows": []}
         rows: List[Any] = cast(Any, table).find_all("tr")
         for row_idx, row in enumerate(rows):
             cells: List[Any] = cast(Any, row).find_all(["td", "th"])
@@ -121,11 +138,20 @@ def parse_deck_all(html):
                 }
                 if not set(cell_class).intersection(known_classes):
                     parsing_logger.warning(
-                        f"Unrecognized cell class in deck.htm: Table {table_idx}, Row {row_idx}, Cell {cell_idx}, Class: {cell_class}, Text: {text}"
+                        "Unrecognized cell class in deck.htm: Table %d, Row %d, Cell %d, Class: %s, Text: %s",
+                        table_idx,
+                        row_idx,
+                        cell_idx,
+                        cell_class,
+                        text,
                     )
                 if text == "" or text == "\xa0":
                     parsing_logger.info(
-                        f"Empty or ambiguous cell in deck.htm: Table {table_idx}, Row {row_idx}, Cell {cell_idx}, HTML: {cell_html}"
+                        "Empty or ambiguous cell in deck.htm: Table %d, Row %d, Cell %d, HTML: %s",
+                        table_idx,
+                        row_idx,
+                        cell_idx,
+                        cell_html,
                     )
                 cell_data.append(cell_info)
             table_data["rows"].append({"row_idx": row_idx, "cells": cell_data})
@@ -134,11 +160,11 @@ def parse_deck_all(html):
     return all_data
 
 
-def extract_committee_from_deck(soup):
+def extract_committee_from_deck(soup: BeautifulSoup) -> List[CommitteeMember]:
     logger = logging.getLogger("parsing_debug")
-    table = soup.find("table", class_="tab1")
-    logger.debug(f"Found table: {bool(table)}")
-    if not table:
+    table = soup.find("table", attrs={"class": "tab1"})
+    logger.debug("Found table: %s", bool(table))
+    if not isinstance(table, Tag):
         return []
     roles = [
         ("Veranstalter:", "organizer"),
@@ -149,18 +175,32 @@ def extract_committee_from_deck(soup):
     ]
     committee = []
     for row_idx, row in enumerate(table.find_all("tr")):
+        if not isinstance(row, Tag):
+            continue
         cells = row.find_all("td")
-        logger.debug(f"Row {row_idx}: {[c.get_text(' ', strip=True) for c in cells]}")
+        logger.debug(
+            "Row %d: %s",
+            row_idx,
+            [c.get_text(" ", strip=True) for c in cells],
+        )
         if len(cells) < 2:
             continue
         label = cells[0].get_text(strip=True)
         for role_label, role_key in roles:
             if label == role_label:
                 value_cell = cells[1]
+                if not isinstance(value_cell, Tag):
+                    continue
                 name, club = extract_name_and_club_from_spans(value_cell)
                 logger.debug(
-                    f"  Committee: role={role_key}, name={name}, club={club}, raw_value={value_cell.get_text(' ', strip=True)}"
+                    "  Committee: role=%s, name=%s, club=%s, raw_value=%s",
+                    role_key,
+                    name,
+                    club,
+                    value_cell.get_text(" ", strip=True),
                 )
                 committee.append(CommitteeMember(role=role_key, name=name, club=club))
-    logger.debug(f"extract_committee_from_deck: END, total committee={len(committee)}")
+    logger.debug(
+        "extract_committee_from_deck: END, total committee=%d", len(committee)
+    )
     return committee

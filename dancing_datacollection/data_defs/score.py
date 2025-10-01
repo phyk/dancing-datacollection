@@ -1,8 +1,9 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
+
 from .dances import Dance
 
 
-class FinalRoundScore(BaseModel, frozen=True, extra='forbid'):
+class FinalRoundScore(BaseModel, frozen=True, extra="forbid"):
     number: int
     score: int
     round_number: int
