@@ -1,3 +1,4 @@
+from pydantic import ValidationError
 from dancing_datacollection.data_defs.participant import Participant
 import re
 from typing import Any, List, Union, cast
@@ -57,15 +58,17 @@ def extract_results_from_erg(html: str) -> List[ResultRound]:
             club = club_tag.get_text(strip=True) if club_tag else None
 
             try:
-                ranks = Participant._parse_ranks(rank)
                 participant = Participant(
                     name_one=name_one,
                     name_two=name_two,
                     number=number,
                     club=club,
-                    ranks=ranks,
+                    ranks=rank,
                 )
-            except ValueError:
+            except ValidationError as e:
+                parsing_logger.warning(
+                    f"Skipping participant due to validation error: {e}"
+                )
                 continue
 
             dance_scores = {}
@@ -123,15 +126,17 @@ def extract_results_from_erg(html: str) -> List[ResultRound]:
                 )
 
                 try:
-                    ranks = Participant._parse_ranks(rank)
                     participant = Participant(
                         name_one=name_one,
                         name_two=name_two,
                         number=number,
                         club=club,
-                        ranks=ranks,
+                        ranks=rank,
                     )
-                except ValueError:
+                except ValidationError as e:
+                    parsing_logger.warning(
+                        f"Skipping participant due to validation error: {e}"
+                    )
                     continue
 
                 placing = PreliminaryRoundPlacing(rank=rank, participant=participant)

@@ -1,6 +1,10 @@
+from pydantic import ValidationError
 from dancing_datacollection.data_defs.participant import Participant
 from dancing_datacollection.data_defs.judge import Judge
 import re
+import logging
+
+parsing_logger = logging.getLogger("parsing_debug")
 
 
 def extract_participants_from_wert_er(soup):
@@ -27,19 +31,18 @@ def extract_participants_from_wert_er(soup):
                     name_two = names.split("/")[1].strip()
                 else:
                     name_one = names.strip()
-            participant = Participant(
-                name_one=name_one,
-                name_two=name_two,
-                number=number_int,
-                ranks=None,
-                club=None,
-            )
-            if participant.name_one and participant.number is not None:
+            try:
+                participant = Participant(
+                    name_one=name_one,
+                    name_two=name_two,
+                    number=number_int,
+                    ranks=None,
+                    club=None,
+                )
                 participants.append(participant)
-            else:
-                print(
-                    f"Invalid participant skipped (wert_er): name_one={participant.name_one}, number={participant.number}",
-                    flush=True,
+            except ValidationError as e:
+                parsing_logger.warning(
+                    f"Skipping participant in wert_er due to validation error: {e}"
                 )
     return participants
 

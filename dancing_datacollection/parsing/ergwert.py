@@ -1,10 +1,11 @@
+from pydantic import ValidationError
 from dancing_datacollection.data_defs.participant import Participant
 from dancing_datacollection.data_defs.judge import Judge
+from dancing_datacollection.data_defs.dances import GERMAN_TO_ENGLISH_DANCE_NAME
 from dancing_datacollection.data_defs.final_scoring import FinalScoring
 from dancing_datacollection.data_defs.score import (
     FinalRoundScore,
     Score,
-    GERMAN_TO_ENGLISH_DANCE_NAME,
 )
 import re
 from typing import List
@@ -60,21 +61,18 @@ def extract_participants_from_ergwert(soup):
                         name_two = names.split("/")[1].strip()
                     else:
                         name_one = names.strip()
-                    participant = Participant(
-                        name_one=name_one,
-                        name_two=name_two,
-                        number=number_int,
-                        ranks=[int(r) for r in re.findall(r"\d+", rank_str)]
-                        if rank_str
-                        else None,
-                        club=club,
-                    )
-                    if participant.name_one and participant.number is not None:
+                    try:
+                        participant = Participant(
+                            name_one=name_one,
+                            name_two=name_two,
+                            number=number_int,
+                            ranks=rank_str,
+                            club=club,
+                        )
                         participants.append(participant)
-                    else:
-                        print(
-                            f"Invalid participant skipped (ergwert): name_one={participant.name_one}, number={participant.number}",
-                            flush=True,
+                    except ValidationError as e:
+                        parsing_logger.warning(
+                            f"Skipping participant in ergwert due to validation error: {e}"
                         )
     return participants
 
@@ -197,15 +195,20 @@ def extract_scores_from_ergwert(soup):
                 if not mscore:
                     continue
                 score_val = int(first)
-                results.append(
-                    FinalRoundScore(
-                        number=couple_number,
-                        score=score_val,
-                        round_number=4,
-                        judge_code=judge_code,
-                        dance_name=english_name,
+                try:
+                    results.append(
+                        FinalRoundScore(
+                            number=couple_number,
+                            score=score_val,
+                            round_number=4,
+                            judge_code=judge_code,
+                            dance_name=english_name,
+                        )
                     )
-                )
+                except ValidationError as e:
+                    parsing_logger.warning(
+                        f"Skipping score in ergwert due to validation error: {e}"
+                    )
 
     return results
 

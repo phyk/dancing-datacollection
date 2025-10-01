@@ -1,3 +1,4 @@
+from pydantic import ValidationError
 from dancing_datacollection.data_defs.participant import Participant
 from dancing_datacollection.data_defs.judge import Judge
 from dancing_datacollection.data_defs.score import Score
@@ -28,16 +29,20 @@ def extract_participants_from_tabges(soup):
                 name_one, name_two = names.strip(), None
             key = (number_int, name_one, name_two)
             if key not in seen:
-                seen.add(key)
-                participants.append(
-                    Participant(
+                try:
+                    participant = Participant(
                         name_one=name_one,
                         name_two=name_two,
                         number=number_int,
                         ranks=None,
                         club=None,
                     )
-                )
+                    participants.append(participant)
+                    seen.add(key)
+                except ValidationError as e:
+                    parsing_logger.warning(
+                        f"Skipping participant in tabges due to validation error: {e}"
+                    )
     return participants
 
 
