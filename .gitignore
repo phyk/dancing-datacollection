@@ -1,5 +1,8 @@
-# Ignore scratch directory for verification files
-jules-scratch/
+# Ignore scratch directory for verification files, but keep the verification script
+jules-scratch/*
+!jules-scratch/verification/
+jules-scratch/verification/*
+!jules-scratch/verification/verify_frontend.py
 
 # Python cache
 __pycache__/
