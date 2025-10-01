@@ -18,15 +18,10 @@ def validate_schema(path: str, required_columns: List[str]) -> bool:
         df = pl.read_parquet(path)
         missing = [col for col in required_columns if col not in df.columns]
         if missing:
-            logging.error(
-                "Schema validation failed for %s: missing columns %s", path, missing
-            )
+            logging.error("Schema validation failed for %s: missing columns %s", path, missing)
             return False
         # If this is participants.parquet, check number is int
-        if (
-            os.path.basename(path) == "participants.parquet"
-            and df["number"].dtype != pl.Int64
-        ):
+        if os.path.basename(path) == "participants.parquet" and df["number"].dtype != pl.Int64:
             logging.error(
                 "Schema validation failed for %s: 'number' column is not integer type",
                 path,
@@ -53,9 +48,7 @@ def validate_schema(path: str, required_columns: List[str]) -> bool:
         return False
 
 
-def save_competition_data(
-    event_name: str, participants: List[Participant]
-) -> None:
+def save_competition_data(event_name: str, participants: List[Participant]) -> None:
     comp_dir = os.path.join(DATA_DIR, event_name)
     os.makedirs(comp_dir, exist_ok=True)
     expected_cols = ["name_one", "name_two", "club", "number", "ranks"]
@@ -139,9 +132,7 @@ def save_scores(event_name: str, scores: List[Any]) -> None:
         entry = {col: s.get(col, None) for col in expected_cols}
         # Ensure number is int and voted is bool
         try:
-            entry["number"] = (
-                int(entry["number"]) if entry["number"] is not None else None
-            )
+            entry["number"] = int(entry["number"]) if entry["number"] is not None else None
         except (ValueError, TypeError):
             entry["number"] = None
         entry["voted"] = bool(entry["voted"]) if entry["voted"] is not None else False

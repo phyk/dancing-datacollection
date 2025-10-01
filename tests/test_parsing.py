@@ -68,9 +68,7 @@ def main() -> None:
                     html = f.read()
                 participants = extract_participants(html, fname)
                 if participants:
-                    logging.info(
-                        "  Participants found in %s: %d", fname, len(participants)
-                    )
+                    logging.info("  Participants found in %s: %d", fname, len(participants))
                     all_participants.extend(participants)
         # Deduplicate by (number, name_one, name_two, club)
         seen = set()
@@ -106,20 +104,12 @@ def main() -> None:
             logging.info("  Score entries found: %d", len(scores))
             final_scores = extract_final_scoring(ergwert_html)
             logging.info("  Final scoring entries found: %d", len(final_scores))
-            ergwert_couples = {
-                f.number for f in final_scores if f.number is not None
-            }
-            logging.info(
-                "  Unique couple numbers in ergwert.htm: %d", len(ergwert_couples)
-            )
+            ergwert_couples = {f.number for f in final_scores if f.number is not None}
+            logging.info("  Unique couple numbers in ergwert.htm: %d", len(ergwert_couples))
 
         # Compare numbers
-        participant_numbers = {
-            p.number for p in unique_participants if p.number is not None
-        }
-        logging.info(
-            "  Unique couple numbers in participants: %d", len(participant_numbers)
-        )
+        participant_numbers = {p.number for p in unique_participants if p.number is not None}
+        logging.info("  Unique couple numbers in participants: %d", len(participant_numbers))
         if ergwert_couples and participant_numbers != ergwert_couples:
             logging.warning(
                 "WARNING: Mismatch between participants and ergwert.htm couples! Participants: %d, Ergwert: %d",

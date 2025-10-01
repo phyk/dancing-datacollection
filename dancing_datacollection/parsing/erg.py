@@ -95,9 +95,7 @@ def extract_results_from_erg(html: str) -> List[ResultRound]:
                     ranks=rank,  # type: ignore
                 )
             except ValidationError as e:
-                parsing_logger.warning(
-                    "Skipping participant due to validation error: %s", e
-                )
+                parsing_logger.warning("Skipping participant due to validation error: %s", e)
                 continue
 
             dance_scores: Dict[Dance, DanceScore] = {}
@@ -115,9 +113,7 @@ def extract_results_from_erg(html: str) -> List[ResultRound]:
                     place_str_match = (
                         re.search(r"[\d\.]+", parts[1]) if len(parts) > 1 else None
                     )
-                    place = (
-                        float(place_str_match.group(0)) if place_str_match else 0.0
-                    )
+                    place = float(place_str_match.group(0)) if place_str_match else 0.0
                     dance_scores[dance_enum] = DanceScore(marks=marks, place=place)
 
             total_score_str = cells[-1].get_text(strip=True)
@@ -191,15 +187,13 @@ def extract_results_from_erg(html: str) -> List[ResultRound]:
                 current_placings.append(placing)
 
         if current_round_name and current_placings:
-            results.append(
-                ResultRound(name=current_round_name, placings=current_placings)
-            )
+            results.append(ResultRound(name=current_round_name, placings=current_placings))
 
     return results
 
 
 def extract_participants_from_erg(
-    soup_or_html: Union[str, BeautifulSoup]
+    soup_or_html: Union[str, BeautifulSoup],
 ) -> List[Participant]:
     """
     Maintains compatibility with the old interface by extracting a flat list of participants.
@@ -256,9 +250,7 @@ def extract_finalists_from_erg(html: str) -> List[Any]:
             if len(cells) < 3:
                 continue
             classes = cells[0].get("class")
-            if "td3cv" in (
-                classes if isinstance(classes, str) else " ".join(classes or [])
-            ):
+            if "td3cv" in (classes if isinstance(classes, str) else " ".join(classes or [])):
                 name_text = cells[1].get_text(" ", strip=True)
                 m = re.search(r"\((\d+)\)", name_text)
                 number = m.group(1) if m else None

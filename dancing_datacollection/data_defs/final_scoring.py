@@ -7,7 +7,8 @@ from .dances import Dance
 
 class FinalScoring(BaseModel):
     """Represents a final scoring entry."""
-    model_config = ConfigDict(frozen=True, extra='forbid')
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
 
     placement: Optional[str] = None
     names: Optional[str] = None

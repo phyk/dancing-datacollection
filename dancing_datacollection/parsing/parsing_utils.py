@@ -31,16 +31,13 @@ def setup_logging(log_dir: Optional[str] = None) -> None:
     # Root logger
     root_logger = logging.getLogger()
     if not any(
-        isinstance(h, logging.FileHandler)
-        and getattr(h, "baseFilename", None) == app_log_path
+        isinstance(h, logging.FileHandler) and getattr(h, "baseFilename", None) == app_log_path
         for h in root_logger.handlers
     ):
         root_logger.setLevel(logging.INFO)
         app_handler = logging.FileHandler(app_log_path, mode="w")
         app_handler.setLevel(logging.INFO)
-        app_handler.setFormatter(
-            logging.Formatter("%(asctime)s %(levelname)s %(message)s")
-        )
+        app_handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(message)s"))
         root_logger.addHandler(app_handler)
         console_handler = logging.StreamHandler()
         console_handler.setLevel(logging.INFO)
@@ -59,9 +56,7 @@ def setup_logging(log_dir: Optional[str] = None) -> None:
         error_logger.setLevel(logging.ERROR)
         error_handler = logging.FileHandler(error_log_path, mode="w")
         error_handler.setLevel(logging.ERROR)
-        error_handler.setFormatter(
-            logging.Formatter("%(asctime)s %(levelname)s %(message)s")
-        )
+        error_handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(message)s"))
         error_logger.addHandler(error_handler)
         error_logger.propagate = False
 
@@ -101,9 +96,7 @@ def extract_competition_links(html: str, base_url: str) -> List[str]:
     for a in soup.find_all("a", href=True):
         if isinstance(a, Tag):
             href = a.get("href")
-            if isinstance(href, str) and (
-                href.endswith(".htm") or href.endswith(".html")
-            ):
+            if isinstance(href, str) and (href.endswith(".htm") or href.endswith(".html")):
                 full_url = urljoin(base_url, href)
                 links.append(full_url)
     return links

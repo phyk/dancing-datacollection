@@ -19,7 +19,7 @@ class FinalRoundScore(BaseModel, frozen=True, extra="forbid"):
         )
 
 
-class Score(BaseModel, frozen=True, extra='forbid'):
+class Score(BaseModel, frozen=True, extra="forbid"):
     number: int
     score: bool
     round_number: int

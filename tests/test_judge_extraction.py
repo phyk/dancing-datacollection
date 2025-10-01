@@ -44,14 +44,10 @@ def true_judges() -> Dict[str, List[Judge]]:
             Judge(code="CH", name="Mak, Annabel", club="Grün-Gold-Casino Wuppertal"),
             Judge(code="DC", name="Schöke, Manuel", club="TTC München"),
             Judge(code="DV", name="Becker, Marc", club="TTC Fortis Nova Maintal"),
-            Judge(
-                code="EY", name="Schwarz, Sonja", club="TSZ Blau-Gold Casino, Darmstadt"
-            ),
+            Judge(code="EY", name="Schwarz, Sonja", club="TSZ Blau-Gold Casino, Darmstadt"),
         ],
         "53-1105_ot_hgr2bstd": [
-            Judge(
-                code="BI", name="Fleischer, Georg", club="Grün-Gold-Casino Wuppertal"
-            ),
+            Judge(code="BI", name="Fleischer, Georg", club="Grün-Gold-Casino Wuppertal"),
             Judge(
                 code="CP",
                 name="Peinke-Dean, Lutz",
@@ -93,9 +89,7 @@ def test_extract_judges(
         keys.add(key)
     # Check all ground truth judges are present (partial match)
     for gt_judge in gt_judges:
-        assert any(j.matches_partial(gt_judge) for j in judges), (
-            f"Missing judge: {gt_judge}"
-        )
+        assert any(j.matches_partial(gt_judge) for j in judges), f"Missing judge: {gt_judge}"
 
 
 @pytest.mark.parametrize(
@@ -125,9 +119,7 @@ def test_extract_judges_from_deck(
         keys.add(key)
     # Check all ground truth judges are present (full match)
     for gt_judge in gt_judges:
-        assert any(j.matches_full(gt_judge) for j in judges), (
-            f"Missing judge: {gt_judge}"
-        )
+        assert any(j.matches_full(gt_judge) for j in judges), f"Missing judge: {gt_judge}"
 
 
 @pytest.mark.parametrize(
@@ -157,9 +149,7 @@ def test_extract_judges_from_ergwert(
         keys.add(key)
     # Check all ground truth judges are present (partial match)
     for gt_judge in gt_judges:
-        assert any(j.matches_partial(gt_judge) for j in judges), (
-            f"Missing judge: {gt_judge}"
-        )
+        assert any(j.matches_partial(gt_judge) for j in judges), f"Missing judge: {gt_judge}"
 
 
 @pytest.mark.parametrize(
@@ -189,6 +179,4 @@ def test_extract_judges_from_wert_er(
         keys.add(key)
     # Check all ground truth judges are present (partial match)
     for gt_judge in gt_judges:
-        assert any(j.matches_partial(gt_judge) for j in judges), (
-            f"Missing judge: {gt_judge}"
-        )
+        assert any(j.matches_partial(gt_judge) for j in judges), f"Missing judge: {gt_judge}"

@@ -24,10 +24,16 @@ packages = ["dancing_datacollection"]
 pythonpath = ["."]
 testpaths = "tests"
 
-[project.optional-dependencies]
-dev = ["pytest>=8.4.2", "ruff>=0.12.1"]
-
 [tool.pyright]
 venvPath = "."
 venv = ".venv"
-exclude = ["build", "data", "dancing_datacollection.egg-info", "notebook.ipynb"]
+exclude = [
+    "build",
+    "data",
+    "dancing_datacollection.egg-info",
+    "notebook.ipynb",
+    ".venv",
+]
+
+[dependency-groups]
+dev = ["pyright[nodejs]>=1.1.405", "pytest>=8.4.2", "ruff>=0.12.1"]

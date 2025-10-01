@@ -687,9 +687,7 @@ def test_extract_participants_from_erg(
     # Check all ground truth participants are present (full match)
     expected = true_participants[sample_dir]
     for tp in expected:
-        assert any(p.matches_full(tp) for p in participants), (
-            f"Missing participant: {tp}"
-        )
+        assert any(p.matches_full(tp) for p in participants), f"Missing participant: {tp}"
 
 
 @pytest.mark.parametrize(
@@ -721,9 +719,7 @@ def test_extract_participants_from_ergwert(
     # Check all ground truth participants are present (full match)
     expected = true_participants[sample_dir]
     for tp in expected:
-        assert any(p.matches_full(tp) for p in participants), (
-            f"Missing participant: {tp}"
-        )
+        assert any(p.matches_full(tp) for p in participants), f"Missing participant: {tp}"
 
 
 @pytest.mark.parametrize(
@@ -754,9 +750,7 @@ def test_extract_participants_from_tabges(
     # Check all ground truth participants are present (partial match)
     expected = true_participants[sample_dir]
     for tp in expected:
-        assert any(p.matches_partial(tp) for p in participants), (
-            f"Missing participant: {tp}"
-        )
+        assert any(p.matches_partial(tp) for p in participants), f"Missing participant: {tp}"
 
 
 @pytest.mark.parametrize(

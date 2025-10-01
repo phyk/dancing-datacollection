@@ -61,9 +61,7 @@ def test_split_names_whitespace_fallback() -> None:
 
 
 def test_extract_name_and_club_from_spans_prefers_spans() -> None:
-    soup = BeautifulSoup(
-        "<td><span>Alice & Bob</span><span>Club X</span></td>", "html.parser"
-    )
+    soup = BeautifulSoup("<td><span>Alice & Bob</span><span>Club X</span></td>", "html.parser")
     td = soup.find("td")
     assert isinstance(td, Tag)
     name, club = extract_name_and_club_from_spans(td)

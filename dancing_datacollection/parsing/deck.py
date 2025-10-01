@@ -200,7 +200,5 @@ def extract_committee_from_deck(soup: BeautifulSoup) -> List[CommitteeMember]:
                     value_cell.get_text(" ", strip=True),
                 )
                 committee.append(CommitteeMember(role=role_key, name=name, club=club))
-    logger.debug(
-        "extract_committee_from_deck: END, total committee=%d", len(committee)
-    )
+    logger.debug("extract_committee_from_deck: END, total committee=%d", len(committee))
     return committee

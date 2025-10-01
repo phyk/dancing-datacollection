@@ -79,9 +79,8 @@ def canonicalize_html(html: str) -> str:
             removed_count = 0
             for tag in reversed(soup.body.find_all()):
                 if isinstance(tag, Tag):
-                    is_empty = (
-                        not tag.find_all(recursive=False)
-                        and not tag.get_text(strip=True)
+                    is_empty = not tag.find_all(recursive=False) and not tag.get_text(
+                        strip=True
                     )
                     if is_empty and tag.name not in tags_to_preserve:
                         tag.decompose()

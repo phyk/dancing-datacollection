@@ -67,8 +67,4 @@ class Judge(BaseModel):
 
     def matches_full(self, other: "Judge") -> bool:
         """Return True if code, name, and club are identical."""
-        return (
-            self.code == other.code
-            and self.name == other.name
-            and self.club == other.club
-        )
+        return self.code == other.code and self.name == other.name and self.club == other.club

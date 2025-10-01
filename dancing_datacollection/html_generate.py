@@ -17,10 +17,11 @@ from dancing_datacollection.data_defs.score import FinalRoundScore
 
 def _html_page(title: str, body: str) -> str:
     return (
-        "<!DOCTYPE html><html><head><meta charset=\"utf-8\">"
+        '<!DOCTYPE html><html><head><meta charset="utf-8">'
         f"<title>{escape(title)}</title>"
         "</head><body>" + body + "</body></html>"
     )
+
 
 ROLE_KEY_TO_GERMAN = {
     "organizer": "Veranstalter:",
@@ -72,10 +73,7 @@ def generate_deck_html(
         escaped_name = escape(name)
         club = escape(j.club or "")
         row = (
-            "<tr>"
-            f"<td>{code}:</td>"
-            f"<td><span>{escaped_name}</span><span>{club}</span></td>"
-            "</tr>"
+            f"<tr><td>{code}:</td><td><span>{escaped_name}</span><span>{club}</span></td></tr>"
         )
         main_rows.append(row)
 
@@ -125,8 +123,12 @@ def generate_erg_html(results: List[ResultRound], title: str = "erg") -> str:
     table_title = title.replace(" Hgr.", " - OT, Hgr.")
     title_table = f"<table><tr><td>{escape(table_title)}</td></tr></table>"
 
-    final_round = next((r for r in results if isinstance(r.placings[0], FinalRoundPlacing)), None)
-    preliminary_rounds = [r for r in results if isinstance(r.placings[0], PreliminaryRoundPlacing)]
+    final_round = next(
+        (r for r in results if isinstance(r.placings[0], FinalRoundPlacing)), None
+    )
+    preliminary_rounds = [
+        r for r in results if isinstance(r.placings[0], PreliminaryRoundPlacing)
+    ]
 
     tables_html = []
 
@@ -137,10 +139,14 @@ def generate_erg_html(results: List[ResultRound], title: str = "erg") -> str:
         first_placing = final_round.placings[0]
         if isinstance(first_placing, FinalRoundPlacing):
             dance_names = list(first_placing.dance_scores.keys())
-            header_cells = ["<td>Platz</td>", "<td>Paar/Club</td>"] + [
-                f"<td>{ENGLISH_TO_GERMAN_DANCE_NAME.get(dn, str(dn))}</td>"
-                for dn in dance_names
-            ] + ["<td>PZ</td>"]
+            header_cells = (
+                ["<td>Platz</td>", "<td>Paar/Club</td>"]
+                + [
+                    f"<td>{ENGLISH_TO_GERMAN_DANCE_NAME.get(dn, str(dn))}</td>"
+                    for dn in dance_names
+                ]
+                + ["<td>PZ</td>"]
+            )
             rows_html.append("<tr>" + "".join(header_cells) + "</tr>")
             for p in final_round.placings:
                 if isinstance(p, FinalRoundPlacing):
@@ -153,9 +159,7 @@ def generate_erg_html(results: List[ResultRound], title: str = "erg") -> str:
                     for dn in dance_names:
                         ds = p.dance_scores[dn]
                         marks_str = "".join(map(str, ds.marks))
-                        cells.append(
-                            f"<td>{marks_str}<br/><div>{ds.place}</div></td>"
-                        )
+                        cells.append(f"<td>{marks_str}<br/><div>{ds.place}</div></td>")
                     cells.append(f"<td><br/>{p.total_score}</td>")
                     rows_html.append("<tr>" + "".join(cells) + "</tr>")
             tables_html.append("<table>" + "".join(rows_html) + "</table>")
@@ -191,7 +195,9 @@ def generate_erg_html(results: List[ResultRound], title: str = "erg") -> str:
     return _html_page(title, body)
 
 
-def _group_scores(final_scores: List[FinalRoundScore]) -> Tuple[List[str], Dict[str, List[str]]]:
+def _group_scores(
+    final_scores: List[FinalRoundScore],
+) -> Tuple[List[str], Dict[str, List[str]]]:
     """Return (ordered_dances_english, judge_codes_per_dance) in a deterministic layout.
 
     - Use stable dance order preference (Standard first): LW, TG, QS, WW, SF, then others alphabetical
@@ -207,10 +213,10 @@ def _group_scores(final_scores: List[FinalRoundScore]) -> Tuple[List[str], Dict[
     # Stable preferred order mapped from English names
     preferred = [
         "SlowWaltz",  # LW
-        "Tango",      # TG
+        "Tango",  # TG
         "Quickstep",  # QS
         "VienneseWaltz",  # WW
-        "SlowFoxtrott",   # SF
+        "SlowFoxtrott",  # SF
     ]
     others = sorted(name for name in per_dance if name not in preferred)
     ordered = [d for d in preferred if d in per_dance] + others
@@ -239,9 +245,7 @@ def _english_to_german_abbrev(name: str) -> str:
     return name[:2].upper()
 
 
-def generate_ergwert_html(
-    tables_data: List[List[List[str]]], title: str = "ergwert"
-) -> str:
+def generate_ergwert_html(tables_data: List[List[List[str]]], title: str = "ergwert") -> str:
     # The first table in ergwert.htm is the title table, which we can regenerate.
     table_title = title.replace(" Hgr.", " - OT, Hgr.")
     title_table = f"<table><tr><td>{escape(table_title)}</td></tr></table>"

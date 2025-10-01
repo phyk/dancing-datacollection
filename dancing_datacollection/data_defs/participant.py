@@ -23,9 +23,7 @@ class Participant(BaseModel):
 
     @field_validator("ranks", mode="before")
     @classmethod
-    def _parse_ranks(
-        cls, v: Optional[Union[str, int, List[Any]]]
-    ) -> Optional[List[int]]:
+    def _parse_ranks(cls, v: Optional[Union[str, int, List[Any]]]) -> Optional[List[int]]:
         if v is None:
             return None
 

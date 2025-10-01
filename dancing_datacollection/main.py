@@ -86,9 +86,7 @@ def process_local_dir(local_dir: str) -> None:
         with open(deck_path, "r", encoding="utf-8") as f:
             deck_html = f.read()
         if ("abgesagt" in deck_html.lower()) or ("canceled" in deck_html.lower()):
-            logging.info(
-                "Competition %s is canceled. Skipping all output files.", event_name
-            )
+            logging.info("Competition %s is canceled. Skipping all output files.", event_name)
             return
         soup = get_soup(deck_html)
         judges = extract_judges_from_deck(soup)
@@ -147,9 +145,7 @@ def process_local_dir(local_dir: str) -> None:
                 error_logger.exception("Error processing file %s", fpath)
 
     unique_participants = deduplicate_participants(all_participants)
-    logger.info(
-        "Total unique participants in %s: %d", local_dir, len(unique_participants)
-    )
+    logger.info("Total unique participants in %s: %d", local_dir, len(unique_participants))
     logger.debug(
         "Unique participant numbers: %s",
         [p.number for p in unique_participants if p.number],
@@ -176,9 +172,7 @@ def process_local_dir(local_dir: str) -> None:
 
 
 def main() -> None:
-    arg_parser = argparse.ArgumentParser(
-        description="Dancing Competition Data Collection"
-    )
+    arg_parser = argparse.ArgumentParser(description="Dancing Competition Data Collection")
     arg_parser.add_argument(
         "--local-dir",
         type=str,
@@ -216,16 +210,14 @@ def main() -> None:
                         erg_url = f"{base_url}/erg.htm"
                         erg_html = download_html(erg_url)
                         if erg_html:
-                            participants, event_name = (
-                                extract_participants_and_event_name(erg_html, "erg.htm")
+                            participants, event_name = extract_participants_and_event_name(
+                                erg_html, "erg.htm"
                             )
                             logger.info("Parsed competition (erg.htm): %s", erg_url)
                         else:
                             filename_from_link = link.rsplit("/", 1)[-1]
-                            participants, event_name = (
-                                extract_participants_and_event_name(
-                                    comp_html, filename_from_link
-                                )
+                            participants, event_name = extract_participants_and_event_name(
+                                comp_html, filename_from_link
                             )
                             logger.info("Parsed competition (index): %s", link)
                         logger.info("  Participants: %d", len(participants))
@@ -251,9 +243,7 @@ def main() -> None:
                         ergwert_html = download_html(ergwert_url)
                         if ergwert_html:
                             final_scores = extract_final_scoring(ergwert_html)
-                            logger.info(
-                                "Final scoring entries found: %d", len(final_scores)
-                            )
+                            logger.info("Final scoring entries found: %d", len(final_scores))
                             save_final_scoring(event_name, final_scores)
                             scores = extract_scores_from_ergwert(get_soup(ergwert_html))
                             save_scores(event_name, scores)

@@ -673,18 +673,10 @@ def ground_truth_ergwert_scores_51() -> Tuple[List[FinalRoundScore], List[Score]
             judge_code="CJ",
             dance_name=Dance.SLOW_WALTZ,
         ),
-        Score(
-            number=602, score=True, round_number=3, judge_code="AT", dance_name=Dance.TANGO
-        ),
-        Score(
-            number=602, score=True, round_number=3, judge_code="AX", dance_name=Dance.TANGO
-        ),
-        Score(
-            number=602, score=True, round_number=3, judge_code="BW", dance_name=Dance.TANGO
-        ),
-        Score(
-            number=602, score=True, round_number=3, judge_code="EK", dance_name=Dance.TANGO
-        ),
+        Score(number=602, score=True, round_number=3, judge_code="AT", dance_name=Dance.TANGO),
+        Score(number=602, score=True, round_number=3, judge_code="AX", dance_name=Dance.TANGO),
+        Score(number=602, score=True, round_number=3, judge_code="BW", dance_name=Dance.TANGO),
+        Score(number=602, score=True, round_number=3, judge_code="EK", dance_name=Dance.TANGO),
         Score(
             number=603,
             score=True,
@@ -755,18 +747,10 @@ def ground_truth_ergwert_scores_51() -> Tuple[List[FinalRoundScore], List[Score]
             judge_code="EK",
             dance_name=Dance.SLOW_WALTZ,
         ),
-        Score(
-            number=603, score=True, round_number=3, judge_code="AT", dance_name=Dance.TANGO
-        ),
-        Score(
-            number=603, score=True, round_number=3, judge_code="AX", dance_name=Dance.TANGO
-        ),
-        Score(
-            number=603, score=True, round_number=3, judge_code="BW", dance_name=Dance.TANGO
-        ),
-        Score(
-            number=603, score=True, round_number=3, judge_code="CJ", dance_name=Dance.TANGO
-        ),
+        Score(number=603, score=True, round_number=3, judge_code="AT", dance_name=Dance.TANGO),
+        Score(number=603, score=True, round_number=3, judge_code="AX", dance_name=Dance.TANGO),
+        Score(number=603, score=True, round_number=3, judge_code="BW", dance_name=Dance.TANGO),
+        Score(number=603, score=True, round_number=3, judge_code="CJ", dance_name=Dance.TANGO),
         Score(
             number=604,
             score=True,
@@ -802,15 +786,9 @@ def ground_truth_ergwert_scores_51() -> Tuple[List[FinalRoundScore], List[Score]
             judge_code="EK",
             dance_name=Dance.SLOW_WALTZ,
         ),
-        Score(
-            number=604, score=True, round_number=3, judge_code="BW", dance_name=Dance.TANGO
-        ),
-        Score(
-            number=604, score=True, round_number=3, judge_code="CJ", dance_name=Dance.TANGO
-        ),
-        Score(
-            number=604, score=True, round_number=3, judge_code="EK", dance_name=Dance.TANGO
-        ),
+        Score(number=604, score=True, round_number=3, judge_code="BW", dance_name=Dance.TANGO),
+        Score(number=604, score=True, round_number=3, judge_code="CJ", dance_name=Dance.TANGO),
+        Score(number=604, score=True, round_number=3, judge_code="EK", dance_name=Dance.TANGO),
         Score(
             number=606,
             score=True,
@@ -853,12 +831,8 @@ def ground_truth_ergwert_scores_51() -> Tuple[List[FinalRoundScore], List[Score]
             judge_code="EK",
             dance_name=Dance.SLOW_WALTZ,
         ),
-        Score(
-            number=606, score=True, round_number=3, judge_code="BW", dance_name=Dance.TANGO
-        ),
-        Score(
-            number=606, score=True, round_number=3, judge_code="EK", dance_name=Dance.TANGO
-        ),
+        Score(number=606, score=True, round_number=3, judge_code="BW", dance_name=Dance.TANGO),
+        Score(number=606, score=True, round_number=3, judge_code="EK", dance_name=Dance.TANGO),
         Score(
             number=607,
             score=True,
@@ -908,12 +882,8 @@ def ground_truth_ergwert_scores_51() -> Tuple[List[FinalRoundScore], List[Score]
             judge_code="EK",
             dance_name=Dance.SLOW_WALTZ,
         ),
-        Score(
-            number=607, score=True, round_number=3, judge_code="AX", dance_name=Dance.TANGO
-        ),
-        Score(
-            number=607, score=True, round_number=3, judge_code="CJ", dance_name=Dance.TANGO
-        ),
+        Score(number=607, score=True, round_number=3, judge_code="AX", dance_name=Dance.TANGO),
+        Score(number=607, score=True, round_number=3, judge_code="CJ", dance_name=Dance.TANGO),
         Score(
             number=609,
             score=True,
@@ -970,21 +940,11 @@ def ground_truth_ergwert_scores_51() -> Tuple[List[FinalRoundScore], List[Score]
             judge_code="CJ",
             dance_name=Dance.SLOW_WALTZ,
         ),
-        Score(
-            number=609, score=True, round_number=3, judge_code="AT", dance_name=Dance.TANGO
-        ),
-        Score(
-            number=609, score=True, round_number=3, judge_code="AX", dance_name=Dance.TANGO
-        ),
-        Score(
-            number=609, score=True, round_number=3, judge_code="BW", dance_name=Dance.TANGO
-        ),
-        Score(
-            number=609, score=True, round_number=3, judge_code="CJ", dance_name=Dance.TANGO
-        ),
-        Score(
-            number=609, score=True, round_number=3, judge_code="EK", dance_name=Dance.TANGO
-        ),
+        Score(number=609, score=True, round_number=3, judge_code="AT", dance_name=Dance.TANGO),
+        Score(number=609, score=True, round_number=3, judge_code="AX", dance_name=Dance.TANGO),
+        Score(number=609, score=True, round_number=3, judge_code="BW", dance_name=Dance.TANGO),
+        Score(number=609, score=True, round_number=3, judge_code="CJ", dance_name=Dance.TANGO),
+        Score(number=609, score=True, round_number=3, judge_code="EK", dance_name=Dance.TANGO),
         Score(
             number=610,
             score=True,
@@ -1055,21 +1015,11 @@ def ground_truth_ergwert_scores_51() -> Tuple[List[FinalRoundScore], List[Score]
             judge_code="EK",
             dance_name=Dance.SLOW_WALTZ,
         ),
-        Score(
-            number=610, score=True, round_number=3, judge_code="AT", dance_name=Dance.TANGO
-        ),
-        Score(
-            number=610, score=True, round_number=3, judge_code="AX", dance_name=Dance.TANGO
-        ),
-        Score(
-            number=610, score=True, round_number=3, judge_code="BW", dance_name=Dance.TANGO
-        ),
-        Score(
-            number=610, score=True, round_number=3, judge_code="CJ", dance_name=Dance.TANGO
-        ),
-        Score(
-            number=610, score=True, round_number=3, judge_code="EK", dance_name=Dance.TANGO
-        ),
+        Score(number=610, score=True, round_number=3, judge_code="AT", dance_name=Dance.TANGO),
+        Score(number=610, score=True, round_number=3, judge_code="AX", dance_name=Dance.TANGO),
+        Score(number=610, score=True, round_number=3, judge_code="BW", dance_name=Dance.TANGO),
+        Score(number=610, score=True, round_number=3, judge_code="CJ", dance_name=Dance.TANGO),
+        Score(number=610, score=True, round_number=3, judge_code="EK", dance_name=Dance.TANGO),
         Score(
             number=611,
             score=True,
@@ -1112,12 +1062,8 @@ def ground_truth_ergwert_scores_51() -> Tuple[List[FinalRoundScore], List[Score]
             judge_code="EK",
             dance_name=Dance.SLOW_WALTZ,
         ),
-        Score(
-            number=611, score=True, round_number=3, judge_code="AX", dance_name=Dance.TANGO
-        ),
-        Score(
-            number=611, score=True, round_number=3, judge_code="EK", dance_name=Dance.TANGO
-        ),
+        Score(number=611, score=True, round_number=3, judge_code="AX", dance_name=Dance.TANGO),
+        Score(number=611, score=True, round_number=3, judge_code="EK", dance_name=Dance.TANGO),
         Score(
             number=612,
             score=True,
@@ -1174,12 +1120,8 @@ def ground_truth_ergwert_scores_51() -> Tuple[List[FinalRoundScore], List[Score]
             judge_code="EK",
             dance_name=Dance.SLOW_WALTZ,
         ),
-        Score(
-            number=612, score=True, round_number=3, judge_code="BW", dance_name=Dance.TANGO
-        ),
-        Score(
-            number=612, score=True, round_number=3, judge_code="EK", dance_name=Dance.TANGO
-        ),
+        Score(number=612, score=True, round_number=3, judge_code="BW", dance_name=Dance.TANGO),
+        Score(number=612, score=True, round_number=3, judge_code="EK", dance_name=Dance.TANGO),
         Score(
             number=613,
             score=True,
@@ -1243,18 +1185,10 @@ def ground_truth_ergwert_scores_51() -> Tuple[List[FinalRoundScore], List[Score]
             judge_code="EK",
             dance_name=Dance.SLOW_WALTZ,
         ),
-        Score(
-            number=613, score=True, round_number=3, judge_code="AT", dance_name=Dance.TANGO
-        ),
-        Score(
-            number=613, score=True, round_number=3, judge_code="AX", dance_name=Dance.TANGO
-        ),
-        Score(
-            number=613, score=True, round_number=3, judge_code="BW", dance_name=Dance.TANGO
-        ),
-        Score(
-            number=613, score=True, round_number=3, judge_code="EK", dance_name=Dance.TANGO
-        ),
+        Score(number=613, score=True, round_number=3, judge_code="AT", dance_name=Dance.TANGO),
+        Score(number=613, score=True, round_number=3, judge_code="AX", dance_name=Dance.TANGO),
+        Score(number=613, score=True, round_number=3, judge_code="BW", dance_name=Dance.TANGO),
+        Score(number=613, score=True, round_number=3, judge_code="EK", dance_name=Dance.TANGO),
         Score(
             number=615,
             score=True,
@@ -1290,12 +1224,8 @@ def ground_truth_ergwert_scores_51() -> Tuple[List[FinalRoundScore], List[Score]
             judge_code="EK",
             dance_name=Dance.SLOW_WALTZ,
         ),
-        Score(
-            number=615, score=True, round_number=3, judge_code="AX", dance_name=Dance.TANGO
-        ),
-        Score(
-            number=615, score=True, round_number=3, judge_code="BW", dance_name=Dance.TANGO
-        ),
+        Score(number=615, score=True, round_number=3, judge_code="AX", dance_name=Dance.TANGO),
+        Score(number=615, score=True, round_number=3, judge_code="BW", dance_name=Dance.TANGO),
         Score(
             number=616,
             score=True,
@@ -1352,18 +1282,10 @@ def ground_truth_ergwert_scores_51() -> Tuple[List[FinalRoundScore], List[Score]
             judge_code="CJ",
             dance_name=Dance.SLOW_WALTZ,
         ),
-        Score(
-            number=616, score=True, round_number=3, judge_code="AT", dance_name=Dance.TANGO
-        ),
-        Score(
-            number=616, score=True, round_number=3, judge_code="AX", dance_name=Dance.TANGO
-        ),
-        Score(
-            number=616, score=True, round_number=3, judge_code="BW", dance_name=Dance.TANGO
-        ),
-        Score(
-            number=616, score=True, round_number=3, judge_code="EK", dance_name=Dance.TANGO
-        ),
+        Score(number=616, score=True, round_number=3, judge_code="AT", dance_name=Dance.TANGO),
+        Score(number=616, score=True, round_number=3, judge_code="AX", dance_name=Dance.TANGO),
+        Score(number=616, score=True, round_number=3, judge_code="BW", dance_name=Dance.TANGO),
+        Score(number=616, score=True, round_number=3, judge_code="EK", dance_name=Dance.TANGO),
         Score(
             number=617,
             score=True,
@@ -1406,21 +1328,11 @@ def ground_truth_ergwert_scores_51() -> Tuple[List[FinalRoundScore], List[Score]
             judge_code="EK",
             dance_name=Dance.SLOW_WALTZ,
         ),
-        Score(
-            number=617, score=True, round_number=3, judge_code="AT", dance_name=Dance.TANGO
-        ),
-        Score(
-            number=617, score=True, round_number=3, judge_code="AX", dance_name=Dance.TANGO
-        ),
-        Score(
-            number=617, score=True, round_number=3, judge_code="BW", dance_name=Dance.TANGO
-        ),
-        Score(
-            number=617, score=True, round_number=3, judge_code="CJ", dance_name=Dance.TANGO
-        ),
-        Score(
-            number=617, score=True, round_number=3, judge_code="EK", dance_name=Dance.TANGO
-        ),
+        Score(number=617, score=True, round_number=3, judge_code="AT", dance_name=Dance.TANGO),
+        Score(number=617, score=True, round_number=3, judge_code="AX", dance_name=Dance.TANGO),
+        Score(number=617, score=True, round_number=3, judge_code="BW", dance_name=Dance.TANGO),
+        Score(number=617, score=True, round_number=3, judge_code="CJ", dance_name=Dance.TANGO),
+        Score(number=617, score=True, round_number=3, judge_code="EK", dance_name=Dance.TANGO),
         Score(
             number=619,
             score=True,
@@ -1470,15 +1382,9 @@ def ground_truth_ergwert_scores_51() -> Tuple[List[FinalRoundScore], List[Score]
             judge_code="EK",
             dance_name=Dance.SLOW_WALTZ,
         ),
-        Score(
-            number=619, score=True, round_number=3, judge_code="AT", dance_name=Dance.TANGO
-        ),
-        Score(
-            number=619, score=True, round_number=3, judge_code="BW", dance_name=Dance.TANGO
-        ),
-        Score(
-            number=619, score=True, round_number=3, judge_code="CJ", dance_name=Dance.TANGO
-        ),
+        Score(number=619, score=True, round_number=3, judge_code="AT", dance_name=Dance.TANGO),
+        Score(number=619, score=True, round_number=3, judge_code="BW", dance_name=Dance.TANGO),
+        Score(number=619, score=True, round_number=3, judge_code="CJ", dance_name=Dance.TANGO),
         Score(
             number=620,
             score=True,
@@ -1521,15 +1427,9 @@ def ground_truth_ergwert_scores_51() -> Tuple[List[FinalRoundScore], List[Score]
             judge_code="EK",
             dance_name=Dance.SLOW_WALTZ,
         ),
-        Score(
-            number=620, score=True, round_number=3, judge_code="AX", dance_name=Dance.TANGO
-        ),
-        Score(
-            number=620, score=True, round_number=3, judge_code="BW", dance_name=Dance.TANGO
-        ),
-        Score(
-            number=620, score=True, round_number=3, judge_code="CJ", dance_name=Dance.TANGO
-        ),
+        Score(number=620, score=True, round_number=3, judge_code="AX", dance_name=Dance.TANGO),
+        Score(number=620, score=True, round_number=3, judge_code="BW", dance_name=Dance.TANGO),
+        Score(number=620, score=True, round_number=3, judge_code="CJ", dance_name=Dance.TANGO),
         Score(
             number=621,
             score=True,
@@ -1572,15 +1472,9 @@ def ground_truth_ergwert_scores_51() -> Tuple[List[FinalRoundScore], List[Score]
             judge_code="EK",
             dance_name=Dance.SLOW_WALTZ,
         ),
-        Score(
-            number=621, score=True, round_number=3, judge_code="AT", dance_name=Dance.TANGO
-        ),
-        Score(
-            number=621, score=True, round_number=3, judge_code="AX", dance_name=Dance.TANGO
-        ),
-        Score(
-            number=621, score=True, round_number=3, judge_code="EK", dance_name=Dance.TANGO
-        ),
+        Score(number=621, score=True, round_number=3, judge_code="AT", dance_name=Dance.TANGO),
+        Score(number=621, score=True, round_number=3, judge_code="AX", dance_name=Dance.TANGO),
+        Score(number=621, score=True, round_number=3, judge_code="EK", dance_name=Dance.TANGO),
         Score(
             number=624,
             score=True,
@@ -1623,12 +1517,8 @@ def ground_truth_ergwert_scores_51() -> Tuple[List[FinalRoundScore], List[Score]
             judge_code="CJ",
             dance_name=Dance.SLOW_WALTZ,
         ),
-        Score(
-            number=624, score=True, round_number=3, judge_code="AT", dance_name=Dance.TANGO
-        ),
-        Score(
-            number=624, score=True, round_number=3, judge_code="CJ", dance_name=Dance.TANGO
-        ),
+        Score(number=624, score=True, round_number=3, judge_code="AT", dance_name=Dance.TANGO),
+        Score(number=624, score=True, round_number=3, judge_code="CJ", dance_name=Dance.TANGO),
     ]
     return final_round_scores, all_other_scores
 
