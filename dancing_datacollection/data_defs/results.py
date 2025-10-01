@@ -1,29 +1,34 @@
-from dataclasses import dataclass
+from pydantic import BaseModel, ConfigDict
 from typing import List, Optional, Dict, Union
 from .participant import Participant
+from .dances import Dance
 
-@dataclass(frozen=True)
-class DanceScore:
+
+class DanceScore(BaseModel):
     """Represents the scores for a single dance in a final round."""
-    marks: str
+    model_config = ConfigDict(frozen=True, extra='forbid')
+    marks: List[int]
     place: float
 
-@dataclass(frozen=True)
-class FinalRoundPlacing:
+
+class FinalRoundPlacing(BaseModel):
     """Represents a single placing in a final round table."""
+    model_config = ConfigDict(frozen=True, extra='forbid')
     rank: str
     participant: Participant
-    dance_scores: Dict[str, DanceScore]
+    dance_scores: Dict[Dance, DanceScore]
     total_score: float
 
-@dataclass(frozen=True)
-class PreliminaryRoundPlacing:
+
+class PreliminaryRoundPlacing(BaseModel):
     """Represents a single placing in a preliminary round table."""
+    model_config = ConfigDict(frozen=True, extra='forbid')
     rank: str
     participant: Participant
 
-@dataclass(frozen=True)
-class ResultRound:
+
+class ResultRound(BaseModel):
     """Represents the results for a single round of a competition."""
+    model_config = ConfigDict(frozen=True, extra='forbid')
     name: str
     placings: List[Union[FinalRoundPlacing, PreliminaryRoundPlacing]]

@@ -1,15 +1,15 @@
-from dataclasses import dataclass
-from typing import Optional
+from pydantic import BaseModel, ConfigDict
+from typing import Optional, Dict
+from .dances import Dance
 
 
-@dataclass(frozen=True)
-class FinalScoring:
+class FinalScoring(BaseModel):
     """Represents a final scoring entry."""
+    model_config = ConfigDict(frozen=True, extra='forbid')
+
     placement: Optional[str] = None
     names: Optional[str] = None
     number: Optional[str] = None
     club: Optional[str] = None
-    score_LW: Optional[str] = None
-    score_TG: Optional[str] = None
-    score_QS: Optional[str] = None
+    scores: Dict[Dance, str] = {}
     total: Optional[str] = None

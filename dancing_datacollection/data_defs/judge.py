@@ -1,65 +1,71 @@
-from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Any
 import re
+from pydantic import (
+    BaseModel,
+    field_validator,
+    model_validator,
+    ConfigDict,
+)
 
 
-@dataclass(frozen=True, eq=True)
-class Judge:
+class Judge(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
     code: str
     name: str
-    club: Optional[str] = field(default=None)
+    club: Optional[str] = None
 
-    def __post_init__(self):
-        # Normalize code: uppercase and strip whitespace
-        object.__setattr__(self, "code", self.code.strip().upper())
-        # Normalize name: strip, collapse spaces, convert 'Lastname, Firstname' to 'Firstname Lastname'
-        name = self.name.strip()
-        # If name is in 'Lastname, Firstname' format, convert to 'Firstname Lastname'
+    @field_validator("code", mode="before")
+    @classmethod
+    def _normalize_code(cls, v: Any) -> str:
+        if not isinstance(v, str):
+            return v
+        normalized_code = v.strip().upper()
+        if not (1 <= len(normalized_code) <= 3 and normalized_code.isalpha()):
+            raise ValueError(f"Judge code must be 1-3 letters, got '{v}'")
+        return normalized_code
+
+    @field_validator("name", mode="before")
+    @classmethod
+    def _normalize_name(cls, v: Any) -> str:
+        if not isinstance(v, str):
+            return v
+        name = v.strip()
         m = re.match(r"^([^,]+),\s*(.+)$", name)
         if m:
-            # Allow multiple first or last names: everything before first comma is last name, after is first name(s)
             last = m.group(1).strip()
             first = m.group(2).strip()
             name = f"{first} {last}"
-        # Collapse multiple spaces
         name = re.sub(r"\s+", " ", name)
-        object.__setattr__(self, "name", name)
-        # Normalize club: strip and collapse spaces
-        if self.club is not None:
-            club = self.club.strip()
-            club = re.sub(r"\s+", " ", club)
-            if club == "":
-                club = None
-            object.__setattr__(self, "club", club)
-        else:
-            object.__setattr__(self, "club", None)
-        # Validate code: 1-3 letters
-        if not (1 <= len(self.code) <= 3 and self.code.isalpha()):
-            raise ValueError(f"Judge code must be 1-3 letters, got '{self.code}'")
-        # Validate name: at least two words
-        if len(self.name.split()) < 2:
+        if len(name.split()) < 2:
             raise ValueError(
-                f"Judge name must contain at least two words, got '{self.name}'"
+                f"Judge name must contain at least two words, got '{v}'"
             )
-        # Validate club: allow empty or any string
-        if self.club and (self.club in self.name or self.name in self.club):
-            raise ValueError(
-                f"Club and name must not be substrings of each other: name='{self.name}', club='{self.club}'"
-            )
+        return name
 
-    def verify(self) -> bool:
-        # Code: 1-3 letters
-        if not (1 <= len(self.code) <= 3 and self.code.isalpha()):
-            return False
-        # Name: at least two words
-        if len(self.name.split()) < 2:
-            return False
-        # Club and name must not be substrings of each other
-        if self.club and (self.club in self.name or self.name in self.club):
-            return False
-        return True
+    @field_validator("club", mode="before")
+    @classmethod
+    def _normalize_club(cls, v: Any) -> Optional[str]:
+        if v is None:
+            return None
+        if not isinstance(v, str):
+            return v
+        club = v.strip()
+        club = re.sub(r"\s+", " ", club)
+        if club == "":
+            return None
+        return club
 
-    def __str__(self):
+    @model_validator(mode="after")
+    def _validate_club_and_name(self) -> "Judge":
+        if self.club and self.name:
+            if self.club in self.name or self.name in self.club:
+                raise ValueError(
+                    f"Club and name must not be substrings of each other: name='{self.name}', club='{self.club}'"
+                )
+        return self
+
+    def __str__(self) -> str:
         return f"Judge(code='{self.code}', name='{self.name}', club='{self.club}')"
 
     def matches_partial(self, other: "Judge") -> bool:

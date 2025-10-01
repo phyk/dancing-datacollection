@@ -24,6 +24,7 @@ GERMAN_TO_ENGLISH_DANCE_NAME = {
     "TG": Dance.TANGO,
     "Quickstep": Dance.QUICKSTEP,
     "QS": Dance.QUICKSTEP,
+    "QU": Dance.QUICKSTEP,
     "Slow Foxtrott": Dance.SLOW_FOXTROT,
     "Slowfox": Dance.SLOW_FOXTROT,
     "Foxtrott": Dance.SLOW_FOXTROT,
@@ -39,4 +40,17 @@ GERMAN_TO_ENGLISH_DANCE_NAME = {
     "PD": Dance.PASO_DOBLE,
     "Jive": Dance.JIVE,
     "JV": Dance.JIVE,
+}
+
+ENGLISH_TO_GERMAN_DANCE_NAME = {
+    Dance.SLOW_WALTZ: "LW",
+    Dance.VIENNESE_WALTZ: "WW",
+    Dance.TANGO: "TG",
+    Dance.QUICKSTEP: "QU",
+    Dance.SLOW_FOXTROT: "SF",
+    Dance.SAMBA: "SB",
+    Dance.CHA_CHA: "CC",
+    Dance.RUMBA: "RB",
+    Dance.PASO_DOBLE: "PD",
+    Dance.JIVE: "JV",
 }

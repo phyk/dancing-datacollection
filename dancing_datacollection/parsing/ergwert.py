@@ -1,7 +1,7 @@
 from pydantic import ValidationError
 from dancing_datacollection.data_defs.participant import Participant
 from dancing_datacollection.data_defs.judge import Judge
-from dancing_datacollection.data_defs.dances import GERMAN_TO_ENGLISH_DANCE_NAME
+from dancing_datacollection.data_defs.dances import Dance, GERMAN_TO_ENGLISH_DANCE_NAME
 from dancing_datacollection.data_defs.final_scoring import FinalScoring
 from dancing_datacollection.data_defs.score import (
     FinalRoundScore,
@@ -236,18 +236,38 @@ def extract_final_scoring(html) -> List[FinalScoring]:
     parsing_logger.debug("extract_final_scoring: START")
     soup: Any = get_soup(html)
     table: Any = soup.find("table", class_="tab1")
-    parsing_logger.debug(f"Found table: {bool(table)}")
     if not table:
         return []
     rows: List[Any] = table.find_all("tr")
+    if len(rows) < 2:
+        return []
+
+    header0_cells = rows[0].find_all(["td", "th"])
+    dance_names_german = []
+    for cell in header0_cells[4:]:
+        if cell.has_attr("colspan"):
+            text = cell.get_text(" ", strip=True)
+            if text in GERMAN_TO_ENGLISH_DANCE_NAME:
+                dance_names_german.append(text)
+
+    if not dance_names_german:
+        abbreviations = []
+        for cell in header0_cells[4:]:
+            text = cell.get_text(" ", strip=True)
+            if text in GERMAN_TO_ENGLISH_DANCE_NAME:
+                abbreviations.append(text)
+        dance_names_german = abbreviations
+
+    dance_sequence = [
+        GERMAN_TO_ENGLISH_DANCE_NAME[name] for name in dance_names_german if name in GERMAN_TO_ENGLISH_DANCE_NAME
+    ]
+
     final_scores: List[FinalScoring] = []
     for row_idx, row in enumerate(rows):
         cells: List[Any] = cast(Any, row).find_all("td")
-        parsing_logger.debug(
-            f"Row {row_idx}: {[c.get_text(' ', strip=True) for c in cells]}"
-        )
         if not cells:
             continue
+
         classes0_list: List[str] = as_class_list(cells[0].get("class"))
         if "td3cv" in classes0_list:
             placement = cells[0].get_text(strip=True)
@@ -255,9 +275,14 @@ def extract_final_scoring(html) -> List[FinalScoring]:
             names = couple_cell.get_text(" ", strip=True)
             club, _ = extract_club_and_number(couple_cell)
             number = cells[2].get_text(strip=True)
-            lw_score = cells[9].get_text(strip=True) if len(cells) > 9 else ""
-            tg_score = cells[15].get_text(strip=True) if len(cells) > 15 else ""
-            qs_score = cells[21].get_text(strip=True) if len(cells) > 21 else ""
+
+            scores = {}
+            base_index = 4
+            for i, dance_enum in enumerate(dance_sequence):
+                col_idx = base_index + (i * 6) + 5
+                if len(cells) > col_idx:
+                    scores[dance_enum] = cells[col_idx].get_text(strip=True)
+
             last_classes = as_class_list(cells[-1].get("class"))
             last_class_first = last_classes[0] if last_classes else ""
             total = (
@@ -265,18 +290,19 @@ def extract_final_scoring(html) -> List[FinalScoring]:
                 if last_class_first.startswith("tddarkc")
                 else ""
             )
-            entry = FinalScoring(
-                placement=placement,
-                names=names,
-                number=number,
-                club=club,
-                score_LW=lw_score,
-                score_TG=tg_score,
-                score_QS=qs_score,
-                total=total,
-            )
-            parsing_logger.debug(f"  Final scoring entry: {entry}")
-            final_scores.append(entry)
+            try:
+                entry = FinalScoring(
+                    placement=placement,
+                    names=names,
+                    number=number,
+                    club=club,
+                    scores=scores,
+                    total=total,
+                )
+                final_scores.append(entry)
+            except ValidationError as e:
+                parsing_logger.warning(f"Skipping final scoring entry due to validation error: {e}")
+
     parsing_logger.debug(
         f"extract_final_scoring: END, total final_scores={len(final_scores)}"
     )

@@ -14,6 +14,7 @@ from dancing_datacollection.data_defs.results import (
     PreliminaryRoundPlacing,
     DanceScore,
 )
+from dancing_datacollection.data_defs.dances import GERMAN_TO_ENGLISH_DANCE_NAME
 import logging
 
 parsing_logger = logging.getLogger("parsing_debug")
@@ -73,14 +74,19 @@ def extract_results_from_erg(html: str) -> List[ResultRound]:
 
             dance_scores = {}
             for i, dn in enumerate(dance_names):
+                dance_enum = GERMAN_TO_ENGLISH_DANCE_NAME.get(dn)
+                if not dance_enum:
+                    parsing_logger.warning(f"Unknown dance abbreviation: {dn}")
+                    continue
                 score_cell_html = str(cells[i + 2].decode_contents())
                 parts = score_cell_html.split("<br/>")
-                marks = parts[0].strip()
+                marks_str = parts[0].strip()
+                marks = [int(char) for char in marks_str if char.isdigit()]
                 place_str_match = (
                     re.search(r"[\d\.]+", parts[1]) if len(parts) > 1 else None
                 )
                 place = float(place_str_match.group(0)) if place_str_match else 0.0
-                dance_scores[dn] = DanceScore(marks=marks, place=place)
+                dance_scores[dance_enum] = DanceScore(marks=marks, place=place)
 
             total_score_str = cells[-1].get_text(strip=True)
             total_score = float(total_score_str) if total_score_str else 0.0

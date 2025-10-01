@@ -3,7 +3,10 @@ from html import escape
 
 from dancing_datacollection.data_defs.participant import Participant
 from dancing_datacollection.data_defs.judge import Judge
-from dancing_datacollection.data_defs.dances import GERMAN_TO_ENGLISH_DANCE_NAME
+from dancing_datacollection.data_defs.dances import (
+    GERMAN_TO_ENGLISH_DANCE_NAME,
+    ENGLISH_TO_GERMAN_DANCE_NAME,
+)
 from dancing_datacollection.data_defs.score import FinalRoundScore
 from dancing_datacollection.data_defs.results import (
     ResultRound,
@@ -135,7 +138,7 @@ def generate_erg_html(results: List[ResultRound], title: str = "erg") -> str:
         rows_html = [f"<tr><td>{final_round.name}</td></tr>"]
         dance_names = list(final_round.placings[0].dance_scores.keys())
         header_cells = ["<td>Platz</td>", "<td>Paar/Club</td>"] + [
-            f"<td>{dn}</td>" for dn in dance_names
+            f"<td>{ENGLISH_TO_GERMAN_DANCE_NAME.get(dn, str(dn))}</td>" for dn in dance_names
         ] + ["<td>PZ</td>"]
         rows_html.append("<tr>" + "".join(header_cells) + "</tr>")
         for p in final_round.placings:
@@ -147,7 +150,8 @@ def generate_erg_html(results: List[ResultRound], title: str = "erg") -> str:
             cells.append(f"<td>{name_html}</td>")
             for dn in dance_names:
                 ds = p.dance_scores[dn]
-                cells.append(f"<td>{ds.marks}<br/><div>{ds.place}</div></td>")
+                marks_str = "".join(map(str, ds.marks))
+                cells.append(f"<td>{marks_str}<br/><div>{ds.place}</div></td>")
             cells.append(f"<td><br/>{p.total_score}</td>")
             rows_html.append("<tr>" + "".join(cells) + "</tr>")
         tables_html.append("<table>" + "".join(rows_html) + "</table>")
@@ -262,5 +266,3 @@ def generate_ergwert_html(
         "</div>"
     )
     return _html_page(title, body)
-
-
