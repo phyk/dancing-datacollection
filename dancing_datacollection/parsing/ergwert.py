@@ -1,5 +1,6 @@
 from dancing_datacollection.data_defs.participant import Participant
 from dancing_datacollection.data_defs.judge import Judge
+from dancing_datacollection.data_defs.final_scoring import FinalScoring
 from dancing_datacollection.data_defs.score import (
     FinalRoundScore,
     Score,
@@ -128,17 +129,13 @@ def extract_scores_from_ergwert(soup):
         text = cell.get_text(" ", strip=True)
         if text in GERMAN_TO_ENGLISH_DANCE_NAME:
             dance_names_german.append(text)
-        if len(dance_names_german) >= 3:
-            break
 
     if not dance_names_german:
         abbreviations = []
         for cell in header0_cells[4:]:
             text = cell.get_text(" ", strip=True)
-            if text in ("LW", "TG", "QS"):
+            if text in GERMAN_TO_ENGLISH_DANCE_NAME:
                 abbreviations.append(text)
-            if len(abbreviations) >= 3:
-                break
         dance_names_german = abbreviations
 
     dance_names_english = [
@@ -232,7 +229,7 @@ def parse_ergwert_all(html: str) -> List[List[List[str]]]:
     return all_tables_data
 
 
-def extract_final_scoring(html):
+def extract_final_scoring(html) -> List[FinalScoring]:
     parsing_logger.debug("extract_final_scoring: START")
     soup: Any = get_soup(html)
     table: Any = soup.find("table", class_="tab1")
@@ -240,7 +237,7 @@ def extract_final_scoring(html):
     if not table:
         return []
     rows: List[Any] = table.find_all("tr")
-    final_scores = []
+    final_scores: List[FinalScoring] = []
     for row_idx, row in enumerate(rows):
         cells: List[Any] = cast(Any, row).find_all("td")
         parsing_logger.debug(
@@ -265,16 +262,16 @@ def extract_final_scoring(html):
                 if last_class_first.startswith("tddarkc")
                 else ""
             )
-            entry = {
-                "placement": placement,
-                "names": names,
-                "number": number,
-                "club": club,
-                "score_LW": lw_score,
-                "score_TG": tg_score,
-                "score_QS": qs_score,
-                "total": total,
-            }
+            entry = FinalScoring(
+                placement=placement,
+                names=names,
+                number=number,
+                club=club,
+                score_LW=lw_score,
+                score_TG=tg_score,
+                score_QS=qs_score,
+                total=total,
+            )
             parsing_logger.debug(f"  Final scoring entry: {entry}")
             final_scores.append(entry)
     parsing_logger.debug(

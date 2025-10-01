@@ -1,7 +1,7 @@
 import os
 from dancing_datacollection.parsing.parsing_utils import setup_logging, get_soup
 from dancing_datacollection.parsing.deck import extract_judges_from_deck
-from dancing_datacollection.parsing.committee import extract_committee_from_deck
+from dancing_datacollection.parsing.deck import extract_committee_from_deck
 from dancing_datacollection.parsing.ergwert import (
     extract_scores_from_ergwert,
     extract_final_scoring,
@@ -97,9 +97,9 @@ def main():
             final_scores = extract_final_scoring(ergwert_html)
             print(f"  Final scoring entries found: {len(final_scores)}")
             ergwert_couples = set(
-                f["number"]
+                f.number
                 for f in final_scores
-                if "number" in f and f["number"] is not None
+                if f.number is not None
             )
             print(f"  Unique couple numbers in ergwert.htm: {len(ergwert_couples)}")
 
@@ -121,12 +121,9 @@ def test_extract_final_scoring():
     assert isinstance(final_scores, list)
     assert final_scores, "No final scores extracted"
     for entry in final_scores:
-        assert "placement" in entry
-        assert "names" in entry
-        assert "total" in entry
-        assert entry["placement"]
-        assert entry["names"]
-        assert entry["total"]
+        assert entry.placement is not None
+        assert entry.names is not None
+        assert entry.total is not None
 
 
 if __name__ == "__main__":

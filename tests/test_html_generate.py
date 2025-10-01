@@ -9,7 +9,7 @@ from dancing_datacollection.html_generate import (
 )
 from dancing_datacollection.html_canonicalize import canonicalize_html
 from dancing_datacollection.parsing.deck import extract_judges_from_deck
-from dancing_datacollection.parsing.committee import extract_committee_from_deck
+from dancing_datacollection.parsing.deck import extract_committee_from_deck
 from dancing_datacollection.parsing.ergwert import parse_ergwert_all
 from dancing_datacollection.parsing.tabges import parse_tabges_all
 from dancing_datacollection.parsing.erg import extract_results_from_erg
