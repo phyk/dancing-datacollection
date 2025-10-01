@@ -25,7 +25,6 @@ GERMAN_TO_ENGLISH_DANCE_NAME = {
     "Quickstep": Dance.QUICKSTEP,
     "QS": Dance.QUICKSTEP,
     "QU": Dance.QUICKSTEP,
-    "QU": Dance.QUICKSTEP,
     "Slow Foxtrott": Dance.SLOW_FOXTROT,
     "Slowfox": Dance.SLOW_FOXTROT,
     "Foxtrott": Dance.SLOW_FOXTROT,
