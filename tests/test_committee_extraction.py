@@ -1,6 +1,6 @@
 import os
 import pytest
-from dancing_datacollection.parsing.committee import extract_committee_from_deck
+from dancing_datacollection.parsing.deck import extract_committee_from_deck
 from dancing_datacollection.parsing.parsing_utils import get_soup
 from dancing_datacollection.data_defs.committee import CommitteeMember
 

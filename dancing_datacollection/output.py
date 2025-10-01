@@ -1,6 +1,15 @@
 import os
 import polars as pl
 import logging
+from dataclasses import asdict
+from typing import List
+
+from dancing_datacollection.data_defs.committee import CommitteeMember
+from dancing_datacollection.data_defs.final_scoring import FinalScoring
+from dancing_datacollection.data_defs.judge import Judge
+from dancing_datacollection.data_defs.participant import Participant
+from dancing_datacollection.data_defs.score import FinalRoundScore, Score
+
 
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
 
@@ -52,27 +61,12 @@ def validate_schema(path, required_columns):
         return False
 
 
-def save_competition_data(event_name, participants):
+def save_competition_data(event_name: str, participants: List[Participant]):
     comp_dir = os.path.join(DATA_DIR, event_name)
     os.makedirs(comp_dir, exist_ok=True)
     expected_cols = ["name_one", "name_two", "club", "number"]
-    if not isinstance(participants, list):
-        participants = []
-    norm = []
-    for p in participants:
-        if not isinstance(p, dict):
-            continue
-        # Ensure number is int or None
-        entry = {col: p.get(col, None) for col in expected_cols}
-        try:
-            entry["number"] = (
-                int(entry["number"]) if entry["number"] is not None else None
-            )
-        except Exception:
-            entry["number"] = None
-        norm.append(entry)
-    if norm:
-        part_df = pl.DataFrame(norm)
+    if participants:
+        part_df = pl.DataFrame([asdict(p) for p in participants])
         for col in expected_cols:
             if col not in part_df.columns:
                 part_df = part_df.with_columns(pl.lit(None).alias(col))
@@ -80,7 +74,15 @@ def save_competition_data(event_name, participants):
         part_df = part_df.select(expected_cols)
         part_df = part_df.with_columns([pl.col("number").cast(pl.Int64, strict=False)])
     else:
-        part_df = pl.DataFrame({col: [] for col in expected_cols})
+        part_df = pl.DataFrame(
+            {col: [] for col in expected_cols},
+            schema={
+                "name_one": pl.Utf8,
+                "name_two": pl.Utf8,
+                "club": pl.Utf8,
+                "number": pl.Int64,
+            },
+        )
     part_path = os.path.join(comp_dir, "participants.parquet")
     part_df.write_parquet(part_path)
     logging.info(f"Saved participants to {part_path}")
@@ -88,25 +90,21 @@ def save_competition_data(event_name, participants):
     validate_schema(part_path, expected_cols)
 
 
-def save_judges(event_name, judges):
+def save_judges(event_name: str, judges: List[Judge]):
     comp_dir = os.path.join(DATA_DIR, event_name)
     os.makedirs(comp_dir, exist_ok=True)
     expected_cols = ["code", "name", "club"]
-    if not isinstance(judges, list):
-        judges = []
-    norm = []
-    for j in judges:
-        if not isinstance(j, dict):
-            continue
-        norm.append({col: j.get(col, None) for col in expected_cols})
-    if norm:
-        judges_df = pl.DataFrame(norm)
+    if judges:
+        judges_df = pl.DataFrame([asdict(j) for j in judges])
         for col in expected_cols:
             if col not in judges_df.columns:
                 judges_df = judges_df.with_columns(pl.lit(None).alias(col))
         judges_df = judges_df.select(expected_cols)
     else:
-        judges_df = pl.DataFrame({col: [] for col in expected_cols})
+        judges_df = pl.DataFrame(
+            {col: [] for col in expected_cols},
+            schema={"code": pl.Utf8, "name": pl.Utf8, "club": pl.Utf8},
+        )
     judges_path = os.path.join(comp_dir, "judges.parquet")
     judges_df.write_parquet(judges_path)
     logging.info(f"Saved judges to {judges_path}")
@@ -114,26 +112,21 @@ def save_judges(event_name, judges):
     validate_schema(judges_path, expected_cols)
 
 
-def save_committee(event_name, committee):
+def save_committee(event_name: str, committee: List[CommitteeMember]):
     comp_dir = os.path.join(DATA_DIR, event_name)
     os.makedirs(comp_dir, exist_ok=True)
     expected_cols = ["role", "name", "club"]
-    if not isinstance(committee, list):
-        committee = []
-    norm = []
-    for c in committee:
-        if not isinstance(c, dict):
-            continue
-        entry = {col: c.get(col, None) for col in expected_cols}
-        norm.append(entry)
-    if norm:
-        committee_df = pl.DataFrame(norm)
+    if committee:
+        committee_df = pl.DataFrame([asdict(c) for c in committee])
         for col in expected_cols:
             if col not in committee_df.columns:
                 committee_df = committee_df.with_columns(pl.lit(None).alias(col))
         committee_df = committee_df.select(expected_cols)
     else:
-        committee_df = pl.DataFrame({col: [] for col in expected_cols})
+        committee_df = pl.DataFrame(
+            {col: [] for col in expected_cols},
+            schema={"role": pl.Utf8, "name": pl.Utf8, "club": pl.Utf8},
+        )
     committee_path = os.path.join(comp_dir, "committee.parquet")
     committee_df.write_parquet(committee_path)
     logging.info(f"Saved committee to {committee_path}")
@@ -182,7 +175,7 @@ def save_scores(event_name, scores):
     validate_schema(scores_path, expected_cols)
 
 
-def save_final_scoring(event_name, final_scores):
+def save_final_scoring(event_name: str, final_scores: List[FinalScoring]):
     comp_dir = os.path.join(DATA_DIR, event_name)
     os.makedirs(comp_dir, exist_ok=True)
     expected_cols = [
@@ -195,21 +188,26 @@ def save_final_scoring(event_name, final_scores):
         "score_QS",
         "total",
     ]
-    if not isinstance(final_scores, list):
-        final_scores = []
-    norm = []
-    for f in final_scores:
-        if not isinstance(f, dict):
-            continue
-        norm.append({col: f.get(col, None) for col in expected_cols})
-    if norm:
-        final_df = pl.DataFrame(norm)
+    if final_scores:
+        final_df = pl.DataFrame([asdict(f) for f in final_scores])
         for col in expected_cols:
             if col not in final_df.columns:
                 final_df = final_df.with_columns(pl.lit(None).alias(col))
         final_df = final_df.select(expected_cols)
     else:
-        final_df = pl.DataFrame({col: [] for col in expected_cols})
+        final_df = pl.DataFrame(
+            {col: [] for col in expected_cols},
+            schema={
+                "placement": pl.Utf8,
+                "names": pl.Utf8,
+                "number": pl.Utf8,
+                "club": pl.Utf8,
+                "score_LW": pl.Utf8,
+                "score_TG": pl.Utf8,
+                "score_QS": pl.Utf8,
+                "total": pl.Utf8,
+            },
+        )
     final_path = os.path.join(comp_dir, "final_scoring.parquet")
     final_df.write_parquet(final_path)
     logging.info(f"Saved final scoring to {final_path}")
