@@ -32,6 +32,29 @@ ROLE_KEY_TO_GERMAN = {
 }
 
 
+def generate_committee_html(committee: List[CommitteeMember]) -> str:
+    """Generates an HTML table for the committee members."""
+    rows = []
+    for member in committee:
+        # Look up the German role label, defaulting to the key if not found
+        role_german = ROLE_KEY_TO_GERMAN.get(member.role or "", member.role or "")
+        name = escape(member.name or "")
+        club = escape(member.club or "")
+
+        # This logic is based on reverse-engineering the golden files.
+        # Some roles have spans even without a club.
+        if member.role == "protocol":
+            content = f"<span>{name}</span>"
+        elif club:
+            content = f"<span>{name}</span><span>{club}</span>"
+        else:
+            content = name
+        row = f"<tr><td>{escape(role_german)}</td><td>{content}</td></tr>"
+        rows.append(row)
+    # The original class is 'tab1', and this is needed for extraction.
+    return '<table class="tab1">' + "".join(rows) + "</table>"
+
+
 def generate_deck_html(
     judges: List[Judge], committee: List[CommitteeMember], title: str = "deck"
 ) -> str:

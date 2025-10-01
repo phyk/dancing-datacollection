@@ -160,6 +160,45 @@ def parse_deck_all(html: str) -> List[Dict[str, Any]]:
     return all_data
 
 
+def extract_committee_html_from_deck(soup: BeautifulSoup) -> str:
+    """Extracts the raw HTML of the committee table from the soup."""
+    logger = logging.getLogger("parsing_debug")
+    table = soup.find("table", attrs={"class": "tab1"})
+    if not isinstance(table, Tag):
+        logger.warning("Committee table with class 'tab1' not found.")
+        return ""
+
+    # These are the labels that identify a committee member row.
+    role_labels = {
+        "Veranstalter:",
+        "Ausrichter:",
+        "Turnierleiter:",
+        "Beisitzer:",
+        "Protokoll:",
+    }
+
+    committee_rows_html = []
+    # Find all rows in the table
+    for row in table.find_all("tr"):
+        if not isinstance(row, Tag):
+            continue
+        # Get the first cell to check the role label
+        first_cell = row.find("td")
+        if first_cell:
+            label = first_cell.get_text(strip=True)
+            # If the label is one of the committee roles, keep the row
+            if label in role_labels:
+                committee_rows_html.append(str(row))
+
+    if not committee_rows_html:
+        logger.warning("No committee member rows found in the table.")
+        return ""
+
+    # Reconstruct the table with only the committee rows.
+    # The original class 'tab1' is added to match the generated HTML.
+    return f'<table class="tab1">{"".join(committee_rows_html)}</table>'
+
+
 def extract_committee_from_deck(soup: BeautifulSoup) -> List[CommitteeMember]:
     logger = logging.getLogger("parsing_debug")
     table = soup.find("table", attrs={"class": "tab1"})
