@@ -150,7 +150,8 @@ def generate_erg_html(results: List[ResultRound], title: str = "erg") -> str:
             cells.append(f"<td>{name_html}</td>")
             for dn in dance_names:
                 ds = p.dance_scores[dn]
-                cells.append(f"<td>{ds.marks}<br/><div>{ds.place}</div></td>")
+                marks_str = "".join(map(str, ds.marks))
+                cells.append(f"<td>{marks_str}<br/><div>{ds.place}</div></td>")
             cells.append(f"<td><br/>{p.total_score}</td>")
             rows_html.append("<tr>" + "".join(cells) + "</tr>")
         tables_html.append("<table>" + "".join(rows_html) + "</table>")

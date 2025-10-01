@@ -7,7 +7,7 @@ from .dances import Dance
 class DanceScore(BaseModel):
     """Represents the scores for a single dance in a final round."""
     model_config = ConfigDict(frozen=True, extra='forbid')
-    marks: str
+    marks: List[int]
     place: float
 
 

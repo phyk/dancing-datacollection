@@ -80,7 +80,8 @@ def extract_results_from_erg(html: str) -> List[ResultRound]:
                     continue
                 score_cell_html = str(cells[i + 2].decode_contents())
                 parts = score_cell_html.split("<br/>")
-                marks = parts[0].strip()
+                marks_str = parts[0].strip()
+                marks = [int(char) for char in marks_str if char.isdigit()]
                 place_str_match = (
                     re.search(r"[\d\.]+", parts[1]) if len(parts) > 1 else None
                 )
