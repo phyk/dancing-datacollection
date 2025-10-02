@@ -3,10 +3,6 @@ import os
 from typing import List
 
 from dancing_datacollection.data_defs.participant import Participant
-from dancing_datacollection.parsing.deck import (
-    extract_committee_from_deck,
-    extract_judges_from_deck,
-)
 from dancing_datacollection.parsing.erg import extract_participants_from_erg
 from dancing_datacollection.parsing.ergwert import (
     extract_final_scoring,
@@ -83,16 +79,6 @@ def main() -> None:
             sample_dir,
             len(unique_participants),
         )
-        # Test judges and committee extraction from deck.htm
-        deck_path = os.path.join(dir_path, "deck.htm")
-        if os.path.exists(deck_path):
-            with open(deck_path, "r", encoding="utf-8") as f:
-                deck_html = f.read()
-            soup = get_soup(deck_html)
-            judges = extract_judges_from_deck(soup)
-            logging.info("  Judges found: %d", len(judges))
-            committee = extract_committee_from_deck(soup)
-            logging.info("  Committee entries found: %d", len(committee))
         # Test scores and final scoring extraction from ergwert.htm
         ergwert_path = os.path.join(dir_path, "ergwert.htm")
         ergwert_couples = set()

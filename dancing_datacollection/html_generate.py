@@ -38,7 +38,7 @@ def generate_committee_html(committee: List[CommitteeMember]) -> str:
     for member in committee:
         # Look up the German role label, defaulting to the key if not found
         role_german = ROLE_KEY_TO_GERMAN.get(member.role or "", member.role or "")
-        name = escape(member.name or "")
+        name = escape(member.name_last_first or "")
         club = escape(member.club or "")
 
         # This logic is based on reverse-engineering the golden files.
@@ -67,7 +67,7 @@ def generate_deck_html(
     main_rows = []
     for member in committee:
         role_german = ROLE_KEY_TO_GERMAN.get(member.role or "", member.role or "")
-        name = escape(member.name or "")
+        name = escape(member.name_last_first or "")
         club = escape(member.club or "")
         # This logic is based on reverse-engineering the golden files.
         # Some roles have spans even without a club.
@@ -86,13 +86,8 @@ def generate_deck_html(
     # Judge rows
     for j in judges:
         code = escape(j.code or "")
-        raw_name = j.name or ""
         # The golden files expect "Last, First" format.
-        if ", " not in raw_name and " " in raw_name:
-            parts = raw_name.rsplit(" ", 1)
-            name = f"{parts[1]}, {parts[0]}"
-        else:
-            name = raw_name
+        name = j.name_last_first
         escaped_name = escape(name)
         club = escape(j.club or "")
         row = (
