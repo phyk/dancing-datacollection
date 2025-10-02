@@ -92,7 +92,6 @@ def extract_results_from_erg(html: str) -> List[ResultRound]:
                     name_two=name_two,
                     number=number,
                     club=club,
-                    ranks=rank,  # type: ignore
                 )
             except ValidationError as e:
                 parsing_logger.warning("Skipping participant due to validation error: %s", e)
@@ -175,7 +174,6 @@ def extract_results_from_erg(html: str) -> List[ResultRound]:
                         name_two=name_two,
                         number=number,
                         club=club,
-                        ranks=rank,  # type: ignore
                     )
                 except ValidationError as e:
                     parsing_logger.warning(

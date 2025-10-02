@@ -78,7 +78,6 @@ def extract_participants_from_ergwert(soup: BeautifulSoup) -> List[Participant]:
                         name_one=name_one,
                         name_two=name_two,
                         number=number_int,
-                        ranks=[int(s) for s in re.findall(r"\d+", rank_str)],
                         club=club,
                     )
                     participants.append(participant)
