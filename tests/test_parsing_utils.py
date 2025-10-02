@@ -37,10 +37,10 @@ def test_first_line_text() -> None:
 
 def test_deduplicate_judges_prefers_with_club() -> None:
     judges = [
-        Judge(code="AB", name="Alice Smith", club=""),
-        Judge(code="AB", name="Alice Smith", club="ClubX"),
-        Judge(code="CD", name="Bob Doe", club=None),
-        Judge(code="CD", name="Bob Doe", club=""),
+        Judge(code="AB", first_name="Alice", last_name="Smith", club=""),
+        Judge(code="AB", first_name="Alice", last_name="Smith", club="ClubX"),
+        Judge(code="CD", first_name="Bob", last_name="Doe", club=None),
+        Judge(code="CD", first_name="Bob", last_name="Doe", club=""),
     ]
     deduped = deduplicate_judges(judges)
     key_to_club = {(j.code, j.name): j.club for j in deduped}
@@ -61,21 +61,37 @@ def test_split_names_whitespace_fallback() -> None:
 
 
 def test_extract_name_and_club_from_spans_prefers_spans() -> None:
-    soup = BeautifulSoup("<td><span>Alice & Bob</span><span>Club X</span></td>", "html.parser")
+    soup = BeautifulSoup(
+        "<td><span>Alice & Bob</span><span>Club X</span></td>", "html.parser"
+    )
     td = soup.find("td")
     assert isinstance(td, Tag)
-    name, club = extract_name_and_club_from_spans(td)
-    assert name == "Alice & Bob"
+    first_name, last_name, club = extract_name_and_club_from_spans(td)
+    assert first_name == "Alice & Bob"
+    assert last_name is None
     assert club == "Club X"
+
+
+def test_extract_name_and_club_from_spans_last_first() -> None:
+    soup = BeautifulSoup(
+        "<td><span>Smith, Alice</span><span>Club Y</span></td>", "html.parser"
+    )
+    td = soup.find("td")
+    assert isinstance(td, Tag)
+    first_name, last_name, club = extract_name_and_club_from_spans(td)
+    assert first_name == "Alice"
+    assert last_name == "Smith"
+    assert club == "Club Y"
 
 
 def test_extract_name_and_club_from_spans_single_span() -> None:
     soup = BeautifulSoup("<td><span>Alice & Bob</span></td>", "html.parser")
     td = soup.find("td")
     assert isinstance(td, Tag)
-    name, club = extract_name_and_club_from_spans(td)
-    assert name == "Alice & Bob"
-    assert club == ""
+    first_name, last_name, club = extract_name_and_club_from_spans(td)
+    assert first_name == "Alice & Bob"
+    assert last_name is None
+    assert club is None
 
 
 def test_deduplicate_participants_by_number_name_club() -> None:

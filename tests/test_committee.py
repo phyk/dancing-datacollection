@@ -21,19 +21,36 @@ def get_html(path: str) -> str:
 def true_committee_51() -> Committee:
     return Committee(
         members=[
-            CommitteeMember(role="organizer", name="Hessischer Tanzsportverband", club=""),
-            CommitteeMember(role="host", name="Hessischer Tanzsportverband", club=""),
+            CommitteeMember(
+                role="organizer",
+                first_name="Hessischer Tanzsportverband",
+                last_name=None,
+                club=None,
+            ),
+            CommitteeMember(
+                role="host",
+                first_name="Hessischer Tanzsportverband",
+                last_name=None,
+                club=None,
+            ),
             CommitteeMember(
                 role="chairperson",
-                name="Jungbluth, Kai",
+                first_name="Kai",
+                last_name="Jungbluth",
                 club="Tanz-Sport-Club Fischbach",
             ),
             CommitteeMember(
                 role="committee_member",
-                name="Bittighofer, Mechthild",
+                first_name="Mechthild",
+                last_name="Bittighofer",
                 club="Tanz-Freunde Fulda",
             ),
-            CommitteeMember(role="protocol", name="tanzt, EDV-Team Hessen", club=""),
+            CommitteeMember(
+                role="protocol",
+                first_name="EDV-Team Hessen",
+                last_name="tanzt",
+                club=None,
+            ),
         ]
     )
 
@@ -41,19 +58,36 @@ def true_committee_51() -> Committee:
 def true_committee_52() -> Committee:
     return Committee(
         members=[
-            CommitteeMember(role="organizer", name="Hessischer Tanzsportverband", club=""),
-            CommitteeMember(role="host", name="Hessischer Tanzsportverband", club=""),
+            CommitteeMember(
+                role="organizer",
+                first_name="Hessischer Tanzsportverband",
+                last_name=None,
+                club=None,
+            ),
+            CommitteeMember(
+                role="host",
+                first_name="Hessischer Tanzsportverband",
+                last_name=None,
+                club=None,
+            ),
             CommitteeMember(
                 role="chairperson",
-                name="Jungbluth, Kai",
+                first_name="Kai",
+                last_name="Jungbluth",
                 club="Tanz-Sport-Club Fischbach",
             ),
             CommitteeMember(
                 role="committee_member",
-                name="Knigge, Jens",
+                first_name="Jens",
+                last_name="Knigge",
                 club="TSC Groß-Gerau d. TV 1846",
             ),
-            CommitteeMember(role="protocol", name="tanzt, EDV-Team Hessen", club=""),
+            CommitteeMember(
+                role="protocol",
+                first_name="EDV-Team Hessen",
+                last_name="tanzt",
+                club=None,
+            ),
         ]
     )
 
@@ -61,19 +95,36 @@ def true_committee_52() -> Committee:
 def true_committee_53() -> Committee:
     return Committee(
         members=[
-            CommitteeMember(role="organizer", name="Hessischer Tanzsportverband", club=""),
-            CommitteeMember(role="host", name="Hessischer Tanzsportverband", club=""),
+            CommitteeMember(
+                role="organizer",
+                first_name="Hessischer Tanzsportverband",
+                last_name=None,
+                club=None,
+            ),
+            CommitteeMember(
+                role="host",
+                first_name="Hessischer Tanzsportverband",
+                last_name=None,
+                club=None,
+            ),
             CommitteeMember(
                 role="chairperson",
-                name="Jungbluth, Kai",
+                first_name="Kai",
+                last_name="Jungbluth",
                 club="Tanz-Sport-Club Fischbach",
             ),
             CommitteeMember(
                 role="committee_member",
-                name="Rahaus, Markus",
+                first_name="Markus",
+                last_name="Rahaus",
                 club="Schwarz-Rot-Club Wetzlar",
             ),
-            CommitteeMember(role="protocol", name="tanzt, EDV-Team Hessen", club=""),
+            CommitteeMember(
+                role="protocol",
+                first_name="EDV-Team Hessen",
+                last_name="tanzt",
+                club=None,
+            ),
         ]
     )
 

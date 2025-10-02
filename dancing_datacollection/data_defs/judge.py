@@ -13,8 +13,17 @@ class Judge(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
 
     code: str
-    name: str
+    first_name: str
+    last_name: str
     club: Optional[str] = None
+
+    @property
+    def name(self) -> str:
+        return f"{self.first_name} {self.last_name}"
+
+    @property
+    def name_last_first(self) -> str:
+        return f"{self.last_name}, {self.first_name}"
 
     @field_validator("code")
     @classmethod
@@ -25,20 +34,10 @@ class Judge(BaseModel):
             raise ValueError(msg)
         return normalized_code
 
-    @field_validator("name")
+    @field_validator("first_name", "last_name")
     @classmethod
-    def _normalize_name(cls, v: str) -> str:
-        name = v.strip()
-        m = re.match(r"^([^,]+),\s*(.+)$", name)
-        if m:
-            last = m.group(1).strip()
-            first = m.group(2).strip()
-            name = f"{first} {last}"
-        name = re.sub(r"\s+", " ", name)
-        if len(name.split()) < 2:
-            msg = f"Judge name must contain at least two words, got '{v}'"
-            raise ValueError(msg)
-        return name
+    def _normalize_name_parts(cls, v: str) -> str:
+        return v.strip()
 
     @field_validator("club")
     @classmethod

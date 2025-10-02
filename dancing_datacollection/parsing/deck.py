@@ -29,7 +29,7 @@ def extract_judges_from_deck(soup: BeautifulSoup) -> List[Judge]:
     Extract judges from deck.htm using the annotated structure:
     Table 1, rows 6-10: cell 0 is judge code (remove colon), cell 1 is 'Last, First Club'.
     Parse name as last name, first name, and the rest as club.
-    Return a list of Judge dataclasses with code, name, club.
+    Return a list of Judge dataclasses with code, first_name, last_name, club.
     """
     logger = logging.getLogger("parsing_debug")
     tables = soup.find_all("table")
@@ -51,43 +51,42 @@ def extract_judges_from_deck(soup: BeautifulSoup) -> List[Judge]:
         cell0 = cells[0]
         if isinstance(cell0, Tag) and "td2r" in (cell0.get("class") or []):
             code = cell0.get_text(strip=True).replace(":", "")
-            # Use spans to extract name and club
             cell1 = cells[1]
             if not isinstance(cell1, Tag):
                 continue
-            spans = cell1.find_all("span")
-            if len(spans) >= 2:
-                name_raw = (
-                    spans[0]
-                    .get_text(strip=True)
-                    .replace("\xa0", "")
-                    .replace("\u00a0", "")
-                    .strip()
+
+            first_name, last_name, club = extract_name_and_club_from_spans(cell1)
+
+            if not first_name or not last_name:
+                logger.warning(
+                    "Skipping judge with incomplete name: code=%s, first=%s, last=%s",
+                    code,
+                    first_name,
+                    last_name,
                 )
-                club = (
-                    spans[1]
-                    .get_text(strip=True)
-                    .replace("\xa0", "")
-                    .replace("\u00a0", "")
-                    .strip()
-                )
-                if ", " in name_raw:
-                    last, first = [x.strip() for x in name_raw.split(",", 1)]
-                    name = f"{first} {last}"
-                else:
-                    name = name_raw
-            else:
-                name = cell1.get_text(strip=True)
-                club = ""
-            logger.debug("  Judge: code=%s, name=%s, club=%s", code, name, club)
+                continue
+
+            logger.debug(
+                "  Judge: code=%s, first_name=%s, last_name=%s, club=%s",
+                code,
+                first_name,
+                last_name,
+                club,
+            )
             try:
-                judge = Judge(code=code, name=name, club=club)
+                judge = Judge(
+                    code=code,
+                    first_name=first_name,
+                    last_name=last_name,
+                    club=club,
+                )
                 judges.append(judge)
             except ValidationError as e:
                 logger.warning(
-                    "Invalid judge skipped: code=%s, name=%s, club=%s, error=%s",
+                    "Invalid judge skipped: code=%s, first_name=%s, last_name=%s, club=%s, error=%s",
                     code,
-                    name,
+                    first_name,
+                    last_name,
                     club,
                     e,
                 )
@@ -230,14 +229,25 @@ def extract_committee_from_deck(soup: BeautifulSoup) -> List[CommitteeMember]:
                 value_cell = cells[1]
                 if not isinstance(value_cell, Tag):
                     continue
-                name, club = extract_name_and_club_from_spans(value_cell)
+
+                first_name, last_name, club = extract_name_and_club_from_spans(
+                    value_cell
+                )
                 logger.debug(
-                    "  Committee: role=%s, name=%s, club=%s, raw_value=%s",
+                    "  Committee: role=%s, first_name=%s, last_name=%s, club=%s, raw_value=%s",
                     role_key,
-                    name,
+                    first_name,
+                    last_name,
                     club,
                     value_cell.get_text(" ", strip=True),
                 )
-                committee.append(CommitteeMember(role=role_key, name=name, club=club))
+                committee.append(
+                    CommitteeMember(
+                        role=role_key,
+                        first_name=first_name,
+                        last_name=last_name,
+                        club=club,
+                    )
+                )
     logger.debug("extract_committee_from_deck: END, total committee=%d", len(committee))
     return committee
