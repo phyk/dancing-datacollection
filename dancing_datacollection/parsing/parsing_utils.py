@@ -144,19 +144,47 @@ def split_names(names: str) -> Tuple[Optional[str], Optional[str]]:
     return None, None
 
 
-def extract_name_and_club_from_spans(cell: Tag) -> Tuple[str, str]:
-    """Extract name and club from <span> tags in a cell, or fallback to cell text."""
+def extract_name_and_club_from_spans(
+    cell: Tag,
+) -> Tuple[Optional[str], Optional[str], Optional[str]]:
+    """
+    Extract first name, last_name, and club from <span> tags in a cell.
+    If name is not in 'Last, First' format, it's treated as a single entity (first_name).
+    """
     spans = cell.find_all("span")
-    name = ""
-    club = ""
-    if len(spans) >= 2:
-        name = spans[0].get_text(strip=True)
-        club = spans[1].get_text(strip=True)
-    elif len(spans) == 1:
-        name = spans[0].get_text(strip=True)
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    club: Optional[str] = None
+
+    # This regex is used to clean up the `Last, First` format, including extra spaces and non-breaking spaces.
+    name_clean_re = re.compile(r"^\s*([^,]+),\s*(.+)\s*")
+
+    name_raw = ""
+    # Text from the first span is assumed to be the name.
+    # If there are no spans, fallback to the entire cell's text.
+    if len(spans) >= 1:
+        name_raw = spans[0].get_text(strip=True).replace("\xa0", " ").strip()
     else:
-        name = cell.get_text(strip=True)
-    return name, club
+        name_raw = cell.get_text(strip=True).replace("\xa0", " ").strip()
+
+    if name_raw:
+        match = name_clean_re.match(name_raw)
+        if match:
+            # Format is "Last, First"
+            last, first = match.groups()
+            last_name = last.strip()
+            first_name = first.strip()
+        else:
+            # Not "Last, First", so treat as a single name entity (e.g., organization)
+            first_name = name_raw
+
+    # The second span is assumed to be the club
+    if len(spans) >= 2:
+        club_text = spans[1].get_text(strip=True).replace("\xa0", " ").strip()
+        if club_text:
+            club = club_text
+
+    return first_name, last_name, club
 
 
 # ---------- Helper utilities for bs4 parsing and deduplication ----------

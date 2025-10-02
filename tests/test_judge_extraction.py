@@ -21,43 +21,101 @@ def get_html(path: str) -> str:
 def true_judges() -> Dict[str, List[Judge]]:
     return {
         "51-1105_ot_hgr2dstd": [
-            Judge(code="AT", name="Bärschneider, Marcus", club="TSC Blau-Gelb Hagen"),
-            Judge(code="AX", name="Block, Robert", club="Schwarz-Rot-Club Wetzlar"),
+            Judge(
+                code="AT",
+                first_name="Marcus",
+                last_name="Bärschneider",
+                club="TSC Blau-Gelb Hagen",
+            ),
+            Judge(
+                code="AX",
+                first_name="Robert",
+                last_name="Block",
+                club="Schwarz-Rot-Club Wetzlar",
+            ),
             Judge(
                 code="BW",
-                name="Kirchwehm, Susanne",
+                first_name="Susanne",
+                last_name="Kirchwehm",
                 club="TSC Ostseebad Schönberg 1984",
             ),
-            Judge(code="CJ", name="Mäser, Erich", club="TSC Rot-Gold Büdingen"),
+            Judge(
+                code="CJ", first_name="Erich", last_name="Mäser", club="TSC Rot-Gold Büdingen"
+            ),
             Judge(
                 code="EK",
-                name="Landauer, Peter",
+                first_name="Peter",
+                last_name="Landauer",
                 club="Tanzsportgemeinschaft Bavaria, Augsburg",
             ),
         ],
         "52-1105_ot_hgr2cstd": [
             Judge(
                 code="AR",
-                name="Appel, Hans-Jürgen",
+                first_name="Hans-Jürgen",
+                last_name="Appel",
                 club="TTC Gelb-Weiss i. Post-SV Hannover",
             ),
-            Judge(code="CH", name="Mak, Annabel", club="Grün-Gold-Casino Wuppertal"),
-            Judge(code="DC", name="Schöke, Manuel", club="TTC München"),
-            Judge(code="DV", name="Becker, Marc", club="TTC Fortis Nova Maintal"),
-            Judge(code="EY", name="Schwarz, Sonja", club="TSZ Blau-Gold Casino, Darmstadt"),
+            Judge(
+                code="CH",
+                first_name="Annabel",
+                last_name="Mak",
+                club="Grün-Gold-Casino Wuppertal",
+            ),
+            Judge(
+                code="DC", first_name="Manuel", last_name="Schöke", club="TTC München"
+            ),
+            Judge(
+                code="DV",
+                first_name="Marc",
+                last_name="Becker",
+                club="TTC Fortis Nova Maintal",
+            ),
+            Judge(
+                code="EY",
+                first_name="Sonja",
+                last_name="Schwarz",
+                club="TSZ Blau-Gold Casino, Darmstadt",
+            ),
         ],
         "53-1105_ot_hgr2bstd": [
-            Judge(code="BI", name="Fleischer, Georg", club="Grün-Gold-Casino Wuppertal"),
+            Judge(
+                code="BI",
+                first_name="Georg",
+                last_name="Fleischer",
+                club="Grün-Gold-Casino Wuppertal",
+            ),
             Judge(
                 code="CP",
-                name="Peinke-Dean, Lutz",
+                first_name="Lutz",
+                last_name="Peinke-Dean",
                 club="Tanzsportklub Residenz Dresden",
             ),
-            Judge(code="DK", name="Wenzel, Harald", club="Rot-Weiss-Klub Kassel"),
-            Judge(code="DL", name="Wied, Dr. Andrea", club="Markgräfler TSC, Müllheim"),
-            Judge(code="DR", name="Zuber, Dr. Pascal", club="TSC Metropol Hofheim"),
-            Judge(code="EL", name="Lein, Roland", club="TC Rot-Gold Würzburg"),
-            Judge(code="EU", name="Reher, Thomas", club="TSC Werne"),
+            Judge(
+                code="DK",
+                first_name="Harald",
+                last_name="Wenzel",
+                club="Rot-Weiss-Klub Kassel",
+            ),
+            Judge(
+                code="DL",
+                first_name="Dr. Andrea",
+                last_name="Wied",
+                club="Markgräfler TSC, Müllheim",
+            ),
+            Judge(
+                code="DR",
+                first_name="Dr. Pascal",
+                last_name="Zuber",
+                club="TSC Metropol Hofheim",
+            ),
+            Judge(
+                code="EL",
+                first_name="Roland",
+                last_name="Lein",
+                club="TC Rot-Gold Würzburg",
+            ),
+            Judge(code="EU", first_name="Thomas", last_name="Reher", club="TSC Werne"),
         ],
     }
 

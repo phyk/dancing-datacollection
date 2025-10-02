@@ -83,6 +83,19 @@ def extract_judges_from_wert_er(soup: BeautifulSoup) -> List[Judge]:
             )
             name = span.get_text(strip=True)
             if len(code) == 2 and code.isupper():
-                judge = Judge(code=code, name=name, club="")
-                judges.append(judge)
+                try:
+                    last_name, first_name = [n.strip() for n in name.split(",", 1)]
+                    judge = Judge(
+                        code=code,
+                        first_name=first_name,
+                        last_name=last_name,
+                        club="",
+                    )
+                    judges.append(judge)
+                except (ValueError, ValidationError) as e:
+                    parsing_logger.warning(
+                        "Could not parse judge name '%s' into first/last name. Error: %s",
+                        name,
+                        e,
+                    )
     return deduplicate_judges(judges)
