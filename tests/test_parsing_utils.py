@@ -96,10 +96,10 @@ def test_extract_name_and_club_from_spans_single_span() -> None:
 
 def test_deduplicate_participants_by_number_name_club() -> None:
     items = [
-        Participant(number=1, name_one="A", name_two="B", club="X", ranks=[]),
-        Participant(number=1, name_one="A", name_two="B", club="X", ranks=[]),
-        Participant(number=2, name_one="C", name_two="D", club="Y", ranks=[]),
-        Participant(number=2, name_one="C", name_two="D", club=None, ranks=[]),
+        Participant(number=1, name_one="A", name_two="B", club="X"),
+        Participant(number=1, name_one="A", name_two="B", club="X"),
+        Participant(number=2, name_one="C", name_two="D", club="Y"),
+        Participant(number=2, name_one="C", name_two="D", club=None),
     ]
     out = deduplicate_participants(items)
     keys = {(p.number, p.name_one, p.name_two, p.club) for p in out}

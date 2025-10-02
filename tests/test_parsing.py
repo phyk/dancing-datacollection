@@ -3,7 +3,6 @@ import os
 from typing import List
 
 from dancing_datacollection.data_defs.participant import Participant
-from dancing_datacollection.parsing.erg import extract_participants_from_erg
 from dancing_datacollection.parsing.ergwert import (
     extract_final_scoring,
     extract_participants_from_ergwert,
@@ -37,8 +36,6 @@ SAMPLE_DIRS = [
 def extract_participants(html: str, filename: str) -> List[Participant]:
     """Helper to dispatch participant extraction based on filename."""
     soup = get_soup(html)
-    if filename.endswith("erg.htm"):
-        return extract_participants_from_erg(soup)
     if filename.endswith("ergwert.htm"):
         return extract_participants_from_ergwert(soup)
     if filename.endswith("tabges.htm"):

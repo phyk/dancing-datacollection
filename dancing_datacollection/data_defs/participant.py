@@ -10,7 +10,6 @@ class Participant(BaseModel):
     name_one: str
     number: int
     name_two: Optional[str] = None
-    ranks: Optional[List[int]] = None
     club: Optional[str] = None
 
     @field_validator("name_one", "name_two", "club")
@@ -20,24 +19,6 @@ class Participant(BaseModel):
             return None
         normalized = re.sub(r"\s+", " ", v.strip())
         return normalized or None
-
-    @field_validator("ranks", mode="before")
-    @classmethod
-    def _parse_ranks(cls, v: Optional[Union[str, int, List[Any]]]) -> Optional[List[int]]:
-        if v is None:
-            return None
-
-        if isinstance(v, str):
-            nums = re.findall(r"\d+", v)
-            return [int(n) for n in nums] if nums else None
-
-        if isinstance(v, int):
-            return [v]
-
-        if isinstance(v, list):
-            return [int(r) for r in v if r is not None]
-
-        return v
 
     def matches_partial(self, other: "Participant") -> bool:
         """Return True if number, name_one, and name_two match. Ignores club."""
@@ -50,7 +31,7 @@ class Participant(BaseModel):
         )
 
     def matches_full(self, other: "Participant") -> bool:
-        """Return True if number, name_one, name_two, club, and ranks all match."""
+        """Return True if number, name_one, name_two, and club all match."""
         if not isinstance(other, Participant):
             return False
         return (
@@ -58,5 +39,4 @@ class Participant(BaseModel):
             and self.name_one == other.name_one
             and self.name_two == other.name_two
             and self.club == other.club
-            and self.ranks == other.ranks
         )

@@ -45,7 +45,6 @@ def extract_participants_from_wert_er(soup: BeautifulSoup) -> List[Participant]:
                     name_one=name_one,
                     name_two=name_two,
                     number=number_int,
-                    ranks=None,
                     club=None,
                 )
                 participants.append(participant)
