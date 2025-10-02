@@ -1,4 +1,7 @@
 import os
+from typing import Any, Dict, List
+
+import pytest
 
 from dancing_datacollection.data_defs.committee import CommitteeMember
 from dancing_datacollection.data_defs.judge import Judge
@@ -10,83 +13,227 @@ from dancing_datacollection.parsing.deck import (
 )
 from dancing_datacollection.parsing.parsing_utils import get_soup
 
+# A dictionary to hold the ground truth data for each sample directory
+TRUE_DATA: Dict[str, Dict[str, List[Any]]] = {
+    "51-1105_ot_hgr2dstd": {
+        "committee": [
+            CommitteeMember(
+                role="organizer",
+                first_name="Hessischer Tanzsportverband",
+                last_name=None,
+                club=None,
+            ),
+            CommitteeMember(
+                role="host",
+                first_name="Hessischer Tanzsportverband",
+                last_name=None,
+                club=None,
+            ),
+            CommitteeMember(
+                role="chairperson",
+                first_name="Kai",
+                last_name="Jungbluth",
+                club="Tanz-Sport-Club Fischbach",
+            ),
+            CommitteeMember(
+                role="committee_member",
+                first_name="Mechthild",
+                last_name="Bittighofer",
+                club="Tanz-Freunde Fulda",
+            ),
+            CommitteeMember(
+                role="protocol",
+                first_name="EDV-Team Hessen",
+                last_name="tanzt",
+                club=None,
+            ),
+        ],
+        "judges": [
+            Judge(
+                code="AT",
+                first_name="Marcus",
+                last_name="Bärschneider",
+                club="TSC Blau-Gelb Hagen",
+            ),
+            Judge(
+                code="AX",
+                first_name="Robert",
+                last_name="Block",
+                club="Schwarz-Rot-Club Wetzlar",
+            ),
+            Judge(
+                code="BW",
+                first_name="Susanne",
+                last_name="Kirchwehm",
+                club="TSC Ostseebad Schönberg 1984",
+            ),
+            Judge(
+                code="CJ",
+                first_name="Erich",
+                last_name="Mäser",
+                club="TSC Rot-Gold Büdingen",
+            ),
+            Judge(
+                code="EK",
+                first_name="Peter",
+                last_name="Landauer",
+                club="Tanzsportgemeinschaft Bavaria, Augsburg",
+            ),
+        ],
+    },
+    "52-1105_ot_hgr2cstd": {
+        "committee": [
+            CommitteeMember(
+                role="organizer",
+                first_name="Hessischer Tanzsportverband",
+                last_name=None,
+                club=None,
+            ),
+            CommitteeMember(
+                role="host",
+                first_name="Hessischer Tanzsportverband",
+                last_name=None,
+                club=None,
+            ),
+            CommitteeMember(
+                role="chairperson",
+                first_name="Kai",
+                last_name="Jungbluth",
+                club="Tanz-Sport-Club Fischbach",
+            ),
+            CommitteeMember(
+                role="committee_member",
+                first_name="Jens",
+                last_name="Knigge",
+                club="TSC Groß-Gerau d. TV 1846",
+            ),
+            CommitteeMember(
+                role="protocol",
+                first_name="EDV-Team Hessen",
+                last_name="tanzt",
+                club=None,
+            ),
+        ],
+        "judges": [
+            Judge(
+                code="AR",
+                first_name="Hans-Jürgen",
+                last_name="Appel",
+                club="TTC Gelb-Weiss i. Post-SV Hannover",
+            ),
+            Judge(
+                code="CH",
+                first_name="Annabel",
+                last_name="Mak",
+                club="Grün-Gold-Casino Wuppertal",
+            ),
+            Judge(
+                code="DC", first_name="Manuel", last_name="Schöke", club="TTC München"
+            ),
+            Judge(
+                code="DV",
+                first_name="Marc",
+                last_name="Becker",
+                club="TTC Fortis Nova Maintal",
+            ),
+            Judge(
+                code="EY",
+                first_name="Sonja",
+                last_name="Schwarz",
+                club="TSZ Blau-Gold Casino, Darmstadt",
+            ),
+        ],
+    },
+    "53-1105_ot_hgr2bstd": {
+        "committee": [
+            CommitteeMember(
+                role="organizer",
+                first_name="Hessischer Tanzsportverband",
+                last_name=None,
+                club=None,
+            ),
+            CommitteeMember(
+                role="host",
+                first_name="Hessischer Tanzsportverband",
+                last_name=None,
+                club=None,
+            ),
+            CommitteeMember(
+                role="chairperson",
+                first_name="Kai",
+                last_name="Jungbluth",
+                club="Tanz-Sport-Club Fischbach",
+            ),
+            CommitteeMember(
+                role="committee_member",
+                first_name="Markus",
+                last_name="Rahaus",
+                club="Schwarz-Rot-Club Wetzlar",
+            ),
+            CommitteeMember(
+                role="protocol",
+                first_name="EDV-Team Hessen",
+                last_name="tanzt",
+                club=None,
+            ),
+        ],
+        "judges": [
+            Judge(
+                code="BI",
+                first_name="Georg",
+                last_name="Fleischer",
+                club="Grün-Gold-Casino Wuppertal",
+            ),
+            Judge(
+                code="CP",
+                first_name="Lutz",
+                last_name="Peinke-Dean",
+                club="Tanzsportklub Residenz Dresden",
+            ),
+            Judge(
+                code="DK",
+                first_name="Harald",
+                last_name="Wenzel",
+                club="Rot-Weiss-Klub Kassel",
+            ),
+            Judge(
+                code="DL",
+                first_name="Dr. Andrea",
+                last_name="Wied",
+                club="Markgräfler TSC, Müllheim",
+            ),
+            Judge(
+                code="DR",
+                first_name="Dr. Pascal",
+                last_name="Zuber",
+                club="TSC Metropol Hofheim",
+            ),
+            Judge(
+                code="EL",
+                first_name="Roland",
+                last_name="Lein",
+                club="TC Rot-Gold Würzburg",
+            ),
+            Judge(code="EU", first_name="Thomas", last_name="Reher", club="TSC Werne"),
+        ],
+    },
+}
 
-def test_deck_parsing_and_regeneration():
+SAMPLE_DIRS = list(TRUE_DATA.keys())
+
+
+@pytest.mark.parametrize("sample_dir", SAMPLE_DIRS)
+def test_deck_parsing_and_regeneration(sample_dir: str):
     """
     Tests parsing of a deck.htm file, compares with true values,
     regenerates the HTML, and compares with the canonicalized original.
     """
     # Define the path to the test file
-    test_file = os.path.join(
-        os.path.dirname(__file__), "51-1105_ot_hgr2dstd", "deck.htm"
-    )
+    test_file = os.path.join(os.path.dirname(__file__), sample_dir, "deck.htm")
 
-    # Define the true values for comparison
-    true_committee = [
-        CommitteeMember(
-            role="organizer",
-            first_name="Hessischer Tanzsportverband",
-            last_name=None,
-            club=None,
-        ),
-        CommitteeMember(
-            role="host",
-            first_name="Hessischer Tanzsportverband",
-            last_name=None,
-            club=None,
-        ),
-        CommitteeMember(
-            role="chairperson",
-            first_name="Kai",
-            last_name="Jungbluth",
-            club="Tanz-Sport-Club Fischbach",
-        ),
-        CommitteeMember(
-            role="committee_member",
-            first_name="Mechthild",
-            last_name="Bittighofer",
-            club="Tanz-Freunde Fulda",
-        ),
-        CommitteeMember(
-            role="protocol",
-            first_name="EDV-Team Hessen",
-            last_name="tanzt",
-            club=None,
-        ),
-    ]
-
-    true_judges = [
-        Judge(
-            code="AT",
-            first_name="Marcus",
-            last_name="Bärschneider",
-            club="TSC Blau-Gelb Hagen",
-        ),
-        Judge(
-            code="AX",
-            first_name="Robert",
-            last_name="Block",
-            club="Schwarz-Rot-Club Wetzlar",
-        ),
-        Judge(
-            code="BW",
-            first_name="Susanne",
-            last_name="Kirchwehm",
-            club="TSC Ostseebad Schönberg 1984",
-        ),
-        Judge(
-            code="CJ",
-            first_name="Erich",
-            last_name="Mäser",
-            club="TSC Rot-Gold Büdingen",
-        ),
-        Judge(
-            code="EK",
-            first_name="Peter",
-            last_name="Landauer",
-            club="Tanzsportgemeinschaft Bavaria, Augsburg",
-        ),
-    ]
+    # Get the true values for comparison
+    true_committee = TRUE_DATA[sample_dir]["committee"]
+    true_judges = TRUE_DATA[sample_dir]["judges"]
 
     # 1. Parse the file and extract all information
     with open(test_file, "r", encoding="utf-8") as f:
