@@ -5,7 +5,7 @@ jules-scratch/verification/*
 !jules-scratch/verification/verify_frontend.py
 
 # Python cache
-__pycache__/
+**/__pycache__/
 *.pyc
 
 # Distribution / packaging
