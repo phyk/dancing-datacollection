@@ -9,8 +9,13 @@ from urllib.parse import urljoin
 from bs4 import BeautifulSoup
 from bs4.element import Tag
 
+import datetime
 from dancing_datacollection.data_defs.judge import Judge
 from dancing_datacollection.data_defs.participant import Participant
+from dancing_datacollection.data_defs.competition import CompetitionInfo
+from dancing_datacollection.data_defs.age_group import AgeGroup
+from dancing_datacollection.data_defs.discipline import Discipline
+from dancing_datacollection.data_defs.level import Level
 
 
 def setup_logging(log_dir: Optional[str] = None) -> None:
@@ -237,3 +242,73 @@ def extract_event_name_from_soup(soup: BeautifulSoup) -> str:
     # Sanitize the event name to be used as a directory/file name
     event_name = re.sub(r"[^\w\d-]+", "_", event_name)[:64]
     return event_name
+
+
+def parse_competition_title(title: str) -> CompetitionInfo:
+    """
+    Parses a competition title into a CompetitionInfo object.
+    Expected format: "DD.MM.YYYY [Event,] AgeGroup Level Discipline"
+    """
+    # Regex for date DD.MM.YYYY
+    date_match = re.search(r"(\d{2})\.(\d{2})\.(\d{4})", title)
+    comp_date = None
+    if date_match:
+        day, month, year = map(int, date_match.groups())
+        try:
+            comp_date = datetime.date(year, month, day)
+        except ValueError:
+            pass
+
+    # Find AgeGroup by searching for config keys in the title (longest first)
+    from dancing_datacollection.config import get_age_groups, get_disciplines
+
+    age_group = None
+    age_groups_config = get_age_groups()
+    sorted_age_keys = sorted(age_groups_config.keys(), key=len, reverse=True)
+    found_age_key = None
+    for key in sorted_age_keys:
+        if key in title:
+            age_group = AgeGroup(age_groups_config[key]["id"])
+            found_age_key = key
+            break
+
+    # Find Discipline by searching for config keys
+    discipline = None
+    disciplines_config = get_disciplines()
+    sorted_disc_keys = sorted(disciplines_config.keys(), key=len, reverse=True)
+    found_disc_key = None
+    for key in sorted_disc_keys:
+        if key in title:
+            discipline = Discipline(disciplines_config[key]["id"])
+            found_disc_key = key
+            break
+
+    # To find the Level, we look at the parts that are NOT part of the date, age group, or discipline
+    # Remove date
+    clean_title = re.sub(r"\d{2}\.\d{2}\.\d{4}", "", title)
+    # Remove found age group and discipline strings
+    if found_age_key:
+        clean_title = clean_title.replace(found_age_key, "")
+    if found_disc_key:
+        clean_title = clean_title.replace(found_disc_key, "")
+
+    clean_title = clean_title.replace("OT,", "").replace("- OT,", "").strip()
+
+    level = None
+    parts = clean_title.split()
+    for part in parts:
+        try:
+            # Clean part of any extra characters like "2" or quotes
+            clean_part = re.sub(r'[^\w]', '', part)
+            level = Level(clean_part)
+            break
+        except ValueError:
+            pass
+
+    return CompetitionInfo(
+        name=title,
+        comp_date=comp_date,
+        age_group=age_group,
+        level=level,
+        discipline=discipline
+    )
