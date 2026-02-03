@@ -1,21 +1,67 @@
-use robotstxt::DefaultMatcher;
-use std::collections::HashMap;
-use url::Url;
 use anyhow::Result;
-use tokio::time::{sleep, Duration, Instant};
+use robotstxt::DefaultMatcher;
 use scraper::{Html, Selector};
 use serde::Deserialize;
-use std::path::Path;
+use std::collections::HashMap;
 use std::fs;
+use std::path::Path;
+use tokio::time::{sleep, Duration, Instant};
+use url::Url;
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct Config {
     pub sources: Sources,
+    pub age_groups: Option<HashMap<String, AgeGroupConfig>>,
+    pub disciplines: Option<HashMap<String, DisciplineConfig>>,
+    pub levels: Option<HashMap<String, LevelConfig>>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct Sources {
     pub urls: Vec<String>,
+}
+
+#[derive(Debug, Deserialize, Clone)]
+pub struct AgeGroupConfig {
+    pub id: String,
+    pub english: Option<String>,
+}
+
+#[derive(Debug, Deserialize, Clone)]
+pub struct DisciplineConfig {
+    pub id: String,
+    pub english: Option<String>,
+}
+
+#[derive(Debug, Deserialize, Clone)]
+pub struct LevelConfig {
+    pub min_dances: Option<u32>,
+    pub min_dances_legacy: Option<u32>,
+    pub min_dances_2026: Option<u32>,
+}
+
+impl Config {
+    pub fn get_min_dances(&self, level: &crate::models::Level, date: &chrono::NaiveDate) -> u32 {
+        use chrono::Datelike;
+        let level_str = format!("{:?}", level);
+        if let Some(levels) = &self.levels {
+            if let Some(config) = levels.get(&level_str) {
+                if let Some(min) = config.min_dances {
+                    return min;
+                }
+                let is_2026_or_later = date.year() >= 2026;
+                if is_2026_or_later {
+                    return config
+                        .min_dances_2026
+                        .or(config.min_dances_legacy)
+                        .unwrap_or(0);
+                } else {
+                    return config.min_dances_legacy.unwrap_or(0);
+                }
+            }
+        }
+        0
+    }
 }
 
 pub struct RobotsChecker {
@@ -188,7 +234,10 @@ impl Scraper {
         let data_dir = Path::new("data").join(&sanitized_event_name);
         fs::create_dir_all(&data_dir)?;
 
-        let filename = Path::new(url_str).file_name().and_then(|n| n.to_str()).unwrap_or("index.htm");
+        let filename = Path::new(url_str)
+            .file_name()
+            .and_then(|n| n.to_str())
+            .unwrap_or("index.htm");
         self.save_file(&data_dir, filename, &html_content)?;
 
         // Now download related files: erg.htm, deck.htm, tabges.htm, ergwert.htm
@@ -223,15 +272,27 @@ impl Scraper {
         let fragment = Html::parse_document(html);
         let selector = Selector::parse("title").unwrap();
         if let Some(title_elem) = fragment.select(&selector).next() {
-            Ok(title_elem.text().collect::<Vec<_>>().join(" ").trim().to_string())
+            Ok(title_elem
+                .text()
+                .collect::<Vec<_>>()
+                .join(" ")
+                .trim()
+                .to_string())
         } else {
             Ok("unknown_event".to_string())
         }
     }
 
     fn sanitize_name(&self, name: &str) -> String {
-        let mut sanitized: String = name.chars()
-            .map(|c| if c.is_alphanumeric() || c == '-' { c } else { '_' })
+        let mut sanitized: String = name
+            .chars()
+            .map(|c| {
+                if c.is_alphanumeric() || c == '-' {
+                    c
+                } else {
+                    '_'
+                }
+            })
             .collect();
         sanitized.truncate(64);
         sanitized
@@ -253,7 +314,9 @@ mod tests {
         let mut checker = RobotsChecker::new();
         let base_url = "http://example.com/";
         let robots_txt = "User-agent: *\nDisallow: /";
-        checker.matchers.insert(base_url.to_string(), robots_txt.to_string());
+        checker
+            .matchers
+            .insert(base_url.to_string(), robots_txt.to_string());
 
         assert!(!checker.is_allowed("http://example.com/any").await);
         assert!(!checker.is_allowed("http://example.com/").await);
@@ -264,16 +327,28 @@ mod tests {
         let mut checker = RobotsChecker::new();
         let base_url = "http://example.com/";
         let robots_txt = "User-agent: *\nDisallow: /2025/";
-        checker.matchers.insert(base_url.to_string(), robots_txt.to_string());
+        checker
+            .matchers
+            .insert(base_url.to_string(), robots_txt.to_string());
 
-        assert!(checker.is_allowed("http://example.com/2024/index.htm").await);
-        assert!(!checker.is_allowed("http://example.com/2025/index.htm").await);
+        assert!(
+            checker
+                .is_allowed("http://example.com/2024/index.htm")
+                .await
+        );
+        assert!(
+            !checker
+                .is_allowed("http://example.com/2025/index.htm")
+                .await
+        );
     }
 
     #[test]
     fn test_extract_competition_links_malformed() {
         let scraper = Scraper::new();
-        let links = scraper.extract_competition_links("not html at all", "http://example.com/").unwrap();
+        let links = scraper
+            .extract_competition_links("not html at all", "http://example.com/")
+            .unwrap();
         assert_eq!(links.len(), 0);
     }
 
@@ -282,7 +357,9 @@ mod tests {
         let mut checker = RobotsChecker::new();
         let base_url = "http://example.com/";
         let robots_txt = "User-agent: *\nCrawl-delay: 5.5";
-        checker.matchers.insert(base_url.to_string(), robots_txt.to_string());
+        checker
+            .matchers
+            .insert(base_url.to_string(), robots_txt.to_string());
 
         assert_eq!(checker.get_crawl_delay("http://example.com/"), Some(5.5));
     }
@@ -319,7 +396,10 @@ mod tests {
     fn test_extract_event_name_malformed() {
         let scraper = Scraper::new();
         assert_eq!(scraper.extract_event_name("").unwrap(), "unknown_event");
-        assert_eq!(scraper.extract_event_name("<html></html>").unwrap(), "unknown_event");
+        assert_eq!(
+            scraper.extract_event_name("<html></html>").unwrap(),
+            "unknown_event"
+        );
     }
 
     #[test]

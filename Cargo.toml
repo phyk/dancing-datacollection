@@ -19,5 +19,8 @@ toml = "0.8" # TOML parsing for config.toml
 url = "2.5" # URL parsing and joining
 clap = { version = "4.5", features = ["derive"] } # CLI argument parsing
 anyhow = "1.0" # Error handling
+thiserror = "2.0" # Error definition
+chrono = { version = "0.4", features = ["serde"] } # Date and time handling
+regex = "1.10" # Regex for parsing
 log = "0.4" # Logging facade
 env_logger = "0.11" # Logger implementation for CLI

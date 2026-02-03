@@ -176,6 +176,7 @@ pub struct Competition {
     pub age_group: AgeGroup,
     pub style: Style,
     pub dances: Vec<Dance>,
+    pub min_dances: u32,
     pub officials: Officials,
     pub participants: Vec<Participant>,
     pub rounds: Vec<Round>,
@@ -184,6 +185,7 @@ pub struct Competition {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Event {
     pub name: String,
+    pub date: Option<chrono::NaiveDate>,
     pub organizer: Option<String>,
     pub hosting_club: Option<String>,
     pub competitions_list: Vec<Competition>,
