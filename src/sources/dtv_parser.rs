@@ -258,6 +258,7 @@ impl ResultSource for DtvParser {
 mod tests {
     use super::*;
     use crate::models::{AgeGroup, Level, Style};
+    use std::collections::HashMap;
 
     #[test]
     fn test_parse_index_page() {
@@ -267,11 +268,13 @@ mod tests {
                 <div class="eventhead">
                     <table><tr><td>Hessen tanzt 2025</td></tr></table>
                 </div>
+                <div class="organizer">Hessischer Tanzsportverband</div>
+                <div class="hosting-club">TC Der Frankfurter Kreis</div>
                 <div class="maincontainer">
                     <div class="comphead">On 16/May/2025 till 18/May/2025 in Frankfurt am Main.</div>
                     <center>
-                        <a href="52-1705_wdsfintopenstdadult/index.htm"><span class="compbutton">17/May, WDSF INT. OPEN Standard Adult </span></a>
-                        <a href="67-1805_ot_hgrdstd/index.htm"><span class="compbutton">18/May, OT, Hgr. D Standard </span></a>
+                        <a href="52-1705_wdsfintopenstdadult/index.htm"><span class="compbutton">17/May, WDSF INT. OPEN Standard Adult (SW, TG, VW, SF, QS)</span></a>
+                        <a href="67-1805_ot_hgrdstd/index.htm"><span class="compbutton">18/May, OT, Hgr. D Standard (SW, TG, QS)</span></a>
                         <a href="fake/index.htm"><span class="compbutton">18/May, OT, Sen.III S Latein (SA, CC, RB, PD, JV)</span></a>
                     </center>
                 </div>
@@ -310,6 +313,14 @@ mod tests {
             event.date.unwrap(),
             NaiveDate::from_ymd_opt(2025, 5, 16).unwrap()
         );
+        assert_eq!(
+            event.organizer.unwrap(),
+            "Hessischer Tanzsportverband".to_string()
+        );
+        assert_eq!(
+            event.hosting_club.unwrap(),
+            "TC Der Frankfurter Kreis".to_string()
+        );
         assert_eq!(event.competitions_list.len(), 3);
 
         // 1st comp: 17/May, WDSF INT. OPEN Standard Adult
@@ -318,6 +329,12 @@ mod tests {
         assert_eq!(c1.style, Style::Standard);
         assert_eq!(c1.level, Level::S);
         assert_eq!(c1.min_dances, 5);
+        assert_eq!(c1.dances.len(), 5);
+        assert!(c1.dances.contains(&Dance::SlowWaltz));
+        assert!(c1.dances.contains(&Dance::Tango));
+        assert!(c1.dances.contains(&Dance::VienneseWaltz));
+        assert!(c1.dances.contains(&Dance::SlowFoxtrot));
+        assert!(c1.dances.contains(&Dance::Quickstep));
 
         // 2nd comp: 18/May, OT, Hgr. D Standard
         let c2 = &event.competitions_list[1];
@@ -325,6 +342,10 @@ mod tests {
         assert_eq!(c2.style, Style::Standard);
         assert_eq!(c2.level, Level::D);
         assert_eq!(c2.min_dances, 3); // 2025 is legacy
+        assert_eq!(c2.dances.len(), 3);
+        assert!(c2.dances.contains(&Dance::SlowWaltz));
+        assert!(c2.dances.contains(&Dance::Tango));
+        assert!(c2.dances.contains(&Dance::Quickstep));
 
         // 3rd comp: 18/May, OT, Sen.III S Latein (SA, CC, RB, PD, JV)
         let c3 = &event.competitions_list[2];
@@ -333,6 +354,40 @@ mod tests {
         assert_eq!(c3.level, Level::S);
         assert_eq!(c3.dances.len(), 5);
         assert!(c3.dances.contains(&Dance::Samba));
+        assert!(c3.dances.contains(&Dance::ChaChaCha));
+        assert!(c3.dances.contains(&Dance::Rumba));
+        assert!(c3.dances.contains(&Dance::PasoDoble));
+        assert!(c3.dances.contains(&Dance::Jive));
+    }
+
+    #[test]
+    fn test_parse_german_date() {
+        let html = r#"
+            <html>
+            <body>
+                <div class="eventhead"><table><tr><td>German Event</td></tr></table></div>
+                <div class="comphead">Hessen tanzt 2024 vom 10.05.2024 bis 12.05.2024 in Frankfurt am Main</div>
+            </body>
+            </html>
+        "#;
+        let config = Config {
+            sources: crate::scraper::Sources { urls: vec![] },
+            age_groups: None,
+            disciplines: None,
+            levels: None,
+        };
+        let i18n = I18n {
+            aliases: crate::i18n::Aliases {
+                age_groups: HashMap::new(),
+                disciplines: HashMap::new(),
+            },
+        };
+        let parser = DtvParser::new(config, SelectorConfig::default(), i18n);
+        let event = parser.parse(html).unwrap();
+        assert_eq!(
+            event.date.unwrap(),
+            NaiveDate::from_ymd_opt(2024, 5, 10).unwrap()
+        );
     }
 
     #[test]
