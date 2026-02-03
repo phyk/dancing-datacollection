@@ -2,6 +2,7 @@ use robotstxt::DefaultMatcher;
 use std::collections::HashMap;
 use url::Url;
 use anyhow::Result;
+use tokio::time::{sleep, Duration, Instant};
 use scraper::{Html, Selector};
 use serde::Deserialize;
 use std::path::Path;
@@ -34,7 +35,7 @@ impl RobotsChecker {
             Err(_) => return true,
         };
 
-        let base_url = format!("{}://{}/", url.scheme(), url.host_str().unwrap_or(""));
+        let base_url = self.get_base_url(&url);
         let robots_url = format!("{}robots.txt", base_url);
 
         if !self.matchers.contains_key(&base_url) {
@@ -61,11 +62,45 @@ impl RobotsChecker {
         let mut matcher = DefaultMatcher::default();
         matcher.allowed_by_robots(content, vec!["*"], url_str)
     }
+
+    pub fn get_crawl_delay(&self, url_str: &str) -> Option<f32> {
+        let url = Url::parse(url_str).ok()?;
+        let base_url = self.get_base_url(&url);
+        let content = self.matchers.get(&base_url)?;
+        if content.is_empty() {
+            return None;
+        }
+
+        let mut in_relevant_block = false;
+        for line in content.lines() {
+            let line = line.trim();
+            if line.is_empty() || line.starts_with('#') {
+                continue;
+            }
+            let line_lower = line.to_lowercase();
+            if line_lower.starts_with("user-agent:") {
+                let ua = line.split(':').nth(1).unwrap_or("").trim();
+                in_relevant_block = ua == "*";
+            } else if in_relevant_block && line_lower.starts_with("crawl-delay:") {
+                if let Some(val_str) = line.split(':').nth(1) {
+                    if let Ok(val) = val_str.trim().parse::<f32>() {
+                        return Some(val);
+                    }
+                }
+            }
+        }
+        None
+    }
+
+    fn get_base_url(&self, url: &Url) -> String {
+        format!("{}://{}/", url.scheme(), url.host_str().unwrap_or(""))
+    }
 }
 
 pub struct Scraper {
     client: reqwest::Client,
     robots_checker: RobotsChecker,
+    last_request_times: HashMap<String, Instant>,
 }
 
 impl Scraper {
@@ -73,7 +108,30 @@ impl Scraper {
         Self {
             client: reqwest::Client::new(),
             robots_checker: RobotsChecker::new(),
+            last_request_times: HashMap::new(),
         }
+    }
+
+    async fn fetch_with_rate_limit(&mut self, url_str: &str) -> Result<String> {
+        let url = Url::parse(url_str)?;
+        let domain = url.host_str().unwrap_or("").to_string();
+
+        if let Some(delay_secs) = self.robots_checker.get_crawl_delay(url_str) {
+            if let Some(&last_time) = self.last_request_times.get(&domain) {
+                let elapsed = last_time.elapsed();
+                let wait_duration = Duration::from_secs_f32(delay_secs);
+                if elapsed < wait_duration {
+                    let sleep_time = wait_duration - elapsed;
+                    log::debug!("Respecting Crawl-delay: sleeping for {:?}", sleep_time);
+                    sleep(sleep_time).await;
+                }
+            }
+        }
+
+        let resp = self.client.get(url_str).send().await?;
+        let text = resp.text().await?;
+        self.last_request_times.insert(domain, Instant::now());
+        Ok(text)
     }
 
     pub async fn scrape_all(&mut self, config: &Config) -> Result<()> {
@@ -84,7 +142,7 @@ impl Scraper {
             }
 
             log::info!("Scraping base URL: {}", base_url);
-            let html_content = self.client.get(base_url).send().await?.text().await?;
+            let html_content = self.fetch_with_rate_limit(base_url).await?;
             let competition_links = self.extract_competition_links(&html_content, base_url)?;
 
             log::info!("Found {} competition links", competition_links.len());
@@ -123,7 +181,7 @@ impl Scraper {
         }
 
         log::info!("Scraping competition: {}", url_str);
-        let html_content = self.client.get(url_str).send().await?.text().await?;
+        let html_content = self.fetch_with_rate_limit(url_str).await?;
         let event_name = self.extract_event_name(&html_content)?;
         let sanitized_event_name = self.sanitize_name(&event_name);
 
@@ -150,12 +208,9 @@ impl Scraper {
             }
 
             log::info!("Downloading related file: {}", rel_url);
-            match self.client.get(rel_url.as_str()).send().await {
-                Ok(resp) => {
-                    if resp.status().is_success() {
-                        let content = resp.text().await?;
-                        self.save_file(&data_dir, rel_file, &content)?;
-                    }
+            match self.fetch_with_rate_limit(rel_url.as_str()).await {
+                Ok(content) => {
+                    self.save_file(&data_dir, rel_file, &content)?;
                 }
                 Err(e) => log::error!("Failed to download {}: {}", rel_url, e),
             }
@@ -186,5 +241,91 @@ impl Scraper {
         let path = dir.join(filename);
         fs::write(path, content)?;
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn test_robots_full_block() {
+        let mut checker = RobotsChecker::new();
+        let base_url = "http://example.com/";
+        let robots_txt = "User-agent: *\nDisallow: /";
+        checker.matchers.insert(base_url.to_string(), robots_txt.to_string());
+
+        assert!(!checker.is_allowed("http://example.com/any").await);
+        assert!(!checker.is_allowed("http://example.com/").await);
+    }
+
+    #[tokio::test]
+    async fn test_robots_specific_path() {
+        let mut checker = RobotsChecker::new();
+        let base_url = "http://example.com/";
+        let robots_txt = "User-agent: *\nDisallow: /2025/";
+        checker.matchers.insert(base_url.to_string(), robots_txt.to_string());
+
+        assert!(checker.is_allowed("http://example.com/2024/index.htm").await);
+        assert!(!checker.is_allowed("http://example.com/2025/index.htm").await);
+    }
+
+    #[test]
+    fn test_extract_competition_links_malformed() {
+        let scraper = Scraper::new();
+        let links = scraper.extract_competition_links("not html at all", "http://example.com/").unwrap();
+        assert_eq!(links.len(), 0);
+    }
+
+    #[test]
+    fn test_crawl_delay_parsing() {
+        let mut checker = RobotsChecker::new();
+        let base_url = "http://example.com/";
+        let robots_txt = "User-agent: *\nCrawl-delay: 5.5";
+        checker.matchers.insert(base_url.to_string(), robots_txt.to_string());
+
+        assert_eq!(checker.get_crawl_delay("http://example.com/"), Some(5.5));
+    }
+
+    #[test]
+    fn test_extract_competition_links() {
+        let scraper = Scraper::new();
+        let html = r#"
+            <html>
+            <body>
+                <a href="comp1/index.htm">Comp 1</a>
+                <a href="comp2/index.html">Comp 2</a>
+                <a href="not-a-comp.png">Not a comp</a>
+            </body>
+            </html>
+        "#;
+        let base_url = "http://example.com/";
+        let links = scraper.extract_competition_links(html, base_url).unwrap();
+
+        assert_eq!(links.len(), 2);
+        assert!(links.contains(&"http://example.com/comp1/index.htm".to_string()));
+        assert!(links.contains(&"http://example.com/comp2/index.html".to_string()));
+    }
+
+    #[test]
+    fn test_extract_event_name() {
+        let scraper = Scraper::new();
+        let html = "<html><head><title>  WDSF World Open Latin  </title></head></html>";
+        let name = scraper.extract_event_name(html).unwrap();
+        assert_eq!(name, "WDSF World Open Latin");
+    }
+
+    #[test]
+    fn test_extract_event_name_malformed() {
+        let scraper = Scraper::new();
+        assert_eq!(scraper.extract_event_name("").unwrap(), "unknown_event");
+        assert_eq!(scraper.extract_event_name("<html></html>").unwrap(), "unknown_event");
+    }
+
+    #[test]
+    fn test_sanitize_name() {
+        let scraper = Scraper::new();
+        assert_eq!(scraper.sanitize_name("Event Name!"), "Event_Name_");
+        assert_eq!(scraper.sanitize_name("A".repeat(100).as_str()).len(), 64);
     }
 }
