@@ -1,3 +1,3 @@
-from ._dancing_datacollection import sum_as_string
+from ._dancing_datacollection import run_scraper
 
-__all__ = ["sum_as_string"]
+__all__ = ["run_scraper"]
