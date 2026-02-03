@@ -5,8 +5,9 @@ jules-scratch/verification/*
 !jules-scratch/verification/verify_frontend.py
 
 # Python cache
-__pycache__/
+**/__pycache__/
 *.pyc
+*.so
 
 # Distribution / packaging
 .Python
@@ -37,3 +38,9 @@ logs/
 *.swp
 *~
 .DS_Store
+
+# Rust
+target/
+
+# Virtual Environment
+.venv/
