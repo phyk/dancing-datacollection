@@ -1,4 +1,5 @@
 pub mod scraper;
+pub mod models;
 
 use pyo3::prelude::*;
 use crate::scraper::{Config, Scraper};
