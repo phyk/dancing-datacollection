@@ -7,15 +7,48 @@ use scraper::{Html, Selector};
 use serde::Deserialize;
 use std::path::Path;
 use std::fs;
+use crate::models::{AgeGroup, Style};
 
 #[derive(Debug, Deserialize)]
 pub struct Config {
     pub sources: Sources,
+    pub age_groups: HashMap<String, AgeGroupConfig>,
+    pub disciplines: HashMap<String, DisciplineConfig>,
+    pub levels: HashMap<String, LevelConfig>,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct Sources {
     pub urls: Vec<String>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct AgeGroupConfig {
+    pub id: String,
+    pub english: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct DisciplineConfig {
+    pub id: String,
+    pub english: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct LevelConfig {
+    pub min_dances: Option<u32>,
+    pub min_dances_legacy: Option<u32>,
+    pub min_dances_2026: Option<u32>,
+}
+
+impl Config {
+    pub fn get_age_group(&self, german_name: &str) -> Option<AgeGroup> {
+        self.age_groups.get(german_name).and_then(|ag| AgeGroup::from_id(&ag.id))
+    }
+
+    pub fn get_style(&self, german_name: &str) -> Option<Style> {
+        self.disciplines.get(german_name).and_then(|d| Style::from_id(&d.id))
+    }
 }
 
 pub struct RobotsChecker {
@@ -327,5 +360,26 @@ mod tests {
         let scraper = Scraper::new();
         assert_eq!(scraper.sanitize_name("Event Name!"), "Event_Name_");
         assert_eq!(scraper.sanitize_name("A".repeat(100).as_str()).len(), 64);
+    }
+
+    #[test]
+    fn test_config_lookup() {
+        let toml_content = r#"
+            [sources]
+            urls = []
+
+            [age_groups]
+            "Hgr" = { id = "adult" }
+
+            [disciplines]
+            "Standard" = { english = "Ballroom", id = "std" }
+
+            [levels.E]
+            min_dances = 3
+        "#;
+        let config: Config = toml::from_str(toml_content).unwrap();
+        assert_eq!(config.get_age_group("Hgr"), Some(AgeGroup::Adult));
+        assert_eq!(config.get_style("Standard"), Some(Style::Standard));
+        assert_eq!(config.get_age_group("Unknown"), None);
     }
 }

@@ -1,6 +1,7 @@
 use pyo3::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::str::FromStr;
 
 #[pyclass(eq, eq_int)]
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash)]
@@ -18,6 +19,27 @@ impl Level {
     fn __hash__(&self) -> isize {
         *self as isize
     }
+
+    #[staticmethod]
+    pub fn from_id(id: &str) -> Option<Self> {
+        Self::from_str(id).ok()
+    }
+}
+
+impl FromStr for Level {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_uppercase().as_str() {
+            "E" => Ok(Level::E),
+            "D" => Ok(Level::D),
+            "C" => Ok(Level::C),
+            "B" => Ok(Level::B),
+            "A" => Ok(Level::A),
+            "S" => Ok(Level::S),
+            _ => Err(()),
+        }
+    }
 }
 
 #[pyclass(eq, eq_int)]
@@ -31,6 +53,23 @@ pub enum Style {
 impl Style {
     fn __hash__(&self) -> isize {
         *self as isize
+    }
+
+    #[staticmethod]
+    pub fn from_id(id: &str) -> Option<Self> {
+        Self::from_str(id).ok()
+    }
+}
+
+impl FromStr for Style {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "std" | "standard" => Ok(Style::Standard),
+            "lat" | "latin" | "latein" => Ok(Style::Latein),
+            _ => Err(()),
+        }
     }
 }
 
@@ -81,22 +120,30 @@ impl AgeGroup {
     }
 
     #[staticmethod]
-    pub fn from_german(name: &str) -> Option<Self> {
-        match name {
-            "Kinder I" => Some(AgeGroup::Juv1),
-            "Kinder II" => Some(AgeGroup::Juv2),
-            "Junioren I" => Some(AgeGroup::Jun1),
-            "Junioren II" => Some(AgeGroup::Jun2),
-            "Jugend" => Some(AgeGroup::Youth),
-            "Hauptgruppe" | "Hgr" | "Hgr." => Some(AgeGroup::Adult),
-            "Hauptgruppe II" | "Hgr.II" | "Hgr II" => Some(AgeGroup::Adult2),
-            "Senioren I" | "Sen.I" => Some(AgeGroup::Sen1),
-            "Senioren II" | "Sen.II" => Some(AgeGroup::Sen2),
-            "Senioren III" | "Sen.III" => Some(AgeGroup::Sen3),
-            "Senioren IV" | "Sen.IV" => Some(AgeGroup::Sen4),
-            "Senioren V" | "Sen.V" => Some(AgeGroup::Sen5),
-            "Senioren" | "Sen" | "Sen." => Some(AgeGroup::Senior),
-            _ => None,
+    pub fn from_id(id: &str) -> Option<Self> {
+        Self::from_str(id).ok()
+    }
+}
+
+impl FromStr for AgeGroup {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "juv_1" => Ok(AgeGroup::Juv1),
+            "juv_2" => Ok(AgeGroup::Juv2),
+            "jun_1" => Ok(AgeGroup::Jun1),
+            "jun_2" => Ok(AgeGroup::Jun2),
+            "youth" => Ok(AgeGroup::Youth),
+            "adult" => Ok(AgeGroup::Adult),
+            "adult_2" => Ok(AgeGroup::Adult2),
+            "sen_1" => Ok(AgeGroup::Sen1),
+            "sen_2" => Ok(AgeGroup::Sen2),
+            "sen_3" => Ok(AgeGroup::Sen3),
+            "sen_4" => Ok(AgeGroup::Sen4),
+            "sen_5" => Ok(AgeGroup::Sen5),
+            "senior" => Ok(AgeGroup::Senior),
+            _ => Err(()),
         }
     }
 }

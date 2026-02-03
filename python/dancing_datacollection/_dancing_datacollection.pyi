@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 def run_scraper(config_path: str) -> None: ...
 
@@ -10,10 +10,14 @@ class Level(Enum):
     B = 3
     A = 4
     S = 5
+    @staticmethod
+    def from_id(id: str) -> Optional["Level"]: ...
 
 class Style(Enum):
     Standard = 0
     Latein = 1
+    @staticmethod
+    def from_id(id: str) -> Optional["Style"]: ...
 
 class Dance(Enum):
     SlowWaltz = 0
@@ -42,7 +46,7 @@ class AgeGroup(Enum):
     Sen5 = 11
     Senior = 12
     @staticmethod
-    def from_german(name: str) -> Optional["AgeGroup"]: ...
+    def from_id(id: str) -> Optional["AgeGroup"]: ...
 
 class IdentityType(Enum):
     Solo = 0
