@@ -2,7 +2,6 @@ pub mod scraper;
 pub mod models;
 
 use pyo3::prelude::*;
-use crate::models::*;
 use crate::scraper::{Config, Scraper};
 use std::fs;
 
@@ -25,23 +24,5 @@ fn run_scraper(config_path: String) -> PyResult<()> {
 #[pymodule]
 fn _dancing_datacollection(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(run_scraper, m)?)?;
-
-    // Export enums
-    m.add_class::<Level>()?;
-    m.add_class::<Style>()?;
-    m.add_class::<Dance>()?;
-    m.add_class::<AgeGroup>()?;
-    m.add_class::<IdentityType>()?;
-
-    // Export structs
-    m.add_class::<Judge>()?;
-    m.add_class::<CommitteeMember>()?;
-    m.add_class::<Officials>()?;
-    m.add_class::<Participant>()?;
-    m.add_class::<WDSFScore>()?;
-    m.add_class::<Round>()?;
-    m.add_class::<Competition>()?;
-    m.add_class::<Event>()?;
-
     Ok(())
 }
