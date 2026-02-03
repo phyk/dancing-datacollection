@@ -6,9 +6,9 @@ import urllib.parse
 import urllib.robotparser
 from typing import Any, Dict, List
 
-import toml
 from tqdm import tqdm
 
+from dancing_datacollection.config import load_config
 from dancing_datacollection.output import (
     save_committee,
     save_competition_data,
@@ -45,11 +45,6 @@ logger = logging.getLogger(__name__)
 error_logger = logging.getLogger("error")
 
 
-def load_config() -> Dict[str, Any]:
-    with open(CONFIG_PATH, "r") as f:
-        return toml.load(f)
-
-
 def is_allowed_by_robots(url: str, user_agent: str = "*") -> bool:
     parsed = urllib.parse.urlparse(url)
     robots_url = f"{parsed.scheme}://{parsed.netloc}/robots.txt"
@@ -74,6 +69,7 @@ def is_allowed_by_robots(url: str, user_agent: str = "*") -> bool:
 def process_local_dir(local_dir: str) -> None:
     all_participants: List[Any] = []
     event_name = os.path.basename(local_dir)
+    comp_info = None
     judges: List[Any] = []
     committee: List[Any] = []
     scores: List[Any] = []
@@ -123,9 +119,11 @@ def process_local_dir(local_dir: str) -> None:
             try:
                 with open(fpath, "r", encoding="utf-8") as f:
                     html = f.read()
-                participants, _ = extract_participants_and_event_name(
+                participants, _, info = extract_participants_and_event_name(
                     html, os.path.basename(fpath)
                 )
+                if info and not comp_info:
+                    comp_info = info
                 if participants:
                     logger.info(
                         "  Participants found in %s: %d",
@@ -162,7 +160,7 @@ def process_local_dir(local_dir: str) -> None:
             )
         else:
             logger.info("Participant numbers are consistent across all files.")
-    save_competition_data(event_name, unique_participants)
+    save_competition_data(event_name, unique_participants, comp_info)
     logger.info("Summary:")
     logger.info("  Judges: %d", len(judges))
     logger.info("  Committee: %d", len(committee))
@@ -210,18 +208,18 @@ def main() -> None:
                         erg_url = f"{base_url}/erg.htm"
                         erg_html = download_html(erg_url)
                         if erg_html:
-                            participants, event_name = extract_participants_and_event_name(
+                            participants, event_name, info = extract_participants_and_event_name(
                                 erg_html, "erg.htm"
                             )
                             logger.info("Parsed competition (erg.htm): %s", erg_url)
                         else:
                             filename_from_link = link.rsplit("/", 1)[-1]
-                            participants, event_name = extract_participants_and_event_name(
+                            participants, event_name, info = extract_participants_and_event_name(
                                 comp_html, filename_from_link
                             )
                             logger.info("Parsed competition (index): %s", link)
                         logger.info("  Participants: %d", len(participants))
-                        save_competition_data(event_name, participants)
+                        save_competition_data(event_name, participants, info)
                         # After saving participants, try to download and save judges
                         deck_url = f"{base_url}/deck.htm"
                         deck_html = download_html(deck_url)

@@ -1,11 +1,11 @@
 import logging
 import os
-from dataclasses import asdict
-from typing import Any, List
+from typing import Any, List, Optional
 
 import polars as pl
 
 from dancing_datacollection.data_defs.committee import CommitteeMember
+from dancing_datacollection.data_defs.competition import CompetitionInfo
 from dancing_datacollection.data_defs.final_scoring import FinalScoring
 from dancing_datacollection.data_defs.judge import Judge
 from dancing_datacollection.data_defs.participant import Participant
@@ -48,12 +48,25 @@ def validate_schema(path: str, required_columns: List[str]) -> bool:
         return False
 
 
-def save_competition_data(event_name: str, participants: List[Participant]) -> None:
+def save_competition_info(event_name: str, info: CompetitionInfo) -> None:
     comp_dir = os.path.join(DATA_DIR, event_name)
     os.makedirs(comp_dir, exist_ok=True)
+    info_path = os.path.join(comp_dir, "metadata.json")
+    with open(info_path, "w", encoding="utf-8") as f:
+        f.write(info.model_dump_json(indent=2))
+    logging.info("Saved competition metadata to %s", info_path)
+
+
+def save_competition_data(
+    event_name: str, participants: List[Participant], info: Optional[CompetitionInfo] = None
+) -> None:
+    comp_dir = os.path.join(DATA_DIR, event_name)
+    os.makedirs(comp_dir, exist_ok=True)
+    if info:
+        save_competition_info(event_name, info)
     expected_cols = ["name_one", "name_two", "club", "number", "ranks"]
     if participants:
-        part_df = pl.DataFrame([asdict(p) for p in participants])
+        part_df = pl.DataFrame([p.model_dump() for p in participants])
         for col in expected_cols:
             if col not in part_df.columns:
                 part_df = part_df.with_columns(pl.lit(None).alias(col))
@@ -82,7 +95,9 @@ def save_judges(event_name: str, judges: List[Judge]) -> None:
     os.makedirs(comp_dir, exist_ok=True)
     expected_cols = ["code", "name", "club"]
     if judges:
-        judges_df = pl.DataFrame([asdict(j) for j in judges])
+        judges_df = pl.DataFrame(
+            [{**j.model_dump(), "name": j.name} for j in judges]
+        )
         for col in expected_cols:
             if col not in judges_df.columns:
                 judges_df = judges_df.with_columns(pl.lit(None).alias(col))
@@ -103,7 +118,9 @@ def save_committee(event_name: str, committee: List[CommitteeMember]) -> None:
     os.makedirs(comp_dir, exist_ok=True)
     expected_cols = ["role", "name", "club"]
     if committee:
-        committee_df = pl.DataFrame([asdict(c) for c in committee])
+        committee_df = pl.DataFrame(
+            [{**c.model_dump(), "name": c.name} for c in committee]
+        )
         for col in expected_cols:
             if col not in committee_df.columns:
                 committee_df = committee_df.with_columns(pl.lit(None).alias(col))
@@ -171,7 +188,7 @@ def save_final_scoring(event_name: str, final_scores: List[FinalScoring]) -> Non
     if final_scores:
         final_list = []
         for f in final_scores:
-            row = asdict(f)
+            row = f.model_dump()
             scores = row.pop("scores", {})
             for dance, score in scores.items():
                 row[f"score_{dance.value}"] = score
