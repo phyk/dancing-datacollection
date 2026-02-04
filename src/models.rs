@@ -134,11 +134,8 @@ impl FromStr for AgeGroup {
 #[pyclass]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Judge {
-    #[pyo3(get)]
     pub code: String,
-    #[pyo3(get)]
     pub name: String,
-    #[pyo3(get)]
     pub club: Option<String>,
 }
 
@@ -146,9 +143,7 @@ pub struct Judge {
 #[pyclass]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CommitteeMember {
-    #[pyo3(get)]
     pub name: String,
-    #[pyo3(get)]
     pub club: Option<String>,
 }
 
@@ -156,11 +151,8 @@ pub struct CommitteeMember {
 #[pyclass]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Officials {
-    #[pyo3(get)]
     pub responsible_person: Option<CommitteeMember>,
-    #[pyo3(get)]
     pub assistant: Option<CommitteeMember>,
-    #[pyo3(get)]
     pub judges: Vec<Judge>,
 }
 
@@ -176,17 +168,11 @@ pub enum IdentityType {
 #[pyclass]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Participant {
-    #[pyo3(get)]
     pub identity_type: IdentityType,
-    #[pyo3(get)]
     pub name_one: String,
-    #[pyo3(get)]
     pub bib_number: u32,
-    #[pyo3(get)]
     pub name_two: Option<String>,
-    #[pyo3(get)]
     pub affiliation: Option<String>,
-    #[pyo3(get)]
     pub final_rank: Option<u32>,
 }
 
@@ -194,13 +180,9 @@ pub struct Participant {
 #[pyclass]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct WDSFScore {
-    #[pyo3(get)]
     pub technical_quality: f64,
-    #[pyo3(get)]
     pub movement_to_music: f64,
-    #[pyo3(get)]
     pub partnering_skills: f64,
-    #[pyo3(get)]
     pub choreography: f64,
 }
 
@@ -208,13 +190,9 @@ pub struct WDSFScore {
 #[pyclass]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Round {
-    #[pyo3(get)]
     pub name: String,
-    #[pyo3(get)]
     pub marking_crosses: Option<HashMap<String, HashMap<u32, HashMap<Dance, bool>>>>,
-    #[pyo3(get)]
     pub dtv_ranks: Option<HashMap<String, HashMap<u32, HashMap<Dance, u32>>>>,
-    #[pyo3(get)]
     pub wdsf_scores: Option<HashMap<String, HashMap<u32, WDSFScore>>>,
 }
 
@@ -222,21 +200,13 @@ pub struct Round {
 #[pyclass]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Competition {
-    #[pyo3(get)]
     pub level: Level,
-    #[pyo3(get)]
     pub age_group: AgeGroup,
-    #[pyo3(get)]
     pub style: Style,
-    #[pyo3(get)]
     pub dances: Vec<Dance>,
-    #[pyo3(get)]
     pub min_dances: u32,
-    #[pyo3(get)]
     pub officials: Officials,
-    #[pyo3(get)]
     pub participants: Vec<Participant>,
-    #[pyo3(get)]
     pub rounds: Vec<Round>,
 }
 
@@ -244,14 +214,9 @@ pub struct Competition {
 #[pyclass]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Event {
-    #[pyo3(get)]
     pub name: String,
-    #[pyo3(get)]
     pub date: Option<chrono::NaiveDate>,
-    #[pyo3(get)]
     pub organizer: Option<String>,
-    #[pyo3(get)]
     pub hosting_club: Option<String>,
-    #[pyo3(get)]
     pub competitions_list: Vec<Competition>,
 }

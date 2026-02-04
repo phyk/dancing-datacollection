@@ -83,4 +83,3 @@ Python Access: The library must be importable in Python. It must expose the foll
 - `extract_competitions(data_dir: str)`: Extract the competition data from saved HTML files.
 - `validate_extracted_competitions(event: Event)`: Check whether the competitions extracted reproduce the downloaded sources (Fidelity Gate).
 - `collect_dancing_data(config_path: str)`: Orchestrator that calls the above steps.
-- Accessible getters for all competition data models.
