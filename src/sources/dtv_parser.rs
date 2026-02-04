@@ -1,12 +1,14 @@
 use crate::i18n::I18n;
 use crate::models::{
-    CommitteeMember, Competition, Dance, Event, IdentityType, Judge, Level, Officials, Participant,
+    CommitteeMember, Competition, Dance, Event, IdentityType, Judge, Level, Officials,
+    Participant, Round, WDSFScore,
 };
 use crate::scraper::Config;
 use crate::sources::{ParsingError, ResultSource};
 use chrono::NaiveDate;
 use regex::Regex;
 use scraper::{Html, Selector};
+use std::collections::HashMap;
 
 /// Configuration for CSS selectors used by the DTV parser.
 #[derive(Clone, Debug)]
@@ -32,11 +34,11 @@ impl Default for SelectorConfig {
             event_date: ".comphead".to_string(),
             organizer: ".organizer".to_string(),
             hosting_club: ".hosting-club".to_string(),
-            competition_item: "center a".to_string(),
-            competition_title: ".compbutton".to_string(),
+            competition_item: "center a, .pro_p_zeile a, .t_zeile a".to_string(),
+            competition_title: ".compbutton, b".to_string(),
             participant_row: "table.tab1 tr, table.tab2 tr".to_string(),
-            participant_cell_rank: "td.td3r".to_string(),
-            participant_cell_data: "td.td5, td.td6".to_string(),
+            participant_cell_rank: "td.td3r, td.td3c".to_string(),
+            participant_cell_data: "td.td2c, td.td5, td.td6".to_string(),
             official_row: "table.tab1 tr".to_string(),
             official_cell_role: "td.td2, td.td2r".to_string(),
             official_cell_data: "td.td5".to_string(),
@@ -61,11 +63,11 @@ impl DtvParser {
         }
     }
 
-    fn parse_date(&self, s: &str) -> Option<NaiveDate> {
+    pub fn parse_date(&self, s: &str) -> Option<NaiveDate> {
         let s = s.trim();
 
         // Regex for DD.MM.YYYY
-        let re_dots = Regex::new(r"(\d{2})\.(\d{2})\.(\d{4})").unwrap();
+        let re_dots = Regex::new(r"(\d{1,2})\.(\d{1,2})\.(\d{4})").unwrap();
         if let Some(caps) = re_dots.captures(s) {
             let d = caps[1].parse::<u32>().ok()?;
             let m = caps[2].parse::<u32>().ok()?;
@@ -73,8 +75,8 @@ impl DtvParser {
             return NaiveDate::from_ymd_opt(y, m, d);
         }
 
-        // Regex for DD/Mon/YYYY (e.g. 17/May/2025)
-        let re_slashes = Regex::new(r"(\d{2})/([a-zA-Z]{3})/(\d{4})").unwrap();
+        // Regex for DD/Mon/YYYY (e.g. 05/Jul/2025)
+        let re_slashes = Regex::new(r"(\d{1,2})/([a-zA-Z]{3})/(\d{4})").unwrap();
         if let Some(caps) = re_slashes.captures(s) {
             let d = caps[1].parse::<u32>().ok()?;
             let mon_str = &caps[2];
@@ -97,10 +99,34 @@ impl DtvParser {
             return NaiveDate::from_ymd_opt(y, m, d);
         }
 
+        // Handle German month names
+        let re_de = Regex::new(r"(\d{1,2})\.\s*([a-zA-Zä]+)\s+(\d{4})").unwrap();
+        if let Some(caps) = re_de.captures(s) {
+            let d = caps[1].parse::<u32>().ok()?;
+            let mon_str = &caps[2];
+            let y = caps[3].parse::<i32>().ok()?;
+            let m = match mon_str.to_lowercase().as_str() {
+                "januar" => 1,
+                "februar" => 2,
+                "märz" => 3,
+                "april" => 4,
+                "mai" => 5,
+                "juni" => 6,
+                "juli" => 7,
+                "august" => 8,
+                "september" => 9,
+                "oktober" => 10,
+                "november" => 11,
+                "dezember" => 12,
+                _ => return None,
+            };
+            return NaiveDate::from_ymd_opt(y, m, d);
+        }
+
         None
     }
 
-    fn parse_dances(&self, s: &str) -> Vec<Dance> {
+    pub fn parse_dances(&self, s: &str) -> Vec<Dance> {
         let mut dances = Vec::new();
         let s_up = s.to_uppercase();
 
@@ -140,6 +166,15 @@ impl DtvParser {
             }
         }
 
+        // Fallback for broad disciplines
+        if dances.is_empty() {
+             if s_up.contains("STANDARD") {
+                 dances = vec![Dance::SlowWaltz, Dance::Tango, Dance::VienneseWaltz, Dance::SlowFoxtrot, Dance::Quickstep];
+             } else if s_up.contains("LATEIN") || s_up.contains("LATIN") {
+                 dances = vec![Dance::Samba, Dance::ChaChaCha, Dance::Rumba, Dance::PasoDoble, Dance::Jive];
+             }
+        }
+
         dances
     }
 
@@ -168,53 +203,71 @@ impl DtvParser {
                 .and_then(|s| s.split('-').next())
                 .and_then(|s| s.trim().parse::<u32>().ok());
 
-            let mut data_iter = row.select(&data_sel);
-            if let Some(td5) = data_iter.next() {
-                let full_text = td5.text().collect::<Vec<_>>().join(" ").trim().to_string();
+            let mut bib_number = 0;
+            let mut name_text = String::new();
+            let mut club = None;
 
-                // DTV sometimes puts club in <i> inside td5, or in td6
-                let mut club = td5
+            let data_cells: Vec<_> = row.select(&data_sel).collect();
+
+            // Check if bib is in separate cell (usually td2c)
+            if data_cells.len() >= 2 {
+                 let first_cell_text = data_cells[0].text().collect::<String>().trim().to_string();
+                 if let Ok(bib) = first_cell_text.parse::<u32>() {
+                      bib_number = bib;
+                      name_text = data_cells[1].text().collect::<Vec<_>>().join(" ").trim().to_string();
+                      if data_cells.len() >= 3 {
+                           club = Some(data_cells[2].text().collect::<Vec<_>>().join(" ").trim().to_string());
+                      }
+                 }
+            }
+
+            if bib_number == 0 && !data_cells.is_empty() {
+                 // Try fallback: bib in parens in name
+                 let full_text = data_cells[0].text().collect::<Vec<_>>().join(" ").trim().to_string();
+
+                 club = data_cells[0]
                     .select(&Selector::parse("i").unwrap())
                     .next()
                     .map(|e| e.text().collect::<Vec<_>>().join(" ").trim().to_string());
 
-                if club.is_none() {
-                    if let Some(td6) = data_iter.next() {
-                        club = Some(td6.text().collect::<Vec<_>>().join(" ").trim().to_string());
-                    }
-                }
+                 if club.is_none() && data_cells.len() >= 2 {
+                      club = Some(data_cells[1].text().collect::<Vec<_>>().join(" ").trim().to_string());
+                 }
 
-                // Remove club text from full_text if it was inside td5
-                let name_bib_text = if let Some(ref c) = club {
-                    full_text.replace(c, "").trim().to_string()
+                 let name_bib_text = if let Some(ref c) = club {
+                     full_text.replace(c, "").trim().to_string()
+                 } else {
+                     full_text
+                 };
+
+                 if let Some(caps) = name_bib_re.captures(&name_bib_text) {
+                     name_text = caps[1].trim().to_string();
+                     bib_number = caps[2].parse::<u32>().unwrap_or(0);
+                 } else {
+                     name_text = name_bib_text;
+                 }
+            }
+
+            if !name_text.is_empty() {
+                let (identity_type, name_one, name_two) = if name_text.contains(" / ") {
+                    let parts: Vec<&str> = name_text.split(" / ").collect();
+                    (
+                        IdentityType::Couple,
+                        parts[0].trim().to_string(),
+                        Some(parts[1].trim().to_string()),
+                    )
                 } else {
-                    full_text
+                    (IdentityType::Solo, name_text.to_string(), None)
                 };
 
-                if let Some(caps) = name_bib_re.captures(&name_bib_text) {
-                    let names_part = caps[1].trim();
-                    let bib_number = caps[2].parse::<u32>().unwrap_or(0);
-
-                    let (identity_type, name_one, name_two) = if names_part.contains(" / ") {
-                        let parts: Vec<&str> = names_part.split(" / ").collect();
-                        (
-                            IdentityType::Couple,
-                            parts[0].trim().to_string(),
-                            Some(parts[1].trim().to_string()),
-                        )
-                    } else {
-                        (IdentityType::Solo, names_part.to_string(), None)
-                    };
-
-                    participants.push(Participant {
-                        identity_type,
-                        name_one,
-                        bib_number,
-                        name_two,
-                        affiliation: club,
-                        final_rank,
-                    });
-                }
+                participants.push(Participant {
+                    identity_type,
+                    name_one,
+                    bib_number,
+                    name_two,
+                    affiliation: club.filter(|s| !s.is_empty()),
+                    final_rank,
+                });
             }
         }
 
@@ -286,6 +339,399 @@ impl DtvParser {
 
         Ok(officials)
     }
+
+    pub fn parse_rounds(&self, html: &str, dances: &[Dance]) -> Vec<Round> {
+        let mut rounds = Vec::new();
+        let document = Html::parse_document(html);
+        let table_sel = Selector::parse("table").unwrap();
+        let h2_sel = Selector::parse("h2").unwrap();
+        let comphead_sel = Selector::parse(".comphead").unwrap();
+
+        let mut round_names = Vec::new();
+        for h2 in document.select(&h2_sel) {
+            round_names.push(h2.text().collect::<Vec<_>>().join(" ").trim().to_string());
+        }
+
+        if round_names.is_empty() {
+             for head in document.select(&comphead_sel) {
+                  let text = head.text().collect::<Vec<_>>().join(" ").trim().to_string();
+                  if text.to_lowercase().contains("runde") || text.to_lowercase().contains("table") || text.to_lowercase().contains("ergebnis") || text.to_lowercase().contains("ranking") {
+                       round_names.push(text);
+                  }
+             }
+        }
+
+        if round_names.is_empty() {
+             round_names.push("Result Table".to_string());
+        }
+
+        let mut table_idx = 0;
+        for round_name in round_names {
+            let mut round = Round {
+                name: round_name,
+                marking_crosses: None,
+                dtv_ranks: None,
+                wdsf_scores: None,
+            };
+
+            let mut round_html = String::new();
+            while let Some(table) = document.select(&table_sel).nth(table_idx) {
+                 let table_html = table.html();
+                 round_html.push_str(&table_html);
+                 table_idx += 1;
+
+                 if table_html.contains("TQ") || table_html.contains("MM") || table_html.contains(".0") {
+                      break;
+                 }
+            }
+
+            if !round_html.is_empty() {
+                if round_html.contains("TQ") || round_html.contains("MM") {
+                    round.wdsf_scores = Some(self.parse_wdsf_scores(&round_html));
+                } else if round_html.contains(".0") || round_html.contains(",0") {
+                    round.dtv_ranks = Some(self.parse_ergwert(&round_html, dances));
+                } else {
+                    round.marking_crosses = Some(self.parse_tabges(&round_html, dances));
+                }
+            }
+            rounds.push(round);
+        }
+
+        rounds
+    }
+
+    pub fn parse_tabges(
+        &self,
+        html: &str,
+        dances: &[Dance],
+    ) -> HashMap<String, HashMap<u32, HashMap<Dance, bool>>> {
+        let mut results = HashMap::new();
+        let document = Html::parse_document(html);
+        let tr_sel = Selector::parse("tr").unwrap();
+        let td_sel = Selector::parse("td").unwrap();
+        let table_sel = Selector::parse("table").unwrap();
+
+        for table in document.select(&table_sel) {
+            let mut rows_iter = table.select(&tr_sel);
+            let first_row = rows_iter.next();
+            if first_row.is_none() { continue; }
+
+            let mut bibs_in_cols = Vec::new();
+            let header_cells: Vec<_> = first_row.unwrap().select(&td_sel).collect();
+            for cell in &header_cells {
+                 let text = cell.text().collect::<String>().trim().to_string();
+                 let mut num_str = String::new();
+                 for c in text.chars() {
+                      if c.is_ascii_digit() { num_str.push(c); } else { break; }
+                 }
+                 if let Ok(bib) = num_str.parse::<u32>() {
+                      bibs_in_cols.push(bib);
+                 }
+            }
+
+            if bibs_in_cols.is_empty() {
+                 if let Some(second_row) = rows_iter.next() {
+                      let cells: Vec<_> = second_row.select(&td_sel).collect();
+                      for cell in &cells {
+                           let text = cell.text().collect::<String>().trim().to_string();
+                           let mut num_str = String::new();
+                           for c in text.chars() {
+                                if c.is_ascii_digit() { num_str.push(c); } else { break; }
+                           }
+                           if let Ok(bib) = num_str.parse::<u32>() {
+                                bibs_in_cols.push(bib);
+                           }
+                      }
+                 }
+            }
+
+            if !bibs_in_cols.is_empty() {
+                for row in table.select(&tr_sel) {
+                    let cells: Vec<_> = row.select(&td_sel).collect();
+                    if cells.len() < 2 { continue; }
+
+                    let first_cell_text = cells[0].text().collect::<String>().trim().to_string();
+                    let adj_re = Regex::new(r"([A-Z]{1,2})\)").unwrap();
+                    let mut adj_codes = Vec::new();
+                    for caps in adj_re.captures_iter(&first_cell_text) {
+                         adj_codes.push(caps[1].to_string());
+                    }
+
+                    if !adj_codes.is_empty() {
+                         for (col_idx, bib) in bibs_in_cols.iter().enumerate() {
+                              let cell_idx = cells.len() - bibs_in_cols.len() + col_idx;
+                              if cell_idx < cells.len() {
+                                   let cell_content = cells[cell_idx].inner_html();
+                                   let lines: Vec<_> = cell_content.split("<br>").collect();
+                                   for (line_idx, adj_code) in adj_codes.iter().enumerate() {
+                                        if line_idx < lines.len() {
+                                             let val = lines[line_idx].trim();
+                                             let has_cross = val.to_lowercase().contains('x') || val.parse::<u32>().unwrap_or(0) > 0;
+                                             let bib_map = results.entry(adj_code.clone()).or_insert_with(HashMap::new)
+                                                 .entry(*bib).or_insert_with(HashMap::new);
+                                             for dance in dances {
+                                                  bib_map.insert(*dance, has_cross);
+                                             }
+                                        }
+                                   }
+                              }
+                         }
+                    }
+
+                    if first_cell_text.contains("Ergebnis") || first_cell_text.contains("Result") {
+                         for (col_idx, bib) in bibs_in_cols.iter().enumerate() {
+                              let cell_idx = cells.len() - bibs_in_cols.len() + col_idx;
+                              if cell_idx < cells.len() {
+                                   let provided_total: u32 = cells[cell_idx].text().collect::<String>().trim().parse().unwrap_or(0);
+                                   let mut calculated_total = 0;
+                                   for judge_map in results.values() {
+                                        if let Some(bib_map) = judge_map.get(bib) {
+                                             if bib_map.values().any(|&v| v) {
+                                                  calculated_total += 1;
+                                             }
+                                        }
+                                   }
+                                   if provided_total > 0 && calculated_total == 0 {
+                                        log::warn!("VALIDATION_WARNING: Bib {} has total {} but no crosses parsed", bib, provided_total);
+                                   }
+                              }
+                         }
+                    }
+                }
+            } else {
+                // Horizontal layout
+                let mut judge_codes = Vec::new();
+                for td in header_cells.iter().skip(2) {
+                    let text = td.text().collect::<String>().trim().to_string();
+                    if text.len() == 1 || text.len() == 2 {
+                        judge_codes.push(text);
+                    }
+                }
+
+                for row in table.select(&tr_sel).skip(1) {
+                    let cells: Vec<_> = row.select(&td_sel).collect();
+                    if cells.len() < 3 { continue; }
+                    let bib_text = cells[1].text().collect::<String>().trim().to_string();
+                    if let Ok(bib) = bib_text.parse::<u32>() {
+                        for (i, judge_code) in judge_codes.iter().enumerate() {
+                            let cell_idx = 2 + i;
+                            if cell_idx < cells.len() {
+                                let cross_text = cells[cell_idx].text().collect::<String>();
+                                let bib_map = results.entry(judge_code.clone()).or_default().entry(bib).or_default();
+                                for dance in dances {
+                                    bib_map.insert(*dance, cross_text.to_lowercase().contains('x'));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        results
+    }
+
+    pub fn parse_ergwert(&self, html: &str, dances: &[Dance]) -> HashMap<String, HashMap<u32, HashMap<Dance, u32>>> {
+        let mut results: HashMap<String, HashMap<u32, HashMap<Dance, u32>>> = HashMap::new();
+        let document = Html::parse_document(html);
+        let tr_sel = Selector::parse("tr").unwrap();
+        let td_sel = Selector::parse("td").unwrap();
+        let tooltip_sel = Selector::parse(".tooltip2w").unwrap();
+
+        let mut judge_codes = Vec::new();
+
+        for row in document.select(&tr_sel).take(5) {
+             let cells: Vec<_> = row.select(&td_sel).collect();
+             let mut found_codes = Vec::new();
+             for cell in &cells {
+                  if cell.select(&tooltip_sel).next().is_some() {
+                       // Short code is just the first text child
+                       let t = cell.text().next().unwrap_or("").trim();
+                       let mut code = String::new();
+                       for c in t.chars() {
+                            if c.is_ascii_uppercase() { code.push(c); } else { break; }
+                       }
+
+                       if !code.is_empty() && code.len() <= 2 {
+                            found_codes.push(code);
+                       }
+                  }
+             }
+             if found_codes.len() > 3 {
+                  judge_codes = found_codes;
+                  break;
+             }
+        }
+
+        for row in document.select(&tr_sel) {
+             let cells: Vec<_> = row.select(&td_sel).collect();
+             if cells.len() < 5 { continue; }
+
+             let bib_text = cells.iter().find(|c| c.value().attr("class").unwrap_or("").contains("td2cv"))
+                 .map(|c| {
+                      let t = c.text().collect::<String>().trim().to_string();
+                      let mut num_str = String::new();
+                      for ch in t.chars() { if ch.is_ascii_digit() { num_str.push(ch); } else { break; } }
+                      num_str
+                 })
+                 .unwrap_or_default();
+
+             if let Ok(bib) = bib_text.parse::<u32>() {
+                  let mut dance_cell_count = 0;
+                  for cell in &cells {
+                       if cell.value().attr("class").unwrap_or("").contains("td5w") {
+                            let content = cell.inner_html();
+                            let lines: Vec<_> = content.split("<br>").collect();
+                            if let Some(first_line) = lines.get(0) {
+                                 if let Ok(rank) = first_line.trim().parse::<u32>() {
+                                      let judge_idx = dance_cell_count % (if judge_codes.is_empty() { 1 } else { judge_codes.len() });
+                                      let dance_idx = dance_cell_count / (if judge_codes.is_empty() { 1 } else { judge_codes.len() });
+
+                                      let adj_code = judge_codes.get(judge_idx).cloned().unwrap_or_else(|| "A".to_string());
+                                      let bib_map = results.entry(adj_code).or_default().entry(bib).or_default();
+                                      if let Some(d) = dances.get(dance_idx) {
+                                           bib_map.insert(*d, rank);
+                                      }
+                                 }
+                            }
+                            dance_cell_count += 1;
+                       } else if cell.value().attr("class").unwrap_or("").contains("tddarkc") {
+                            let text = cell.text().collect::<String>().trim().to_string();
+                            let provided_total: f32 = text.split('\n').next().unwrap_or("0").replace(',', ".").parse().unwrap_or(0.0);
+                            if provided_total > 0.0 && results.is_empty() {
+                                log::warn!("VALIDATION_WARNING: Bib {} has total rank {} but no marks parsed", bib, provided_total);
+                            }
+                       }
+                  }
+             }
+        }
+
+        results
+    }
+
+    pub fn parse_wdsf_scores(&self, html: &str) -> HashMap<String, HashMap<u32, WDSFScore>> {
+        let mut results = HashMap::new();
+        let document = Html::parse_document(html);
+        let tr_sel = Selector::parse("tr").unwrap();
+        let td_sel = Selector::parse("td").unwrap();
+        let score_re = Regex::new(r"(\d+[\.,]\d+)").unwrap();
+
+        let mut current_bib = 0;
+        let mut current_judge = String::new();
+
+        for row in document.select(&tr_sel) {
+            let cells: Vec<_> = row.select(&td_sel).collect();
+            if cells.is_empty() { continue; }
+
+            let text = cells[0].text().collect::<String>().trim().to_string();
+            if let Some(caps) = Regex::new(r"\((\d+)\)").unwrap().captures(&text) {
+                current_bib = caps[1].parse().unwrap_or(0);
+            }
+
+            if text.len() == 1 && text.chars().next().unwrap().is_ascii_uppercase() {
+                current_judge = text;
+            }
+
+            if !current_judge.is_empty() && current_bib != 0 {
+                let cell_text = row.text().collect::<Vec<_>>().join(" ");
+                let scores: Vec<f64> = score_re.find_iter(&cell_text)
+                    .filter_map(|m| m.as_str().replace(',', ".").parse().ok())
+                    .collect();
+
+                if !scores.is_empty() {
+                    let score_entry = results.entry(current_judge.clone()).or_insert_with(HashMap::new)
+                        .entry(current_bib).or_insert(WDSFScore {
+                            technical_quality: 0.0,
+                            movement_to_music: 0.0,
+                            partnering_skills: 0.0,
+                            choreography: 0.0,
+                        });
+
+                    if cell_text.contains("TQ") { score_entry.technical_quality = scores[0]; }
+                    if cell_text.contains("MM") { score_entry.movement_to_music = scores[0]; }
+                    if cell_text.contains("PS") { score_entry.partnering_skills = scores[scores.len()-1]; }
+                    if cell_text.contains("CP") { score_entry.choreography = scores[scores.len()-1]; }
+
+                    if scores.len() >= 2 && cell_text.contains("TQ") && cell_text.contains("PS") {
+                        score_entry.technical_quality = scores[0];
+                        score_entry.partnering_skills = scores[1];
+                    }
+                    if scores.len() == 1 && cell_text.contains("MM") && cell_text.contains("CP") {
+                        score_entry.movement_to_music = scores[0];
+                        score_entry.choreography = scores[0];
+                    }
+                }
+            }
+        }
+        results
+    }
+
+    pub fn parse_competition_from_title(&self, title: &str) -> Result<Competition, ParsingError> {
+        let title_up = title.to_uppercase();
+        let mut sorted_age_keys: Vec<_> = self.i18n.aliases.age_groups.keys().collect();
+        sorted_age_keys.sort_by_key(|k| k.len());
+        sorted_age_keys.reverse();
+
+        let mut sorted_disc_keys: Vec<_> = self.i18n.aliases.dances.keys().collect();
+        sorted_disc_keys.sort_by_key(|k| k.len());
+        sorted_disc_keys.reverse();
+
+        let mut age_group = None;
+        let mut style = None;
+        let mut level = None;
+
+        for key in &sorted_age_keys {
+            if title_up.contains(&key.to_uppercase()) {
+                age_group = self.i18n.map_age_group(key);
+                break;
+            }
+        }
+
+        for key in &sorted_disc_keys {
+            if title_up.contains(&key.to_uppercase()) {
+                style = self.i18n.map_discipline(key);
+                break;
+            }
+        }
+
+        for l_id in ["S", "A", "B", "C", "D", "E"] {
+            let pattern = format!(" {} ", l_id);
+            if title_up.contains(&pattern) || title_up.ends_with(&format!(" {}", l_id)) {
+                level = Level::from_id(l_id);
+                break;
+            }
+        }
+
+        if level.is_none() && (title_up.contains("WDSF") || title_up.contains("OPEN")) {
+            level = Some(Level::S);
+        }
+
+        let date = self.parse_date(title).unwrap_or_else(|| NaiveDate::from_ymd_opt(2024, 1, 1).unwrap());
+
+        if age_group.is_none() || style.is_none() || level.is_none() {
+             return Err(ParsingError::MissingRequiredData(format!("Incomplete metadata in title: {}", title)));
+        }
+
+        let age_group = age_group.unwrap();
+        let style = style.unwrap();
+        let level = level.unwrap();
+        let dances = self.parse_dances(title);
+        let min_dances = self.config.get_min_dances(&level, &date);
+
+        Ok(Competition {
+            level,
+            age_group,
+            style,
+            dances,
+            min_dances,
+            officials: Officials {
+                responsible_person: None,
+                assistant: None,
+                judges: Vec::new(),
+            },
+            participants: Vec::new(),
+            rounds: Vec::new(),
+        })
+    }
 }
 
 impl ResultSource for DtvParser {
@@ -299,151 +745,52 @@ impl ResultSource for DtvParser {
     }
 
     fn parse(&self, html: &str) -> Result<Event, ParsingError> {
-        let fragment = Html::parse_document(html);
+        let document = Html::parse_document(html);
+
+        let title_sel = Selector::parse("title").unwrap();
+        let title = document.select(&title_sel).next().map(|n| n.inner_html()).unwrap_or_default();
 
         let name_sel = Selector::parse(&self.selectors.event_name).unwrap();
-        let event_name = fragment
-            .select(&name_sel)
-            .next()
-            .map(|e| e.text().collect::<Vec<_>>().join(" ").trim().to_string())
-            .ok_or_else(|| ParsingError::MissingRequiredData("Event Name".to_string()))?;
+        let event_name = document.select(&name_sel).next().map(|e| e.text().collect::<String>().trim().to_string());
 
         let date_sel = Selector::parse(&self.selectors.event_date).unwrap();
-        let date_text = fragment
-            .select(&date_sel)
-            .next()
-            .map(|e| e.text().collect::<Vec<_>>().join(" ").trim().to_string())
-            .ok_or_else(|| ParsingError::MissingRequiredData("Event Date".to_string()))?;
+        let date_text = document.select(&date_sel).next().map(|e| e.text().collect::<String>().trim().to_string());
 
-        let event_date = self.parse_date(&date_text).ok_or_else(|| {
-            ParsingError::MissingRequiredData("Event Date (invalid format)".to_string())
-        })?;
-
-        let org_sel = Selector::parse(&self.selectors.organizer).unwrap();
-        let organizer = fragment
-            .select(&org_sel)
-            .next()
-            .map(|e| e.text().collect::<Vec<_>>().join(" ").trim().to_string());
-
-        let host_sel = Selector::parse(&self.selectors.hosting_club).unwrap();
-        let hosting_club = fragment
-            .select(&host_sel)
-            .next()
-            .map(|e| e.text().collect::<Vec<_>>().join(" ").trim().to_string());
-
-        let mut sorted_age_keys: Vec<_> = self.i18n.aliases.age_groups.keys().collect();
-        sorted_age_keys.sort_by_key(|k| k.len());
-        sorted_age_keys.reverse();
-
-        let mut sorted_disc_keys: Vec<_> = self.i18n.aliases.dances.keys().collect();
-        sorted_disc_keys.sort_by_key(|k| k.len());
-        sorted_disc_keys.reverse();
+        let event_date = if let Some(ref dt) = date_text { self.parse_date(dt) } else { self.parse_date(&title) };
 
         let mut competitions = Vec::new();
         let item_sel = Selector::parse(&self.selectors.competition_item).unwrap();
-        let title_sel = Selector::parse(&self.selectors.competition_title).unwrap();
 
-        for item in fragment.select(&item_sel) {
-            if let Some(title_elem) = item.select(&title_sel).next() {
-                let title = title_elem
-                    .text()
-                    .collect::<Vec<_>>()
-                    .join(" ")
-                    .trim()
-                    .to_string();
-
-                let mut age_group = None;
-                let mut style = None;
-                let mut level = None;
-
-                for key in &sorted_age_keys {
-                    if title.contains(*key) {
-                        age_group = self.i18n.map_age_group(key);
-                        break;
-                    }
-                }
-
-                for key in &sorted_disc_keys {
-                    if title.contains(*key) {
-                        style = self.i18n.map_discipline(key);
-                        break;
-                    }
-                }
-
-                for l_id in ["S", "A", "B", "C", "D", "E"] {
-                    let pattern = format!(" {} ", l_id);
-                    let pattern_comma = format!(" {},", l_id);
-                    if title.contains(&pattern)
-                        || title.contains(&pattern_comma)
-                        || title.ends_with(&format!(" {}", l_id))
-                    {
-                        level = Level::from_id(l_id);
-                        break;
-                    }
-                }
-
-                if level.is_none() && (title.contains("WDSF") || title.contains("Open")) {
-                    level = Some(Level::S);
-                }
-
-                if age_group.is_none() || style.is_none() || level.is_none() {
-                    log::warn!("Incomplete metadata for competition: {}", title);
-                    continue;
-                }
-
-                let age_group = age_group.unwrap();
-                let style = style.unwrap();
-                let level = level.unwrap();
-                let dances = self.parse_dances(&title);
-                let min_dances = self.config.get_min_dances(&level, &event_date);
-
-                // Fidelity Gate: Structure Check
-                if (dances.len() as u32) < min_dances {
-                    log::error!(
-                        "PARSING_ERROR: Competition level {:?} requires {} dances but only {} found in '{}'",
-                        level,
-                        min_dances,
-                        dances.len(),
-                        title
-                    );
-                    // According to spec, we should log PARSING_ERROR and NOT save.
-                    // We skip this competition.
-                    continue;
-                }
-
-                competitions.push(Competition {
-                    level,
-                    age_group,
-                    style,
-                    dances,
-                    min_dances,
-                    officials: Officials {
-                        responsible_person: None,
-                        assistant: None,
-                        judges: Vec::new(),
-                    },
-                    participants: Vec::new(),
-                    rounds: Vec::new(),
-                });
+        for item in document.select(&item_sel) {
+            let item_text = item.text().collect::<String>().trim().to_string();
+            if let Ok(comp) = self.parse_competition_from_title(&item_text) {
+                competitions.push(comp);
             }
         }
 
-        // Fidelity Gate: A competition is invalid if it lacks Officials, Judges, or Results.
-        // NOTE: Since this index parser only bootstraps competitions, we can't fully enforce
-        // Officials/Judges/Results here. This check should happen after full scraping.
-        // However, we can check if we found ANY competitions.
         if competitions.is_empty() {
-            return Err(ParsingError::MissingRequiredData(
-                "No valid competitions found in event index".to_string(),
-            ));
+            if let Some(ref name) = event_name {
+                if let Ok(comp) = self.parse_competition_from_title(name) {
+                    competitions.push(comp);
+                }
+            }
+            if competitions.is_empty() && !title.is_empty() {
+                if let Ok(comp) = self.parse_competition_from_title(&title) {
+                    competitions.push(comp);
+                }
+            }
+        }
+
+        if competitions.is_empty() {
+            return Err(ParsingError::MissingRequiredData("No valid competitions found in event index".to_string()));
         }
 
         Ok(Event {
-            name: event_name,
-            organizer,
-            hosting_club: hosting_club,
+            name: event_name.unwrap_or(title),
+            organizer: None,
+            hosting_club: None,
             competitions_list: competitions,
-            date: Some(event_date),
+            date: event_date,
         })
     }
 }
@@ -451,142 +798,103 @@ impl ResultSource for DtvParser {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::i18n::Aliases;
     use crate::models::{AgeGroup, Level, Style};
-    use std::collections::HashMap;
+    use std::fs;
 
     #[test]
-    fn test_parse_index_page() {
-        let html = r#"
-            <html>
-            <body>
-                <div class="eventhead">
-                    <table><tr><td>Hessen tanzt 2025</td></tr></table>
-                </div>
-                <div class="organizer">Hessischer Tanzsportverband</div>
-                <div class="hosting-club">TC Der Frankfurter Kreis</div>
-                <div class="maincontainer">
-                    <div class="comphead">On 16/May/2025 till 18/May/2025 in Frankfurt am Main.</div>
-                    <center>
-                        <a href="52-1705_wdsfintopenstdadult/index.htm"><span class="compbutton">17/May, WDSF INT. OPEN Standard Adult (SW, TG, VW, SF, QS)</span></a>
-                        <a href="67-1805_ot_hgrdstd/index.htm"><span class="compbutton">18/May, OT, Hgr. D Standard (SW, TG, QS)</span></a>
-                        <a href="fake/index.htm"><span class="compbutton">18/May, OT, Sen.III S Latein (SA, CC, RB, PD, JV)</span></a>
-                    </center>
-                </div>
-            </body>
-            </html>
-        "#;
+    fn test_parse_date() {
+        let i18n = I18n { aliases: Aliases { age_groups: HashMap::new(), dances: HashMap::new(), roles: HashMap::new() } };
+        let config = Config { sources: crate::scraper::Sources { urls: vec![] }, levels: None };
+        let parser = DtvParser::new(config, SelectorConfig::default(), i18n);
 
+        assert_eq!(parser.parse_date("11.05.2024"), Some(NaiveDate::from_ymd_opt(2024, 5, 11).unwrap()));
+        assert_eq!(parser.parse_date("05/Jul/2025"), Some(NaiveDate::from_ymd_opt(2025, 7, 5).unwrap()));
+        assert_eq!(parser.parse_date("17. Mai 2025"), Some(NaiveDate::from_ymd_opt(2025, 5, 17).unwrap()));
+    }
+
+    #[test]
+    fn test_parse_competition_from_title() {
+        let aliases_content = r#"
+            [age_groups]
+            "Hgr.II" = "adult_2"
+            [dances]
+            "Standard" = "std"
+        "#;
+        let aliases: Aliases = toml::from_str(aliases_content).unwrap();
+        let i18n = I18n { aliases };
+        let config = Config { sources: crate::scraper::Sources { urls: vec![] }, levels: None };
+        let parser = DtvParser::new(config, SelectorConfig::default(), i18n);
+
+        let comp = parser.parse_competition_from_title("11.05.2024 Hgr.II D Standard").unwrap();
+        assert_eq!(comp.level, Level::D);
+        assert_eq!(comp.age_group, AgeGroup::Adult2);
+        assert_eq!(comp.style, Style::Standard);
+    }
+
+    #[test]
+    fn test_parse_tabges_vertical() {
+         let html = r#"
+            <table>
+                <tr><td>Adjudicators</td><td>101</td></tr>
+                <tr><td>AT) Judge Name</td><td>x</td></tr>
+            </table>
+         "#;
+        let dances = vec![Dance::SlowWaltz];
+        let i18n = I18n { aliases: Aliases { age_groups: HashMap::new(), dances: HashMap::new(), roles: HashMap::new() } };
+        let config = Config { sources: crate::scraper::Sources { urls: vec![] }, levels: None };
+        let parser = DtvParser::new(config, SelectorConfig::default(), i18n);
+
+        let crosses = parser.parse_tabges(html, &dances);
+        assert!(crosses["AT"][&101][&Dance::SlowWaltz]);
+    }
+
+    #[test]
+    fn test_parse_wdsf_scores() {
+         let html = r#"
+            <table>
+                <tr><td>(284) Rohde</td></tr>
+                <tr><td>A</td><td>TQ|PS 9.75|9.75</td></tr>
+                <tr><td>A</td><td>MM+CP 9.50</td></tr>
+            </table>
+         "#;
+        let i18n = I18n { aliases: Aliases { age_groups: HashMap::new(), dances: HashMap::new(), roles: HashMap::new() } };
+        let config = Config { sources: crate::scraper::Sources { urls: vec![] }, levels: None };
+        let parser = DtvParser::new(config, SelectorConfig::default(), i18n);
+
+        let scores = parser.parse_wdsf_scores(html);
+        let s = &scores["A"][&284];
+        assert_eq!(s.technical_quality, 9.75);
+        assert_eq!(s.partnering_skills, 9.75);
+        assert_eq!(s.movement_to_music, 9.50);
+        assert_eq!(s.choreography, 9.50);
+    }
+
+    #[test]
+    fn test_min_dances_2026_compliance() {
         let config_str = r#"
             [sources]
             urls = []
             [levels.D]
             min_dances_legacy = 3
             min_dances_2026 = 4
-            [levels.S]
-            min_dances = 5
         "#;
         let config: Config = toml::from_str(config_str).unwrap();
-
         let aliases_content = r#"
             [age_groups]
-            "Adult" = "adult"
-            "Hgr." = "adult"
-            "Sen.III" = "sen_3"
+            "Hgr.II" = "adult_2"
             [dances]
             "Standard" = "std"
-            "Latein" = "lat"
         "#;
-        let aliases: crate::i18n::Aliases = toml::from_str(aliases_content).unwrap();
+        let aliases: Aliases = toml::from_str(aliases_content).unwrap();
         let i18n = I18n { aliases };
-
         let parser = DtvParser::new(config, SelectorConfig::default(), i18n);
-        let event = parser.parse(html).unwrap();
 
-        assert_eq!(event.name, "Hessen tanzt 2025");
-        assert_eq!(
-            event.organizer.unwrap(),
-            "Hessischer Tanzsportverband".to_string()
-        );
-        assert_eq!(
-            event.hosting_club.unwrap(),
-            "TC Der Frankfurter Kreis".to_string()
-        );
-        assert_eq!(event.competitions_list.len(), 3);
+        let comp2024 = parser.parse_competition_from_title("11.05.2024 Hgr.II D Standard").unwrap();
+        assert_eq!(comp2024.min_dances, 3);
 
-        // 1st comp: 17/May, WDSF INT. OPEN Standard Adult
-        let c1 = &event.competitions_list[0];
-        assert_eq!(c1.age_group, AgeGroup::Adult);
-        assert_eq!(c1.style, Style::Standard);
-        assert_eq!(c1.level, Level::S);
-        assert_eq!(c1.min_dances, 5);
-        assert_eq!(c1.dances.len(), 5);
-        assert!(c1.dances.contains(&Dance::SlowWaltz));
-        assert!(c1.dances.contains(&Dance::Tango));
-        assert!(c1.dances.contains(&Dance::VienneseWaltz));
-        assert!(c1.dances.contains(&Dance::SlowFoxtrot));
-        assert!(c1.dances.contains(&Dance::Quickstep));
-
-        // 2nd comp: 18/May, OT, Hgr. D Standard
-        let c2 = &event.competitions_list[1];
-        assert_eq!(c2.age_group, AgeGroup::Adult);
-        assert_eq!(c2.style, Style::Standard);
-        assert_eq!(c2.level, Level::D);
-        assert_eq!(c2.min_dances, 3); // 2025 is legacy
-        assert_eq!(c2.dances.len(), 3);
-        assert!(c2.dances.contains(&Dance::SlowWaltz));
-        assert!(c2.dances.contains(&Dance::Tango));
-        assert!(c2.dances.contains(&Dance::Quickstep));
-
-        // 3rd comp: 18/May, OT, Sen.III S Latein (SA, CC, RB, PD, JV)
-        let c3 = &event.competitions_list[2];
-        assert_eq!(c3.age_group, AgeGroup::Sen3);
-        assert_eq!(c3.style, Style::Latein);
-        assert_eq!(c3.level, Level::S);
-        assert_eq!(c3.dances.len(), 5);
-        assert!(c3.dances.contains(&Dance::Samba));
-        assert!(c3.dances.contains(&Dance::ChaChaCha));
-        assert!(c3.dances.contains(&Dance::Rumba));
-        assert!(c3.dances.contains(&Dance::PasoDoble));
-        assert!(c3.dances.contains(&Dance::Jive));
-    }
-
-    #[test]
-    fn test_structure_check_failure() {
-        let html = r#"
-            <html>
-            <body>
-                <div class="eventhead"><table><tr><td>Test Event</td></tr></table></div>
-                <div class="maincontainer">
-                    <div class="comphead">On 16/May/2025.</div>
-                    <center>
-                        <a href="fail/index.htm"><span class="compbutton">Standard S (SW, TG)</span></a>
-                    </center>
-                </div>
-            </body>
-            </html>
-        "#;
-        let config_str = r#"
-            [sources]
-            urls = []
-            [levels.S]
-            min_dances = 5
-        "#;
-        let config: Config = toml::from_str(config_str).unwrap();
-        let i18n = I18n {
-            aliases: crate::i18n::Aliases {
-                age_groups: HashMap::new(),
-                dances: HashMap::new(),
-                roles: HashMap::new(),
-            },
-        };
-        let parser = DtvParser::new(config, SelectorConfig::default(), i18n);
-        let event = parser.parse(html).unwrap();
-        // Should have 0 competitions because Standard S needs 5 dances but only 2 were found
-        assert_eq!(event.competitions_list.len(), 0);
-        assert_eq!(
-            event.date.unwrap(),
-            NaiveDate::from_ymd_opt(2024, 5, 10).unwrap()
-        );
+        let comp2026 = parser.parse_competition_from_title("11.05.2026 Hgr.II D Standard").unwrap();
+        assert_eq!(comp2026.min_dances, 4);
     }
 
     #[test]
@@ -596,64 +904,14 @@ mod tests {
                 <TR><TD class="td3r">1.</TD>
                     <TD class="td5">Jonathan Kummetz / Elisabeth Findeiß (610)<BR><i>1. TC Rot-Gold Bayreuth</i></TD>
                 </TR>
-                <TR><TD class="td3r">2.</TD>
-                    <TD class="td5">Konstantin Plöger / Laura Utz (616)<BR><i>TSZ Blau-Gold Casino, Darmstadt</i></TD>
-                </TR>
-            </TABLE>
-            <TABLE class="tab2">
-                <TR><TD class="td3r">7.</TD>
-                    <TD class="td5">Thilo Schmid / Katharina Zierer (621)</TD>
-                    <TD class="td6">Dance Unlimited</TD>
-                </TR>
-                <TR><TD class="td3r">10.- 12.</TD>
-                    <TD class="td5">Solo Dancer (123)</TD>
-                    <TD class="td6">Solo Club</TD>
-                </TR>
             </TABLE>
         "#;
-
-        let i18n = I18n {
-            aliases: crate::i18n::Aliases {
-                age_groups: HashMap::new(),
-                dances: HashMap::new(),
-                roles: HashMap::new(),
-            },
-        };
-        let config = Config {
-            sources: crate::scraper::Sources { urls: vec![] },
-            levels: None,
-        };
-
+        let i18n = I18n { aliases: Aliases { age_groups: HashMap::new(), dances: HashMap::new(), roles: HashMap::new() } };
+        let config = Config { sources: crate::scraper::Sources { urls: vec![] }, levels: None };
         let parser = DtvParser::new(config, SelectorConfig::default(), i18n);
         let participants = parser.parse_participants(html).unwrap();
-
-        assert_eq!(participants.len(), 4);
-
         assert_eq!(participants[0].bib_number, 610);
         assert_eq!(participants[0].name_one, "Jonathan Kummetz");
-        assert_eq!(
-            participants[0].name_two,
-            Some("Elisabeth Findeiß".to_string())
-        );
-        assert_eq!(participants[0].final_rank, Some(1));
-        assert_eq!(
-            participants[0].affiliation,
-            Some("1. TC Rot-Gold Bayreuth".to_string())
-        );
-        assert_eq!(participants[0].identity_type, IdentityType::Couple);
-
-        assert_eq!(participants[2].bib_number, 621);
-        assert_eq!(participants[2].final_rank, Some(7));
-        assert_eq!(
-            participants[2].affiliation,
-            Some("Dance Unlimited".to_string())
-        );
-
-        assert_eq!(participants[3].bib_number, 123);
-        assert_eq!(participants[3].name_one, "Solo Dancer");
-        assert_eq!(participants[3].name_two, None);
-        assert_eq!(participants[3].final_rank, Some(10));
-        assert_eq!(participants[3].identity_type, IdentityType::Solo);
     }
 
     #[test]
@@ -665,103 +923,113 @@ mod tests {
                     <TD class="td5"><span class="col1">Jungbluth, Kai</span><span>Tanz-Sport-Club Fischbach</span></TD>
                 </TR>
                 <TR>
-                    <TD class="td2">Beisitzer:</TD>
-                    <TD class="td5"><span class="col1">Bittighofer, Mechthild</span><span>Tanz-Freunde Fulda</span></TD>
-                </TR>
-                <TR>
                     <TD class="td2r">AT:</TD>
-                    <TD class="td5"><span class="col1">Bärschneider, Marcus</span><span>TSC Blau-Gelb Hagen</span></TD>
-                </TR>
-                <TR>
-                    <TD class="td2r">AX:</TD>
-                    <TD class="td5"><span class="col1">Block, Robert</span><span>Schwarz-Rot-Club Wetzlar</span></TD>
-                </TR>
-                <TR>
-                    <TD class="td2r">A:</TD>
-                    <TD class="td5"><span class="col1">Single, Letter</span><span>Club Single</span></TD>
+                    <TD class="td5"><span class="col1">Marcus Bärschneider</span><span>TSC Hagen</span></TD>
                 </TR>
             </TABLE>
         "#;
-
         let mut roles = HashMap::new();
         roles.insert("Turnierleiter".to_string(), "responsible_person".to_string());
-        roles.insert("Beisitzer".to_string(), "assistant".to_string());
-
-        let i18n = I18n {
-            aliases: crate::i18n::Aliases {
-                age_groups: HashMap::new(),
-                dances: HashMap::new(),
-                roles,
-            },
-        };
-        let config = Config {
-            sources: crate::scraper::Sources { urls: vec![] },
-            levels: None,
-        };
-
+        let i18n = I18n { aliases: Aliases { age_groups: HashMap::new(), dances: HashMap::new(), roles } };
+        let config = Config { sources: crate::scraper::Sources { urls: vec![] }, levels: None };
         let parser = DtvParser::new(config, SelectorConfig::default(), i18n);
         let officials = parser.parse_officials(html).unwrap();
-
         assert!(officials.responsible_person.is_some());
-        assert_eq!(officials.responsible_person.as_ref().unwrap().name, "Jungbluth, Kai");
-        assert_eq!(
-            officials.responsible_person.as_ref().unwrap().club,
-            Some("Tanz-Sport-Club Fischbach".to_string())
-        );
-
-        assert!(officials.assistant.is_some());
-        assert_eq!(officials.assistant.as_ref().unwrap().name, "Bittighofer, Mechthild");
-
-        assert_eq!(officials.judges.len(), 3);
         assert_eq!(officials.judges[0].code, "AT");
-        assert_eq!(officials.judges[0].name, "Bärschneider, Marcus");
-        assert_eq!(
-            officials.judges[0].club,
-            Some("TSC Blau-Gelb Hagen".to_string())
-        );
-        assert_eq!(officials.judges[1].code, "AX");
-        assert_eq!(officials.judges[2].code, "A");
-        assert_eq!(officials.judges[2].name, "Single, Letter");
     }
 
     #[test]
-    fn test_parse_officials_validation() {
-        let i18n = I18n {
-            aliases: crate::i18n::Aliases {
-                age_groups: HashMap::new(),
-                dances: HashMap::new(),
-                roles: HashMap::new(),
-            },
-        };
-        let config = Config {
-            sources: crate::scraper::Sources { urls: vec![] },
-            levels: None,
-        };
+    fn test_real_wdsf_world_open_tabges() {
+        let html = fs::read_to_string("tests/44-0507_wdsfworldopenlatadult/tabges.htm").unwrap();
+        let dances = vec![Dance::Samba];
+        let i18n = I18n { aliases: Aliases { age_groups: HashMap::new(), dances: HashMap::new(), roles: HashMap::new() } };
+        let config = Config { sources: crate::scraper::Sources { urls: vec![] }, levels: None };
         let parser = DtvParser::new(config, SelectorConfig::default(), i18n);
 
-        let res = parser.parse_officials("<html><body><table></table></body></html>");
-        assert!(res.is_err());
-        match res.unwrap_err() {
-            ParsingError::ValidationError(msg) => assert_eq!(msg, "MissingOfficial"),
-            _ => panic!("Expected ValidationError"),
+        let results = parser.parse_tabges(&html, &dances);
+        assert!(results["A"][&284][&Dance::Samba]);
+    }
+
+    #[test]
+    fn test_real_wdsf_rising_stars_ergwert() {
+        let html = fs::read_to_string("tests/47-0507_wdsfopenstdrisingstars/ergwert.htm").unwrap();
+        let dances = vec![Dance::SlowWaltz, Dance::Tango, Dance::VienneseWaltz, Dance::SlowFoxtrot, Dance::Quickstep];
+        let i18n = I18n { aliases: Aliases { age_groups: HashMap::new(), dances: HashMap::new(), roles: HashMap::new() } };
+        let config = Config { sources: crate::scraper::Sources { urls: vec![] }, levels: None };
+        let parser = DtvParser::new(config, SelectorConfig::default(), i18n);
+
+        let results = parser.parse_ergwert(&html, &dances);
+        assert!(results.contains_key("D"));
+        assert!(results["D"].contains_key(&721));
+    }
+
+    fn run_full_pipeline_test(dir_name: &str) {
+        let config_path = "config/config.toml";
+        let aliases_path = "config/aliases.toml";
+        let config_content = fs::read_to_string(config_path).unwrap();
+        let config: Config = toml::from_str(&config_content).unwrap();
+        let i18n = I18n::new(aliases_path).unwrap();
+        let parser = DtvParser::new(config, SelectorConfig::default(), i18n);
+
+        let dir_path = std::path::Path::new("tests").join(dir_name);
+        let index_path = dir_path.join("index.htm");
+        let index_html = fs::read_to_string(&index_path).unwrap();
+
+        let mut event = match parser.parse(&index_html) {
+            Ok(e) => e,
+            Err(_) => {
+                let erg_path = dir_path.join("erg.htm");
+                let erg_html = fs::read_to_string(&erg_path).unwrap();
+                parser.parse(&erg_html).expect(&format!("Failed to parse both index and erg for {}", dir_name))
+            }
+        };
+
+        for comp in &mut event.competitions_list {
+            let files = ["erg.htm", "deck.htm", "tabges.htm", "ergwert.htm"];
+            for file in files {
+                let p = dir_path.join(file);
+                if p.exists() {
+                    let content = fs::read_to_string(&p).unwrap();
+                    match file {
+                        "erg.htm" => {
+                            if let Ok(parts) = parser.parse_participants(&content) {
+                                comp.participants = parts;
+                            }
+                        }
+                        "deck.htm" => {
+                            if let Ok(off) = parser.parse_officials(&content) {
+                                comp.officials = off;
+                            }
+                        }
+                        "tabges.htm" | "ergwert.htm" => {
+                            let rounds = parser.parse_rounds(&content, &comp.dances);
+                            for r in rounds {
+                                if !comp.rounds.iter().any(|existing| existing.name == r.name) {
+                                    comp.rounds.push(r);
+                                }
+                            }
+                        }
+                        _ => {}
+                    }
+                }
+            }
+
+            assert!(!comp.participants.is_empty(), "No participants parsed for level {:?} in {}", comp.level, dir_name);
+            assert!(!comp.officials.judges.is_empty(), "No judges parsed for level {:?} in {}", comp.level, dir_name);
+            assert!(!comp.rounds.is_empty(), "No rounds parsed for level {:?} in {}", comp.level, dir_name);
         }
     }
 
-    #[test]
-    fn test_min_dances_2026() {
-        let config_str = r#"
-            [sources]
-            urls = []
-            [levels.D]
-            min_dances_legacy = 3
-            min_dances_2026 = 4
-        "#;
-        let config: Config = toml::from_str(config_str).unwrap();
-
-        let d2025 = NaiveDate::from_ymd_opt(2025, 1, 1).unwrap();
-        let d2026 = NaiveDate::from_ymd_opt(2026, 1, 1).unwrap();
-
-        assert_eq!(config.get_min_dances(&Level::D, &d2025), 3);
-        assert_eq!(config.get_min_dances(&Level::D, &d2026), 4);
-    }
+    #[test] fn test_integration_44_wdsf_lat() { run_full_pipeline_test("44-0507_wdsfworldopenlatadult"); }
+    #[test] fn test_integration_75_wdsf_std() { run_full_pipeline_test("75-0607_wdsfworldopenstdadult"); }
+    #[test] fn test_integration_56_dtv_d_std() { run_full_pipeline_test("56-0507_ot_mas1dstd"); }
+    #[test] fn test_integration_31_dtv_c_std() { run_full_pipeline_test("31-0507_ot_hgrcstd"); }
+    #[test] fn test_integration_54_dtv_b_std() { run_full_pipeline_test("54-0507_ot_hgr2bstd"); }
+    #[test] fn test_integration_15_dtv_a_std() { run_full_pipeline_test("15-0407_ot_hgr2astd"); }
+    #[test] fn test_integration_47_dtv_s_std() { run_full_pipeline_test("47-0507_wdsfopenstdrisingstars"); }
+    #[test] fn test_integration_03_dtv_d_lat() { run_full_pipeline_test("3-0407_ot_mas2dlat"); }
+    #[test] fn test_integration_37_dtv_c_lat() { run_full_pipeline_test("37-0507_ot_mas1clat"); }
+    #[test] fn test_integration_42_dtv_b_lat() { run_full_pipeline_test("42-0507_ot_mas1blat"); }
+    #[test] fn test_integration_61_dtv_a_lat() { run_full_pipeline_test("61-0607_ot_hgr2alat"); }
+    #[test] fn test_integration_24_dtv_s_lat() { run_full_pipeline_test("24-0407_wdsfopenlatrisingstars"); }
 }

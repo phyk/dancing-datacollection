@@ -61,21 +61,66 @@ fn extract_competitions(data_dir: String) -> PyResult<PyEvent> {
     let (config, i18n) = load_config_and_i18n(config_path)?;
     let parser = DtvParser::new(config, SelectorConfig::default(), i18n);
 
-    let index_path = Path::new(&data_dir).join("index.htm");
-    if !index_path.exists() {
-        return Err(pyo3::exceptions::PyFileNotFoundError::new_err(format!(
-            "Index file not found in {}",
-            data_dir
-        )));
-    }
+    let dir_path = Path::new(&data_dir);
+    let index_path = dir_path.join("index.htm");
 
-    let html = fs::read_to_string(index_path).map_err(|e| {
-        pyo3::exceptions::PyIOError::new_err(format!("Failed to read index file: {}", e))
-    })?;
+    // Try to find at least one htm file if index doesn't exist
+    let html = if index_path.exists() {
+        fs::read_to_string(&index_path).map_err(|e| {
+            pyo3::exceptions::PyIOError::new_err(format!("Failed to read index file: {}", e))
+        })?
+    } else {
+        // Fallback to erg.htm or similar if index is missing
+        let erg_path = dir_path.join("erg.htm");
+        if erg_path.exists() {
+             fs::read_to_string(&erg_path).map_err(|e| {
+                pyo3::exceptions::PyIOError::new_err(format!("Failed to read erg file: {}", e))
+            })?
+        } else {
+            return Err(pyo3::exceptions::PyFileNotFoundError::new_err(format!(
+                "No valid htm files found in {}",
+                data_dir
+            )));
+        }
+    };
 
-    let event = parser
+    let mut event = parser
         .parse(&html)
         .map_err(|e| pyo3::exceptions::PyValueError::new_err(format!("Parsing error: {}", e)))?;
+
+    // Enrichment
+    for comp in &mut event.competitions_list {
+        // Look for related files in the same directory
+        let files = ["erg.htm", "deck.htm", "tabges.htm", "ergwert.htm"];
+        for file in files {
+            let p = dir_path.join(file);
+            if p.exists() {
+                if let Ok(content) = fs::read_to_string(&p) {
+                    match file {
+                        "erg.htm" => {
+                            if let Ok(parts) = parser.parse_participants(&content) {
+                                comp.participants = parts;
+                            }
+                        }
+                        "deck.htm" => {
+                            if let Ok(off) = parser.parse_officials(&content) {
+                                comp.officials = off;
+                            }
+                        }
+                        "tabges.htm" | "ergwert.htm" => {
+                            let rounds = parser.parse_rounds(&content, &comp.dances);
+                            for r in rounds {
+                                if !comp.rounds.iter().any(|existing| existing.name == r.name) {
+                                    comp.rounds.push(r);
+                                }
+                            }
+                        }
+                        _ => {}
+                    }
+                }
+            }
+        }
+    }
 
     Ok(PyEvent(event))
 }
@@ -85,7 +130,14 @@ fn extract_competitions(data_dir: String) -> PyResult<PyEvent> {
 fn validate_extracted_competitions(event: &PyEvent) -> PyResult<bool> {
     let event = &event.0;
     for comp in &event.competitions_list {
-        if comp.dances.is_empty() {
+        // Fidelity Gate: A competition is invalid if it lacks Officials, Judges, or Results.
+        if comp.officials.judges.is_empty() {
+             return Ok(false);
+        }
+        if comp.participants.is_empty() {
+            return Ok(false);
+        }
+        if comp.rounds.is_empty() {
             return Ok(false);
         }
     }
@@ -107,20 +159,9 @@ fn collect_dancing_data(config_path: String) -> PyResult<Vec<PyEvent>> {
         let entry = entry.map_err(|e| pyo3::exceptions::PyIOError::new_err(e.to_string()))?;
         if entry.path().is_dir() {
             let data_dir = entry.path().to_string_lossy().to_string();
-            let (config, i18n) = load_config_and_i18n(&config_path)?;
-            let parser = DtvParser::new(config, SelectorConfig::default(), i18n);
-
-            let index_path = Path::new(&data_dir).join("index.htm");
-            if index_path.exists() {
-                let html = fs::read_to_string(index_path).map_err(|e| {
-                    pyo3::exceptions::PyIOError::new_err(format!("Failed to read index file: {}", e))
-                })?;
-
-                if let Ok(event) = parser.parse(&html) {
-                    let py_event = PyEvent(event);
-                    if validate_extracted_competitions(&py_event)? {
-                        all_events.push(py_event);
-                    }
+            if let Ok(event) = extract_competitions(data_dir) {
+                if validate_extracted_competitions(&event)? {
+                    all_events.push(event);
                 }
             }
         }
