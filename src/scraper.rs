@@ -11,26 +11,12 @@ use url::Url;
 #[derive(Debug, Deserialize, Clone)]
 pub struct Config {
     pub sources: Sources,
-    pub age_groups: Option<HashMap<String, AgeGroupConfig>>,
-    pub disciplines: Option<HashMap<String, DisciplineConfig>>,
     pub levels: Option<HashMap<String, LevelConfig>>,
 }
 
 #[derive(Debug, Deserialize, Clone)]
 pub struct Sources {
     pub urls: Vec<String>,
-}
-
-#[derive(Debug, Deserialize, Clone)]
-pub struct AgeGroupConfig {
-    pub id: String,
-    pub english: Option<String>,
-}
-
-#[derive(Debug, Deserialize, Clone)]
-pub struct DisciplineConfig {
-    pub id: String,
-    pub english: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Clone)]

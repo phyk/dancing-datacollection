@@ -268,7 +268,9 @@ def parse_competition_title(title: str) -> CompetitionInfo:
     found_age_key = None
     for key in sorted_age_keys:
         if key in title:
-            age_group = AgeGroup(age_groups_config[key]["id"])
+            val = age_groups_config[key]
+            age_id = val["id"] if isinstance(val, dict) else val
+            age_group = AgeGroup(age_id)
             found_age_key = key
             break
 
@@ -279,7 +281,9 @@ def parse_competition_title(title: str) -> CompetitionInfo:
     found_disc_key = None
     for key in sorted_disc_keys:
         if key in title:
-            discipline = Discipline(disciplines_config[key]["id"])
+            val = disciplines_config[key]
+            disc_id = val["id"] if isinstance(val, dict) else val
+            discipline = Discipline(disc_id)
             found_disc_key = key
             break
 

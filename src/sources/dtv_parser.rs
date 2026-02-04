@@ -165,7 +165,7 @@ impl ResultSource for DtvParser {
         sorted_age_keys.sort_by_key(|k| k.len());
         sorted_age_keys.reverse();
 
-        let mut sorted_disc_keys: Vec<_> = self.i18n.aliases.disciplines.keys().collect();
+        let mut sorted_disc_keys: Vec<_> = self.i18n.aliases.dances.keys().collect();
         sorted_disc_keys.sort_by_key(|k| k.len());
         sorted_disc_keys.reverse();
 
@@ -298,7 +298,7 @@ mod tests {
             "Adult" = "adult"
             "Hgr." = "adult"
             "Sen.III" = "sen_3"
-            [disciplines]
+            [dances]
             "Standard" = "std"
             "Latein" = "lat"
         "#;
@@ -372,14 +372,12 @@ mod tests {
         "#;
         let config = Config {
             sources: crate::scraper::Sources { urls: vec![] },
-            age_groups: None,
-            disciplines: None,
             levels: None,
         };
         let i18n = I18n {
             aliases: crate::i18n::Aliases {
                 age_groups: HashMap::new(),
-                disciplines: HashMap::new(),
+                dances: HashMap::new(),
             },
         };
         let parser = DtvParser::new(config, SelectorConfig::default(), i18n);

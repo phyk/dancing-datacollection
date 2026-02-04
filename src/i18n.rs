@@ -6,7 +6,7 @@ use std::fs;
 #[derive(Debug, Deserialize)]
 pub struct Aliases {
     pub age_groups: HashMap<String, String>,
-    pub disciplines: HashMap<String, String>,
+    pub dances: HashMap<String, String>,
 }
 
 pub struct I18n {
@@ -29,7 +29,7 @@ impl I18n {
 
     pub fn map_discipline(&self, s: &str) -> Option<Style> {
         self.aliases
-            .disciplines
+            .dances
             .get(s)
             .and_then(|id| Style::from_id(id))
     }

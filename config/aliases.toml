@@ -36,8 +36,29 @@
 "Senioren IV" = "sen_4"
 "Senioren V" = "sen_5"
 
-# Discipline Mappings
-[disciplines]
+# Dance/Discipline Mappings
+[dances]
 "Standard" = "std"
 "Latein" = "lat"
 "Latin" = "lat"
+"SW" = "slow_waltz"
+"LW" = "slow_waltz"
+"Walzer" = "slow_waltz"
+"TG" = "tango"
+"Tango" = "tango"
+"VW" = "viennese_waltz"
+"Wiener Walzer" = "viennese_waltz"
+"SF" = "slow_foxtrot"
+"Slowfox" = "slow_foxtrot"
+"QS" = "quickstep"
+"Quickstep" = "quickstep"
+"CC" = "cha_cha_cha"
+"Cha Cha" = "cha_cha_cha"
+"SB" = "samba"
+"Samba" = "samba"
+"RB" = "rumba"
+"Rumba" = "rumba"
+"PD" = "paso_doble"
+"Paso Doble" = "paso_doble"
+"JV" = "jive"
+"Jive" = "jive"

@@ -1,0 +1,26 @@
+[sources]
+urls = [
+  "https://hessen-tanzt.de/media/ht2024/"
+]
+
+# Level Constraints (Dynamic for 2026 Updates)
+# The agent should use 'legacy' counts for competitions before 2026.
+[levels.E]
+min_dances = 3
+
+[levels.D]
+min_dances_legacy = 3
+min_dances_2026 = 4
+
+[levels.C]
+min_dances_legacy = 4
+min_dances_2026 = 5
+
+[levels.B]
+min_dances = 5
+
+[levels.A]
+min_dances = 5
+
+[levels.S]
+min_dances = 5
