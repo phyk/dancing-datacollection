@@ -1,5 +1,7 @@
 use crate::i18n::I18n;
-use crate::models::{Competition, Dance, Event, Level, Officials};
+use crate::models::{
+    CommitteeMember, Competition, Dance, Event, IdentityType, Judge, Level, Officials, Participant,
+};
 use crate::scraper::Config;
 use crate::sources::{ParsingError, ResultSource};
 use chrono::NaiveDate;
@@ -14,6 +16,12 @@ pub struct SelectorConfig {
     pub hosting_club: String,
     pub competition_item: String,
     pub competition_title: String,
+    pub participant_row: String,
+    pub participant_cell_rank: String,
+    pub participant_cell_data: String,
+    pub official_row: String,
+    pub official_cell_role: String,
+    pub official_cell_data: String,
 }
 
 impl Default for SelectorConfig {
@@ -21,10 +29,16 @@ impl Default for SelectorConfig {
         Self {
             event_name: ".eventhead td".to_string(),
             event_date: ".comphead".to_string(),
-            organizer: ".organizer".to_string(), // Placeholder
-            hosting_club: ".hosting-club".to_string(), // Placeholder
+            organizer: ".organizer".to_string(),
+            hosting_club: ".hosting-club".to_string(),
             competition_item: "center a".to_string(),
             competition_title: ".compbutton".to_string(),
+            participant_row: "table.tab1 tr, table.tab2 tr".to_string(),
+            participant_cell_rank: "td.td3r".to_string(),
+            participant_cell_data: "td.td5, td.td6".to_string(),
+            official_row: "table.tab1 tr".to_string(),
+            official_cell_role: "td.td2, td.td2r".to_string(),
+            official_cell_data: "td.td5".to_string(),
         }
     }
 }
@@ -124,6 +138,150 @@ impl DtvParser {
         }
 
         dances
+    }
+
+    pub fn parse_participants(&self, html: &str) -> Result<Vec<Participant>, ParsingError> {
+        let fragment = Html::parse_document(html);
+        let row_sel = Selector::parse(&self.selectors.participant_row).unwrap();
+        let rank_sel = Selector::parse(&self.selectors.participant_cell_rank).unwrap();
+        let data_sel = Selector::parse(&self.selectors.participant_cell_data).unwrap();
+
+        let mut participants = Vec::new();
+        let name_bib_re = Regex::new(r"(?s)^(.*?)\s*\((\d+)\)$").unwrap();
+
+        for row in fragment.select(&row_sel) {
+            let rank_text = row
+                .select(&rank_sel)
+                .next()
+                .map(|e| e.text().collect::<Vec<_>>().join(" ").trim().to_string());
+
+            if rank_text.is_none() {
+                continue;
+            }
+            let rank_text = rank_text.unwrap();
+            let final_rank = rank_text
+                .split('.')
+                .next()
+                .and_then(|s| s.split('-').next())
+                .and_then(|s| s.trim().parse::<u32>().ok());
+
+            let mut data_iter = row.select(&data_sel);
+            if let Some(td5) = data_iter.next() {
+                let full_text = td5.text().collect::<Vec<_>>().join(" ").trim().to_string();
+
+                // DTV sometimes puts club in <i> inside td5, or in td6
+                let mut club = td5
+                    .select(&Selector::parse("i").unwrap())
+                    .next()
+                    .map(|e| e.text().collect::<Vec<_>>().join(" ").trim().to_string());
+
+                if club.is_none() {
+                    if let Some(td6) = data_iter.next() {
+                        club = Some(td6.text().collect::<Vec<_>>().join(" ").trim().to_string());
+                    }
+                }
+
+                // Remove club text from full_text if it was inside td5
+                let name_bib_text = if let Some(ref c) = club {
+                    full_text.replace(c, "").trim().to_string()
+                } else {
+                    full_text
+                };
+
+                if let Some(caps) = name_bib_re.captures(&name_bib_text) {
+                    let names_part = caps[1].trim();
+                    let bib_number = caps[2].parse::<u32>().unwrap_or(0);
+
+                    let (identity_type, name_one, name_two) = if names_part.contains(" / ") {
+                        let parts: Vec<&str> = names_part.split(" / ").collect();
+                        (
+                            IdentityType::Couple,
+                            parts[0].trim().to_string(),
+                            Some(parts[1].trim().to_string()),
+                        )
+                    } else {
+                        (IdentityType::Solo, names_part.to_string(), None)
+                    };
+
+                    participants.push(Participant {
+                        identity_type,
+                        name_one,
+                        bib_number,
+                        name_two,
+                        affiliation: club,
+                        final_rank,
+                    });
+                }
+            }
+        }
+
+        Ok(participants)
+    }
+
+    pub fn parse_officials(&self, html: &str) -> Result<Officials, ParsingError> {
+        let fragment = Html::parse_document(html);
+        let row_sel = Selector::parse(&self.selectors.official_row).unwrap();
+        let role_sel = Selector::parse(&self.selectors.official_cell_role).unwrap();
+        let data_sel = Selector::parse(&self.selectors.official_cell_data).unwrap();
+
+        let mut officials = Officials {
+            responsible_person: None,
+            assistant: None,
+            judges: Vec::new(),
+        };
+
+        let span_sel = Selector::parse("span").unwrap();
+        for row in fragment.select(&row_sel) {
+            let role_text = row
+                .select(&role_sel)
+                .next()
+                .map(|e| e.text().collect::<Vec<_>>().join(" ").trim().replace(":", ""));
+
+            if let Some(role) = role_text {
+                if let Some(td5) = row.select(&data_sel).next() {
+                    let mut spans = td5.select(&span_sel);
+                    let name = spans
+                        .next()
+                        .map(|e| e.text().collect::<Vec<_>>().join(" ").trim().to_string())
+                        .filter(|s| !s.is_empty());
+                    let club = spans
+                        .next()
+                        .map(|e| e.text().collect::<Vec<_>>().join(" ").trim().to_string())
+                        .filter(|s| !s.is_empty());
+
+                    if let Some(n) = name {
+                        if let Some(canonical_role) = self.i18n.map_role(&role) {
+                            let member = CommitteeMember {
+                                name: n,
+                                club: club.clone(),
+                            };
+                            match canonical_role.as_str() {
+                                "responsible_person" => officials.responsible_person = Some(member),
+                                "assistant" => officials.assistant = Some(member),
+                                _ => {}
+                            }
+                        } else if (role.len() == 1 || role.len() == 2)
+                            && role.chars().all(|c| c.is_ascii_uppercase())
+                        {
+                            officials.judges.push(Judge {
+                                code: role,
+                                name: n,
+                                club,
+                            });
+                        }
+                    }
+                }
+            }
+        }
+
+        if officials.responsible_person.is_none()
+            && officials.assistant.is_none()
+            && officials.judges.is_empty()
+        {
+            return Err(ParsingError::ValidationError("MissingOfficial".to_string()));
+        }
+
+        Ok(officials)
     }
 }
 
@@ -378,6 +536,7 @@ mod tests {
             aliases: crate::i18n::Aliases {
                 age_groups: HashMap::new(),
                 dances: HashMap::new(),
+                roles: HashMap::new(),
             },
         };
         let parser = DtvParser::new(config, SelectorConfig::default(), i18n);
@@ -386,6 +545,164 @@ mod tests {
             event.date.unwrap(),
             NaiveDate::from_ymd_opt(2024, 5, 10).unwrap()
         );
+    }
+
+    #[test]
+    fn test_parse_participants() {
+        let html = r#"
+            <TABLE class="tab1">
+                <TR><TD class="td3r">1.</TD>
+                    <TD class="td5">Jonathan Kummetz / Elisabeth Findeiß (610)<BR><i>1. TC Rot-Gold Bayreuth</i></TD>
+                </TR>
+                <TR><TD class="td3r">2.</TD>
+                    <TD class="td5">Konstantin Plöger / Laura Utz (616)<BR><i>TSZ Blau-Gold Casino, Darmstadt</i></TD>
+                </TR>
+            </TABLE>
+            <TABLE class="tab2">
+                <TR><TD class="td3r">7.</TD>
+                    <TD class="td5">Thilo Schmid / Katharina Zierer (621)</TD>
+                    <TD class="td6">Dance Unlimited</TD>
+                </TR>
+                <TR><TD class="td3r">10.- 12.</TD>
+                    <TD class="td5">Solo Dancer (123)</TD>
+                    <TD class="td6">Solo Club</TD>
+                </TR>
+            </TABLE>
+        "#;
+
+        let i18n = I18n {
+            aliases: crate::i18n::Aliases {
+                age_groups: HashMap::new(),
+                dances: HashMap::new(),
+                roles: HashMap::new(),
+            },
+        };
+        let config = Config {
+            sources: crate::scraper::Sources { urls: vec![] },
+            levels: None,
+        };
+
+        let parser = DtvParser::new(config, SelectorConfig::default(), i18n);
+        let participants = parser.parse_participants(html).unwrap();
+
+        assert_eq!(participants.len(), 4);
+
+        assert_eq!(participants[0].bib_number, 610);
+        assert_eq!(participants[0].name_one, "Jonathan Kummetz");
+        assert_eq!(
+            participants[0].name_two,
+            Some("Elisabeth Findeiß".to_string())
+        );
+        assert_eq!(participants[0].final_rank, Some(1));
+        assert_eq!(
+            participants[0].affiliation,
+            Some("1. TC Rot-Gold Bayreuth".to_string())
+        );
+        assert_eq!(participants[0].identity_type, IdentityType::Couple);
+
+        assert_eq!(participants[2].bib_number, 621);
+        assert_eq!(participants[2].final_rank, Some(7));
+        assert_eq!(
+            participants[2].affiliation,
+            Some("Dance Unlimited".to_string())
+        );
+
+        assert_eq!(participants[3].bib_number, 123);
+        assert_eq!(participants[3].name_one, "Solo Dancer");
+        assert_eq!(participants[3].name_two, None);
+        assert_eq!(participants[3].final_rank, Some(10));
+        assert_eq!(participants[3].identity_type, IdentityType::Solo);
+    }
+
+    #[test]
+    fn test_parse_officials() {
+        let html = r#"
+            <TABLE class="tab1">
+                <TR>
+                    <TD class="td2">Turnierleiter:</TD>
+                    <TD class="td5"><span class="col1">Jungbluth, Kai</span><span>Tanz-Sport-Club Fischbach</span></TD>
+                </TR>
+                <TR>
+                    <TD class="td2">Beisitzer:</TD>
+                    <TD class="td5"><span class="col1">Bittighofer, Mechthild</span><span>Tanz-Freunde Fulda</span></TD>
+                </TR>
+                <TR>
+                    <TD class="td2r">AT:</TD>
+                    <TD class="td5"><span class="col1">Bärschneider, Marcus</span><span>TSC Blau-Gelb Hagen</span></TD>
+                </TR>
+                <TR>
+                    <TD class="td2r">AX:</TD>
+                    <TD class="td5"><span class="col1">Block, Robert</span><span>Schwarz-Rot-Club Wetzlar</span></TD>
+                </TR>
+                <TR>
+                    <TD class="td2r">A:</TD>
+                    <TD class="td5"><span class="col1">Single, Letter</span><span>Club Single</span></TD>
+                </TR>
+            </TABLE>
+        "#;
+
+        let mut roles = HashMap::new();
+        roles.insert("Turnierleiter".to_string(), "responsible_person".to_string());
+        roles.insert("Beisitzer".to_string(), "assistant".to_string());
+
+        let i18n = I18n {
+            aliases: crate::i18n::Aliases {
+                age_groups: HashMap::new(),
+                dances: HashMap::new(),
+                roles,
+            },
+        };
+        let config = Config {
+            sources: crate::scraper::Sources { urls: vec![] },
+            levels: None,
+        };
+
+        let parser = DtvParser::new(config, SelectorConfig::default(), i18n);
+        let officials = parser.parse_officials(html).unwrap();
+
+        assert!(officials.responsible_person.is_some());
+        assert_eq!(officials.responsible_person.as_ref().unwrap().name, "Jungbluth, Kai");
+        assert_eq!(
+            officials.responsible_person.as_ref().unwrap().club,
+            Some("Tanz-Sport-Club Fischbach".to_string())
+        );
+
+        assert!(officials.assistant.is_some());
+        assert_eq!(officials.assistant.as_ref().unwrap().name, "Bittighofer, Mechthild");
+
+        assert_eq!(officials.judges.len(), 3);
+        assert_eq!(officials.judges[0].code, "AT");
+        assert_eq!(officials.judges[0].name, "Bärschneider, Marcus");
+        assert_eq!(
+            officials.judges[0].club,
+            Some("TSC Blau-Gelb Hagen".to_string())
+        );
+        assert_eq!(officials.judges[1].code, "AX");
+        assert_eq!(officials.judges[2].code, "A");
+        assert_eq!(officials.judges[2].name, "Single, Letter");
+    }
+
+    #[test]
+    fn test_parse_officials_validation() {
+        let i18n = I18n {
+            aliases: crate::i18n::Aliases {
+                age_groups: HashMap::new(),
+                dances: HashMap::new(),
+                roles: HashMap::new(),
+            },
+        };
+        let config = Config {
+            sources: crate::scraper::Sources { urls: vec![] },
+            levels: None,
+        };
+        let parser = DtvParser::new(config, SelectorConfig::default(), i18n);
+
+        let res = parser.parse_officials("<html><body><table></table></body></html>");
+        assert!(res.is_err());
+        match res.unwrap_err() {
+            ParsingError::ValidationError(msg) => assert_eq!(msg, "MissingOfficial"),
+            _ => panic!("Expected ValidationError"),
+        }
     }
 
     #[test]
