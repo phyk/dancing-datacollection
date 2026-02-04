@@ -37,8 +37,8 @@ impl Default for SelectorConfig {
             competition_item: "center a, .pro_p_zeile a, .t_zeile a".to_string(),
             competition_title: ".compbutton, b".to_string(),
             participant_row: "table.tab1 tr, table.tab2 tr".to_string(),
-            participant_cell_rank: "td.td3r".to_string(),
-            participant_cell_data: "td.td5, td.td6".to_string(),
+            participant_cell_rank: "td.td3r, td.td3c".to_string(),
+            participant_cell_data: "td.td2c, td.td5, td.td6".to_string(),
             official_row: "table.tab1 tr".to_string(),
             official_cell_role: "td.td2, td.td2r".to_string(),
             official_cell_data: "td.td5".to_string(),
@@ -203,51 +203,71 @@ impl DtvParser {
                 .and_then(|s| s.split('-').next())
                 .and_then(|s| s.trim().parse::<u32>().ok());
 
-            let mut data_iter = row.select(&data_sel);
-            if let Some(td5) = data_iter.next() {
-                let full_text = td5.text().collect::<Vec<_>>().join(" ").trim().to_string();
+            let mut bib_number = 0;
+            let mut name_text = String::new();
+            let mut club = None;
 
-                let mut club = td5
+            let data_cells: Vec<_> = row.select(&data_sel).collect();
+
+            // Check if bib is in separate cell (usually td2c)
+            if data_cells.len() >= 2 {
+                 let first_cell_text = data_cells[0].text().collect::<String>().trim().to_string();
+                 if let Ok(bib) = first_cell_text.parse::<u32>() {
+                      bib_number = bib;
+                      name_text = data_cells[1].text().collect::<Vec<_>>().join(" ").trim().to_string();
+                      if data_cells.len() >= 3 {
+                           club = Some(data_cells[2].text().collect::<Vec<_>>().join(" ").trim().to_string());
+                      }
+                 }
+            }
+
+            if bib_number == 0 && !data_cells.is_empty() {
+                 // Try fallback: bib in parens in name
+                 let full_text = data_cells[0].text().collect::<Vec<_>>().join(" ").trim().to_string();
+
+                 club = data_cells[0]
                     .select(&Selector::parse("i").unwrap())
                     .next()
                     .map(|e| e.text().collect::<Vec<_>>().join(" ").trim().to_string());
 
-                if club.is_none() {
-                    if let Some(td6) = data_iter.next() {
-                        club = Some(td6.text().collect::<Vec<_>>().join(" ").trim().to_string());
-                    }
-                }
+                 if club.is_none() && data_cells.len() >= 2 {
+                      club = Some(data_cells[1].text().collect::<Vec<_>>().join(" ").trim().to_string());
+                 }
 
-                let name_bib_text = if let Some(ref c) = club {
-                    full_text.replace(c, "").trim().to_string()
+                 let name_bib_text = if let Some(ref c) = club {
+                     full_text.replace(c, "").trim().to_string()
+                 } else {
+                     full_text
+                 };
+
+                 if let Some(caps) = name_bib_re.captures(&name_bib_text) {
+                     name_text = caps[1].trim().to_string();
+                     bib_number = caps[2].parse::<u32>().unwrap_or(0);
+                 } else {
+                     name_text = name_bib_text;
+                 }
+            }
+
+            if !name_text.is_empty() {
+                let (identity_type, name_one, name_two) = if name_text.contains(" / ") {
+                    let parts: Vec<&str> = name_text.split(" / ").collect();
+                    (
+                        IdentityType::Couple,
+                        parts[0].trim().to_string(),
+                        Some(parts[1].trim().to_string()),
+                    )
                 } else {
-                    full_text
+                    (IdentityType::Solo, name_text.to_string(), None)
                 };
 
-                if let Some(caps) = name_bib_re.captures(&name_bib_text) {
-                    let names_part = caps[1].trim();
-                    let bib_number = caps[2].parse::<u32>().unwrap_or(0);
-
-                    let (identity_type, name_one, name_two) = if names_part.contains(" / ") {
-                        let parts: Vec<&str> = names_part.split(" / ").collect();
-                        (
-                            IdentityType::Couple,
-                            parts[0].trim().to_string(),
-                            Some(parts[1].trim().to_string()),
-                        )
-                    } else {
-                        (IdentityType::Solo, names_part.to_string(), None)
-                    };
-
-                    participants.push(Participant {
-                        identity_type,
-                        name_one,
-                        bib_number,
-                        name_two,
-                        affiliation: club,
-                        final_rank,
-                    });
-                }
+                participants.push(Participant {
+                    identity_type,
+                    name_one,
+                    bib_number,
+                    name_two,
+                    affiliation: club.filter(|s| !s.is_empty()),
+                    final_rank,
+                });
             }
         }
 
@@ -335,7 +355,7 @@ impl DtvParser {
         if round_names.is_empty() {
              for head in document.select(&comphead_sel) {
                   let text = head.text().collect::<Vec<_>>().join(" ").trim().to_string();
-                  if text.contains("runde") || text.contains("Table") || text.contains("Ergebnis") {
+                  if text.to_lowercase().contains("runde") || text.to_lowercase().contains("table") || text.to_lowercase().contains("ergebnis") || text.to_lowercase().contains("ranking") {
                        round_names.push(text);
                   }
              }
@@ -646,6 +666,7 @@ impl DtvParser {
     }
 
     pub fn parse_competition_from_title(&self, title: &str) -> Result<Competition, ParsingError> {
+        let title_up = title.to_uppercase();
         let mut sorted_age_keys: Vec<_> = self.i18n.aliases.age_groups.keys().collect();
         sorted_age_keys.sort_by_key(|k| k.len());
         sorted_age_keys.reverse();
@@ -659,14 +680,14 @@ impl DtvParser {
         let mut level = None;
 
         for key in &sorted_age_keys {
-            if title.contains(*key) {
+            if title_up.contains(&key.to_uppercase()) {
                 age_group = self.i18n.map_age_group(key);
                 break;
             }
         }
 
         for key in &sorted_disc_keys {
-            if title.contains(*key) {
+            if title_up.contains(&key.to_uppercase()) {
                 style = self.i18n.map_discipline(key);
                 break;
             }
@@ -674,13 +695,13 @@ impl DtvParser {
 
         for l_id in ["S", "A", "B", "C", "D", "E"] {
             let pattern = format!(" {} ", l_id);
-            if title.contains(&pattern) || title.ends_with(&format!(" {}", l_id)) {
+            if title_up.contains(&pattern) || title_up.ends_with(&format!(" {}", l_id)) {
                 level = Level::from_id(l_id);
                 break;
             }
         }
 
-        if level.is_none() && (title.contains("WDSF") || title.contains("Open")) {
+        if level.is_none() && (title_up.contains("WDSF") || title_up.contains("OPEN")) {
             level = Some(Level::S);
         }
 
@@ -747,10 +768,17 @@ impl ResultSource for DtvParser {
             }
         }
 
-        if competitions.is_empty() && !title.is_empty() {
-             if let Ok(comp) = self.parse_competition_from_title(&title) {
-                 competitions.push(comp);
-             }
+        if competitions.is_empty() {
+            if let Some(ref name) = event_name {
+                if let Ok(comp) = self.parse_competition_from_title(name) {
+                    competitions.push(comp);
+                }
+            }
+            if competitions.is_empty() && !title.is_empty() {
+                if let Ok(comp) = self.parse_competition_from_title(&title) {
+                    competitions.push(comp);
+                }
+            }
         }
 
         if competitions.is_empty() {
@@ -931,9 +959,77 @@ mod tests {
         let parser = DtvParser::new(config, SelectorConfig::default(), i18n);
 
         let results = parser.parse_ergwert(&html, &dances);
-        // Batu Sandiraz / Nehir Cam (721) got some ranks.
-        // We just verify that we parsed SOMETHING for judge D and bib 721.
         assert!(results.contains_key("D"));
         assert!(results["D"].contains_key(&721));
     }
+
+    fn run_full_pipeline_test(dir_name: &str) {
+        let config_path = "config/config.toml";
+        let aliases_path = "config/aliases.toml";
+        let config_content = fs::read_to_string(config_path).unwrap();
+        let config: Config = toml::from_str(&config_content).unwrap();
+        let i18n = I18n::new(aliases_path).unwrap();
+        let parser = DtvParser::new(config, SelectorConfig::default(), i18n);
+
+        let dir_path = std::path::Path::new("tests").join(dir_name);
+        let index_path = dir_path.join("index.htm");
+        let index_html = fs::read_to_string(&index_path).unwrap();
+
+        let mut event = match parser.parse(&index_html) {
+            Ok(e) => e,
+            Err(_) => {
+                let erg_path = dir_path.join("erg.htm");
+                let erg_html = fs::read_to_string(&erg_path).unwrap();
+                parser.parse(&erg_html).expect(&format!("Failed to parse both index and erg for {}", dir_name))
+            }
+        };
+
+        for comp in &mut event.competitions_list {
+            let files = ["erg.htm", "deck.htm", "tabges.htm", "ergwert.htm"];
+            for file in files {
+                let p = dir_path.join(file);
+                if p.exists() {
+                    let content = fs::read_to_string(&p).unwrap();
+                    match file {
+                        "erg.htm" => {
+                            if let Ok(parts) = parser.parse_participants(&content) {
+                                comp.participants = parts;
+                            }
+                        }
+                        "deck.htm" => {
+                            if let Ok(off) = parser.parse_officials(&content) {
+                                comp.officials = off;
+                            }
+                        }
+                        "tabges.htm" | "ergwert.htm" => {
+                            let rounds = parser.parse_rounds(&content, &comp.dances);
+                            for r in rounds {
+                                if !comp.rounds.iter().any(|existing| existing.name == r.name) {
+                                    comp.rounds.push(r);
+                                }
+                            }
+                        }
+                        _ => {}
+                    }
+                }
+            }
+
+            assert!(!comp.participants.is_empty(), "No participants parsed for level {:?} in {}", comp.level, dir_name);
+            assert!(!comp.officials.judges.is_empty(), "No judges parsed for level {:?} in {}", comp.level, dir_name);
+            assert!(!comp.rounds.is_empty(), "No rounds parsed for level {:?} in {}", comp.level, dir_name);
+        }
+    }
+
+    #[test] fn test_integration_44_wdsf_lat() { run_full_pipeline_test("44-0507_wdsfworldopenlatadult"); }
+    #[test] fn test_integration_75_wdsf_std() { run_full_pipeline_test("75-0607_wdsfworldopenstdadult"); }
+    #[test] fn test_integration_56_dtv_d_std() { run_full_pipeline_test("56-0507_ot_mas1dstd"); }
+    #[test] fn test_integration_31_dtv_c_std() { run_full_pipeline_test("31-0507_ot_hgrcstd"); }
+    #[test] fn test_integration_54_dtv_b_std() { run_full_pipeline_test("54-0507_ot_hgr2bstd"); }
+    #[test] fn test_integration_15_dtv_a_std() { run_full_pipeline_test("15-0407_ot_hgr2astd"); }
+    #[test] fn test_integration_47_dtv_s_std() { run_full_pipeline_test("47-0507_wdsfopenstdrisingstars"); }
+    #[test] fn test_integration_03_dtv_d_lat() { run_full_pipeline_test("3-0407_ot_mas2dlat"); }
+    #[test] fn test_integration_37_dtv_c_lat() { run_full_pipeline_test("37-0507_ot_mas1clat"); }
+    #[test] fn test_integration_42_dtv_b_lat() { run_full_pipeline_test("42-0507_ot_mas1blat"); }
+    #[test] fn test_integration_61_dtv_a_lat() { run_full_pipeline_test("61-0607_ot_hgr2alat"); }
+    #[test] fn test_integration_24_dtv_s_lat() { run_full_pipeline_test("24-0407_wdsfopenlatrisingstars"); }
 }
