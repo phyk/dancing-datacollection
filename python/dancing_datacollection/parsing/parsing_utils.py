@@ -1,10 +1,7 @@
 import logging
 import os
 import re
-import urllib.request
 from typing import List, Optional, Tuple, Union
-from urllib.error import URLError
-from urllib.parse import urljoin
 
 from bs4 import BeautifulSoup
 from bs4.element import Tag
@@ -83,28 +80,6 @@ def setup_logging(log_dir: Optional[str] = None) -> None:
     parsing_logger.debug("TEST: parsing_debug logger setup complete")
 
 
-def download_html(url: str) -> Optional[str]:
-    try:
-        logging.info("Downloading: %s", url)
-        with urllib.request.urlopen(url) as response:  # noqa: S310
-            html = response.read().decode("utf-8")
-        logging.info("Downloaded %d characters from %s", len(html), url)
-        return html
-    except URLError as e:
-        logging.error("Failed to download %s: %s", url, e)
-        return None
-
-
-def extract_competition_links(html: str, base_url: str) -> List[str]:
-    soup = BeautifulSoup(html, "html.parser")
-    links: List[str] = []
-    for a in soup.find_all("a", href=True):
-        if isinstance(a, Tag):
-            href = a.get("href")
-            if isinstance(href, str) and (href.endswith(".htm") or href.endswith(".html")):
-                full_url = urljoin(base_url, href)
-                links.append(full_url)
-    return links
 
 
 def deduplicate_participants(
