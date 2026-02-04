@@ -5,6 +5,8 @@ use thiserror::Error;
 pub enum ParsingError {
     #[error("Missing required metadata: {0}")]
     MissingRequiredMetadata(String),
+    #[error("Validation error: {0}")]
+    ValidationError(String),
     #[error("Parse error: {0}")]
     Other(String),
 }
