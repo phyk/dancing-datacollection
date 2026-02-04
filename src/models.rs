@@ -1,8 +1,10 @@
+use pyo3::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::str::FromStr;
 
 /// Represents the skill level of a competition.
+#[pyclass(eq, eq_int)]
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub enum Level {
     E,
@@ -37,6 +39,7 @@ impl FromStr for Level {
 }
 
 /// Represents the dance style (Standard or Latin).
+#[pyclass(eq, eq_int)]
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub enum Style {
     Standard,
@@ -63,6 +66,7 @@ impl FromStr for Style {
 }
 
 /// Represents an individual dance.
+#[pyclass(eq, eq_int)]
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub enum Dance {
     SlowWaltz,
@@ -78,6 +82,7 @@ pub enum Dance {
 }
 
 /// Represents the age group of the participants.
+#[pyclass(eq, eq_int)]
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub enum AgeGroup {
     Juv1,
@@ -126,29 +131,41 @@ impl FromStr for AgeGroup {
 }
 
 /// Represents a judge in a competition.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[pyclass]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Judge {
+    #[pyo3(get, set)]
     pub code: String,
+    #[pyo3(get, set)]
     pub name: String,
+    #[pyo3(get, set)]
     pub club: Option<String>,
 }
 
 /// Represents a committee member (e.g., Chairperson, Scrutineer).
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[pyclass]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct CommitteeMember {
+    #[pyo3(get, set)]
     pub name: String,
+    #[pyo3(get, set)]
     pub club: Option<String>,
 }
 
 /// Contains all officials responsible for a competition.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[pyclass]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Officials {
+    #[pyo3(get, set)]
     pub responsible_person: Option<CommitteeMember>,
+    #[pyo3(get, set)]
     pub assistant: Option<CommitteeMember>,
+    #[pyo3(get, set)]
     pub judges: Vec<Judge>,
 }
 
 /// Defines whether the participant is a solo dancer or a couple.
+#[pyclass(eq, eq_int)]
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq)]
 pub enum IdentityType {
     Solo,
@@ -156,53 +173,85 @@ pub enum IdentityType {
 }
 
 /// Represents a participant (solo or couple) in a competition.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[pyclass]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Participant {
+    #[pyo3(get, set)]
     pub identity_type: IdentityType,
+    #[pyo3(get, set)]
     pub name_one: String,
+    #[pyo3(get, set)]
     pub bib_number: u32,
+    #[pyo3(get, set)]
     pub name_two: Option<String>,
+    #[pyo3(get, set)]
     pub affiliation: Option<String>,
+    #[pyo3(get, set)]
     pub final_rank: Option<u32>,
 }
 
 /// Detailed scores for WDSF competitions.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[pyclass]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct WDSFScore {
+    #[pyo3(get, set)]
     pub technical_quality: f64,
+    #[pyo3(get, set)]
     pub movement_to_music: f64,
+    #[pyo3(get, set)]
     pub partnering_skills: f64,
+    #[pyo3(get, set)]
     pub choreography: f64,
 }
 
 /// Represents a round in a competition with its associated results.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[pyclass]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Round {
+    #[pyo3(get, set)]
     pub name: String,
+    #[pyo3(get, set)]
     pub marking_crosses: Option<HashMap<String, HashMap<u32, HashMap<Dance, bool>>>>,
+    #[pyo3(get, set)]
     pub dtv_ranks: Option<HashMap<String, HashMap<u32, HashMap<Dance, u32>>>>,
+    #[pyo3(get, set)]
     pub wdsf_scores: Option<HashMap<String, HashMap<u32, WDSFScore>>>,
 }
 
 /// A specific contest within an event.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[pyclass]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Competition {
+    #[pyo3(get, set)]
     pub level: Level,
+    #[pyo3(get, set)]
     pub age_group: AgeGroup,
+    #[pyo3(get, set)]
     pub style: Style,
+    #[pyo3(get, set)]
     pub dances: Vec<Dance>,
+    #[pyo3(get, set)]
     pub min_dances: u32,
+    #[pyo3(get, set)]
     pub officials: Officials,
+    #[pyo3(get, set)]
     pub participants: Vec<Participant>,
+    #[pyo3(get, set)]
     pub rounds: Vec<Round>,
 }
 
 /// A high-level container for a series of competitions.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[pyclass]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Event {
+    #[pyo3(get, set)]
     pub name: String,
+    #[pyo3(get, set)]
     pub date: Option<chrono::NaiveDate>,
+    #[pyo3(get, set)]
     pub organizer: Option<String>,
+    #[pyo3(get, set)]
     pub hosting_club: Option<String>,
+    #[pyo3(get, set)]
     pub competitions_list: Vec<Competition>,
 }
