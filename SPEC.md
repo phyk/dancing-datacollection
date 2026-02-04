@@ -78,4 +78,9 @@ Performance: The binary format must be significantly smaller than the JSONL outp
 
 Documentation: Short "why-not-how" inline docstrings for all public functions.
 
-Python Access: The library must be importable in Python with accessible getters for all competition data.
+Python Access: The library must be importable in Python. It must expose the following high level functions:
+- `download_sources(config_path: str)`: Scrape the websites and save the HTML files relevant for exporting data.
+- `extract_competitions(data_dir: str)`: Extract the competition data from saved HTML files.
+- `validate_extracted_competitions(event: Event)`: Check whether the competitions extracted reproduce the downloaded sources (Fidelity Gate).
+- `collect_dancing_data(config_path: str)`: Orchestrator that calls the above steps.
+- Accessible getters for all competition data models.
