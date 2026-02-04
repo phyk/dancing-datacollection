@@ -13,6 +13,10 @@ pub enum ParsingError {
     /// General parsing failures or structural changes in the source.
     #[error("PARSING_ERROR: {0}")]
     ParsingError(String),
+    #[error("Missing required metadata: {0}")]
+    MissingRequiredMetadata(String),
+    #[error("Validation error: {0}")]
+    ValidationError(String),
 }
 
 /// Trait for all competition result sources.

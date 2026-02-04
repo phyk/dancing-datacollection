@@ -7,6 +7,8 @@ use std::fs;
 pub struct Aliases {
     pub age_groups: HashMap<String, String>,
     pub dances: HashMap<String, String>,
+    #[serde(default)]
+    pub roles: HashMap<String, String>,
 }
 
 pub struct I18n {
@@ -32,5 +34,9 @@ impl I18n {
             .dances
             .get(s)
             .and_then(|id| Style::from_id(id))
+    }
+
+    pub fn map_role(&self, s: &str) -> Option<String> {
+        self.aliases.roles.get(s).cloned()
     }
 }

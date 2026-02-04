@@ -62,3 +62,8 @@
 "Paso Doble" = "paso_doble"
 "JV" = "jive"
 "Jive" = "jive"
+
+# Role Mappings
+[roles]
+"Turnierleiter" = "responsible_person"
+"Beisitzer" = "assistant"
