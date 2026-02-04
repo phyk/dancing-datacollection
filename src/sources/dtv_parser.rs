@@ -354,16 +354,25 @@ impl DtvParser {
                 wdsf_scores: None,
             };
 
-            if let Some(table) = document.select(&table_sel).nth(table_idx) {
-                let table_html = table.html();
-                if table_html.contains("TQ") || table_html.contains("MM") {
-                    round.wdsf_scores = Some(self.parse_wdsf_scores(&table_html));
-                } else if table_html.contains(".0") || table_html.contains(",0") {
-                    round.dtv_ranks = Some(self.parse_ergwert(&table_html, dances));
+            let mut round_html = String::new();
+            while let Some(table) = document.select(&table_sel).nth(table_idx) {
+                 let table_html = table.html();
+                 round_html.push_str(&table_html);
+                 table_idx += 1;
+
+                 if table_html.contains("TQ") || table_html.contains("MM") || table_html.contains(".0") {
+                      break;
+                 }
+            }
+
+            if !round_html.is_empty() {
+                if round_html.contains("TQ") || round_html.contains("MM") {
+                    round.wdsf_scores = Some(self.parse_wdsf_scores(&round_html));
+                } else if round_html.contains(".0") || round_html.contains(",0") {
+                    round.dtv_ranks = Some(self.parse_ergwert(&round_html, dances));
                 } else {
-                    round.marking_crosses = Some(self.parse_tabges(&table_html, dances));
+                    round.marking_crosses = Some(self.parse_tabges(&round_html, dances));
                 }
-                table_idx += 1;
             }
             rounds.push(round);
         }
@@ -380,109 +389,118 @@ impl DtvParser {
         let document = Html::parse_document(html);
         let tr_sel = Selector::parse("tr").unwrap();
         let td_sel = Selector::parse("td").unwrap();
+        let table_sel = Selector::parse("table").unwrap();
 
-        let mut rows_iter = document.select(&tr_sel);
-        let first_row = rows_iter.next();
-        if first_row.is_none() { return results; }
+        for table in document.select(&table_sel) {
+            let mut rows_iter = table.select(&tr_sel);
+            let first_row = rows_iter.next();
+            if first_row.is_none() { continue; }
 
-        let header_cells: Vec<_> = first_row.unwrap().select(&td_sel).collect();
-        let mut bibs_in_cols = Vec::new();
-
-        for cell in &header_cells {
-             let text = cell.text().collect::<String>().trim().to_string();
-             if let Ok(bib) = text.parse::<u32>() {
-                  bibs_in_cols.push(bib);
-             }
-        }
-
-        if bibs_in_cols.is_empty() {
-             if let Some(second_row) = rows_iter.next() {
-                  let cells: Vec<_> = second_row.select(&td_sel).collect();
-                  for cell in &cells {
-                       let text = cell.text().collect::<String>().trim().to_string();
-                       if let Ok(bib) = text.parse::<u32>() {
-                            bibs_in_cols.push(bib);
-                       }
-                  }
-             }
-        }
-
-        if !bibs_in_cols.is_empty() {
-            for row in document.select(&tr_sel) {
-                let cells: Vec<_> = row.select(&td_sel).collect();
-                if cells.len() < 2 { continue; }
-
-                let first_cell_text = cells[0].text().collect::<String>().trim().to_string();
-                let adj_re = Regex::new(r"([A-Z]{1,2})\)").unwrap();
-                let mut adj_codes = Vec::new();
-                for caps in adj_re.captures_iter(&first_cell_text) {
-                     adj_codes.push(caps[1].to_string());
-                }
-
-                if !adj_codes.is_empty() {
-                     for (col_idx, bib) in bibs_in_cols.iter().enumerate() {
-                          let cell_idx = cells.len() - bibs_in_cols.len() + col_idx;
-                          if cell_idx < cells.len() {
-                               let cell_content = cells[cell_idx].inner_html();
-                               let lines: Vec<_> = cell_content.split("<br>").collect();
-                               for (line_idx, adj_code) in adj_codes.iter().enumerate() {
-                                    if line_idx < lines.len() {
-                                         let val = lines[line_idx].trim();
-                                         let has_cross = val.to_lowercase().contains('x') || val.parse::<u32>().unwrap_or(0) > 0;
-                                         let bib_map = results.entry(adj_code.clone()).or_insert_with(HashMap::new)
-                                             .entry(*bib).or_insert_with(HashMap::new);
-                                         for dance in dances {
-                                              bib_map.insert(*dance, has_cross);
-                                         }
-                                    }
-                               }
-                          }
-                     }
-                }
-
-                if first_cell_text.contains("Ergebnis") || first_cell_text.contains("Result") {
-                     for (col_idx, bib) in bibs_in_cols.iter().enumerate() {
-                          let cell_idx = cells.len() - bibs_in_cols.len() + col_idx;
-                          if cell_idx < cells.len() {
-                               let provided_total: u32 = cells[cell_idx].text().collect::<String>().trim().parse().unwrap_or(0);
-                               let mut calculated_total = 0;
-                               for judge_map in results.values() {
-                                    if let Some(bib_map) = judge_map.get(bib) {
-                                         if bib_map.values().any(|&v| v) {
-                                              calculated_total += 1; // Simplification for vertical layout total
-                                         }
-                                    }
-                               }
-                               if provided_total > 0 && calculated_total == 0 {
-                                    log::warn!("VALIDATION_WARNING: Bib {} has total {} but no crosses parsed", bib, provided_total);
-                               }
-                          }
-                     }
-                }
+            let mut bibs_in_cols = Vec::new();
+            let header_cells: Vec<_> = first_row.unwrap().select(&td_sel).collect();
+            for cell in &header_cells {
+                 let text = cell.text().collect::<String>().trim().to_string();
+                 let mut num_str = String::new();
+                 for c in text.chars() {
+                      if c.is_ascii_digit() { num_str.push(c); } else { break; }
+                 }
+                 if let Ok(bib) = num_str.parse::<u32>() {
+                      bibs_in_cols.push(bib);
+                 }
             }
-        } else {
-            let mut judge_codes = Vec::new();
-            if let Some(header_row) = document.select(&tr_sel).next() {
-                for td in header_row.select(&td_sel).skip(2) {
+
+            if bibs_in_cols.is_empty() {
+                 if let Some(second_row) = rows_iter.next() {
+                      let cells: Vec<_> = second_row.select(&td_sel).collect();
+                      for cell in &cells {
+                           let text = cell.text().collect::<String>().trim().to_string();
+                           let mut num_str = String::new();
+                           for c in text.chars() {
+                                if c.is_ascii_digit() { num_str.push(c); } else { break; }
+                           }
+                           if let Ok(bib) = num_str.parse::<u32>() {
+                                bibs_in_cols.push(bib);
+                           }
+                      }
+                 }
+            }
+
+            if !bibs_in_cols.is_empty() {
+                for row in table.select(&tr_sel) {
+                    let cells: Vec<_> = row.select(&td_sel).collect();
+                    if cells.len() < 2 { continue; }
+
+                    let first_cell_text = cells[0].text().collect::<String>().trim().to_string();
+                    let adj_re = Regex::new(r"([A-Z]{1,2})\)").unwrap();
+                    let mut adj_codes = Vec::new();
+                    for caps in adj_re.captures_iter(&first_cell_text) {
+                         adj_codes.push(caps[1].to_string());
+                    }
+
+                    if !adj_codes.is_empty() {
+                         for (col_idx, bib) in bibs_in_cols.iter().enumerate() {
+                              let cell_idx = cells.len() - bibs_in_cols.len() + col_idx;
+                              if cell_idx < cells.len() {
+                                   let cell_content = cells[cell_idx].inner_html();
+                                   let lines: Vec<_> = cell_content.split("<br>").collect();
+                                   for (line_idx, adj_code) in adj_codes.iter().enumerate() {
+                                        if line_idx < lines.len() {
+                                             let val = lines[line_idx].trim();
+                                             let has_cross = val.to_lowercase().contains('x') || val.parse::<u32>().unwrap_or(0) > 0;
+                                             let bib_map = results.entry(adj_code.clone()).or_insert_with(HashMap::new)
+                                                 .entry(*bib).or_insert_with(HashMap::new);
+                                             for dance in dances {
+                                                  bib_map.insert(*dance, has_cross);
+                                             }
+                                        }
+                                   }
+                              }
+                         }
+                    }
+
+                    if first_cell_text.contains("Ergebnis") || first_cell_text.contains("Result") {
+                         for (col_idx, bib) in bibs_in_cols.iter().enumerate() {
+                              let cell_idx = cells.len() - bibs_in_cols.len() + col_idx;
+                              if cell_idx < cells.len() {
+                                   let provided_total: u32 = cells[cell_idx].text().collect::<String>().trim().parse().unwrap_or(0);
+                                   let mut calculated_total = 0;
+                                   for judge_map in results.values() {
+                                        if let Some(bib_map) = judge_map.get(bib) {
+                                             if bib_map.values().any(|&v| v) {
+                                                  calculated_total += 1;
+                                             }
+                                        }
+                                   }
+                                   if provided_total > 0 && calculated_total == 0 {
+                                        log::warn!("VALIDATION_WARNING: Bib {} has total {} but no crosses parsed", bib, provided_total);
+                                   }
+                              }
+                         }
+                    }
+                }
+            } else {
+                // Horizontal layout
+                let mut judge_codes = Vec::new();
+                for td in header_cells.iter().skip(2) {
                     let text = td.text().collect::<String>().trim().to_string();
                     if text.len() == 1 || text.len() == 2 {
                         judge_codes.push(text);
                     }
                 }
-            }
 
-            for row in document.select(&tr_sel).skip(1) {
-                let cells: Vec<_> = row.select(&td_sel).collect();
-                if cells.len() < 3 { continue; }
-                let bib_text = cells[1].text().collect::<String>().trim().to_string();
-                if let Ok(bib) = bib_text.parse::<u32>() {
-                    for (i, judge_code) in judge_codes.iter().enumerate() {
-                        let cell_idx = 2 + i;
-                        if cell_idx < cells.len() {
-                            let cross_text = cells[cell_idx].text().collect::<String>();
-                            let bib_map = results.entry(judge_code.clone()).or_default().entry(bib).or_default();
-                            for dance in dances {
-                                bib_map.insert(*dance, cross_text.to_lowercase().contains('x'));
+                for row in table.select(&tr_sel).skip(1) {
+                    let cells: Vec<_> = row.select(&td_sel).collect();
+                    if cells.len() < 3 { continue; }
+                    let bib_text = cells[1].text().collect::<String>().trim().to_string();
+                    if let Ok(bib) = bib_text.parse::<u32>() {
+                        for (i, judge_code) in judge_codes.iter().enumerate() {
+                            let cell_idx = 2 + i;
+                            if cell_idx < cells.len() {
+                                let cross_text = cells[cell_idx].text().collect::<String>();
+                                let bib_map = results.entry(judge_code.clone()).or_default().entry(bib).or_default();
+                                for dance in dances {
+                                    bib_map.insert(*dance, cross_text.to_lowercase().contains('x'));
+                                }
                             }
                         }
                     }
@@ -497,20 +515,31 @@ impl DtvParser {
         let document = Html::parse_document(html);
         let tr_sel = Selector::parse("tr").unwrap();
         let td_sel = Selector::parse("td").unwrap();
+        let tooltip_sel = Selector::parse(".tooltip2w").unwrap();
 
-        // Parse adjudicator codes from the second header row if it exists
         let mut judge_codes = Vec::new();
-        let mut rows_iter = document.select(&tr_sel);
-        if let Some(_first_row) = rows_iter.next() {
-            if let Some(second_row) = rows_iter.next() {
-                let cells: Vec<_> = second_row.select(&td_sel).collect();
-                for cell in &cells {
-                    let text = cell.text().collect::<String>().trim().to_string();
-                    if (text.len() == 1 || text.len() == 2) && text.chars().all(|c| c.is_ascii_uppercase()) {
-                        judge_codes.push(text);
-                    }
-                }
-            }
+
+        for row in document.select(&tr_sel).take(5) {
+             let cells: Vec<_> = row.select(&td_sel).collect();
+             let mut found_codes = Vec::new();
+             for cell in &cells {
+                  if cell.select(&tooltip_sel).next().is_some() {
+                       // Short code is just the first text child
+                       let t = cell.text().next().unwrap_or("").trim();
+                       let mut code = String::new();
+                       for c in t.chars() {
+                            if c.is_ascii_uppercase() { code.push(c); } else { break; }
+                       }
+
+                       if !code.is_empty() && code.len() <= 2 {
+                            found_codes.push(code);
+                       }
+                  }
+             }
+             if found_codes.len() > 3 {
+                  judge_codes = found_codes;
+                  break;
+             }
         }
 
         for row in document.select(&tr_sel) {
@@ -518,7 +547,12 @@ impl DtvParser {
              if cells.len() < 5 { continue; }
 
              let bib_text = cells.iter().find(|c| c.value().attr("class").unwrap_or("").contains("td2cv"))
-                 .map(|c| c.text().collect::<String>().trim().to_string())
+                 .map(|c| {
+                      let t = c.text().collect::<String>().trim().to_string();
+                      let mut num_str = String::new();
+                      for ch in t.chars() { if ch.is_ascii_digit() { num_str.push(ch); } else { break; } }
+                      num_str
+                 })
                  .unwrap_or_default();
 
              if let Ok(bib) = bib_text.parse::<u32>() {
@@ -529,8 +563,8 @@ impl DtvParser {
                             let lines: Vec<_> = content.split("<br>").collect();
                             if let Some(first_line) = lines.get(0) {
                                  if let Ok(rank) = first_line.trim().parse::<u32>() {
-                                      let dance_idx = dance_cell_count / (if judge_codes.is_empty() { 1 } else { judge_codes.len() });
                                       let judge_idx = dance_cell_count % (if judge_codes.is_empty() { 1 } else { judge_codes.len() });
+                                      let dance_idx = dance_cell_count / (if judge_codes.is_empty() { 1 } else { judge_codes.len() });
 
                                       let adj_code = judge_codes.get(judge_idx).cloned().unwrap_or_else(|| "A".to_string());
                                       let bib_map = results.entry(adj_code).or_default().entry(bib).or_default();
@@ -596,6 +630,15 @@ impl DtvParser {
                     if cell_text.contains("MM") { score_entry.movement_to_music = scores[0]; }
                     if cell_text.contains("PS") { score_entry.partnering_skills = scores[scores.len()-1]; }
                     if cell_text.contains("CP") { score_entry.choreography = scores[scores.len()-1]; }
+
+                    if scores.len() >= 2 && cell_text.contains("TQ") && cell_text.contains("PS") {
+                        score_entry.technical_quality = scores[0];
+                        score_entry.partnering_skills = scores[1];
+                    }
+                    if scores.len() == 1 && cell_text.contains("MM") && cell_text.contains("CP") {
+                        score_entry.movement_to_music = scores[0];
+                        score_entry.choreography = scores[0];
+                    }
                 }
             }
         }
@@ -729,6 +772,7 @@ mod tests {
     use super::*;
     use crate::i18n::Aliases;
     use crate::models::{AgeGroup, Level, Style};
+    use std::fs;
 
     #[test]
     fn test_parse_date() {
@@ -799,6 +843,33 @@ mod tests {
     }
 
     #[test]
+    fn test_min_dances_2026_compliance() {
+        let config_str = r#"
+            [sources]
+            urls = []
+            [levels.D]
+            min_dances_legacy = 3
+            min_dances_2026 = 4
+        "#;
+        let config: Config = toml::from_str(config_str).unwrap();
+        let aliases_content = r#"
+            [age_groups]
+            "Hgr.II" = "adult_2"
+            [dances]
+            "Standard" = "std"
+        "#;
+        let aliases: Aliases = toml::from_str(aliases_content).unwrap();
+        let i18n = I18n { aliases };
+        let parser = DtvParser::new(config, SelectorConfig::default(), i18n);
+
+        let comp2024 = parser.parse_competition_from_title("11.05.2024 Hgr.II D Standard").unwrap();
+        assert_eq!(comp2024.min_dances, 3);
+
+        let comp2026 = parser.parse_competition_from_title("11.05.2026 Hgr.II D Standard").unwrap();
+        assert_eq!(comp2026.min_dances, 4);
+    }
+
+    #[test]
     fn test_parse_participants() {
         let html = r#"
             <TABLE class="tab1">
@@ -837,5 +908,32 @@ mod tests {
         let officials = parser.parse_officials(html).unwrap();
         assert!(officials.responsible_person.is_some());
         assert_eq!(officials.judges[0].code, "AT");
+    }
+
+    #[test]
+    fn test_real_wdsf_world_open_tabges() {
+        let html = fs::read_to_string("tests/44-0507_wdsfworldopenlatadult/tabges.htm").unwrap();
+        let dances = vec![Dance::Samba];
+        let i18n = I18n { aliases: Aliases { age_groups: HashMap::new(), dances: HashMap::new(), roles: HashMap::new() } };
+        let config = Config { sources: crate::scraper::Sources { urls: vec![] }, levels: None };
+        let parser = DtvParser::new(config, SelectorConfig::default(), i18n);
+
+        let results = parser.parse_tabges(&html, &dances);
+        assert!(results["A"][&284][&Dance::Samba]);
+    }
+
+    #[test]
+    fn test_real_wdsf_rising_stars_ergwert() {
+        let html = fs::read_to_string("tests/47-0507_wdsfopenstdrisingstars/ergwert.htm").unwrap();
+        let dances = vec![Dance::SlowWaltz, Dance::Tango, Dance::VienneseWaltz, Dance::SlowFoxtrot, Dance::Quickstep];
+        let i18n = I18n { aliases: Aliases { age_groups: HashMap::new(), dances: HashMap::new(), roles: HashMap::new() } };
+        let config = Config { sources: crate::scraper::Sources { urls: vec![] }, levels: None };
+        let parser = DtvParser::new(config, SelectorConfig::default(), i18n);
+
+        let results = parser.parse_ergwert(&html, &dances);
+        // Batu Sandiraz / Nehir Cam (721) got some ranks.
+        // We just verify that we parsed SOMETHING for judge D and bib 721.
+        assert!(results.contains_key("D"));
+        assert!(results["D"].contains_key(&721));
     }
 }
