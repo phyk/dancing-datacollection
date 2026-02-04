@@ -2,6 +2,7 @@ pub mod i18n;
 pub mod models;
 pub mod scraper;
 pub mod sources;
+pub mod storage;
 
 use crate::i18n::I18n;
 use crate::models::*;
@@ -182,6 +183,9 @@ fn _dancing_datacollection(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(extract_competitions, m)?)?;
     m.add_function(wrap_pyfunction!(validate_extracted_competitions, m)?)?;
     m.add_function(wrap_pyfunction!(collect_dancing_data, m)?)?;
+
+    m.add_class::<PyEvent>()?;
+    m.add_class::<crate::storage::StorageManager>()?;
 
     Ok(())
 }

@@ -126,7 +126,7 @@ impl FromStr for AgeGroup {
 }
 
 /// Represents a judge in a competition.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Judge {
     pub code: String,
     pub name: String,
@@ -134,14 +134,14 @@ pub struct Judge {
 }
 
 /// Represents a committee member (e.g., Chairperson, Scrutineer).
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct CommitteeMember {
     pub name: String,
     pub club: Option<String>,
 }
 
 /// Contains all officials responsible for a competition.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Officials {
     pub responsible_person: Option<CommitteeMember>,
     pub assistant: Option<CommitteeMember>,
@@ -156,7 +156,7 @@ pub enum IdentityType {
 }
 
 /// Represents a participant (solo or couple) in a competition.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Participant {
     pub identity_type: IdentityType,
     pub name_one: String,
@@ -167,7 +167,7 @@ pub struct Participant {
 }
 
 /// Detailed scores for WDSF competitions.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct WDSFScore {
     pub technical_quality: f64,
     pub movement_to_music: f64,
@@ -176,7 +176,7 @@ pub struct WDSFScore {
 }
 
 /// Represents a round in a competition with its associated results.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Round {
     pub name: String,
     pub marking_crosses: Option<HashMap<String, HashMap<u32, HashMap<Dance, bool>>>>,
@@ -185,7 +185,7 @@ pub struct Round {
 }
 
 /// A specific contest within an event.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Competition {
     pub level: Level,
     pub age_group: AgeGroup,
@@ -198,7 +198,7 @@ pub struct Competition {
 }
 
 /// A high-level container for a series of competitions.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Event {
     pub name: String,
     pub date: Option<chrono::NaiveDate>,
