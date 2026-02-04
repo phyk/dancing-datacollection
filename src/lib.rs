@@ -12,6 +12,11 @@ use pyo3::prelude::*;
 use std::fs;
 use std::path::Path;
 
+/// Opaque wrapper for Event to be passed to Python.
+#[pyclass]
+#[derive(Clone)]
+pub struct PyEvent(pub Event);
+
 /// Scrapes the websites and saves the HTML files relevant for exporting data.
 #[pyfunction]
 fn download_sources(config_path: String) -> PyResult<()> {
@@ -51,8 +56,7 @@ fn load_config_and_i18n(config_path: &str) -> PyResult<(Config, I18n)> {
 
 /// Extracts the competition data from saved HTML files in the given directory.
 #[pyfunction]
-fn extract_competitions(data_dir: String) -> PyResult<Event> {
-    // Default to project-relative config
+fn extract_competitions(data_dir: String) -> PyResult<PyEvent> {
     let config_path = "config/config.toml";
     let (config, i18n) = load_config_and_i18n(config_path)?;
     let parser = DtvParser::new(config, SelectorConfig::default(), i18n);
@@ -69,14 +73,17 @@ fn extract_competitions(data_dir: String) -> PyResult<Event> {
         pyo3::exceptions::PyIOError::new_err(format!("Failed to read index file: {}", e))
     })?;
 
-    parser
+    let event = parser
         .parse(&html)
-        .map_err(|e| pyo3::exceptions::PyValueError::new_err(format!("Parsing error: {}", e)))
+        .map_err(|e| pyo3::exceptions::PyValueError::new_err(format!("Parsing error: {}", e)))?;
+
+    Ok(PyEvent(event))
 }
 
 /// Checks whether the competitions extracted reproduce the downloaded sources (Fidelity Gate).
 #[pyfunction]
-fn validate_extracted_competitions(event: Event) -> PyResult<bool> {
+fn validate_extracted_competitions(event: &PyEvent) -> PyResult<bool> {
+    let event = &event.0;
     for comp in &event.competitions_list {
         if comp.dances.is_empty() {
             return Ok(false);
@@ -87,7 +94,7 @@ fn validate_extracted_competitions(event: Event) -> PyResult<bool> {
 
 /// Orchestrator that calls the scraping, extraction, and validation steps.
 #[pyfunction]
-fn collect_dancing_data(config_path: String) -> PyResult<Vec<Event>> {
+fn collect_dancing_data(config_path: String) -> PyResult<Vec<PyEvent>> {
     download_sources(config_path.clone())?;
 
     let mut all_events = Vec::new();
@@ -100,7 +107,6 @@ fn collect_dancing_data(config_path: String) -> PyResult<Vec<Event>> {
         let entry = entry.map_err(|e| pyo3::exceptions::PyIOError::new_err(e.to_string()))?;
         if entry.path().is_dir() {
             let data_dir = entry.path().to_string_lossy().to_string();
-            // We use the same config_path as passed to download_sources
             let (config, i18n) = load_config_and_i18n(&config_path)?;
             let parser = DtvParser::new(config, SelectorConfig::default(), i18n);
 
@@ -111,8 +117,9 @@ fn collect_dancing_data(config_path: String) -> PyResult<Vec<Event>> {
                 })?;
 
                 if let Ok(event) = parser.parse(&html) {
-                    if validate_extracted_competitions(event.clone())? {
-                        all_events.push(event);
+                    let py_event = PyEvent(event);
+                    if validate_extracted_competitions(&py_event)? {
+                        all_events.push(py_event);
                     }
                 }
             }
