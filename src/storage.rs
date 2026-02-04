@@ -1,4 +1,4 @@
-use crate::PyEvent;
+use crate::models::Event;
 use pyo3::prelude::*;
 use std::fs;
 use std::path::PathBuf;
@@ -22,8 +22,7 @@ impl StorageManager {
     }
 
     /// Saves an Event to disk in both JSONL and Postcard binary formats.
-    pub fn save_event(&self, py_event: &PyEvent) -> PyResult<()> {
-        let event = &py_event.0;
+    pub fn save_event(&self, event: &Event) -> PyResult<()> {
         let sanitized_name = self.sanitize_name(&event.name);
         let event_dir = self.base_path.join(sanitized_name);
         fs::create_dir_all(&event_dir).map_err(|e| {
@@ -138,8 +137,7 @@ mod tests {
 
         let base_dir = "test_storage_roundtrip";
         let manager = StorageManager::new(base_dir.to_string());
-        let py_event = crate::PyEvent(event.clone());
-        manager.save_event(&py_event).expect("Save failed");
+        manager.save_event(&event).expect("Save failed");
 
         let sanitized_name = manager.sanitize_name(&event.name);
         let event_dir = PathBuf::from(base_dir).join(sanitized_name);

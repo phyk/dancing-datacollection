@@ -1,53 +1,25 @@
 use anyhow::Result;
 use robotstxt::DefaultMatcher;
 use scraper::{Html, Selector};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
 use tokio::time::{sleep, Duration, Instant};
 use url::Url;
+use crate::models::validation::LevelConfig;
+use crate::crawler::manifest::Manifest;
+use pyo3::prelude::*;
 
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Debug, Deserialize, Clone, Serialize)]
 pub struct Config {
     pub sources: Sources,
     pub levels: Option<HashMap<String, LevelConfig>>,
 }
 
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Debug, Deserialize, Clone, Serialize)]
 pub struct Sources {
     pub urls: Vec<String>,
-}
-
-#[derive(Debug, Deserialize, Clone)]
-pub struct LevelConfig {
-    pub min_dances: Option<u32>,
-    pub min_dances_legacy: Option<u32>,
-    pub min_dances_2026: Option<u32>,
-}
-
-impl Config {
-    pub fn get_min_dances(&self, level: &crate::models::Level, date: &chrono::NaiveDate) -> u32 {
-        use chrono::Datelike;
-        let level_str = format!("{:?}", level);
-        if let Some(levels) = &self.levels {
-            if let Some(config) = levels.get(&level_str) {
-                if let Some(min) = config.min_dances {
-                    return min;
-                }
-                let is_2026_or_later = date.year() >= 2026;
-                if is_2026_or_later {
-                    return config
-                        .min_dances_2026
-                        .or(config.min_dances_legacy)
-                        .unwrap_or(0);
-                } else {
-                    return config.min_dances_legacy.unwrap_or(0);
-                }
-            }
-        }
-        0
-    }
 }
 
 pub struct RobotsChecker {
@@ -236,9 +208,8 @@ impl Scraper {
                 continue;
             }
 
-            let file_path = data_dir.join(rel_file);
-            if file_path.exists() {
-                log::debug!("File {:?} already exists, skipping (Smart Skip)", file_path);
+            if Manifest::is_already_downloaded(&data_dir, rel_file) {
+                log::debug!("File {:?} already exists, skipping (Smart Skip)", data_dir.join(rel_file));
                 continue;
             }
 
@@ -288,6 +259,58 @@ impl Scraper {
         let path = dir.join(filename);
         fs::write(path, content)?;
         Ok(())
+    }
+}
+
+/// Scrapes the websites and saves the HTML files relevant for exporting data.
+#[pyfunction]
+pub fn download_sources(config_path: String) -> PyResult<()> {
+    let config_content = fs::read_to_string(&config_path).map_err(|e| {
+        pyo3::exceptions::PyIOError::new_err(format!("Failed to read config: {}", e))
+    })?;
+    let config: Config = toml::from_str(&config_content).map_err(|e| {
+        pyo3::exceptions::PyValueError::new_err(format!("Failed to parse config: {}", e))
+    })?;
+
+    let rt = tokio::runtime::Runtime::new().unwrap();
+    rt.block_on(async {
+        let mut scraper = Scraper::new();
+        scraper
+            .scrape_all(&config)
+            .await
+            .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(format!("Scraper error: {}", e)))
+    })
+}
+
+/// Orchestrator that calls the scraping, extraction, and validation steps.
+#[pyfunction]
+pub fn collect_dancing_data(config_path: String) -> PyResult<Vec<crate::models::Event>> {
+    download_sources(config_path.clone())?;
+
+    let mut all_events = Vec::new();
+
+    let entries = fs::read_dir("data").map_err(|e| {
+        pyo3::exceptions::PyIOError::new_err(format!("Failed to read data dir: {}", e))
+    })?;
+
+    for entry in entries {
+        let entry = entry.map_err(|e| pyo3::exceptions::PyIOError::new_err(e.to_string()))?;
+        if entry.path().is_dir() {
+            let data_dir = entry.path().to_string_lossy().to_string();
+            if let Ok(event) = crate::sources::dtv_native::extract_competitions(data_dir) {
+                if crate::models::validation::validate_extracted_competitions(&event) {
+                    all_events.push(event);
+                }
+            }
+        }
+    }
+
+    if all_events.is_empty() {
+        Err(pyo3::exceptions::PyRuntimeError::new_err(
+            "No valid competition data collected",
+        ))
+    } else {
+        Ok(all_events)
     }
 }
 

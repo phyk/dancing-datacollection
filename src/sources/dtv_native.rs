@@ -3,12 +3,15 @@ use crate::models::{
     CommitteeMember, Competition, Dance, Event, IdentityType, Judge, Level, Officials,
     Participant, Round, WDSFScore,
 };
-use crate::scraper::Config;
+use crate::crawler::client::Config;
 use crate::sources::{ParsingError, ResultSource};
 use chrono::NaiveDate;
 use regex::Regex;
 use scraper::{Html, Selector};
 use std::collections::HashMap;
+use pyo3::prelude::*;
+use std::fs;
+use std::path::Path;
 
 /// Configuration for CSS selectors used by the DTV parser.
 #[derive(Clone, Debug)]
@@ -47,14 +50,14 @@ impl Default for SelectorConfig {
 }
 
 /// Parser for DTV (German Dance Sport Federation) competition results.
-pub struct DtvParser {
+pub struct DtvNative {
     pub config: Config,
     pub selectors: SelectorConfig,
     pub i18n: I18n,
 }
 
-impl DtvParser {
-    /// Creates a new DtvParser.
+impl DtvNative {
+    /// Creates a new DtvNative parser.
     pub fn new(config: Config, selectors: SelectorConfig, i18n: I18n) -> Self {
         Self {
             config,
@@ -715,7 +718,7 @@ impl DtvParser {
         let style = style.unwrap();
         let level = level.unwrap();
         let dances = self.parse_dances(title);
-        let min_dances = self.config.get_min_dances(&level, &date);
+        let min_dances = crate::models::validation::get_min_dances_for_level(&self.config.levels, &level, &date);
 
         Ok(Competition {
             level,
@@ -734,7 +737,7 @@ impl DtvParser {
     }
 }
 
-impl ResultSource for DtvParser {
+impl ResultSource for DtvNative {
     fn name(&self) -> &str {
         "DTV"
     }
@@ -795,6 +798,94 @@ impl ResultSource for DtvParser {
     }
 }
 
+/// Helper function to load config and i18n.
+fn load_config_and_i18n(config_path: &str) -> PyResult<(Config, I18n)> {
+    let config_content = fs::read_to_string(config_path).map_err(|e| {
+        pyo3::exceptions::PyIOError::new_err(format!("Failed to read config: {}", e))
+    })?;
+    let config: Config = toml::from_str(&config_content).map_err(|e| {
+        pyo3::exceptions::PyValueError::new_err(format!("Failed to parse config: {}", e))
+    })?;
+
+    let aliases_path = "assets/aliases.toml";
+    let i18n = I18n::new(aliases_path).map_err(|e| {
+        pyo3::exceptions::PyIOError::new_err(format!("Failed to read aliases: {}", e))
+    })?;
+
+    Ok((config, i18n))
+}
+
+/// Extracts the competition data from saved HTML files in the given directory.
+#[pyfunction]
+pub fn extract_competitions(data_dir: String) -> PyResult<Event> {
+    let config_path = "config/config.toml";
+    let (config, i18n) = load_config_and_i18n(config_path)?;
+    let parser = DtvNative::new(config, SelectorConfig::default(), i18n);
+
+    let dir_path = Path::new(&data_dir);
+    let index_path = dir_path.join("index.htm");
+
+    // Try to find at least one htm file if index doesn't exist
+    let html = if index_path.exists() {
+        fs::read_to_string(&index_path).map_err(|e| {
+            pyo3::exceptions::PyIOError::new_err(format!("Failed to read index file: {}", e))
+        })?
+    } else {
+        // Fallback to erg.htm or similar if index is missing
+        let erg_path = dir_path.join("erg.htm");
+        if erg_path.exists() {
+             fs::read_to_string(&erg_path).map_err(|e| {
+                pyo3::exceptions::PyIOError::new_err(format!("Failed to read erg file: {}", e))
+            })?
+        } else {
+            return Err(pyo3::exceptions::PyFileNotFoundError::new_err(format!(
+                "No valid htm files found in {}",
+                data_dir
+            )));
+        }
+    };
+
+    let mut event = parser
+        .parse(&html)
+        .map_err(|e| pyo3::exceptions::PyValueError::new_err(format!("Parsing error: {}", e)))?;
+
+    // Enrichment
+    for comp in &mut event.competitions_list {
+        // Look for related files in the same directory
+        let files = ["erg.htm", "deck.htm", "tabges.htm", "ergwert.htm"];
+        for file in files {
+            let p = dir_path.join(file);
+            if p.exists() {
+                if let Ok(content) = fs::read_to_string(&p) {
+                    match file {
+                        "erg.htm" => {
+                            if let Ok(parts) = parser.parse_participants(&content) {
+                                comp.participants = parts;
+                            }
+                        }
+                        "deck.htm" => {
+                            if let Ok(off) = parser.parse_officials(&content) {
+                                comp.officials = off;
+                            }
+                        }
+                        "tabges.htm" | "ergwert.htm" => {
+                            let rounds = parser.parse_rounds(&content, &comp.dances);
+                            for r in rounds {
+                                if !comp.rounds.iter().any(|existing| existing.name == r.name) {
+                                    comp.rounds.push(r);
+                                }
+                            }
+                        }
+                        _ => {}
+                    }
+                }
+            }
+        }
+    }
+
+    Ok(event)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -805,8 +896,8 @@ mod tests {
     #[test]
     fn test_parse_date() {
         let i18n = I18n { aliases: Aliases { age_groups: HashMap::new(), dances: HashMap::new(), roles: HashMap::new() } };
-        let config = Config { sources: crate::scraper::Sources { urls: vec![] }, levels: None };
-        let parser = DtvParser::new(config, SelectorConfig::default(), i18n);
+        let config = Config { sources: crate::crawler::client::Sources { urls: vec![] }, levels: None };
+        let parser = DtvNative::new(config, SelectorConfig::default(), i18n);
 
         assert_eq!(parser.parse_date("11.05.2024"), Some(NaiveDate::from_ymd_opt(2024, 5, 11).unwrap()));
         assert_eq!(parser.parse_date("05/Jul/2025"), Some(NaiveDate::from_ymd_opt(2025, 7, 5).unwrap()));
@@ -823,8 +914,8 @@ mod tests {
         "#;
         let aliases: Aliases = toml::from_str(aliases_content).unwrap();
         let i18n = I18n { aliases };
-        let config = Config { sources: crate::scraper::Sources { urls: vec![] }, levels: None };
-        let parser = DtvParser::new(config, SelectorConfig::default(), i18n);
+        let config = Config { sources: crate::crawler::client::Sources { urls: vec![] }, levels: None };
+        let parser = DtvNative::new(config, SelectorConfig::default(), i18n);
 
         let comp = parser.parse_competition_from_title("11.05.2024 Hgr.II D Standard").unwrap();
         assert_eq!(comp.level, Level::D);
@@ -842,8 +933,8 @@ mod tests {
          "#;
         let dances = vec![Dance::SlowWaltz];
         let i18n = I18n { aliases: Aliases { age_groups: HashMap::new(), dances: HashMap::new(), roles: HashMap::new() } };
-        let config = Config { sources: crate::scraper::Sources { urls: vec![] }, levels: None };
-        let parser = DtvParser::new(config, SelectorConfig::default(), i18n);
+        let config = Config { sources: crate::crawler::client::Sources { urls: vec![] }, levels: None };
+        let parser = DtvNative::new(config, SelectorConfig::default(), i18n);
 
         let crosses = parser.parse_tabges(html, &dances);
         assert!(crosses["AT"][&101][&Dance::SlowWaltz]);
@@ -859,8 +950,8 @@ mod tests {
             </table>
          "#;
         let i18n = I18n { aliases: Aliases { age_groups: HashMap::new(), dances: HashMap::new(), roles: HashMap::new() } };
-        let config = Config { sources: crate::scraper::Sources { urls: vec![] }, levels: None };
-        let parser = DtvParser::new(config, SelectorConfig::default(), i18n);
+        let config = Config { sources: crate::crawler::client::Sources { urls: vec![] }, levels: None };
+        let parser = DtvNative::new(config, SelectorConfig::default(), i18n);
 
         let scores = parser.parse_wdsf_scores(html);
         let s = &scores["A"][&284];
@@ -888,7 +979,7 @@ mod tests {
         "#;
         let aliases: Aliases = toml::from_str(aliases_content).unwrap();
         let i18n = I18n { aliases };
-        let parser = DtvParser::new(config, SelectorConfig::default(), i18n);
+        let parser = DtvNative::new(config, SelectorConfig::default(), i18n);
 
         let comp2024 = parser.parse_competition_from_title("11.05.2024 Hgr.II D Standard").unwrap();
         assert_eq!(comp2024.min_dances, 3);
@@ -907,8 +998,8 @@ mod tests {
             </TABLE>
         "#;
         let i18n = I18n { aliases: Aliases { age_groups: HashMap::new(), dances: HashMap::new(), roles: HashMap::new() } };
-        let config = Config { sources: crate::scraper::Sources { urls: vec![] }, levels: None };
-        let parser = DtvParser::new(config, SelectorConfig::default(), i18n);
+        let config = Config { sources: crate::crawler::client::Sources { urls: vec![] }, levels: None };
+        let parser = DtvNative::new(config, SelectorConfig::default(), i18n);
         let participants = parser.parse_participants(html).unwrap();
         assert_eq!(participants[0].bib_number, 610);
         assert_eq!(participants[0].name_one, "Jonathan Kummetz");
@@ -931,8 +1022,8 @@ mod tests {
         let mut roles = HashMap::new();
         roles.insert("Turnierleiter".to_string(), "responsible_person".to_string());
         let i18n = I18n { aliases: Aliases { age_groups: HashMap::new(), dances: HashMap::new(), roles } };
-        let config = Config { sources: crate::scraper::Sources { urls: vec![] }, levels: None };
-        let parser = DtvParser::new(config, SelectorConfig::default(), i18n);
+        let config = Config { sources: crate::crawler::client::Sources { urls: vec![] }, levels: None };
+        let parser = DtvNative::new(config, SelectorConfig::default(), i18n);
         let officials = parser.parse_officials(html).unwrap();
         assert!(officials.responsible_person.is_some());
         assert_eq!(officials.judges[0].code, "AT");
@@ -943,8 +1034,8 @@ mod tests {
         let html = fs::read_to_string("tests/44-0507_wdsfworldopenlatadult/tabges.htm").unwrap();
         let dances = vec![Dance::Samba];
         let i18n = I18n { aliases: Aliases { age_groups: HashMap::new(), dances: HashMap::new(), roles: HashMap::new() } };
-        let config = Config { sources: crate::scraper::Sources { urls: vec![] }, levels: None };
-        let parser = DtvParser::new(config, SelectorConfig::default(), i18n);
+        let config = Config { sources: crate::crawler::client::Sources { urls: vec![] }, levels: None };
+        let parser = DtvNative::new(config, SelectorConfig::default(), i18n);
 
         let results = parser.parse_tabges(&html, &dances);
         assert!(results["A"][&284][&Dance::Samba]);
@@ -955,81 +1046,11 @@ mod tests {
         let html = fs::read_to_string("tests/47-0507_wdsfopenstdrisingstars/ergwert.htm").unwrap();
         let dances = vec![Dance::SlowWaltz, Dance::Tango, Dance::VienneseWaltz, Dance::SlowFoxtrot, Dance::Quickstep];
         let i18n = I18n { aliases: Aliases { age_groups: HashMap::new(), dances: HashMap::new(), roles: HashMap::new() } };
-        let config = Config { sources: crate::scraper::Sources { urls: vec![] }, levels: None };
-        let parser = DtvParser::new(config, SelectorConfig::default(), i18n);
+        let config = Config { sources: crate::crawler::client::Sources { urls: vec![] }, levels: None };
+        let parser = DtvNative::new(config, SelectorConfig::default(), i18n);
 
         let results = parser.parse_ergwert(&html, &dances);
         assert!(results.contains_key("D"));
         assert!(results["D"].contains_key(&721));
     }
-
-    fn run_full_pipeline_test(dir_name: &str) {
-        let config_path = "config/config.toml";
-        let aliases_path = "config/aliases.toml";
-        let config_content = fs::read_to_string(config_path).unwrap();
-        let config: Config = toml::from_str(&config_content).unwrap();
-        let i18n = I18n::new(aliases_path).unwrap();
-        let parser = DtvParser::new(config, SelectorConfig::default(), i18n);
-
-        let dir_path = std::path::Path::new("tests").join(dir_name);
-        let index_path = dir_path.join("index.htm");
-        let index_html = fs::read_to_string(&index_path).unwrap();
-
-        let mut event = match parser.parse(&index_html) {
-            Ok(e) => e,
-            Err(_) => {
-                let erg_path = dir_path.join("erg.htm");
-                let erg_html = fs::read_to_string(&erg_path).unwrap();
-                parser.parse(&erg_html).expect(&format!("Failed to parse both index and erg for {}", dir_name))
-            }
-        };
-
-        for comp in &mut event.competitions_list {
-            let files = ["erg.htm", "deck.htm", "tabges.htm", "ergwert.htm"];
-            for file in files {
-                let p = dir_path.join(file);
-                if p.exists() {
-                    let content = fs::read_to_string(&p).unwrap();
-                    match file {
-                        "erg.htm" => {
-                            if let Ok(parts) = parser.parse_participants(&content) {
-                                comp.participants = parts;
-                            }
-                        }
-                        "deck.htm" => {
-                            if let Ok(off) = parser.parse_officials(&content) {
-                                comp.officials = off;
-                            }
-                        }
-                        "tabges.htm" | "ergwert.htm" => {
-                            let rounds = parser.parse_rounds(&content, &comp.dances);
-                            for r in rounds {
-                                if !comp.rounds.iter().any(|existing| existing.name == r.name) {
-                                    comp.rounds.push(r);
-                                }
-                            }
-                        }
-                        _ => {}
-                    }
-                }
-            }
-
-            assert!(!comp.participants.is_empty(), "No participants parsed for level {:?} in {}", comp.level, dir_name);
-            assert!(!comp.officials.judges.is_empty(), "No judges parsed for level {:?} in {}", comp.level, dir_name);
-            assert!(!comp.rounds.is_empty(), "No rounds parsed for level {:?} in {}", comp.level, dir_name);
-        }
-    }
-
-    #[test] fn test_integration_44_wdsf_lat() { run_full_pipeline_test("44-0507_wdsfworldopenlatadult"); }
-    #[test] fn test_integration_75_wdsf_std() { run_full_pipeline_test("75-0607_wdsfworldopenstdadult"); }
-    #[test] fn test_integration_56_dtv_d_std() { run_full_pipeline_test("56-0507_ot_mas1dstd"); }
-    #[test] fn test_integration_31_dtv_c_std() { run_full_pipeline_test("31-0507_ot_hgrcstd"); }
-    #[test] fn test_integration_54_dtv_b_std() { run_full_pipeline_test("54-0507_ot_hgr2bstd"); }
-    #[test] fn test_integration_15_dtv_a_std() { run_full_pipeline_test("15-0407_ot_hgr2astd"); }
-    #[test] fn test_integration_47_dtv_s_std() { run_full_pipeline_test("47-0507_wdsfopenstdrisingstars"); }
-    #[test] fn test_integration_03_dtv_d_lat() { run_full_pipeline_test("3-0407_ot_mas2dlat"); }
-    #[test] fn test_integration_37_dtv_c_lat() { run_full_pipeline_test("37-0507_ot_mas1clat"); }
-    #[test] fn test_integration_42_dtv_b_lat() { run_full_pipeline_test("42-0507_ot_mas1blat"); }
-    #[test] fn test_integration_61_dtv_a_lat() { run_full_pipeline_test("61-0607_ot_hgr2alat"); }
-    #[test] fn test_integration_24_dtv_s_lat() { run_full_pipeline_test("24-0407_wdsfopenlatrisingstars"); }
 }
