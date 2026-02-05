@@ -662,6 +662,7 @@ impl DtvNative {
                             movement_to_music: 0.0,
                             partnering_skills: 0.0,
                             choreography: 0.0,
+                        total: 0.0,
                         });
 
                     if cell_text.contains("TQ") { score_entry.technical_quality = scores[0]; }
@@ -676,6 +677,10 @@ impl DtvNative {
                     if scores.len() == 1 && cell_text.contains("MM") && cell_text.contains("CP") {
                         score_entry.movement_to_music = scores[0];
                         score_entry.choreography = scores[0];
+                    }
+
+                    if cell_text.contains("Summe") || cell_text.contains("Total") {
+                        score_entry.total = scores[0];
                     }
                 }
             }
