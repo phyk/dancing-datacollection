@@ -129,3 +129,43 @@ fn test_golden_file_03_dtv_d_lat() {
     }
     assert!(!validate_event_fidelity(&event), "Event should be invalid for 2026 (min_dances=4 required for Level D)");
 }
+
+#[test]
+fn test_fidelity_corruption() {
+    use dancing_datacollection::models::validation::validate_event_fidelity;
+    let dir_name = "3-0407_ot_mas2dlat";
+    let dir_path = std::path::Path::new("tests").join(dir_name);
+    let event = dancing_datacollection::sources::dtv_native::extract_event_data(dir_path.to_str().unwrap()).unwrap();
+
+    // Verify initially valid
+    assert!(validate_event_fidelity(&event), "Original event should be valid");
+
+    // Corrupt by removing judges (Integrity Layer: < 3 judges)
+    let mut corrupt_judges = event.clone();
+    corrupt_judges.competitions_list[0].officials.judges.truncate(2);
+    assert!(!validate_event_fidelity(&corrupt_judges), "Event should be invalid with only 2 judges");
+
+    // Corrupt by removing a scoring record from a round
+    let mut corrupt_round = event.clone();
+    let comp = &mut corrupt_round.competitions_list[0];
+    let first_judge_code = comp.officials.judges[0].code.clone();
+    let mut corrupted = false;
+    for round in &mut comp.rounds {
+        if let Some(ref mut crosses) = round.marking_crosses {
+            if crosses.contains_key(&first_judge_code) {
+                crosses.remove(&first_judge_code);
+                corrupted = true;
+                break;
+            }
+        }
+        if let Some(ref mut ranks) = round.dtv_ranks {
+            if ranks.contains_key(&first_judge_code) {
+                ranks.remove(&first_judge_code);
+                corrupted = true;
+                break;
+            }
+        }
+    }
+    assert!(corrupted, "Should have found a round to corrupt");
+    assert!(!validate_event_fidelity(&corrupt_round), "Event should be invalid if a judge's records are missing in a round");
+}
