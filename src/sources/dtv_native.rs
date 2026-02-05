@@ -9,7 +9,7 @@ use anyhow::Result;
 use chrono::NaiveDate;
 use regex::Regex;
 use scraper::{Html, Selector};
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 use std::fs;
 use std::path::Path;
 
@@ -141,6 +141,9 @@ impl DtvNative {
             dances.push(Dance::Tango);
         }
         if s_up.contains("VW") || s_up.contains("WIENER") {
+            dances.push(Dance::VienneseWaltz);
+        }
+        if s_up.contains("VW") || s_up.contains("WW") || s_up.contains("WIENER") {
             dances.push(Dance::VienneseWaltz);
         }
         if (s_up.contains("SF") && !s_up.contains("WDSF")) || s_up.contains("SLOW") || s_up.contains("FOX") {
@@ -364,40 +367,22 @@ impl DtvNative {
 
         let mut round_names = Vec::new();
         for h2 in document.select(&h2_sel) {
-            round_names.push(h2.text().collect::<Vec<_>>().join(" ").trim().to_string());
+            let text = h2.text().collect::<Vec<_>>().join(" ").trim().to_string();
+            round_names.push(self.canonicalize_round_name(&text).unwrap_or(text));
         }
 
         if round_names.is_empty() {
              for head in document.select(&comphead_sel) {
                   let text = head.text().collect::<Vec<_>>().join(" ").trim().to_string();
                   if text.to_lowercase().contains("runde") || text.to_lowercase().contains("table") || text.to_lowercase().contains("ergebnis") || text.to_lowercase().contains("ranking") {
-                       round_names.push(text);
+                       round_names.push(self.canonicalize_round_name(&text).unwrap_or(text));
                   }
              }
 
              let td_sel = Selector::parse("td.td1, td.td3").unwrap();
              for td in document.select(&td_sel) {
                  let text = td.text().collect::<Vec<_>>().join(" ").trim().to_string();
-                 let lower = text.to_lowercase();
-                 let canonical = if lower.contains("vorrunde") {
-                      Some("Vorrunde".to_string())
-                 } else if lower.contains("zwischenrunde") {
-                      if lower.contains("1.") || lower.contains("erste") {
-                           Some("1. Zwischenrunde".to_string())
-                      } else if lower.contains("2.") || lower.contains("zweite") {
-                           Some("2. Zwischenrunde".to_string())
-                      } else if lower.contains("3.") || lower.contains("dritte") {
-                           Some("3. Zwischenrunde".to_string())
-                      } else {
-                           Some("Zwischenrunde".to_string())
-                      }
-                 } else if lower.contains("endrunde") || lower.contains("finale") || lower.contains("final") {
-                      Some("Endrunde".to_string())
-                 } else {
-                      None
-                 };
-
-                 if let Some(name) = canonical {
+                 if let Some(name) = self.canonicalize_round_name(&text) {
                       if !round_names.contains(&name) {
                           round_names.push(name);
                       }
@@ -411,29 +396,58 @@ impl DtvNative {
 
         let mut rounds = Vec::new();
         let marking_results = self.parse_tabges(html, dances);
-        let rank_results = self.parse_ergwert(html, dances);
+        let (erg_marks, erg_ranks) = self.parse_ergwert(html, dances);
         let wdsf_results = if html.contains("TQ") || html.contains("MM") {
              Some(self.parse_wdsf_scores(html))
         } else {
              None
         };
 
-        let num_rounds = round_names.len().max(marking_results.len()).max(rank_results.len());
+        let num_rounds = round_names.len()
+             .max(marking_results.len())
+             .max(erg_marks.len())
+             .max(erg_ranks.len());
+
         for i in 0..num_rounds {
-             let name = if let Some(m_res) = marking_results.get(i) {
-                  if !m_res.0.starts_with("Round") { m_res.0.clone() } else { round_names.get(i).cloned().unwrap_or(m_res.0.clone()) }
-             } else if let Some(r_res) = rank_results.get(i) {
-                  if !r_res.0.is_empty() { r_res.0.clone() } else { round_names.get(i).cloned().unwrap_or_else(|| format!("Round {}", i + 1)) }
-             } else {
-                  round_names.get(i).cloned().unwrap_or_else(|| format!("Round {}", i + 1))
-             };
+             let mut round_name = round_names.get(i).cloned();
+
+             let mut marks = marking_results.get(i).map(|r| r.1.clone());
+             let mut ranks = None;
+
+             if let Some(r) = erg_marks.get(i) {
+                  if round_name.is_none() || round_name.as_ref().unwrap().starts_with("Round") || round_name.as_ref().unwrap().contains("Ergebnis") {
+                       if !r.0.is_empty() {
+                            round_name = Some(r.0.clone());
+                       }
+                  }
+                  // Merge or prefer detailed marks from ergwert
+                  if let Some(ref mut m) = marks {
+                       for (judge, bibs) in &r.1 {
+                            m.entry(judge.clone()).or_default().extend(bibs.clone());
+                       }
+                  } else {
+                       marks = Some(r.1.clone());
+                  }
+             }
+
+             if let Some(r) = erg_ranks.get(i) {
+                  if round_name.is_none() || round_name.as_ref().unwrap().starts_with("Round") || round_name.as_ref().unwrap().contains("Ergebnis") {
+                       if !r.0.is_empty() {
+                            round_name = Some(r.0.clone());
+                       }
+                  }
+                  ranks = Some(r.1.clone());
+             }
+
+             let name = round_name.unwrap_or_else(|| format!("Round {}", i + 1));
 
              let mut round = Round {
                   name,
-                  marking_crosses: marking_results.get(i).map(|r| r.1.clone()),
-                  dtv_ranks: rank_results.get(i).map(|r| r.1.clone()),
+                  marking_crosses: marks,
+                  dtv_ranks: ranks,
                   wdsf_scores: None,
              };
+
              if let Some(ref wdsf) = wdsf_results {
                   if i == 0 { // Assume WDSF results are for the first round detected in the file
                        round.wdsf_scores = Some(wdsf.clone());
@@ -451,8 +465,8 @@ impl DtvNative {
         &self,
         html: &str,
         dances: &[Dance],
-    ) -> Vec<(String, HashMap<String, HashMap<u32, HashMap<Dance, bool>>>)> {
-        let mut all_results: Vec<(String, HashMap<String, HashMap<u32, HashMap<Dance, bool>>>)> = Vec::new();
+    ) -> Vec<(String, BTreeMap<String, BTreeMap<u32, BTreeMap<Dance, bool>>>)> {
+        let mut all_results: Vec<(String, BTreeMap<String, BTreeMap<u32, BTreeMap<Dance, bool>>>)> = Vec::new();
         let document = Html::parse_document(html);
         let tr_sel = Selector::parse("tr").unwrap();
         let td_sel = Selector::parse("td").unwrap();
@@ -460,7 +474,7 @@ impl DtvNative {
 
         for table in document.select(&table_sel) {
             let mut table_round_idx = 0;
-            let mut current_results = HashMap::new();
+            let mut current_results = BTreeMap::new();
             let mut rows_iter = table.select(&tr_sel);
             let first_row = rows_iter.next();
             if first_row.is_none() { continue; }
@@ -517,7 +531,7 @@ impl DtvNative {
                                    all_results.push((format!("Round {}", all_results.len() + 1), current_results));
                               }
                               table_round_idx += 1;
-                              current_results = HashMap::new();
+                              current_results = BTreeMap::new();
                          }
 
                          for (col_idx, bib) in bibs_in_cols.iter().enumerate() {
@@ -529,8 +543,8 @@ impl DtvNative {
                                         if line_idx < lines.len() {
                                              let val = lines[line_idx].trim();
                                              let has_cross = val.to_lowercase().contains('x') || val.parse::<u32>().unwrap_or(0) > 0;
-                                             let bib_map = current_results.entry(adj_code.clone()).or_insert_with(HashMap::new)
-                                                 .entry(*bib).or_insert_with(HashMap::new);
+                                             let bib_map = current_results.entry(adj_code.clone()).or_insert_with(BTreeMap::new)
+                                                 .entry(*bib).or_insert_with(BTreeMap::new);
                                              for dance in dances {
                                                   bib_map.insert(*dance, has_cross);
                                              }
@@ -588,7 +602,7 @@ impl DtvNative {
                             let cell_idx = 2 + i;
                             if cell_idx < cells.len() {
                                 let cross_text = cells[cell_idx].text().collect::<String>();
-                                let bib_map = current_results.entry(judge_code.clone()).or_default().entry(bib).or_default();
+                                let bib_map = current_results.entry(judge_code.clone()).or_insert_with(BTreeMap::new).entry(bib).or_insert_with(BTreeMap::new);
                                 for dance in dances {
                                     bib_map.insert(*dance, cross_text.to_lowercase().contains('x'));
                                 }
@@ -612,12 +626,50 @@ impl DtvNative {
         all_results
     }
 
-    pub fn parse_ergwert(&self, html: &str, dances: &[Dance]) -> Vec<(String, HashMap<String, HashMap<u32, HashMap<Dance, u32>>>)> {
-        let mut all_results: Vec<(String, HashMap<String, HashMap<u32, HashMap<Dance, u32>>>)> = Vec::new();
+    pub fn parse_ergwert(&self, html: &str, dances: &[Dance]) -> (Vec<(String, BTreeMap<String, BTreeMap<u32, BTreeMap<Dance, bool>>>)>, Vec<(String, BTreeMap<String, BTreeMap<u32, BTreeMap<Dance, u32>>>)>) {
+        let mut all_rank_results: Vec<(String, BTreeMap<String, BTreeMap<u32, BTreeMap<Dance, u32>>>)> = Vec::new();
+        let mut all_mark_results: Vec<(String, BTreeMap<String, BTreeMap<u32, BTreeMap<Dance, bool>>>)> = Vec::new();
         let document = Html::parse_document(html);
         let tr_sel = Selector::parse("tr").unwrap();
         let td_sel = Selector::parse("td").unwrap();
         let tooltip_sel = Selector::parse(".tooltip2w").unwrap();
+
+        // Pass 1: Determine global round order
+        let mut global_round_ids = BTreeMap::new(); // id string -> canonical name
+        let r_cell_sel = Selector::parse("td.td5c").unwrap();
+        for row in document.select(&tr_sel) {
+             if let Some(idx_cell) = row.select(&r_cell_sel).next() {
+                  let idx_html = idx_cell.inner_html();
+                  for part in idx_html.split("<br>") {
+                       let p = part.trim();
+                       if p.is_empty() { continue; }
+                       let name = if p == "F" {
+                            "Endrunde".to_string()
+                       } else if let Ok(n) = p.parse::<u32>() {
+                            if n == 1 {
+                                 "Vorrunde".to_string()
+                            } else if n > 1 {
+                                 format!("{}. Zwischenrunde", n - 1)
+                            } else {
+                                 p.to_string()
+                            }
+                       } else {
+                            p.to_string()
+                       };
+                       global_round_ids.insert(p.to_string(), name);
+                  }
+             }
+        }
+
+        // Logical ordering for round IDs: 1, 2, 3, ..., F
+        let mut sorted_ids: Vec<String> = global_round_ids.keys().cloned().collect();
+        sorted_ids.sort_by(|a, b| {
+             if a == "F" { return std::cmp::Ordering::Greater; }
+             if b == "F" { return std::cmp::Ordering::Less; }
+             let an = a.parse::<u32>().unwrap_or(0);
+             let bn = b.parse::<u32>().unwrap_or(0);
+             an.cmp(&bn)
+        });
 
         let mut judge_codes = Vec::new();
         let mut seen_codes = std::collections::HashSet::new();
@@ -667,19 +719,13 @@ impl DtvNative {
                  .unwrap_or_default();
 
              if let Ok(bib) = bib_text.parse::<u32>() {
-                  let mut round_names_from_row = Vec::new();
+                  let mut row_round_indices = Vec::new();
                   if let Some(idx_cell) = row.select(&Selector::parse("td.td5c").unwrap()).next() {
                        let idx_html = idx_cell.inner_html();
                        for part in idx_html.split("<br>") {
                             let p = part.trim();
-                            if p == "F" {
-                                 round_names_from_row.push("Endrunde".to_string());
-                            } else if let Ok(n) = p.parse::<u32>() {
-                                 if n == 1 {
-                                      round_names_from_row.push("Vorrunde".to_string());
-                                 } else {
-                                      round_names_from_row.push(format!("{}. Zwischenrunde", n - 1));
-                                 }
+                            if let Some(pos) = sorted_ids.iter().position(|id| id == p) {
+                                 row_round_indices.push(pos);
                             }
                        }
                   }
@@ -689,22 +735,34 @@ impl DtvNative {
                        let content = cell.inner_html();
                        let lines: Vec<_> = content.split("<br>").collect();
                        for (line_idx, line) in lines.iter().enumerate() {
-                            if let Ok(rank) = line.trim().parse::<u32>() {
-                                 while all_results.len() <= line_idx {
-                                      all_results.push((String::new(), HashMap::new()));
-                                 }
-                                 if line_idx < round_names_from_row.len() {
-                                      all_results[line_idx].0 = round_names_from_row[line_idx].clone();
-                                 }
-                                 let results = &mut all_results[line_idx].1;
+                            let val = line.trim();
+                            if val.is_empty() { continue; }
 
-                                 let judge_idx = dance_cell_count % (if judge_codes.is_empty() { 1 } else { judge_codes.len() });
-                                 let dance_idx = dance_cell_count / (if judge_codes.is_empty() { 1 } else { judge_codes.len() });
+                            let judge_idx = dance_cell_count % (if judge_codes.is_empty() { 1 } else { judge_codes.len() });
+                            let dance_idx = dance_cell_count / (if judge_codes.is_empty() { 1 } else { judge_codes.len() });
+                            let adj_code = judge_codes.get(judge_idx).cloned().unwrap_or_else(|| "A".to_string());
+                            let dance = dances.get(dance_idx);
 
-                                 let adj_code = judge_codes.get(judge_idx).cloned().unwrap_or_else(|| "A".to_string());
-                                 let bib_map = results.entry(adj_code).or_default().entry(bib).or_default();
-                                 if let Some(d) = dances.get(dance_idx) {
-                                      bib_map.insert(*d, rank);
+                            if let Some(&global_idx) = row_round_indices.get(line_idx) {
+                                 if let Ok(rank) = val.parse::<u32>() {
+                                      while all_rank_results.len() <= global_idx {
+                                           all_rank_results.push((String::new(), BTreeMap::new()));
+                                      }
+                                      all_rank_results[global_idx].0 = global_round_ids[&sorted_ids[global_idx]].clone();
+                                      let results = &mut all_rank_results[global_idx].1;
+                                      if let Some(d) = dance {
+                                           results.entry(adj_code).or_insert_with(BTreeMap::new).entry(bib).or_insert_with(BTreeMap::new).insert(*d, rank);
+                                      }
+                                 } else if val.to_lowercase().contains('x') || val == "-" {
+                                      let has_cross = val.to_lowercase().contains('x');
+                                      while all_mark_results.len() <= global_idx {
+                                           all_mark_results.push((String::new(), BTreeMap::new()));
+                                      }
+                                      all_mark_results[global_idx].0 = global_round_ids[&sorted_ids[global_idx]].clone();
+                                      let results = &mut all_mark_results[global_idx].1;
+                                      if let Some(d) = dance {
+                                           results.entry(adj_code).or_insert_with(BTreeMap::new).entry(bib).or_insert_with(BTreeMap::new).insert(*d, has_cross);
+                                      }
                                  }
                             }
                        }
@@ -713,11 +771,11 @@ impl DtvNative {
              }
         }
 
-        all_results
+        (all_mark_results, all_rank_results)
     }
 
-    pub fn parse_wdsf_scores(&self, html: &str) -> HashMap<String, HashMap<u32, WDSFScore>> {
-        let mut results = HashMap::new();
+    pub fn parse_wdsf_scores(&self, html: &str) -> BTreeMap<String, BTreeMap<u32, WDSFScore>> {
+        let mut results = BTreeMap::new();
         let document = Html::parse_document(html);
         let tr_sel = Selector::parse("tr").unwrap();
         let td_sel = Selector::parse("td").unwrap();
@@ -746,7 +804,7 @@ impl DtvNative {
                     .collect();
 
                 if !scores.is_empty() {
-                    let score_entry = results.entry(current_judge.clone()).or_insert_with(HashMap::new)
+                    let score_entry = results.entry(current_judge.clone()).or_insert_with(BTreeMap::new)
                         .entry(current_bib).or_insert(WDSFScore {
                             technical_quality: 0.0,
                             movement_to_music: 0.0,
@@ -776,6 +834,27 @@ impl DtvNative {
             }
         }
         results
+    }
+
+    pub fn canonicalize_round_name(&self, name: &str) -> Option<String> {
+        let lower = name.to_lowercase();
+        if lower.contains("vorrunde") {
+             Some("Vorrunde".to_string())
+        } else if lower.contains("zwischenrunde") {
+             if lower.contains("1.") || lower.contains("erste") {
+                  Some("1. Zwischenrunde".to_string())
+             } else if lower.contains("2.") || lower.contains("zweite") {
+                  Some("2. Zwischenrunde".to_string())
+             } else if lower.contains("3.") || lower.contains("dritte") {
+                  Some("3. Zwischenrunde".to_string())
+             } else {
+                  Some("Zwischenrunde".to_string())
+             }
+        } else if lower.contains("endrunde") || lower.contains("finale") || lower.contains("final") {
+             Some("Endrunde".to_string())
+        } else {
+             None
+        }
     }
 
     pub fn parse_competition_from_title(&self, title: &str) -> Result<Competition, ParsingError> {
@@ -974,8 +1053,41 @@ pub fn extract_event_data(data_dir: &str) -> Result<Event> {
                             let rounds = parser.parse_rounds(&content, &comp.dances);
                             for r in rounds {
                                 if let Some(existing) = comp.rounds.iter_mut().find(|existing| existing.name == r.name) {
-                                     if r.marking_crosses.is_some() { existing.marking_crosses = r.marking_crosses; }
-                                     if r.dtv_ranks.is_some() { existing.dtv_ranks = r.dtv_ranks; }
+                                     if let Some(new_marks) = r.marking_crosses {
+                                          if let Some(ref mut existing_marks) = existing.marking_crosses {
+                                               // Merge: prefer new_marks if they are more detailed (vary by dance)
+                                               // Actually, just always merge judge by judge, bib by bib.
+                                               for (judge, bibs) in new_marks {
+                                                    let existing_judge = existing_marks.entry(judge).or_default();
+                                                    for (bib, dances) in bibs {
+                                                         let existing_bib = existing_judge.entry(bib).or_default();
+                                                         for (dance, has_cross) in dances {
+                                                              // Only overwrite if existing is missing or if new has more info?
+                                                              // Simplify: if new_marks come from ergwert, they are detailed.
+                                                              // Tabges aggregate marks will set all dances to the same value.
+                                                              existing_bib.insert(dance, has_cross);
+                                                         }
+                                                    }
+                                               }
+                                          } else {
+                                               existing.marking_crosses = Some(new_marks);
+                                          }
+                                     }
+                                     if let Some(new_ranks) = r.dtv_ranks {
+                                          if let Some(ref mut existing_ranks) = existing.dtv_ranks {
+                                               for (judge, bibs) in new_ranks {
+                                                    let existing_judge = existing_ranks.entry(judge).or_default();
+                                                    for (bib, dances) in bibs {
+                                                         let existing_bib = existing_judge.entry(bib).or_default();
+                                                         for (dance, rank) in dances {
+                                                              existing_bib.insert(dance, rank);
+                                                         }
+                                                    }
+                                               }
+                                          } else {
+                                               existing.dtv_ranks = Some(new_ranks);
+                                          }
+                                     }
                                      if r.wdsf_scores.is_some() { existing.wdsf_scores = r.wdsf_scores; }
                                 } else {
                                     comp.rounds.push(r);

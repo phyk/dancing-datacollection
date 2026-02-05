@@ -1,17 +1,17 @@
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 use crate::models::{Dance, WDSFScore};
 
 /// Calculates the ranks for a single dance using the Skating System (Rules 5-9).
 pub fn calculate_dance_ranks(
-    judge_marks: &HashMap<String, HashMap<u32, u32>>, // JudgeCode -> Bib -> Mark
-) -> HashMap<u32, u32> {
+    judge_marks: &BTreeMap<String, BTreeMap<u32, u32>>, // JudgeCode -> Bib -> Mark
+) -> BTreeMap<u32, u32> {
     let bibs: Vec<u32> = judge_marks.values().next().map(|m| m.keys().cloned().collect()).unwrap_or_default();
     let num_judges = judge_marks.len();
-    if num_judges == 0 { return HashMap::new(); }
+    if num_judges == 0 { return BTreeMap::new(); }
     let majority = (num_judges / 2) + 1;
     let num_participants = bibs.len();
 
-    let mut final_ranks: HashMap<u32, u32> = HashMap::new();
+    let mut final_ranks: BTreeMap<u32, u32> = BTreeMap::new();
     let mut remaining_bibs = bibs.clone();
     let mut current_place = 1;
 
@@ -88,10 +88,10 @@ pub fn calculate_dance_ranks(
 
 /// Calculates final ranks across all dances (Rules 10-11).
 pub fn calculate_final_ranks(
-    dance_ranks: &HashMap<Dance, HashMap<u32, u32>>,
-    all_judge_marks: Option<&HashMap<Dance, HashMap<String, HashMap<u32, u32>>>>,
-) -> HashMap<u32, u32> {
-    let mut bib_sums: HashMap<u32, u32> = HashMap::new();
+    dance_ranks: &BTreeMap<Dance, BTreeMap<u32, u32>>,
+    all_judge_marks: Option<&BTreeMap<Dance, BTreeMap<String, BTreeMap<u32, u32>>>>,
+) -> BTreeMap<u32, u32> {
+    let mut bib_sums: BTreeMap<u32, u32> = BTreeMap::new();
     let mut bibs = Vec::new();
 
     for ranks in dance_ranks.values() {
@@ -116,7 +116,7 @@ pub fn calculate_final_ranks(
         }
     });
 
-    let mut final_ranks = HashMap::new();
+    let mut final_ranks = BTreeMap::new();
     let mut i = 0;
     while i < bibs.len() {
         let bib = bibs[i];
@@ -154,7 +154,7 @@ pub fn calculate_final_ranks(
     final_ranks
 }
 
-fn break_rule_11(a: u32, b: u32, all_marks: &HashMap<Dance, HashMap<String, HashMap<u32, u32>>>) -> std::cmp::Ordering {
+fn break_rule_11(a: u32, b: u32, all_marks: &BTreeMap<Dance, BTreeMap<String, BTreeMap<u32, u32>>>) -> std::cmp::Ordering {
     let mut marks_a = Vec::new();
     let mut marks_b = Vec::new();
     for dm in all_marks.values() {
@@ -205,9 +205,9 @@ mod tests {
 
     #[test]
     fn test_rule_5_simple() {
-        let mut judge_marks = HashMap::new();
+        let mut judge_marks = BTreeMap::new();
         for j in &["A", "B", "C"] {
-            let mut jm = HashMap::new();
+            let mut jm = BTreeMap::new();
             jm.insert(101, 1);
             jm.insert(102, 2);
             judge_marks.insert(j.to_string(), jm);
@@ -219,7 +219,7 @@ mod tests {
 
     #[test]
     fn test_rule_7_majority_size() {
-        let mut judge_marks = HashMap::new();
+        let mut judge_marks = BTreeMap::new();
         let marks = vec![
             ("A", 101, 1), ("A", 102, 2),
             ("B", 101, 1), ("B", 102, 1),
@@ -228,7 +228,7 @@ mod tests {
             ("E", 101, 2), ("E", 102, 2),
         ];
         for (j, b, m) in marks {
-            judge_marks.entry(j.to_string()).or_insert_with(HashMap::new).insert(b, m);
+            judge_marks.entry(j.to_string()).or_insert_with(BTreeMap::new).insert(b, m);
         }
         let ranks = calculate_dance_ranks(&judge_marks);
         assert_eq!(ranks[&101], 1);
@@ -237,7 +237,7 @@ mod tests {
 
     #[test]
     fn test_rule_8_sum_of_marks() {
-        let mut judge_marks = HashMap::new();
+        let mut judge_marks = BTreeMap::new();
         let marks = vec![
             ("A", 101, 1), ("A", 102, 1),
             ("B", 101, 1), ("B", 102, 2),
@@ -246,7 +246,7 @@ mod tests {
             ("E", 101, 3), ("E", 102, 3),
         ];
         for (j, b, m) in marks {
-            judge_marks.entry(j.to_string()).or_insert_with(HashMap::new).insert(b, m);
+            judge_marks.entry(j.to_string()).or_insert_with(BTreeMap::new).insert(b, m);
         }
         let ranks = calculate_dance_ranks(&judge_marks);
         assert_eq!(ranks[&101], 1);
@@ -255,25 +255,25 @@ mod tests {
 
     #[test]
     fn test_rule_10_11_final_tie() {
-        let mut dance_ranks = HashMap::new();
-        let mut d1 = HashMap::new();
+        let mut dance_ranks = BTreeMap::new();
+        let mut d1 = BTreeMap::new();
         d1.insert(101, 1);
         d1.insert(102, 2);
         dance_ranks.insert(Dance::SlowWaltz, d1);
-        let mut d2 = HashMap::new();
+        let mut d2 = BTreeMap::new();
         d2.insert(101, 2);
         d2.insert(102, 1);
         dance_ranks.insert(Dance::Tango, d2);
 
-        let mut all_judge_marks = HashMap::new();
-        let mut sw_marks = HashMap::new();
-        let mut tg_marks = HashMap::new();
+        let mut all_judge_marks = BTreeMap::new();
+        let mut sw_marks = BTreeMap::new();
+        let mut tg_marks = BTreeMap::new();
         for j in &["A", "B", "C"] {
-            let mut jm_sw = HashMap::new();
+            let mut jm_sw = BTreeMap::new();
             jm_sw.insert(101, 1);
             jm_sw.insert(102, 2);
             sw_marks.insert(j.to_string(), jm_sw);
-            let mut jm_tg = HashMap::new();
+            let mut jm_tg = BTreeMap::new();
             jm_tg.insert(101, 2);
             jm_tg.insert(102, 1);
             tg_marks.insert(j.to_string(), jm_tg);
@@ -286,10 +286,10 @@ mod tests {
 
     #[test]
     fn test_unbreakable_tie() {
-        let mut judge_marks = HashMap::new();
+        let mut judge_marks = BTreeMap::new();
         // 3 judges, 2 bibs, exactly same marks
         for j in &["A", "B", "C"] {
-            let mut jm = HashMap::new();
+            let mut jm = BTreeMap::new();
             jm.insert(101, 1);
             jm.insert(102, 1);
             judge_marks.insert(j.to_string(), jm);

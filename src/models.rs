@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 use std::str::FromStr;
 
 pub mod validation;
@@ -66,7 +66,7 @@ impl FromStr for Style {
 }
 
 /// Represents an individual dance.
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum Dance {
     SlowWaltz,
     Tango,
@@ -183,9 +183,9 @@ pub struct WDSFScore {
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Round {
     pub name: String,
-    pub marking_crosses: Option<HashMap<String, HashMap<u32, HashMap<Dance, bool>>>>,
-    pub dtv_ranks: Option<HashMap<String, HashMap<u32, HashMap<Dance, u32>>>>,
-    pub wdsf_scores: Option<HashMap<String, HashMap<u32, WDSFScore>>>,
+    pub marking_crosses: Option<BTreeMap<String, BTreeMap<u32, BTreeMap<Dance, bool>>>>,
+    pub dtv_ranks: Option<BTreeMap<String, BTreeMap<u32, BTreeMap<Dance, u32>>>>,
+    pub wdsf_scores: Option<BTreeMap<String, BTreeMap<u32, WDSFScore>>>,
 }
 
 /// A specific contest within an event.
