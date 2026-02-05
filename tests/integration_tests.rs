@@ -4,6 +4,8 @@ use dancing_datacollection::crawler::client::Config;
 use dancing_datacollection::i18n::I18n;
 use std::fs;
 use std::path::Path;
+use serde_json;
+use toml;
 
 fn run_full_pipeline_test(dir_name: &str) {
     let config_path = "config/config.toml";
@@ -74,3 +76,138 @@ fn run_full_pipeline_test(dir_name: &str) {
 #[test] fn test_integration_42_dtv_b_lat() { run_full_pipeline_test("42-0507_ot_mas1blat"); }
 #[test] fn test_integration_61_dtv_a_lat() { run_full_pipeline_test("61-0607_ot_hgr2alat"); }
 #[test] fn test_integration_24_dtv_s_lat() { run_full_pipeline_test("24-0407_wdsfopenlatrisingstars"); }
+
+#[test]
+fn test_golden_file_03_dtv_d_lat() {
+    use dancing_datacollection::models::validation::validate_event_fidelity;
+    use chrono::NaiveDate;
+
+    let dir_name = "3-0407_ot_mas2dlat";
+    let config_path = "config/config.toml";
+    let aliases_path = "assets/aliases.toml";
+    let config_content = fs::read_to_string(config_path).unwrap();
+    let config: Config = toml::from_str(&config_content).unwrap();
+    let i18n = I18n::new(aliases_path).unwrap();
+    let parser = DtvNative::new(config, SelectorConfig::default(), i18n);
+
+    let dir_path = Path::new("tests").join(dir_name);
+    let index_path = dir_path.join("index.htm");
+    let index_html = fs::read_to_string(&index_path).unwrap();
+
+    let mut event = parser.parse(&index_html).unwrap();
+
+    for comp in &mut event.competitions_list {
+        let files = ["erg.htm", "deck.htm", "ergwert.htm"];
+        for file in files {
+            let p = dir_path.join(file);
+            if p.exists() {
+                let content = fs::read_to_string(&p).unwrap();
+                match file {
+                    "erg.htm" => { comp.participants = parser.parse_participants(&content).unwrap(); }
+                    "deck.htm" => { comp.officials = parser.parse_officials(&content).unwrap(); }
+                    "ergwert.htm" => {
+                        let rounds = parser.parse_rounds(&content, &comp.dances);
+                        for r in rounds {
+                            if !comp.rounds.iter().any(|existing| existing.name == r.name) {
+                                comp.rounds.push(r);
+                            }
+                        }
+                    }
+                    _ => {}
+                }
+            }
+        }
+    }
+
+    // 1. Verify against Ground Truth
+    let ground_truth_json = r#"{
+      "name": "danceComp 2025",
+      "date": "2025-03-04",
+      "organizer": "DTV / danceComp",
+      "hosting_club": "TNW",
+      "competitions_list": [
+        {
+          "level": "D",
+          "age_group": "Sen2",
+          "style": "Latein",
+          "dances": ["ChaChaCha", "Rumba", "Jive"],
+          "min_dances": 3,
+          "officials": {
+            "responsible_person": { "name": "Briel, Michael", "club": "TSC Schwarz-Gelb Aachen" },
+            "assistant": { "name": "Zimmermann, Sandra", "club": "TSK Sankt Augustin" },
+            "judges": [
+              { "code": "A", "name": "Suthoff, Peter", "club": "Tanzsportclub Dortmund" },
+              { "code": "B", "name": "Voss, Dr. Helmut", "club": "TC Royal Oberhausen" },
+              { "code": "C", "name": "Wichmann, Bernd", "club": "TSC Ems-Casino Blau-Gold Greven" },
+              { "code": "D", "name": "Kirstein, Petra", "club": "1. TGC Redoute Koblenz & Neuwied" },
+              { "code": "E", "name": "Sommer, Thomas", "club": "TTC Rot-Gold Köln" }
+            ]
+          },
+          "participants": [
+            {
+              "identity_type": "Couple",
+              "name_one": "Markus Müller",
+              "name_two": "Anja Müller",
+              "bib_number": 124,
+              "affiliation": "TSC Rot-Weiss Viernheim",
+              "final_rank": 1
+            },
+            {
+              "identity_type": "Couple",
+              "name_one": "Dr. Thomas Gebhard",
+              "name_two": "Dr. Ines Gebhard",
+              "bib_number": 121,
+              "affiliation": "Tanzsport-Zentrum Augsburg",
+              "final_rank": 2
+            }
+          ],
+          "rounds": [
+            {
+              "name": "Endrunde",
+              "marking_crosses": null,
+              "dtv_ranks": {
+                "A": { "124": { "ChaChaCha": 1, "Rumba": 1, "Jive": 1 }, "121": { "ChaChaCha": 2, "Rumba": 2, "Jive": 2 } },
+                "B": { "124": { "ChaChaCha": 1, "Rumba": 1, "Jive": 1 }, "121": { "ChaChaCha": 2, "Rumba": 2, "Jive": 2 } },
+                "C": { "124": { "ChaChaCha": 1, "Rumba": 1, "Jive": 1 }, "121": { "ChaChaCha": 2, "Rumba": 2, "Jive": 2 } },
+                "D": { "124": { "ChaChaCha": 1, "Rumba": 1, "Jive": 1 }, "121": { "ChaChaCha": 2, "Rumba": 2, "Jive": 2 } },
+                "E": { "124": { "ChaChaCha": 1, "Rumba": 1, "Jive": 1 }, "121": { "ChaChaCha": 2, "Rumba": 2, "Jive": 2 } }
+              },
+              "wdsf_scores": null
+            }
+          ]
+        }
+      ]
+    }"#;
+
+    let expected_event: dancing_datacollection::models::Event = serde_json::from_str(ground_truth_json).unwrap();
+    assert_eq!(event.name, expected_event.name);
+    assert_eq!(event.date, expected_event.date);
+    assert_eq!(event.organizer, expected_event.organizer);
+    assert_eq!(event.hosting_club, expected_event.hosting_club);
+    assert_eq!(event.competitions_list.len(), expected_event.competitions_list.len());
+
+    for (actual, expected) in event.competitions_list.iter().zip(expected_event.competitions_list.iter()) {
+        assert_eq!(actual.level, expected.level);
+        assert_eq!(actual.age_group, expected.age_group);
+        assert_eq!(actual.style, expected.style);
+        assert_eq!(actual.dances, expected.dances);
+        assert_eq!(actual.min_dances, expected.min_dances);
+        assert_eq!(actual.officials, expected.officials);
+        assert_eq!(actual.participants, expected.participants);
+        assert_eq!(actual.rounds, expected.rounds);
+    }
+
+    // 2. Verify 2025 Temporal Rule
+    assert!(validate_event_fidelity(&event), "Event should be valid for 2025 (min_dances=3)");
+
+    // 3. Verify 2026 Temporal Rule (should fail)
+    event.date = Some(NaiveDate::from_ymd_opt(2026, 3, 4).unwrap());
+    for comp in &mut event.competitions_list {
+        comp.min_dances = dancing_datacollection::models::validation::get_min_dances_for_level(
+            &parser.config.levels,
+            &comp.level,
+            &event.date.unwrap()
+        );
+    }
+    assert!(!validate_event_fidelity(&event), "Event should be invalid for 2026 (min_dances=4 required for Level D)");
+}

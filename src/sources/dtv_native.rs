@@ -761,6 +761,12 @@ impl ResultSource for DtvNative {
 
         let event_date = if let Some(ref dt) = date_text { self.parse_date(dt) } else { self.parse_date(&title) };
 
+        let organizer_sel = Selector::parse(&self.selectors.organizer).unwrap();
+        let organizer = document.select(&organizer_sel).next().map(|e| e.text().collect::<String>().trim().to_string());
+
+        let hosting_club_sel = Selector::parse(&self.selectors.hosting_club).unwrap();
+        let hosting_club = document.select(&hosting_club_sel).next().map(|e| e.text().collect::<String>().trim().to_string());
+
         let mut competitions = Vec::new();
         let item_sel = Selector::parse(&self.selectors.competition_item).unwrap();
 
@@ -790,8 +796,8 @@ impl ResultSource for DtvNative {
 
         Ok(Event {
             name: event_name.unwrap_or(title),
-            organizer: None,
-            hosting_club: None,
+            organizer,
+            hosting_club,
             competitions_list: competitions,
             date: event_date,
         })
