@@ -143,7 +143,7 @@ impl DtvNative {
         if s_up.contains("VW") || s_up.contains("WIENER") {
             dances.push(Dance::VienneseWaltz);
         }
-        if s_up.contains("SF") || s_up.contains("SLOW") || s_up.contains("FOX") {
+        if (s_up.contains("SF") && !s_up.contains("WDSF")) || s_up.contains("SLOW") || s_up.contains("FOX") {
             dances.push(Dance::SlowFoxtrot);
         }
         if s_up.contains("QS") || s_up.contains("QU") || s_up.contains("QUICK") {
@@ -779,7 +779,7 @@ impl ResultSource for DtvNative {
         let date_sel = Selector::parse(&self.selectors.event_date).unwrap();
         let date_text = document.select(&date_sel).next().map(|e| e.text().collect::<String>().trim().to_string());
 
-        let event_date = if let Some(ref dt) = date_text { self.parse_date(dt) } else { self.parse_date(&title) };
+        let event_date = date_text.and_then(|dt| self.parse_date(&dt)).or_else(|| self.parse_date(&title));
 
         let organizer_sel = Selector::parse(&self.selectors.organizer).unwrap();
         let organizer = document.select(&organizer_sel).next().map(|e| e.text().collect::<String>().trim().to_string());
@@ -841,18 +841,30 @@ pub fn extract_event_data(data_dir: &str) -> Result<Event> {
     let dir_path = Path::new(data_dir);
     let index_path = dir_path.join("index.htm");
 
-    let html = if index_path.exists() {
-        fs::read_to_string(&index_path)?
+    let index_html = if index_path.exists() {
+        fs::read_to_string(&index_path).ok()
     } else {
-        let erg_path = dir_path.join("erg.htm");
-        if erg_path.exists() {
-             fs::read_to_string(&erg_path)?
-        } else {
-            return Err(anyhow::anyhow!("No valid htm files found in {}", data_dir));
-        }
+        None
     };
 
-    let mut event = parser.parse(&html).map_err(|e| anyhow::anyhow!("Parsing error: {}", e))?;
+    let erg_path = dir_path.join("erg.htm");
+    let erg_html = if erg_path.exists() {
+        fs::read_to_string(&erg_path).ok()
+    } else {
+        None
+    };
+
+    let mut event = if let Some(ref html) = index_html {
+        match parser.parse(html) {
+            Ok(e) => e,
+            Err(_) if erg_html.is_some() => parser.parse(erg_html.as_ref().unwrap()).map_err(|e| anyhow::anyhow!("Parsing error: {}", e))?,
+            Err(e) => return Err(anyhow::anyhow!("Parsing error: {}", e)),
+        }
+    } else if let Some(ref html) = erg_html {
+        parser.parse(html).map_err(|e| anyhow::anyhow!("Parsing error: {}", e))?
+    } else {
+        return Err(anyhow::anyhow!("No valid htm files found in {}", data_dir));
+    };
 
     for comp in &mut event.competitions_list {
         let files = ["erg.htm", "deck.htm", "tabges.htm", "ergwert.htm"];

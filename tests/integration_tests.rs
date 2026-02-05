@@ -8,59 +8,37 @@ use serde_json;
 use toml;
 
 fn run_full_pipeline_test(dir_name: &str) {
-    let config_path = "config/config.toml";
-    let aliases_path = "assets/aliases.toml";
-    let config_content = fs::read_to_string(config_path).unwrap();
-    let config: Config = toml::from_str(&config_content).unwrap();
-    let i18n = I18n::new(aliases_path).unwrap();
-    let parser = DtvNative::new(config, SelectorConfig::default(), i18n);
-
     let dir_path = Path::new("tests").join(dir_name);
-    let index_path = dir_path.join("index.htm");
-    let index_html = fs::read_to_string(&index_path).unwrap();
+    let event = dancing_datacollection::sources::dtv_native::extract_event_data(dir_path.to_str().unwrap()).unwrap();
 
-    let mut event = match parser.parse(&index_html) {
-        Ok(e) => e,
-        Err(_) => {
-            let erg_path = dir_path.join("erg.htm");
-            let erg_html = fs::read_to_string(&erg_path).unwrap();
-            parser.parse(&erg_html).expect(&format!("Failed to parse both index and erg for {}", dir_name))
-        }
-    };
-
-    for comp in &mut event.competitions_list {
-        let files = ["erg.htm", "deck.htm", "tabges.htm", "ergwert.htm"];
-        for file in files {
-            let p = dir_path.join(file);
-            if p.exists() {
-                let content = fs::read_to_string(&p).unwrap();
-                match file {
-                    "erg.htm" => {
-                        if let Ok(parts) = parser.parse_participants(&content) {
-                            comp.participants = parts;
-                        }
-                    }
-                    "deck.htm" => {
-                        if let Ok(off) = parser.parse_officials(&content) {
-                            comp.officials = off;
-                        }
-                    }
-                    "tabges.htm" | "ergwert.htm" => {
-                        let rounds = parser.parse_rounds(&content, &comp.dances);
-                        for r in rounds {
-                            if !comp.rounds.iter().any(|existing| existing.name == r.name) {
-                                comp.rounds.push(r);
-                            }
-                        }
-                    }
-                    _ => {}
-                }
-            }
-        }
-
+    for comp in &event.competitions_list {
         assert!(!comp.participants.is_empty(), "No participants parsed for level {:?} in {}", comp.level, dir_name);
         assert!(!comp.officials.judges.is_empty(), "No judges parsed for level {:?} in {}", comp.level, dir_name);
         assert!(!comp.rounds.is_empty(), "No rounds parsed for level {:?} in {}", comp.level, dir_name);
+    }
+
+    // Verify against Ground Truth if it exists
+    let ground_truth_path = dir_path.join("tabges.jsonl");
+    if ground_truth_path.exists() {
+        let ground_truth_json = fs::read_to_string(ground_truth_path).unwrap();
+        let expected_event: dancing_datacollection::models::Event = serde_json::from_str(ground_truth_json.trim()).unwrap();
+
+        assert_eq!(event.name, expected_event.name, "Event name mismatch for {}", dir_name);
+        assert_eq!(event.date, expected_event.date, "Event date mismatch for {}", dir_name);
+        assert_eq!(event.organizer, expected_event.organizer, "Event organizer mismatch for {}", dir_name);
+        assert_eq!(event.hosting_club, expected_event.hosting_club, "Event hosting_club mismatch for {}", dir_name);
+        assert_eq!(event.competitions_list.len(), expected_event.competitions_list.len(), "Competitions list length mismatch for {}", dir_name);
+
+        for (actual, expected) in event.competitions_list.iter().zip(expected_event.competitions_list.iter()) {
+            assert_eq!(actual.level, expected.level);
+            assert_eq!(actual.age_group, expected.age_group);
+            assert_eq!(actual.style, expected.style);
+            assert_eq!(actual.dances, expected.dances);
+            assert_eq!(actual.min_dances, expected.min_dances);
+            assert_eq!(actual.officials, expected.officials);
+            assert_eq!(actual.participants, expected.participants);
+            assert_eq!(actual.rounds, expected.rounds);
+        }
     }
 }
 
@@ -76,6 +54,9 @@ fn run_full_pipeline_test(dir_name: &str) {
 #[test] fn test_integration_42_dtv_b_lat() { run_full_pipeline_test("42-0507_ot_mas1blat"); }
 #[test] fn test_integration_61_dtv_a_lat() { run_full_pipeline_test("61-0607_ot_hgr2alat"); }
 #[test] fn test_integration_24_dtv_s_lat() { run_full_pipeline_test("24-0407_wdsfopenlatrisingstars"); }
+#[test] fn test_integration_51_dtv_d_std() { run_full_pipeline_test("51-1105_ot_hgr2dstd"); }
+#[test] fn test_integration_52_dtv_c_std() { run_full_pipeline_test("52-1105_ot_hgr2cstd"); }
+#[test] fn test_integration_53_dtv_b_std() { run_full_pipeline_test("53-1105_ot_hgr2bstd"); }
 
 #[test]
 fn test_golden_file_03_dtv_d_lat() {
