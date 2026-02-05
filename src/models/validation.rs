@@ -53,6 +53,10 @@ pub fn validate_event_fidelity(event: &Event) -> bool {
         if comp.rounds.is_empty() {
             return false;
         }
+        // Verify that the number of dances parsed matches the level's minimum requirement.
+        if (comp.dances.len() as u32) < comp.min_dances {
+            return false;
+        }
     }
     !event.competitions_list.is_empty()
 }
