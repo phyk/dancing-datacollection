@@ -1,7 +1,6 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use crate::models::{Level, Event};
-use pyo3::prelude::*;
 
 #[derive(Debug, Deserialize, Clone, Serialize)]
 pub struct LevelConfig {
@@ -42,8 +41,7 @@ pub fn get_min_dances_for_level(
 }
 
 /// Checks whether the competitions extracted reproduce the downloaded sources (Fidelity Gate).
-#[pyfunction]
-pub fn validate_extracted_competitions(event: &Event) -> bool {
+pub fn validate_event_fidelity(event: &Event) -> bool {
     for comp in &event.competitions_list {
         // Fidelity Gate: A competition is invalid if it lacks Officials, Judges, or Results.
         if comp.officials.judges.is_empty() {

@@ -9,7 +9,6 @@ use tokio::time::{sleep, Duration, Instant};
 use url::Url;
 use crate::models::validation::LevelConfig;
 use crate::crawler::manifest::Manifest;
-use pyo3::prelude::*;
 
 #[derive(Debug, Deserialize, Clone, Serialize)]
 pub struct Config {
@@ -262,56 +261,39 @@ impl Scraper {
     }
 }
 
-/// Scrapes the websites and saves the HTML files relevant for exporting data.
-#[pyfunction]
-pub fn download_sources(config_path: String) -> PyResult<()> {
-    let config_content = fs::read_to_string(&config_path).map_err(|e| {
-        pyo3::exceptions::PyIOError::new_err(format!("Failed to read config: {}", e))
-    })?;
-    let config: Config = toml::from_str(&config_content).map_err(|e| {
-        pyo3::exceptions::PyValueError::new_err(format!("Failed to parse config: {}", e))
-    })?;
+pub fn run_download(config_path: &str) -> Result<()> {
+    let config_content = fs::read_to_string(config_path)?;
+    let config: Config = toml::from_str(&config_content)?;
 
     let rt = tokio::runtime::Runtime::new().unwrap();
     rt.block_on(async {
         let mut scraper = Scraper::new();
-        scraper
-            .scrape_all(&config)
-            .await
-            .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(format!("Scraper error: {}", e)))
+        scraper.scrape_all(&config).await
     })
 }
 
-/// Orchestrator that calls the scraping, extraction, and validation steps.
-#[pyfunction]
-pub fn collect_dancing_data(config_path: String) -> PyResult<Vec<crate::models::Event>> {
-    download_sources(config_path.clone())?;
+pub fn collect_all_data(config_path: &str) -> Result<Vec<crate::models::Event>> {
+    run_download(config_path)?;
 
     let mut all_events = Vec::new();
+    let data_dir = Path::new("data");
+    if !data_dir.exists() {
+         return Ok(all_events);
+    }
 
-    let entries = fs::read_dir("data").map_err(|e| {
-        pyo3::exceptions::PyIOError::new_err(format!("Failed to read data dir: {}", e))
-    })?;
-
+    let entries = fs::read_dir(data_dir)?;
     for entry in entries {
-        let entry = entry.map_err(|e| pyo3::exceptions::PyIOError::new_err(e.to_string()))?;
+        let entry = entry?;
         if entry.path().is_dir() {
-            let data_dir = entry.path().to_string_lossy().to_string();
-            if let Ok(event) = crate::sources::dtv_native::extract_competitions(data_dir) {
-                if crate::models::validation::validate_extracted_competitions(&event) {
+            let dir_str = entry.path().to_string_lossy().to_string();
+            if let Ok(event) = crate::sources::dtv_native::extract_event_data(&dir_str) {
+                if crate::models::validation::validate_event_fidelity(&event) {
                     all_events.push(event);
                 }
             }
         }
     }
-
-    if all_events.is_empty() {
-        Err(pyo3::exceptions::PyRuntimeError::new_err(
-            "No valid competition data collected",
-        ))
-    } else {
-        Ok(all_events)
-    }
+    Ok(all_events)
 }
 
 #[cfg(test)]

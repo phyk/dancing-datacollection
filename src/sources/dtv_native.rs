@@ -5,11 +5,11 @@ use crate::models::{
 };
 use crate::crawler::client::Config;
 use crate::sources::{ParsingError, ResultSource};
+use anyhow::Result;
 use chrono::NaiveDate;
 use regex::Regex;
 use scraper::{Html, Selector};
 use std::collections::HashMap;
-use pyo3::prelude::*;
 use std::fs;
 use std::path::Path;
 
@@ -798,60 +798,37 @@ impl ResultSource for DtvNative {
     }
 }
 
-/// Helper function to load config and i18n.
-fn load_config_and_i18n(config_path: &str) -> PyResult<(Config, I18n)> {
-    let config_content = fs::read_to_string(config_path).map_err(|e| {
-        pyo3::exceptions::PyIOError::new_err(format!("Failed to read config: {}", e))
-    })?;
-    let config: Config = toml::from_str(&config_content).map_err(|e| {
-        pyo3::exceptions::PyValueError::new_err(format!("Failed to parse config: {}", e))
-    })?;
+pub fn get_config_and_i18n(config_path: &str) -> Result<(Config, I18n)> {
+    let config_content = fs::read_to_string(config_path)?;
+    let config: Config = toml::from_str(&config_content)?;
 
     let aliases_path = "assets/aliases.toml";
-    let i18n = I18n::new(aliases_path).map_err(|e| {
-        pyo3::exceptions::PyIOError::new_err(format!("Failed to read aliases: {}", e))
-    })?;
-
+    let i18n = I18n::new(aliases_path)?;
     Ok((config, i18n))
 }
 
-/// Extracts the competition data from saved HTML files in the given directory.
-#[pyfunction]
-pub fn extract_competitions(data_dir: String) -> PyResult<Event> {
+pub fn extract_event_data(data_dir: &str) -> Result<Event> {
     let config_path = "config/config.toml";
-    let (config, i18n) = load_config_and_i18n(config_path)?;
+    let (config, i18n) = get_config_and_i18n(config_path)?;
     let parser = DtvNative::new(config, SelectorConfig::default(), i18n);
 
-    let dir_path = Path::new(&data_dir);
+    let dir_path = Path::new(data_dir);
     let index_path = dir_path.join("index.htm");
 
-    // Try to find at least one htm file if index doesn't exist
     let html = if index_path.exists() {
-        fs::read_to_string(&index_path).map_err(|e| {
-            pyo3::exceptions::PyIOError::new_err(format!("Failed to read index file: {}", e))
-        })?
+        fs::read_to_string(&index_path)?
     } else {
-        // Fallback to erg.htm or similar if index is missing
         let erg_path = dir_path.join("erg.htm");
         if erg_path.exists() {
-             fs::read_to_string(&erg_path).map_err(|e| {
-                pyo3::exceptions::PyIOError::new_err(format!("Failed to read erg file: {}", e))
-            })?
+             fs::read_to_string(&erg_path)?
         } else {
-            return Err(pyo3::exceptions::PyFileNotFoundError::new_err(format!(
-                "No valid htm files found in {}",
-                data_dir
-            )));
+            return Err(anyhow::anyhow!("No valid htm files found in {}", data_dir));
         }
     };
 
-    let mut event = parser
-        .parse(&html)
-        .map_err(|e| pyo3::exceptions::PyValueError::new_err(format!("Parsing error: {}", e)))?;
+    let mut event = parser.parse(&html).map_err(|e| anyhow::anyhow!("Parsing error: {}", e))?;
 
-    // Enrichment
     for comp in &mut event.competitions_list {
-        // Look for related files in the same directory
         let files = ["erg.htm", "deck.htm", "tabges.htm", "ergwert.htm"];
         for file in files {
             let p = dir_path.join(file);

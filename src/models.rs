@@ -1,12 +1,10 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::str::FromStr;
-use pyo3::prelude::*;
 
 pub mod validation;
 
 /// Represents the skill level of a competition.
-#[pyclass(eq, eq_int)]
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub enum Level {
     E,
@@ -41,7 +39,6 @@ impl FromStr for Level {
 }
 
 /// Represents the dance style (Standard or Latin).
-#[pyclass(eq, eq_int)]
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub enum Style {
     Standard,
@@ -68,7 +65,6 @@ impl FromStr for Style {
 }
 
 /// Represents an individual dance.
-#[pyclass(eq, eq_int)]
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub enum Dance {
     SlowWaltz,
@@ -84,7 +80,6 @@ pub enum Dance {
 }
 
 /// Represents the age group of the participants.
-#[pyclass(eq, eq_int)]
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub enum AgeGroup {
     Juv1,
@@ -133,7 +128,6 @@ impl FromStr for AgeGroup {
 }
 
 /// Represents a judge in a competition.
-#[pyclass]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Judge {
     pub code: String,
@@ -142,7 +136,6 @@ pub struct Judge {
 }
 
 /// Represents a committee member (e.g., Chairperson, Scrutineer).
-#[pyclass]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct CommitteeMember {
     pub name: String,
@@ -150,7 +143,6 @@ pub struct CommitteeMember {
 }
 
 /// Contains all officials responsible for a competition.
-#[pyclass]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Officials {
     pub responsible_person: Option<CommitteeMember>,
@@ -159,7 +151,6 @@ pub struct Officials {
 }
 
 /// Defines whether the participant is a solo dancer or a couple.
-#[pyclass(eq, eq_int)]
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq)]
 pub enum IdentityType {
     Solo,
@@ -167,7 +158,6 @@ pub enum IdentityType {
 }
 
 /// Represents a participant (solo or couple) in a competition.
-#[pyclass]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Participant {
     pub identity_type: IdentityType,
@@ -179,7 +169,6 @@ pub struct Participant {
 }
 
 /// Detailed scores for WDSF competitions.
-#[pyclass]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct WDSFScore {
     pub technical_quality: f64,
@@ -189,7 +178,6 @@ pub struct WDSFScore {
 }
 
 /// Represents a round in a competition with its associated results.
-#[pyclass]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Round {
     pub name: String,
@@ -199,7 +187,6 @@ pub struct Round {
 }
 
 /// A specific contest within an event.
-#[pyclass]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Competition {
     pub level: Level,
@@ -213,7 +200,6 @@ pub struct Competition {
 }
 
 /// A high-level container for a series of competitions.
-#[pyclass]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Event {
     pub name: String,
