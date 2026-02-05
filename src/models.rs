@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use std::str::FromStr;
 
 pub mod validation;
+pub mod skating;
 
 /// Represents the skill level of a competition.
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash)]
@@ -175,6 +176,7 @@ pub struct WDSFScore {
     pub movement_to_music: f64,
     pub partnering_skills: f64,
     pub choreography: f64,
+    pub total: f64,
 }
 
 /// Represents a round in a competition with its associated results.
