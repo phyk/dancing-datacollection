@@ -1,6 +1,6 @@
 use anyhow::{Context, Result};
 use clap::Parser;
-use dancing_datacollection::scraper::{Config, Scraper};
+use dancing_datacollection::crawler::client::{Config, Scraper};
 use env_logger::Env;
 use std::fs;
 

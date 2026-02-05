@@ -31,4 +31,4 @@ pub trait ResultSource {
     fn parse(&self, html: &str) -> Result<Event, ParsingError>;
 }
 
-pub mod dtv_parser;
+pub mod dtv_native;

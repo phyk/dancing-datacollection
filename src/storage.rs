@@ -138,7 +138,7 @@ mod tests {
 
         let base_dir = "test_storage_roundtrip";
         let manager = StorageManager::new(base_dir.to_string());
-        let py_event = crate::PyEvent(event.clone());
+        let py_event = PyEvent(event.clone());
         manager.save_event(&py_event).expect("Save failed");
 
         let sanitized_name = manager.sanitize_name(&event.name);

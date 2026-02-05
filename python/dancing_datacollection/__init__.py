@@ -4,7 +4,7 @@ from ._dancing_datacollection import (
     validate_extracted_competitions,
     collect_dancing_data,
     StorageManager,
-    PyEvent,
+    Event,
 )
 
 __all__ = [
@@ -13,5 +13,5 @@ __all__ = [
     "validate_extracted_competitions",
     "collect_dancing_data",
     "StorageManager",
-    "PyEvent",
+    "Event",
 ]
