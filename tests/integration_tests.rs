@@ -91,40 +91,15 @@ fn test_golden_file_03_dtv_d_lat() {
     let parser = DtvNative::new(config, SelectorConfig::default(), i18n);
 
     let dir_path = Path::new("tests").join(dir_name);
-    let index_path = dir_path.join("index.htm");
-    let index_html = fs::read_to_string(&index_path).unwrap();
 
-    let mut event = parser.parse(&index_html).unwrap();
-
-    for comp in &mut event.competitions_list {
-        let files = ["erg.htm", "deck.htm", "ergwert.htm"];
-        for file in files {
-            let p = dir_path.join(file);
-            if p.exists() {
-                let content = fs::read_to_string(&p).unwrap();
-                match file {
-                    "erg.htm" => { comp.participants = parser.parse_participants(&content).unwrap(); }
-                    "deck.htm" => { comp.officials = parser.parse_officials(&content).unwrap(); }
-                    "ergwert.htm" => {
-                        let rounds = parser.parse_rounds(&content, &comp.dances);
-                        for r in rounds {
-                            if !comp.rounds.iter().any(|existing| existing.name == r.name) {
-                                comp.rounds.push(r);
-                            }
-                        }
-                    }
-                    _ => {}
-                }
-            }
-        }
-    }
+    let mut event = dancing_datacollection::sources::dtv_native::extract_event_data(dir_path.to_str().unwrap()).unwrap();
 
     // 1. Verify against Ground Truth
     let ground_truth_json = r#"{
-      "name": "danceComp 2025",
-      "date": "2025-03-04",
-      "organizer": "DTV / danceComp",
-      "hosting_club": "TNW",
+      "name": "04.07.2025 Mas.II D Latein",
+      "date": "2025-07-04",
+      "organizer": "Tanzsportverband Nordrhein-Westfalen e.V.",
+      "hosting_club": "Tanzsportverband Nordrhein-Westfalen e.V.",
       "competitions_list": [
         {
           "level": "D",
@@ -133,44 +108,44 @@ fn test_golden_file_03_dtv_d_lat() {
           "dances": ["ChaChaCha", "Rumba", "Jive"],
           "min_dances": 3,
           "officials": {
-            "responsible_person": { "name": "Briel, Michael", "club": "TSC Schwarz-Gelb Aachen" },
-            "assistant": { "name": "Zimmermann, Sandra", "club": "TSK Sankt Augustin" },
+            "responsible_person": { "name": "Frank Wichter", "club": "TTC Rot-Gold Köln" },
+            "assistant": { "name": "Anja Ott", "club": "casino blau-gelb essen e.v." },
             "judges": [
-              { "code": "A", "name": "Suthoff, Peter", "club": "Tanzsportclub Dortmund" },
-              { "code": "B", "name": "Voss, Dr. Helmut", "club": "TC Royal Oberhausen" },
-              { "code": "C", "name": "Wichmann, Bernd", "club": "TSC Ems-Casino Blau-Gold Greven" },
-              { "code": "D", "name": "Kirstein, Petra", "club": "1. TGC Redoute Koblenz & Neuwied" },
-              { "code": "E", "name": "Sommer, Thomas", "club": "TTC Rot-Gold Köln" }
+              { "code": "AA", "name": "Thierry Ball", "club": "Tanz Sport Academy Allround Havelland" },
+              { "code": "AG", "name": "Bettina Bäumer", "club": "VTG Grün-Gold Recklinghausen" },
+              { "code": "BR", "name": "Doris Kösel", "club": "T.C.H. Oldenburg" },
+              { "code": "CR", "name": "Mario Schiena", "club": "TSA d. SG Langenfeld 92/72" },
+              { "code": "DB", "name": "Alexander von Lennep", "club": "TD Tanzsportclub Düsseldorf Rot-Weiß" }
             ]
           },
           "participants": [
             {
               "identity_type": "Couple",
-              "name_one": "Markus Müller",
-              "name_two": "Anja Müller",
-              "bib_number": 124,
-              "affiliation": "TSC Rot-Weiss Viernheim",
+              "name_one": "Ingo Wanke",
+              "name_two": "Johanna Witt",
+              "bib_number": 1408,
+              "affiliation": "TD Tanzsportclub Düsseldorf Rot-Weiß",
               "final_rank": 1
             },
             {
               "identity_type": "Couple",
-              "name_one": "Dr. Thomas Gebhard",
-              "name_two": "Dr. Ines Gebhard",
-              "bib_number": 121,
-              "affiliation": "Tanzsport-Zentrum Augsburg",
+              "name_one": "Christian Schöffl",
+              "name_two": "Dr. Susan Schöffl",
+              "bib_number": 1136,
+              "affiliation": "TSA d. 1. SSV Saalfeld 92",
               "final_rank": 2
             }
           ],
           "rounds": [
             {
-              "name": "Endrunde",
+              "name": "Ergebnis mit Wertung",
               "marking_crosses": null,
               "dtv_ranks": {
-                "A": { "124": { "ChaChaCha": 1, "Rumba": 1, "Jive": 1 }, "121": { "ChaChaCha": 2, "Rumba": 2, "Jive": 2 } },
-                "B": { "124": { "ChaChaCha": 1, "Rumba": 1, "Jive": 1 }, "121": { "ChaChaCha": 2, "Rumba": 2, "Jive": 2 } },
-                "C": { "124": { "ChaChaCha": 1, "Rumba": 1, "Jive": 1 }, "121": { "ChaChaCha": 2, "Rumba": 2, "Jive": 2 } },
-                "D": { "124": { "ChaChaCha": 1, "Rumba": 1, "Jive": 1 }, "121": { "ChaChaCha": 2, "Rumba": 2, "Jive": 2 } },
-                "E": { "124": { "ChaChaCha": 1, "Rumba": 1, "Jive": 1 }, "121": { "ChaChaCha": 2, "Rumba": 2, "Jive": 2 } }
+                "AA": { "1408": { "ChaChaCha": 2, "Rumba": 2, "Jive": 2 }, "1136": { "ChaChaCha": 1, "Rumba": 1, "Jive": 1 } },
+                "AG": { "1408": { "ChaChaCha": 1, "Rumba": 2, "Jive": 2 }, "1136": { "ChaChaCha": 2, "Rumba": 1, "Jive": 1 } },
+                "BR": { "1408": { "ChaChaCha": 1, "Rumba": 1, "Jive": 1 }, "1136": { "ChaChaCha": 2, "Rumba": 2, "Jive": 2 } },
+                "CR": { "1408": { "ChaChaCha": 1, "Rumba": 1, "Jive": 2 }, "1136": { "ChaChaCha": 2, "Rumba": 2, "Jive": 1 } },
+                "DB": { "1408": { "ChaChaCha": 2, "Rumba": 1, "Jive": 1 }, "1136": { "ChaChaCha": 1, "Rumba": 2, "Jive": 2 } }
               },
               "wdsf_scores": null
             }

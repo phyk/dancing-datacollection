@@ -181,6 +181,20 @@ impl DtvNative {
         dances
     }
 
+    pub fn parse_dances_from_table(&self, html: &str) -> Vec<Dance> {
+        let fragment = Html::parse_document(html);
+        let td_sel = Selector::parse("td.td2cw, td.td2ww").unwrap();
+        let mut dances = Vec::new();
+        for td in fragment.select(&td_sel) {
+            let text = td.text().collect::<String>().trim().to_string();
+            let d = self.parse_dances(&text);
+            if !d.is_empty() {
+                dances.push(d[0]);
+            }
+        }
+        dances
+    }
+
     pub fn parse_participants(&self, html: &str) -> Result<Vec<Participant>, ParsingError> {
         let fragment = Html::parse_document(html);
         let row_sel = Selector::parse(&self.selectors.participant_row).unwrap();
@@ -383,7 +397,7 @@ impl DtvNative {
                  round_html.push_str(&table_html);
                  table_idx += 1;
 
-                 if table_html.contains("TQ") || table_html.contains("MM") || table_html.contains(".0") {
+                 if table_html.contains("TQ") || table_html.contains("MM") || table_html.contains("td3www") || table_html.contains("td3pz") || table_html.contains("td5w") {
                       break;
                  }
             }
@@ -541,10 +555,12 @@ impl DtvNative {
         let tooltip_sel = Selector::parse(".tooltip2w").unwrap();
 
         let mut judge_codes = Vec::new();
+        let mut seen_codes = std::collections::HashSet::new();
 
         for row in document.select(&tr_sel).take(5) {
              let cells: Vec<_> = row.select(&td_sel).collect();
              let mut found_codes = Vec::new();
+             seen_codes.clear();
              for cell in &cells {
                   if cell.select(&tooltip_sel).next().is_some() {
                        // Short code is just the first text child
@@ -555,6 +571,10 @@ impl DtvNative {
                        }
 
                        if !code.is_empty() && code.len() <= 2 {
+                            if seen_codes.contains(&code) {
+                                 break;
+                            }
+                            seen_codes.insert(code.clone());
                             found_codes.push(code);
                        }
                   }
@@ -565,11 +585,14 @@ impl DtvNative {
              }
         }
 
+        let bib_sel = Selector::parse("td.td2cv, td.td2c").unwrap();
+        let td5w_sel = Selector::parse("td.td5w").unwrap();
+
         for row in document.select(&tr_sel) {
              let cells: Vec<_> = row.select(&td_sel).collect();
              if cells.len() < 5 { continue; }
 
-             let bib_text = cells.iter().find(|c| c.value().attr("class").unwrap_or("").contains("td2cv"))
+             let bib_text = row.select(&bib_sel).next()
                  .map(|c| {
                       let t = c.text().collect::<String>().trim().to_string();
                       let mut num_str = String::new();
@@ -580,30 +603,22 @@ impl DtvNative {
 
              if let Ok(bib) = bib_text.parse::<u32>() {
                   let mut dance_cell_count = 0;
-                  for cell in &cells {
-                       if cell.value().attr("class").unwrap_or("").contains("td5w") {
-                            let content = cell.inner_html();
-                            let lines: Vec<_> = content.split("<br>").collect();
-                            if let Some(first_line) = lines.get(0) {
-                                 if let Ok(rank) = first_line.trim().parse::<u32>() {
-                                      let judge_idx = dance_cell_count % (if judge_codes.is_empty() { 1 } else { judge_codes.len() });
-                                      let dance_idx = dance_cell_count / (if judge_codes.is_empty() { 1 } else { judge_codes.len() });
+                  for cell in row.select(&td5w_sel) {
+                       let content = cell.inner_html();
+                       let lines: Vec<_> = content.split("<br>").collect();
+                       if let Some(first_line) = lines.get(0) {
+                            if let Ok(rank) = first_line.trim().parse::<u32>() {
+                                 let judge_idx = dance_cell_count % (if judge_codes.is_empty() { 1 } else { judge_codes.len() });
+                                 let dance_idx = dance_cell_count / (if judge_codes.is_empty() { 1 } else { judge_codes.len() });
 
-                                      let adj_code = judge_codes.get(judge_idx).cloned().unwrap_or_else(|| "A".to_string());
-                                      let bib_map = results.entry(adj_code).or_default().entry(bib).or_default();
-                                      if let Some(d) = dances.get(dance_idx) {
-                                           bib_map.insert(*d, rank);
-                                      }
+                                 let adj_code = judge_codes.get(judge_idx).cloned().unwrap_or_else(|| "A".to_string());
+                                 let bib_map = results.entry(adj_code).or_default().entry(bib).or_default();
+                                 if let Some(d) = dances.get(dance_idx) {
+                                      bib_map.insert(*d, rank);
                                  }
                             }
-                            dance_cell_count += 1;
-                       } else if cell.value().attr("class").unwrap_or("").contains("tddarkc") {
-                            let text = cell.text().collect::<String>().trim().to_string();
-                            let provided_total: f32 = text.split('\n').next().unwrap_or("0").replace(',', ".").parse().unwrap_or(0.0);
-                            if provided_total > 0.0 && results.is_empty() {
-                                log::warn!("VALIDATION_WARNING: Bib {} has total rank {} but no marks parsed", bib, provided_total);
-                            }
                        }
+                       dance_cell_count += 1;
                   }
              }
         }
@@ -845,10 +860,30 @@ pub fn extract_event_data(data_dir: &str) -> Result<Event> {
                             if let Ok(parts) = parser.parse_participants(&content) {
                                 comp.participants = parts;
                             }
+                            let detected_dances = parser.parse_dances_from_table(&content);
+                            if !detected_dances.is_empty() {
+                                comp.dances = detected_dances;
+                            }
                         }
                         "deck.htm" => {
                             if let Ok(off) = parser.parse_officials(&content) {
                                 comp.officials = off;
+                            }
+                            // Extract organizer and hosting club if missing
+                            let doc = scraper::Html::parse_document(&content);
+                            let tr_sel = scraper::Selector::parse("tr").unwrap();
+                            let td_sel = scraper::Selector::parse("td").unwrap();
+                            for row in doc.select(&tr_sel) {
+                                let cells: Vec<_> = row.select(&td_sel).collect();
+                                if cells.len() >= 2 {
+                                    let key = cells[0].text().collect::<String>();
+                                    let val = cells[1].text().collect::<String>().trim().to_string();
+                                    if key.contains("Veranstalter") && event.organizer.is_none() {
+                                        event.organizer = Some(val);
+                                    } else if key.contains("Ausrichter") && event.hosting_club.is_none() {
+                                        event.hosting_club = Some(val);
+                                    }
+                                }
                             }
                         }
                         "tabges.htm" | "ergwert.htm" => {
