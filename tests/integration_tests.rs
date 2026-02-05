@@ -95,66 +95,9 @@ fn test_golden_file_03_dtv_d_lat() {
     let mut event = dancing_datacollection::sources::dtv_native::extract_event_data(dir_path.to_str().unwrap()).unwrap();
 
     // 1. Verify against Ground Truth
-    let ground_truth_json = r#"{
-      "name": "04.07.2025 Mas.II D Latein",
-      "date": "2025-07-04",
-      "organizer": "Tanzsportverband Nordrhein-Westfalen e.V.",
-      "hosting_club": "Tanzsportverband Nordrhein-Westfalen e.V.",
-      "competitions_list": [
-        {
-          "level": "D",
-          "age_group": "Sen2",
-          "style": "Latein",
-          "dances": ["ChaChaCha", "Rumba", "Jive"],
-          "min_dances": 3,
-          "officials": {
-            "responsible_person": { "name": "Frank Wichter", "club": "TTC Rot-Gold Köln" },
-            "assistant": { "name": "Anja Ott", "club": "casino blau-gelb essen e.v." },
-            "judges": [
-              { "code": "AA", "name": "Thierry Ball", "club": "Tanz Sport Academy Allround Havelland" },
-              { "code": "AG", "name": "Bettina Bäumer", "club": "VTG Grün-Gold Recklinghausen" },
-              { "code": "BR", "name": "Doris Kösel", "club": "T.C.H. Oldenburg" },
-              { "code": "CR", "name": "Mario Schiena", "club": "TSA d. SG Langenfeld 92/72" },
-              { "code": "DB", "name": "Alexander von Lennep", "club": "TD Tanzsportclub Düsseldorf Rot-Weiß" }
-            ]
-          },
-          "participants": [
-            {
-              "identity_type": "Couple",
-              "name_one": "Ingo Wanke",
-              "name_two": "Johanna Witt",
-              "bib_number": 1408,
-              "affiliation": "TD Tanzsportclub Düsseldorf Rot-Weiß",
-              "final_rank": 1
-            },
-            {
-              "identity_type": "Couple",
-              "name_one": "Christian Schöffl",
-              "name_two": "Dr. Susan Schöffl",
-              "bib_number": 1136,
-              "affiliation": "TSA d. 1. SSV Saalfeld 92",
-              "final_rank": 2
-            }
-          ],
-          "rounds": [
-            {
-              "name": "Ergebnis mit Wertung",
-              "marking_crosses": null,
-              "dtv_ranks": {
-                "AA": { "1408": { "ChaChaCha": 2, "Rumba": 2, "Jive": 2 }, "1136": { "ChaChaCha": 1, "Rumba": 1, "Jive": 1 } },
-                "AG": { "1408": { "ChaChaCha": 1, "Rumba": 2, "Jive": 2 }, "1136": { "ChaChaCha": 2, "Rumba": 1, "Jive": 1 } },
-                "BR": { "1408": { "ChaChaCha": 1, "Rumba": 1, "Jive": 1 }, "1136": { "ChaChaCha": 2, "Rumba": 2, "Jive": 2 } },
-                "CR": { "1408": { "ChaChaCha": 1, "Rumba": 1, "Jive": 2 }, "1136": { "ChaChaCha": 2, "Rumba": 2, "Jive": 1 } },
-                "DB": { "1408": { "ChaChaCha": 2, "Rumba": 1, "Jive": 1 }, "1136": { "ChaChaCha": 1, "Rumba": 2, "Jive": 2 } }
-              },
-              "wdsf_scores": null
-            }
-          ]
-        }
-      ]
-    }"#;
-
-    let expected_event: dancing_datacollection::models::Event = serde_json::from_str(ground_truth_json).unwrap();
+    let ground_truth_path = dir_path.join("tabges.jsonl");
+    let ground_truth_json = fs::read_to_string(ground_truth_path).unwrap();
+    let expected_event: dancing_datacollection::models::Event = serde_json::from_str(ground_truth_json.trim()).unwrap();
     assert_eq!(event.name, expected_event.name);
     assert_eq!(event.date, expected_event.date);
     assert_eq!(event.organizer, expected_event.organizer);
