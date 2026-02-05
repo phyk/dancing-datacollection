@@ -358,9 +358,7 @@ impl DtvNative {
     }
 
     pub fn parse_rounds(&self, html: &str, dances: &[Dance]) -> Vec<Round> {
-        let mut rounds = Vec::new();
         let document = Html::parse_document(html);
-        let table_sel = Selector::parse("table").unwrap();
         let h2_sel = Selector::parse("h2").unwrap();
         let comphead_sel = Selector::parse(".comphead").unwrap();
 
@@ -376,42 +374,74 @@ impl DtvNative {
                        round_names.push(text);
                   }
              }
+
+             let td_sel = Selector::parse("td.td1, td.td3").unwrap();
+             for td in document.select(&td_sel) {
+                 let text = td.text().collect::<Vec<_>>().join(" ").trim().to_string();
+                 let lower = text.to_lowercase();
+                 let canonical = if lower.contains("vorrunde") {
+                      Some("Vorrunde".to_string())
+                 } else if lower.contains("zwischenrunde") {
+                      if lower.contains("1.") || lower.contains("erste") {
+                           Some("1. Zwischenrunde".to_string())
+                      } else if lower.contains("2.") || lower.contains("zweite") {
+                           Some("2. Zwischenrunde".to_string())
+                      } else if lower.contains("3.") || lower.contains("dritte") {
+                           Some("3. Zwischenrunde".to_string())
+                      } else {
+                           Some("Zwischenrunde".to_string())
+                      }
+                 } else if lower.contains("endrunde") || lower.contains("finale") || lower.contains("final") {
+                      Some("Endrunde".to_string())
+                 } else {
+                      None
+                 };
+
+                 if let Some(name) = canonical {
+                      if !round_names.contains(&name) {
+                          round_names.push(name);
+                      }
+                 }
+             }
         }
 
         if round_names.is_empty() {
              round_names.push("Result Table".to_string());
         }
 
-        let mut table_idx = 0;
-        for round_name in round_names {
-            let mut round = Round {
-                name: round_name,
-                marking_crosses: None,
-                dtv_ranks: None,
-                wdsf_scores: None,
-            };
+        let mut rounds = Vec::new();
+        let marking_results = self.parse_tabges(html, dances);
+        let rank_results = self.parse_ergwert(html, dances);
+        let wdsf_results = if html.contains("TQ") || html.contains("MM") {
+             Some(self.parse_wdsf_scores(html))
+        } else {
+             None
+        };
 
-            let mut round_html = String::new();
-            while let Some(table) = document.select(&table_sel).nth(table_idx) {
-                 let table_html = table.html();
-                 round_html.push_str(&table_html);
-                 table_idx += 1;
+        let num_rounds = round_names.len().max(marking_results.len()).max(rank_results.len());
+        for i in 0..num_rounds {
+             let name = if let Some(m_res) = marking_results.get(i) {
+                  if !m_res.0.starts_with("Round") { m_res.0.clone() } else { round_names.get(i).cloned().unwrap_or(m_res.0.clone()) }
+             } else if let Some(r_res) = rank_results.get(i) {
+                  if !r_res.0.is_empty() { r_res.0.clone() } else { round_names.get(i).cloned().unwrap_or_else(|| format!("Round {}", i + 1)) }
+             } else {
+                  round_names.get(i).cloned().unwrap_or_else(|| format!("Round {}", i + 1))
+             };
 
-                 if table_html.contains("TQ") || table_html.contains("MM") || table_html.contains("td3www") || table_html.contains("td3pz") || table_html.contains("td5w") {
-                      break;
-                 }
-            }
-
-            if !round_html.is_empty() {
-                if round_html.contains("TQ") || round_html.contains("MM") {
-                    round.wdsf_scores = Some(self.parse_wdsf_scores(&round_html));
-                } else if round_html.contains(".0") || round_html.contains(",0") {
-                    round.dtv_ranks = Some(self.parse_ergwert(&round_html, dances));
-                } else {
-                    round.marking_crosses = Some(self.parse_tabges(&round_html, dances));
-                }
-            }
-            rounds.push(round);
+             let mut round = Round {
+                  name,
+                  marking_crosses: marking_results.get(i).map(|r| r.1.clone()),
+                  dtv_ranks: rank_results.get(i).map(|r| r.1.clone()),
+                  wdsf_scores: None,
+             };
+             if let Some(ref wdsf) = wdsf_results {
+                  if i == 0 { // Assume WDSF results are for the first round detected in the file
+                       round.wdsf_scores = Some(wdsf.clone());
+                  }
+             }
+             if round.marking_crosses.is_some() || round.dtv_ranks.is_some() || round.wdsf_scores.is_some() {
+                  rounds.push(round);
+             }
         }
 
         rounds
@@ -421,14 +451,16 @@ impl DtvNative {
         &self,
         html: &str,
         dances: &[Dance],
-    ) -> HashMap<String, HashMap<u32, HashMap<Dance, bool>>> {
-        let mut results = HashMap::new();
+    ) -> Vec<(String, HashMap<String, HashMap<u32, HashMap<Dance, bool>>>)> {
+        let mut all_results: Vec<(String, HashMap<String, HashMap<u32, HashMap<Dance, bool>>>)> = Vec::new();
         let document = Html::parse_document(html);
         let tr_sel = Selector::parse("tr").unwrap();
         let td_sel = Selector::parse("td").unwrap();
         let table_sel = Selector::parse("table").unwrap();
 
         for table in document.select(&table_sel) {
+            let mut table_round_idx = 0;
+            let mut current_results = HashMap::new();
             let mut rows_iter = table.select(&tr_sel);
             let first_row = rows_iter.next();
             if first_row.is_none() { continue; }
@@ -475,6 +507,19 @@ impl DtvNative {
                     }
 
                     if !adj_codes.is_empty() {
+                         // Start a new round if we already have results in the current one
+                         if !current_results.is_empty() {
+                              if table_round_idx < all_results.len() {
+                                   for (judge, bibs) in current_results {
+                                        all_results[table_round_idx].1.entry(judge).or_default().extend(bibs);
+                                   }
+                              } else {
+                                   all_results.push((format!("Round {}", all_results.len() + 1), current_results));
+                              }
+                              table_round_idx += 1;
+                              current_results = HashMap::new();
+                         }
+
                          for (col_idx, bib) in bibs_in_cols.iter().enumerate() {
                               let cell_idx = cells.len() - bibs_in_cols.len() + col_idx;
                               if cell_idx < cells.len() {
@@ -484,7 +529,7 @@ impl DtvNative {
                                         if line_idx < lines.len() {
                                              let val = lines[line_idx].trim();
                                              let has_cross = val.to_lowercase().contains('x') || val.parse::<u32>().unwrap_or(0) > 0;
-                                             let bib_map = results.entry(adj_code.clone()).or_insert_with(HashMap::new)
+                                             let bib_map = current_results.entry(adj_code.clone()).or_insert_with(HashMap::new)
                                                  .entry(*bib).or_insert_with(HashMap::new);
                                              for dance in dances {
                                                   bib_map.insert(*dance, has_cross);
@@ -501,7 +546,7 @@ impl DtvNative {
                               if cell_idx < cells.len() {
                                    let provided_total: u32 = cells[cell_idx].text().collect::<String>().trim().parse().unwrap_or(0);
                                    let mut calculated_total = 0;
-                                   for judge_map in results.values() {
+                                   for judge_map in current_results.values() {
                                         if let Some(bib_map) = judge_map.get(bib) {
                                              if bib_map.values().any(|&v| v) {
                                                   calculated_total += 1;
@@ -514,6 +559,15 @@ impl DtvNative {
                               }
                          }
                     }
+                }
+                if !current_results.is_empty() {
+                     if table_round_idx < all_results.len() {
+                          for (judge, bibs) in current_results {
+                               all_results[table_round_idx].1.entry(judge).or_default().extend(bibs);
+                          }
+                     } else {
+                          all_results.push((format!("Round {}", all_results.len() + 1), current_results));
+                     }
                 }
             } else {
                 // Horizontal layout
@@ -534,7 +588,7 @@ impl DtvNative {
                             let cell_idx = 2 + i;
                             if cell_idx < cells.len() {
                                 let cross_text = cells[cell_idx].text().collect::<String>();
-                                let bib_map = results.entry(judge_code.clone()).or_default().entry(bib).or_default();
+                                let bib_map = current_results.entry(judge_code.clone()).or_default().entry(bib).or_default();
                                 for dance in dances {
                                     bib_map.insert(*dance, cross_text.to_lowercase().contains('x'));
                                 }
@@ -542,13 +596,24 @@ impl DtvNative {
                         }
                     }
                 }
+                if !current_results.is_empty() {
+                     // In horizontal layout, we assume one round per table.
+                     // But we should still merge if we have multiple tables for the same round.
+                     if all_results.is_empty() {
+                          all_results.push((format!("Round 1"), current_results));
+                     } else {
+                          for (judge, bibs) in current_results {
+                               all_results[0].1.entry(judge).or_default().extend(bibs);
+                          }
+                     }
+                }
             }
         }
-        results
+        all_results
     }
 
-    pub fn parse_ergwert(&self, html: &str, dances: &[Dance]) -> HashMap<String, HashMap<u32, HashMap<Dance, u32>>> {
-        let mut results: HashMap<String, HashMap<u32, HashMap<Dance, u32>>> = HashMap::new();
+    pub fn parse_ergwert(&self, html: &str, dances: &[Dance]) -> Vec<(String, HashMap<String, HashMap<u32, HashMap<Dance, u32>>>)> {
+        let mut all_results: Vec<(String, HashMap<String, HashMap<u32, HashMap<Dance, u32>>>)> = Vec::new();
         let document = Html::parse_document(html);
         let tr_sel = Selector::parse("tr").unwrap();
         let td_sel = Selector::parse("td").unwrap();
@@ -602,12 +667,37 @@ impl DtvNative {
                  .unwrap_or_default();
 
              if let Ok(bib) = bib_text.parse::<u32>() {
+                  let mut round_names_from_row = Vec::new();
+                  if let Some(idx_cell) = row.select(&Selector::parse("td.td5c").unwrap()).next() {
+                       let idx_html = idx_cell.inner_html();
+                       for part in idx_html.split("<br>") {
+                            let p = part.trim();
+                            if p == "F" {
+                                 round_names_from_row.push("Endrunde".to_string());
+                            } else if let Ok(n) = p.parse::<u32>() {
+                                 if n == 1 {
+                                      round_names_from_row.push("Vorrunde".to_string());
+                                 } else {
+                                      round_names_from_row.push(format!("{}. Zwischenrunde", n - 1));
+                                 }
+                            }
+                       }
+                  }
+
                   let mut dance_cell_count = 0;
                   for cell in row.select(&td5w_sel) {
                        let content = cell.inner_html();
                        let lines: Vec<_> = content.split("<br>").collect();
-                       if let Some(first_line) = lines.get(0) {
-                            if let Ok(rank) = first_line.trim().parse::<u32>() {
+                       for (line_idx, line) in lines.iter().enumerate() {
+                            if let Ok(rank) = line.trim().parse::<u32>() {
+                                 while all_results.len() <= line_idx {
+                                      all_results.push((String::new(), HashMap::new()));
+                                 }
+                                 if line_idx < round_names_from_row.len() {
+                                      all_results[line_idx].0 = round_names_from_row[line_idx].clone();
+                                 }
+                                 let results = &mut all_results[line_idx].1;
+
                                  let judge_idx = dance_cell_count % (if judge_codes.is_empty() { 1 } else { judge_codes.len() });
                                  let dance_idx = dance_cell_count / (if judge_codes.is_empty() { 1 } else { judge_codes.len() });
 
@@ -623,7 +713,7 @@ impl DtvNative {
              }
         }
 
-        results
+        all_results
     }
 
     pub fn parse_wdsf_scores(&self, html: &str) -> HashMap<String, HashMap<u32, WDSFScore>> {
@@ -881,6 +971,16 @@ pub fn extract_event_data(data_dir: &str) -> Result<Event> {
                             if !detected_dances.is_empty() {
                                 comp.dances = detected_dances;
                             }
+                            let rounds = parser.parse_rounds(&content, &comp.dances);
+                            for r in rounds {
+                                if let Some(existing) = comp.rounds.iter_mut().find(|existing| existing.name == r.name) {
+                                     if r.marking_crosses.is_some() { existing.marking_crosses = r.marking_crosses; }
+                                     if r.dtv_ranks.is_some() { existing.dtv_ranks = r.dtv_ranks; }
+                                     if r.wdsf_scores.is_some() { existing.wdsf_scores = r.wdsf_scores; }
+                                } else {
+                                    comp.rounds.push(r);
+                                }
+                            }
                         }
                         "deck.htm" => {
                             if let Ok(off) = parser.parse_officials(&content) {
@@ -906,7 +1006,11 @@ pub fn extract_event_data(data_dir: &str) -> Result<Event> {
                         "tabges.htm" | "ergwert.htm" => {
                             let rounds = parser.parse_rounds(&content, &comp.dances);
                             for r in rounds {
-                                if !comp.rounds.iter().any(|existing| existing.name == r.name) {
+                                if let Some(existing) = comp.rounds.iter_mut().find(|existing| existing.name == r.name) {
+                                     if r.marking_crosses.is_some() { existing.marking_crosses = r.marking_crosses; }
+                                     if r.dtv_ranks.is_some() { existing.dtv_ranks = r.dtv_ranks; }
+                                     if r.wdsf_scores.is_some() { existing.wdsf_scores = r.wdsf_scores; }
+                                } else {
                                     comp.rounds.push(r);
                                 }
                             }
@@ -972,7 +1076,7 @@ mod tests {
         let parser = DtvNative::new(config, SelectorConfig::default(), i18n);
 
         let crosses = parser.parse_tabges(html, &dances);
-        assert!(crosses["AT"][&101][&Dance::SlowWaltz]);
+        assert!(crosses[0].1["AT"][&101][&Dance::SlowWaltz]);
     }
 
     #[test]
@@ -1073,7 +1177,8 @@ mod tests {
         let parser = DtvNative::new(config, SelectorConfig::default(), i18n);
 
         let results = parser.parse_tabges(&html, &dances);
-        assert!(results["A"][&284][&Dance::Samba]);
+        // Bib 284 is seeded and only starts in Round 2 (index 1)
+        assert!(results[1].1["A"][&284][&Dance::Samba]);
     }
 
     #[test]
@@ -1085,7 +1190,7 @@ mod tests {
         let parser = DtvNative::new(config, SelectorConfig::default(), i18n);
 
         let results = parser.parse_ergwert(&html, &dances);
-        assert!(results.contains_key("D"));
-        assert!(results["D"].contains_key(&721));
+        assert!(results[0].1.contains_key("D"));
+        assert!(results[0].1["D"].contains_key(&721));
     }
 }
