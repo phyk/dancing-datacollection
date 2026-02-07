@@ -48,9 +48,6 @@ impl StorageManager {
             pyo3::exceptions::PyIOError::new_err(format!("Failed to write binary file: {}", e))
         })?;
 
-        // Manifest Update
-        self.update_manifest(&event.name, &event_dir.to_string_lossy())?;
-
         Ok(())
     }
 }
@@ -69,31 +66,6 @@ impl StorageManager {
             .collect();
         s.truncate(64);
         s
-    }
-
-    fn update_manifest(&self, event_name: &str, event_path: &str) -> PyResult<()> {
-        let manifest_path = self.base_path.join("manifest.json");
-        let mut manifest: serde_json::Value = if manifest_path.exists() {
-            let content = fs::read_to_string(&manifest_path).map_err(|e| {
-                pyo3::exceptions::PyIOError::new_err(format!("Failed to read manifest: {}", e))
-            })?;
-            serde_json::from_str(&content).unwrap_or(serde_json::json!({}))
-        } else {
-            serde_json::json!({})
-        };
-
-        if let Some(obj) = manifest.as_object_mut() {
-            obj.insert(event_name.to_string(), serde_json::json!(event_path));
-        }
-
-        let manifest_json = serde_json::to_string_pretty(&manifest).map_err(|e| {
-            pyo3::exceptions::PyValueError::new_err(format!("Failed to serialize manifest: {}", e))
-        })?;
-        fs::write(manifest_path, manifest_json).map_err(|e| {
-            pyo3::exceptions::PyIOError::new_err(format!("Failed to write manifest file: {}", e))
-        })?;
-
-        Ok(())
     }
 }
 
@@ -155,12 +127,6 @@ mod tests {
         let bin_content = fs::read(bin_path).expect("Read Bin failed");
         let deserialized_bin: Event = postcard::from_bytes(&bin_content).expect("Deserialize Bin failed");
         assert_eq!(deserialized_bin, event);
-
-        // Verify Manifest
-        let manifest_path = PathBuf::from(base_dir).join("manifest.json");
-        assert!(manifest_path.exists());
-        let manifest_content = fs::read_to_string(&manifest_path).unwrap();
-        assert!(manifest_content.contains("Test Event"));
 
         // Cleanup
         let _ = fs::remove_dir_all(base_dir);
