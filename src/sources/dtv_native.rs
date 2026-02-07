@@ -1,4 +1,3 @@
-use crate::i18n::I18n;
 use crate::models::{
     CommitteeMember, Competition, Dance, Event, IdentityType, Judge, Level, Officials,
     Participant, Round, WDSFScore,
@@ -53,16 +52,14 @@ impl Default for SelectorConfig {
 pub struct DtvNative {
     pub config: Config,
     pub selectors: SelectorConfig,
-    pub i18n: I18n,
 }
 
 impl DtvNative {
     /// Creates a new DtvNative parser.
-    pub fn new(config: Config, selectors: SelectorConfig, i18n: I18n) -> Self {
+    pub fn new(config: Config, selectors: SelectorConfig) -> Self {
         Self {
             config,
             selectors,
-            i18n,
         }
     }
 
@@ -84,7 +81,7 @@ impl DtvNative {
             let d = caps[1].parse::<u32>().ok()?;
             let mon_str = &caps[2];
             let y = caps[3].parse::<i32>().ok()?;
-            let m = self.i18n.map_month(mon_str)?;
+            let m = crate::i18n::map_month(mon_str)?;
             return NaiveDate::from_ymd_opt(y, m, d);
         }
 
@@ -94,7 +91,7 @@ impl DtvNative {
             let d = caps[1].parse::<u32>().ok()?;
             let mon_str = &caps[2];
             let y = caps[3].parse::<i32>().ok()?;
-            let m = self.i18n.map_month(mon_str)?;
+            let m = crate::i18n::map_month(mon_str)?;
             return NaiveDate::from_ymd_opt(y, m, d);
         }
 
@@ -102,7 +99,7 @@ impl DtvNative {
     }
 
     pub fn parse_dances(&self, s: &str) -> Vec<Dance> {
-        self.i18n.parse_dances(s)
+        crate::i18n::parse_dances(s)
     }
 
     pub fn parse_dances_from_table(&self, html: &str) -> Vec<Dance> {
@@ -247,7 +244,7 @@ impl DtvNative {
                         .filter(|s| !s.is_empty());
 
                     if let Some(n) = name {
-                        if let Some(canonical_role) = self.i18n.map_role(&role) {
+                        if let Some(canonical_role) = crate::i18n::map_role(&role) {
                             let member = CommitteeMember {
                                 name: n,
                                 club: club.clone(),
@@ -780,11 +777,11 @@ impl DtvNative {
 
     pub fn parse_competition_from_title(&self, title: &str) -> Result<Competition, ParsingError> {
         let title_up = title.to_uppercase();
-        let mut sorted_age_keys = self.i18n.age_group_keys();
+        let mut sorted_age_keys = crate::i18n::age_group_keys();
         sorted_age_keys.sort_by_key(|k| k.len());
         sorted_age_keys.reverse();
 
-        let mut sorted_disc_keys = self.i18n.style_keys();
+        let mut sorted_disc_keys = crate::i18n::style_keys();
         sorted_disc_keys.sort_by_key(|k| k.len());
         sorted_disc_keys.reverse();
 
@@ -794,14 +791,14 @@ impl DtvNative {
 
         for key in &sorted_age_keys {
             if title_up.contains(&key.to_uppercase()) {
-                age_group = self.i18n.map_age_group(key);
+                age_group = crate::i18n::map_age_group(key);
                 break;
             }
         }
 
         for key in &sorted_disc_keys {
             if title_up.contains(&key.to_uppercase()) {
-                style = self.i18n.map_discipline(key);
+                style = crate::i18n::map_discipline(key);
                 break;
             }
         }
@@ -914,18 +911,17 @@ impl ResultSource for DtvNative {
     }
 }
 
-pub fn get_config_and_i18n(config_path: &str) -> Result<(Config, I18n)> {
+pub fn get_config(config_path: &str) -> Result<Config> {
     let config_content = fs::read_to_string(config_path)?;
     let config: Config = toml::from_str(&config_content)?;
 
-    let i18n = I18n::new();
-    Ok((config, i18n))
+    Ok(config)
 }
 
 pub fn extract_event_data(data_dir: &str) -> Result<Event> {
     let config_path = "config/config.toml";
-    let (config, i18n) = get_config_and_i18n(config_path)?;
-    let parser = DtvNative::new(config, SelectorConfig::default(), i18n);
+    let config = get_config(config_path)?;
+    let parser = DtvNative::new(config, SelectorConfig::default());
 
     let dir_path = Path::new(data_dir);
     let index_path = dir_path.join("index.htm");
@@ -1065,9 +1061,8 @@ mod tests {
 
     #[test]
     fn test_parse_date() {
-        let i18n = I18n::new();
         let config = Config { sources: crate::crawler::client::Sources { urls: vec![] } };
-        let parser = DtvNative::new(config, SelectorConfig::default(), i18n);
+        let parser = DtvNative::new(config, SelectorConfig::default());
 
         assert_eq!(parser.parse_date("11.05.2024"), Some(NaiveDate::from_ymd_opt(2024, 5, 11).unwrap()));
         assert_eq!(parser.parse_date("05/Jul/2025"), Some(NaiveDate::from_ymd_opt(2025, 7, 5).unwrap()));
@@ -1076,9 +1071,8 @@ mod tests {
 
     #[test]
     fn test_parse_competition_from_title() {
-        let i18n = I18n::new();
         let config = Config { sources: crate::crawler::client::Sources { urls: vec![] } };
-        let parser = DtvNative::new(config, SelectorConfig::default(), i18n);
+        let parser = DtvNative::new(config, SelectorConfig::default());
 
         let comp = parser.parse_competition_from_title("11.05.2024 Hgr.II D Standard").unwrap();
         assert_eq!(comp.level, Level::D);
@@ -1095,9 +1089,8 @@ mod tests {
             </table>
          "#;
         let dances = vec![Dance::SlowWaltz];
-        let i18n = I18n::new();
         let config = Config { sources: crate::crawler::client::Sources { urls: vec![] } };
-        let parser = DtvNative::new(config, SelectorConfig::default(), i18n);
+        let parser = DtvNative::new(config, SelectorConfig::default());
 
         let crosses = parser.parse_tabges(html, &dances);
         assert!(crosses[0].1["AT"][&101][&Dance::SlowWaltz]);
@@ -1112,9 +1105,8 @@ mod tests {
                 <tr><td>A</td><td>MM+CP 9.50</td></tr>
             </table>
          "#;
-        let i18n = I18n::new();
         let config = Config { sources: crate::crawler::client::Sources { urls: vec![] } };
-        let parser = DtvNative::new(config, SelectorConfig::default(), i18n);
+        let parser = DtvNative::new(config, SelectorConfig::default());
 
         let scores = parser.parse_wdsf_scores(html);
         let s = &scores["A"][&284];
@@ -1131,8 +1123,7 @@ mod tests {
             urls = []
         "#;
         let config: Config = toml::from_str(config_str).unwrap();
-        let i18n = I18n::new();
-        let parser = DtvNative::new(config, SelectorConfig::default(), i18n);
+        let parser = DtvNative::new(config, SelectorConfig::default());
 
         let comp2024 = parser.parse_competition_from_title("11.05.2024 Hgr.II D Standard").unwrap();
         assert_eq!(comp2024.min_dances, 3);
@@ -1150,9 +1141,8 @@ mod tests {
                 </TR>
             </TABLE>
         "#;
-        let i18n = I18n::new();
         let config = Config { sources: crate::crawler::client::Sources { urls: vec![] } };
-        let parser = DtvNative::new(config, SelectorConfig::default(), i18n);
+        let parser = DtvNative::new(config, SelectorConfig::default());
         let participants = parser.parse_participants(html).unwrap();
         assert_eq!(participants[0].bib_number, 610);
         assert_eq!(participants[0].name_one, "Jonathan Kummetz");
@@ -1172,9 +1162,8 @@ mod tests {
                 </TR>
             </TABLE>
         "#;
-        let i18n = I18n::new();
         let config = Config { sources: crate::crawler::client::Sources { urls: vec![] } };
-        let parser = DtvNative::new(config, SelectorConfig::default(), i18n);
+        let parser = DtvNative::new(config, SelectorConfig::default());
         let officials = parser.parse_officials(html).unwrap();
         assert!(officials.responsible_person.is_some());
         assert_eq!(officials.judges[0].code, "AT");
@@ -1184,9 +1173,8 @@ mod tests {
     fn test_real_wdsf_world_open_tabges() {
         let html = fs::read_to_string("tests/44-0507_wdsfworldopenlatadult/tabges.htm").unwrap();
         let dances = vec![Dance::Samba];
-        let i18n = I18n::new();
         let config = Config { sources: crate::crawler::client::Sources { urls: vec![] } };
-        let parser = DtvNative::new(config, SelectorConfig::default(), i18n);
+        let parser = DtvNative::new(config, SelectorConfig::default());
 
         let results = parser.parse_tabges(&html, &dances);
         // Bib 284 is seeded and only starts in Round 2 (index 1)
@@ -1197,9 +1185,8 @@ mod tests {
     fn test_real_wdsf_rising_stars_ergwert() {
         let html = fs::read_to_string("tests/47-0507_wdsfopenstdrisingstars/ergwert.htm").unwrap();
         let dances = vec![Dance::SlowWaltz, Dance::Tango, Dance::VienneseWaltz, Dance::SlowFoxtrot, Dance::Quickstep];
-        let i18n = I18n::new();
         let config = Config { sources: crate::crawler::client::Sources { urls: vec![] } };
-        let parser = DtvNative::new(config, SelectorConfig::default(), i18n);
+        let parser = DtvNative::new(config, SelectorConfig::default());
 
         let results = parser.parse_ergwert(&html, &dances);
         // Bib 721 is seeded and starts later. In this file, Endrunde (index 4) contains its ranks.

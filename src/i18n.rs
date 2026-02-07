@@ -55,90 +55,77 @@ const DANCE_ABBREVIATIONS: &[(Dance, &[&str])] = &[
     (Dance::Jive, &["JV", "JI", "JIVE"]),
 ];
 
-pub struct I18n {}
+pub fn map_age_group(s: &str) -> Option<AgeGroup> {
+    AGE_GROUP_MAPPINGS.iter()
+        .find(|&&(k, _)| k == s)
+        .and_then(|&(_, id)| AgeGroup::from_id(id))
+}
 
-impl I18n {
-    #[allow(clippy::new_without_default)]
-    pub fn new() -> Self {
-        Self {}
+pub fn map_discipline(s: &str) -> Option<Style> {
+    STYLE_MAPPINGS.iter()
+        .find(|&&(k, _)| k == s)
+        .and_then(|&(_, id)| Style::from_id(id))
+}
+
+pub fn map_role(s: &str) -> Option<String> {
+    match s {
+        "Turnierleiter" => Some("responsible_person".to_string()),
+        "Beisitzer" => Some("assistant".to_string()),
+        _ => None,
     }
+}
 
-    pub fn map_age_group(&self, s: &str) -> Option<AgeGroup> {
-        AGE_GROUP_MAPPINGS.iter()
-            .find(|&&(k, _)| k == s)
-            .and_then(|&(_, id)| AgeGroup::from_id(id))
+pub fn map_month(mon_str: &str) -> Option<u32> {
+    match mon_str.to_lowercase().as_str() {
+        "jan" | "januar" => Some(1),
+        "feb" | "februar" => Some(2),
+        "mar" | "märz" => Some(3),
+        "apr" | "april" => Some(4),
+        "may" | "mai" => Some(5),
+        "jun" | "juni" => Some(6),
+        "jul" | "juli" => Some(7),
+        "aug" | "august" => Some(8),
+        "sep" | "september" => Some(9),
+        "oct" | "oktober" => Some(10),
+        "nov" | "november" => Some(11),
+        "dec" | "dezember" => Some(12),
+        _ => None,
     }
+}
 
-    pub fn map_discipline(&self, s: &str) -> Option<Style> {
-        STYLE_MAPPINGS.iter()
-            .find(|&&(k, _)| k == s)
-            .and_then(|&(_, id)| Style::from_id(id))
-    }
+pub fn parse_dances(s: &str) -> Vec<Dance> {
+    let mut dances = Vec::new();
+    let s_up = s.to_uppercase();
 
-    pub fn map_role(&self, s: &str) -> Option<String> {
-        match s {
-            "Turnierleiter" => Some("responsible_person".to_string()),
-            "Beisitzer" => Some("assistant".to_string()),
-            _ => None,
-        }
-    }
-
-    pub fn map_month(&self, mon_str: &str) -> Option<u32> {
-        match mon_str.to_lowercase().as_str() {
-            "jan" | "januar" => Some(1),
-            "feb" | "februar" => Some(2),
-            "mar" | "märz" => Some(3),
-            "apr" | "april" => Some(4),
-            "may" | "mai" => Some(5),
-            "jun" | "juni" => Some(6),
-            "jul" | "juli" => Some(7),
-            "aug" | "august" => Some(8),
-            "sep" | "september" => Some(9),
-            "oct" | "oktober" => Some(10),
-            "nov" | "november" => Some(11),
-            "dec" | "dezember" => Some(12),
-            _ => None,
-        }
-    }
-
-    pub fn parse_dances(&self, s: &str) -> Vec<Dance> {
-        let mut dances = Vec::new();
-        let s_up = s.to_uppercase();
-
-        for &(dance, aliases) in DANCE_ABBREVIATIONS {
-            if aliases.iter().any(|&a| {
-                if a == "SF" {
-                    s_up.contains("SF") && !s_up.contains("WDSF")
-                } else {
-                    s_up.contains(a)
-                }
-            }) {
-                // Heuristic: check if we are in a Latin or Standard context
-                // but for now let's just match as it was in dtv_native.rs
-                dances.push(dance);
+    for &(dance, aliases) in DANCE_ABBREVIATIONS {
+        if aliases.iter().any(|&a| {
+            if a == "SF" {
+                s_up.contains("SF") && !s_up.contains("WDSF")
+            } else {
+                s_up.contains(a)
             }
+        }) {
+            dances.push(dance);
         }
+    }
 
-        // Special handling for broad disciplines if no specific dances found
-        if dances.is_empty() {
-            if s_up.contains("STANDARD") {
-                dances = vec![Dance::SlowWaltz, Dance::Tango, Dance::VienneseWaltz, Dance::SlowFoxtrot, Dance::Quickstep];
-            } else if s_up.contains("LATEIN") || s_up.contains("LATIN") {
-                dances = vec![Dance::Samba, Dance::ChaChaCha, Dance::Rumba, Dance::PasoDoble, Dance::Jive];
-            }
+    if dances.is_empty() {
+        if s_up.contains("STANDARD") {
+            dances = vec![Dance::SlowWaltz, Dance::Tango, Dance::VienneseWaltz, Dance::SlowFoxtrot, Dance::Quickstep];
+        } else if s_up.contains("LATEIN") || s_up.contains("LATIN") {
+            dances = vec![Dance::Samba, Dance::ChaChaCha, Dance::Rumba, Dance::PasoDoble, Dance::Jive];
         }
-
-        // Sort to ensure consistent order (optional, but good for stability)
-        dances.sort_by_key(|&d| d as u32);
-        dances.dedup();
-        dances
     }
 
-    pub fn age_group_keys(&self) -> Vec<&'static str> {
-        AGE_GROUP_MAPPINGS.iter().map(|&(k, _)| k).collect()
-    }
+    dances.sort_by_key(|&d| d as u32);
+    dances.dedup();
+    dances
+}
 
-    pub fn style_keys(&self) -> Vec<&'static str> {
-        STYLE_MAPPINGS.iter().map(|&(k, _)| k).collect()
-    }
+pub fn age_group_keys() -> Vec<&'static str> {
+    AGE_GROUP_MAPPINGS.iter().map(|&(k, _)| k).collect()
+}
+
+pub fn style_keys() -> Vec<&'static str> {
+    STYLE_MAPPINGS.iter().map(|&(k, _)| k).collect()
 }
