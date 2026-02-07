@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use std::collections::{HashMap, HashSet};
+use std::collections::{BTreeMap, HashMap, HashSet};
 use crate::models::{Level, Event, Round, Dance, Judge, Competition};
 use crate::models::skating::{calculate_dance_ranks, calculate_final_ranks, verify_wdsf_score};
 
@@ -35,7 +35,7 @@ fn is_redance(name: &str) -> bool {
 }
 
 pub fn get_min_dances_for_level(
-    levels: &Option<HashMap<String, LevelConfig>>,
+    levels: &Option<HashMap<String, LevelConfig>>, // Config still uses HashMap
     level: &Level,
     date: &chrono::NaiveDate,
 ) -> u32 {
@@ -204,11 +204,11 @@ fn validate_competition_fidelity(comp: &Competition) -> bool {
     // Skating Math Verification
     if let Some(last_round) = comp.rounds.last() {
         if let Some(ref dtv_marks) = last_round.dtv_ranks {
-            let mut dance_marks = HashMap::new();
+            let mut dance_marks = BTreeMap::new();
             for dance in &comp.dances {
-                let mut jm_for_dance = HashMap::new();
+                let mut jm_for_dance = BTreeMap::new();
                 for (j_code, bib_map) in dtv_marks {
-                    let mut marks = HashMap::new();
+                    let mut marks = BTreeMap::new();
                     for (bib, d_map) in bib_map {
                         if let Some(&m) = d_map.get(dance) { marks.insert(*bib, m); }
                     }
@@ -217,7 +217,7 @@ fn validate_competition_fidelity(comp: &Competition) -> bool {
                 dance_marks.insert(*dance, jm_for_dance);
             }
 
-            let mut dance_ranks = HashMap::new();
+            let mut dance_ranks = BTreeMap::new();
             for (dance, marks) in &dance_marks {
                 dance_ranks.insert(*dance, calculate_dance_ranks(marks));
             }
@@ -283,10 +283,10 @@ mod tests {
                     name: "Final".to_string(),
                     marking_crosses: None,
                     dtv_ranks: Some({
-                        let mut m = HashMap::new();
+                        let mut m = BTreeMap::new();
                         for j in &["A", "B", "C"] {
-                            let mut jm = HashMap::new();
-                            let mut bm = HashMap::new();
+                            let mut jm = BTreeMap::new();
+                            let mut bm = BTreeMap::new();
                             bm.insert(Dance::SlowWaltz, 1);
                             bm.insert(Dance::Tango, 1);
                             jm.insert(101, bm);
@@ -332,7 +332,7 @@ mod tests {
     fn test_missing_participant_for_judge() {
         let mut comp = create_mock_competition();
         if let Some(ref mut ranks) = comp.rounds[0].dtv_ranks {
-            let mut bm = HashMap::new();
+            let mut bm = BTreeMap::new();
             bm.insert(Dance::SlowWaltz, 1);
             bm.insert(Dance::Tango, 1);
             ranks.get_mut("A").unwrap().insert(102, bm);
@@ -356,9 +356,9 @@ mod tests {
         let mut comp = create_mock_competition();
         comp.rounds[0].marking_crosses = None;
         comp.rounds[0].wdsf_scores = {
-            let mut m = HashMap::new();
+            let mut m = BTreeMap::new();
             for j in &["A", "B", "C"] {
-                let mut jm = HashMap::new();
+                let mut jm = BTreeMap::new();
                 jm.insert(101, crate::models::WDSFScore {
                     technical_quality: 10.0,
                     movement_to_music: 10.0,
@@ -379,10 +379,10 @@ mod tests {
         let mut comp = create_mock_competition();
         comp.rounds[0].marking_crosses = None;
         comp.rounds[0].dtv_ranks = {
-            let mut m = HashMap::new();
+            let mut m = BTreeMap::new();
             for j in &["A", "B", "C"] {
-                let mut jm = HashMap::new();
-                let mut bm = HashMap::new();
+                let mut jm = BTreeMap::new();
+                let mut bm = BTreeMap::new();
                 bm.insert(Dance::SlowWaltz, 1);
                 bm.insert(Dance::Tango, 2);
                 jm.insert(101, bm);
@@ -400,10 +400,10 @@ mod tests {
         comp.rounds.insert(0, Round {
             name: "Vorrunde".to_string(),
             marking_crosses: Some({
-                let mut m = HashMap::new();
+                let mut m = BTreeMap::new();
                 for j in &["A", "B", "C"] {
-                    let mut jm = HashMap::new();
-                    let mut bm = HashMap::new();
+                    let mut jm = BTreeMap::new();
+                    let mut bm = BTreeMap::new();
                     bm.insert(Dance::SlowWaltz, true);
                     bm.insert(Dance::Tango, true);
                     jm.insert(101, bm);
@@ -415,7 +415,7 @@ mod tests {
             wdsf_scores: None,
         });
         if let Some(ref mut ranks) = comp.rounds[1].dtv_ranks {
-            let mut bm = HashMap::new();
+            let mut bm = BTreeMap::new();
             bm.insert(Dance::SlowWaltz, 1);
             bm.insert(Dance::Tango, 1);
             ranks.get_mut("A").unwrap().insert(102, bm.clone());
@@ -432,10 +432,10 @@ mod tests {
         comp.rounds.insert(0, Round {
             name: "Vorrunde".to_string(),
             marking_crosses: Some({
-                let mut m = HashMap::new();
+                let mut m = BTreeMap::new();
                 for j in &["A", "B", "C"] {
-                    let mut jm = HashMap::new();
-                    let mut bm = HashMap::new();
+                    let mut jm = BTreeMap::new();
+                    let mut bm = BTreeMap::new();
                     bm.insert(Dance::SlowWaltz, true);
                     bm.insert(Dance::Tango, true);
                     jm.insert(101, bm.clone());
@@ -450,10 +450,10 @@ mod tests {
         comp.rounds.insert(1, Round {
             name: "Semi".to_string(),
             marking_crosses: Some({
-                let mut m = HashMap::new();
+                let mut m = BTreeMap::new();
                 for j in &["A", "B", "C"] {
-                    let mut jm = HashMap::new();
-                    let mut bm = HashMap::new();
+                    let mut jm = BTreeMap::new();
+                    let mut bm = BTreeMap::new();
                     bm.insert(Dance::SlowWaltz, true);
                     bm.insert(Dance::Tango, true);
                     jm.insert(102, bm);
@@ -475,7 +475,7 @@ mod tests {
         if let Some(ref mut ranks) = comp.rounds[0].dtv_ranks {
             for jm in ranks.values_mut() {
                 jm.remove(&101);
-                let mut bm = HashMap::new();
+                let mut bm = BTreeMap::new();
                 bm.insert(Dance::SlowWaltz, 1);
                 bm.insert(Dance::Tango, 1);
                 jm.insert(102, bm);
@@ -490,10 +490,10 @@ mod tests {
         let mut comp = create_mock_competition();
         comp.rounds[0].dtv_ranks = None;
         comp.rounds[0].marking_crosses = Some({
-            let mut m = HashMap::new();
+            let mut m = BTreeMap::new();
             for j in &["A", "B", "C"] {
-                let mut jm = HashMap::new();
-                let mut bm = HashMap::new();
+                let mut jm = BTreeMap::new();
+                let mut bm = BTreeMap::new();
                 bm.insert(Dance::SlowWaltz, true);
                 bm.insert(Dance::Tango, true);
                 jm.insert(101, bm);
