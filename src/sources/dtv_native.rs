@@ -1146,7 +1146,7 @@ mod tests {
 
     #[test]
     fn test_parse_date() {
-        let i18n = I18n { aliases: Aliases { age_groups: HashMap::new(), dances: HashMap::new(), roles: HashMap::new() } };
+        let i18n = I18n { aliases: Aliases { age_groups: std::collections::HashMap::new(), dances: std::collections::HashMap::new(), roles: std::collections::HashMap::new() } };
         let config = Config { sources: crate::crawler::client::Sources { urls: vec![] }, levels: None };
         let parser = DtvNative::new(config, SelectorConfig::default(), i18n);
 
@@ -1183,7 +1183,7 @@ mod tests {
             </table>
          "#;
         let dances = vec![Dance::SlowWaltz];
-        let i18n = I18n { aliases: Aliases { age_groups: HashMap::new(), dances: HashMap::new(), roles: HashMap::new() } };
+        let i18n = I18n { aliases: Aliases { age_groups: std::collections::HashMap::new(), dances: std::collections::HashMap::new(), roles: std::collections::HashMap::new() } };
         let config = Config { sources: crate::crawler::client::Sources { urls: vec![] }, levels: None };
         let parser = DtvNative::new(config, SelectorConfig::default(), i18n);
 
@@ -1200,7 +1200,7 @@ mod tests {
                 <tr><td>A</td><td>MM+CP 9.50</td></tr>
             </table>
          "#;
-        let i18n = I18n { aliases: Aliases { age_groups: HashMap::new(), dances: HashMap::new(), roles: HashMap::new() } };
+        let i18n = I18n { aliases: Aliases { age_groups: std::collections::HashMap::new(), dances: std::collections::HashMap::new(), roles: std::collections::HashMap::new() } };
         let config = Config { sources: crate::crawler::client::Sources { urls: vec![] }, levels: None };
         let parser = DtvNative::new(config, SelectorConfig::default(), i18n);
 
@@ -1248,7 +1248,7 @@ mod tests {
                 </TR>
             </TABLE>
         "#;
-        let i18n = I18n { aliases: Aliases { age_groups: HashMap::new(), dances: HashMap::new(), roles: HashMap::new() } };
+        let i18n = I18n { aliases: Aliases { age_groups: std::collections::HashMap::new(), dances: std::collections::HashMap::new(), roles: std::collections::HashMap::new() } };
         let config = Config { sources: crate::crawler::client::Sources { urls: vec![] }, levels: None };
         let parser = DtvNative::new(config, SelectorConfig::default(), i18n);
         let participants = parser.parse_participants(html).unwrap();
@@ -1270,9 +1270,9 @@ mod tests {
                 </TR>
             </TABLE>
         "#;
-        let mut roles = HashMap::new();
+        let mut roles = std::collections::HashMap::new();
         roles.insert("Turnierleiter".to_string(), "responsible_person".to_string());
-        let i18n = I18n { aliases: Aliases { age_groups: HashMap::new(), dances: HashMap::new(), roles } };
+        let i18n = I18n { aliases: Aliases { age_groups: std::collections::HashMap::new(), dances: std::collections::HashMap::new(), roles } };
         let config = Config { sources: crate::crawler::client::Sources { urls: vec![] }, levels: None };
         let parser = DtvNative::new(config, SelectorConfig::default(), i18n);
         let officials = parser.parse_officials(html).unwrap();
@@ -1284,7 +1284,7 @@ mod tests {
     fn test_real_wdsf_world_open_tabges() {
         let html = fs::read_to_string("tests/44-0507_wdsfworldopenlatadult/tabges.htm").unwrap();
         let dances = vec![Dance::Samba];
-        let i18n = I18n { aliases: Aliases { age_groups: HashMap::new(), dances: HashMap::new(), roles: HashMap::new() } };
+        let i18n = I18n { aliases: Aliases { age_groups: std::collections::HashMap::new(), dances: std::collections::HashMap::new(), roles: std::collections::HashMap::new() } };
         let config = Config { sources: crate::crawler::client::Sources { urls: vec![] }, levels: None };
         let parser = DtvNative::new(config, SelectorConfig::default(), i18n);
 
@@ -1297,12 +1297,12 @@ mod tests {
     fn test_real_wdsf_rising_stars_ergwert() {
         let html = fs::read_to_string("tests/47-0507_wdsfopenstdrisingstars/ergwert.htm").unwrap();
         let dances = vec![Dance::SlowWaltz, Dance::Tango, Dance::VienneseWaltz, Dance::SlowFoxtrot, Dance::Quickstep];
-        let i18n = I18n { aliases: Aliases { age_groups: HashMap::new(), dances: HashMap::new(), roles: HashMap::new() } };
+        let i18n = I18n { aliases: Aliases { age_groups: std::collections::HashMap::new(), dances: std::collections::HashMap::new(), roles: std::collections::HashMap::new() } };
         let config = Config { sources: crate::crawler::client::Sources { urls: vec![] }, levels: None };
         let parser = DtvNative::new(config, SelectorConfig::default(), i18n);
 
         let results = parser.parse_ergwert(&html, &dances);
-        assert!(results[0].1.contains_key("D"));
-        assert!(results[0].1["D"].contains_key(&721));
+        assert!(results.1[0].1.contains_key("D"));
+        assert!(results.1[0].1["D"].contains_key(&721));
     }
 }
