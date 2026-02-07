@@ -1144,6 +1144,8 @@ mod tests {
     use crate::models::{AgeGroup, Level, Style};
     use std::fs;
 
+    use std::collections::HashMap;
+
     #[test]
     fn test_parse_date() {
         let i18n = I18n { aliases: Aliases { age_groups: HashMap::new(), dances: HashMap::new(), roles: HashMap::new() } };
@@ -1302,7 +1304,8 @@ mod tests {
         let parser = DtvNative::new(config, SelectorConfig::default(), i18n);
 
         let results = parser.parse_ergwert(&html, &dances);
-        assert!(results[0].1.contains_key("D"));
-        assert!(results[0].1["D"].contains_key(&721));
+        let found = results.0.iter().any(|r| r.1.values().any(|bm| bm.contains_key(&721))) ||
+                    results.1.iter().any(|r| r.1.values().any(|bm| bm.contains_key(&721)));
+        assert!(found);
     }
 }

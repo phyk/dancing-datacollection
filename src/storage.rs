@@ -1,18 +1,14 @@
-use crate::PyEvent;
-use pyo3::prelude::*;
+use crate::models::Event;
 use std::fs;
 use std::path::PathBuf;
 
 /// Manages the persistence of competition data in multiple formats.
-#[pyclass]
 pub struct StorageManager {
     base_path: PathBuf,
 }
 
-#[pymethods]
 impl StorageManager {
     /// Creates a new StorageManager with the given base directory.
-    #[new]
     pub fn new(base_path: String) -> Self {
         let path = PathBuf::from(base_path);
         if !path.exists() {
@@ -22,8 +18,7 @@ impl StorageManager {
     }
 
     /// Saves an Event to disk in both JSONL and Postcard binary formats.
-    pub fn save_event(&self, py_event: &PyEvent) -> PyResult<()> {
-        let event = &py_event.0;
+    pub fn save_event(&self, event: &Event) -> anyhow::Result<()> {
         let sanitized_name = self.sanitize_name(&event.name);
         let event_dir = self.base_path.join(sanitized_name);
         fs::create_dir_all(&event_dir).map_err(|e| {
@@ -49,7 +44,8 @@ impl StorageManager {
         })?;
 
         // Manifest Update
-        self.update_manifest(&event.name, &event_dir.to_string_lossy())?;
+        self.update_manifest(&event.name, &event_dir.to_string_lossy())
+            .map_err(|e| anyhow::anyhow!("Failed to update manifest: {}", e))?;
 
         Ok(())
     }
@@ -57,21 +53,10 @@ impl StorageManager {
 
 impl StorageManager {
     fn sanitize_name(&self, name: &str) -> String {
-        let mut s: String = name
-            .chars()
-            .map(|c| {
-                if c.is_alphanumeric() || c == '-' {
-                    c
-                } else {
-                    '_'
-                }
-            })
-            .collect();
-        s.truncate(64);
-        s
+        crate::models::sanitize_name(name)
     }
 
-    fn update_manifest(&self, event_name: &str, event_path: &str) -> PyResult<()> {
+    fn update_manifest(&self, event_name: &str, event_path: &str) -> anyhow::Result<()> {
         let manifest_path = self.base_path.join("manifest.json");
         let mut manifest: serde_json::Value = if manifest_path.exists() {
             let content = fs::read_to_string(&manifest_path).map_err(|e| {
@@ -86,12 +71,8 @@ impl StorageManager {
             obj.insert(event_name.to_string(), serde_json::json!(event_path));
         }
 
-        let manifest_json = serde_json::to_string_pretty(&manifest).map_err(|e| {
-            pyo3::exceptions::PyValueError::new_err(format!("Failed to serialize manifest: {}", e))
-        })?;
-        fs::write(manifest_path, manifest_json).map_err(|e| {
-            pyo3::exceptions::PyIOError::new_err(format!("Failed to write manifest file: {}", e))
-        })?;
+        let manifest_json = serde_json::to_string_pretty(&manifest)?;
+        fs::write(manifest_path, manifest_json)?;
 
         Ok(())
     }
@@ -138,8 +119,7 @@ mod tests {
 
         let base_dir = "test_storage_roundtrip";
         let manager = StorageManager::new(base_dir.to_string());
-        let py_event = PyEvent(event.clone());
-        manager.save_event(&py_event).expect("Save failed");
+        manager.save_event(&event).expect("Save failed");
 
         let sanitized_name = manager.sanitize_name(&event.name);
         let event_dir = PathBuf::from(base_dir).join(sanitized_name);

@@ -3,7 +3,7 @@ use serde::Deserialize;
 use std::collections::HashMap;
 use std::fs;
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct Aliases {
     pub age_groups: HashMap<String, String>,
     pub dances: HashMap<String, String>,
@@ -11,6 +11,7 @@ pub struct Aliases {
     pub roles: HashMap<String, String>,
 }
 
+#[derive(Clone)]
 pub struct I18n {
     pub aliases: Aliases,
 }

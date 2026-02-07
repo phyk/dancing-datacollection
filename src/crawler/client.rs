@@ -145,8 +145,7 @@ impl Scraper {
             }
 
             log::info!("Scraping base URL: {}", base_url);
-            let html_content = self.fetch_with_rate_limit(base_url).await?;
-            let competition_links = self.extract_competition_links(&html_content, base_url)?;
+            let competition_links = self.get_competition_links(base_url).await?;
 
             log::info!("Found {} competition links", competition_links.len());
 
@@ -159,15 +158,26 @@ impl Scraper {
         Ok(())
     }
 
-    fn extract_competition_links(&self, html: &str, base_url: &str) -> Result<Vec<String>> {
+    pub async fn get_competition_links(&mut self, url_str: &str) -> Result<Vec<String>> {
+        let html_content = self.fetch_with_rate_limit(url_str).await?;
+        // Use specific selectors for competition links to distinguish from navigation.
+        let selector_str = "center a, .pro_p_zeile a, .t_zeile a";
+        self.extract_competition_links(&html_content, url_str, Some(selector_str))
+    }
+
+    pub fn extract_competition_links(&self, html: &str, base_url: &str, selector_str: Option<&str>) -> Result<Vec<String>> {
         let fragment = Html::parse_document(html);
-        let selector = Selector::parse("a[href]").unwrap();
+        let selector = Selector::parse(selector_str.unwrap_or("a[href]")).unwrap();
         let base = Url::parse(base_url)?;
 
         let mut links = Vec::new();
         for element in fragment.select(&selector) {
             if let Some(href) = element.value().attr("href") {
-                if href.ends_with(".htm") || href.ends_with(".html") {
+                // Filter for .htm or .html files, ignoring common non-competition files.
+                if (href.ends_with(".htm") || href.ends_with(".html"))
+                    && !href.contains("robots.txt")
+                    && !href.contains("mailto:")
+                {
                     if let Ok(full_url) = base.join(href) {
                         links.push(full_url.to_string());
                     }
@@ -178,12 +188,6 @@ impl Scraper {
     }
 
     async fn scrape_competition(&mut self, url_str: &str) -> Result<()> {
-        if !self.robots_checker.is_allowed(url_str).await {
-            log::warn!("robots.txt disallows scraping {}, skipping", url_str);
-            return Ok(());
-        }
-
-        log::info!("Scraping competition: {}", url_str);
         let html_content = self.fetch_with_rate_limit(url_str).await?;
         let event_name = self.extract_event_name(&html_content)?;
         let sanitized_event_name = self.sanitize_name(&event_name);
@@ -191,11 +195,29 @@ impl Scraper {
         let data_dir = Path::new("data").join(&sanitized_event_name);
         fs::create_dir_all(&data_dir)?;
 
+        self.download_competition_files(url_str, &data_dir).await
+    }
+
+    pub async fn download_competition_files(&mut self, url_str: &str, target_dir: &Path) -> Result<()> {
+        if !self.robots_checker.is_allowed(url_str).await {
+            log::warn!("robots.txt disallows scraping {}, skipping", url_str);
+            return Ok(());
+        }
+
+        log::info!("Downloading competition files from: {}", url_str);
+        let html_content = self.fetch_with_rate_limit(url_str).await?;
+
         let filename = Path::new(url_str)
             .file_name()
             .and_then(|n| n.to_str())
             .unwrap_or("index.htm");
-        self.save_file(&data_dir, filename, &html_content)?;
+
+        if !filename.ends_with(".htm") && !filename.ends_with(".html") {
+            // If the URL doesn't end in a htm file, assume index.htm
+            self.save_file(target_dir, "index.htm", &html_content)?;
+        } else {
+            self.save_file(target_dir, filename, &html_content)?;
+        }
 
         // Now download related files: erg.htm, deck.htm, tabges.htm, ergwert.htm
         let base_url = Url::parse(url_str)?;
@@ -207,15 +229,15 @@ impl Scraper {
                 continue;
             }
 
-            if Manifest::is_already_downloaded(&data_dir, rel_file) {
-                log::debug!("File {:?} already exists, skipping (Smart Skip)", data_dir.join(rel_file));
+            if Manifest::is_already_downloaded(target_dir, rel_file) {
+                log::debug!("File {:?} already exists, skipping (Smart Skip)", target_dir.join(rel_file));
                 continue;
             }
 
             log::info!("Downloading related file: {}", rel_url);
             match self.fetch_with_rate_limit(rel_url.as_str()).await {
                 Ok(content) => {
-                    self.save_file(&data_dir, rel_file, &content)?;
+                    self.save_file(target_dir, rel_file, &content)?;
                 }
                 Err(e) => log::error!("Failed to download {}: {}", rel_url, e),
             }
@@ -240,18 +262,7 @@ impl Scraper {
     }
 
     fn sanitize_name(&self, name: &str) -> String {
-        let mut sanitized: String = name
-            .chars()
-            .map(|c| {
-                if c.is_alphanumeric() || c == '-' {
-                    c
-                } else {
-                    '_'
-                }
-            })
-            .collect();
-        sanitized.truncate(64);
-        sanitized
+        crate::models::sanitize_name(name)
     }
 
     fn save_file(&self, dir: &Path, filename: &str, content: &str) -> Result<()> {

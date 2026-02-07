@@ -46,11 +46,15 @@ WDSF (International): Decimal scores across four categories: Technical Quality, 
 Technical Constraints & Logic Robots & Crawling: * Must parse and respect robots.txt.
 Implement a "Smart Skip": Check local storage manifest before downloading to prevent re-downloads.
 
-Fidelity Gate (Validation):
+Fidelity Gate (Validation) & Math Check:
 
 A competition is invalid if it lacks Officials, Judges, or Results.
 
 Structure Check: If a competition level (e.g., "Standard A") requires 5 dances but only 3 are found, log a PARSING_ERROR and do not save.
+
+Mandatory Math Check: The library performs a Skating System re-calculation for DTV ranks and verifies WDSF score totals.
+
+**No-Validation-No-Save Policy**: If a competition fails the Fidelity Gate or the Mandatory Math Check, it is logged as a CRITICAL_VALIDATION_ERROR and NOT saved to the archive.
 
 Localization Module:
 
@@ -59,9 +63,9 @@ Store German/English aliases for Age Groups and Levels in a separate, accessible
 Input & Output Input: A configuration file (.toml or .yaml) containing source URLs and site-specific parameters.
 Output Formats:
 
-Human-Readable: .jsonl (JSON Lines) for easy diffing and inspection.
+Human-Readable: .json for single competition events.
 
-Optimized Binary: postcard or MessagePack for high-speed, low-disk-space storage.
+Optimized Binary: postcard or MessagePack (Internal/Optional).
 
 Abstract Design: ResultSource Trait To ensure efficient abstractions, all scrapers must implement this trait:
 Rust
@@ -72,14 +76,12 @@ pub trait ResultSource {
     fn parse(&self, html: &str) -> Result<crate::models::Event, crate::sources::ParsingError>;
 }
 
-Error Handling: Every failure must log a specific reason (NETWORK_ERROR, MISSING_REQUIRED_DATA, PARSING_ERROR).
+Error Handling: Every failure must log a specific reason (NETWORK_ERROR, MISSING_REQUIRED_DATA, PARSING_ERROR, CRITICAL_VALIDATION_ERROR).
 
-Performance: The binary format must be significantly smaller than the JSONL output.
+Performance: The binary format must be significantly smaller than the JSON output.
 
 Documentation: Short "why-not-how" inline docstrings for all public functions.
 
-Python Access: The library must be importable in Python. It must expose the following high level functions:
-- `download_sources(config_path: str)`: Scrape the websites and save the HTML files relevant for exporting data.
-- `extract_competitions(data_dir: str)`: Extract the competition data from saved HTML files.
-- `validate_extracted_competitions(event: Event)`: Check whether the competitions extracted reproduce the downloaded sources (Fidelity Gate).
-- `collect_dancing_data(config_path: str)`: Orchestrator that calls the above steps.
+Python Access: The library exposes a single high-level entry point:
+- `load_competition_results(target_folder: str, url: str, date: Optional[str] = None, age_group: Optional[str] = None, style: Optional[str] = None, level: Optional[str] = None, download_html: bool = True, output_format: str = "json") -> None`:
+  Orchestrator that downloads, parses, validates, and archives results. It handles both event indices and single competition URLs. Data is saved in `target_folder/{EventName_Year}/{Competition_ID}.json`. If `download_html` is enabled, raw HTML files are stored in a `raw/` subfolder.
