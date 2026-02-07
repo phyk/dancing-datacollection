@@ -84,21 +84,7 @@ impl DtvNative {
             let d = caps[1].parse::<u32>().ok()?;
             let mon_str = &caps[2];
             let y = caps[3].parse::<i32>().ok()?;
-            let m = match mon_str.to_lowercase().as_str() {
-                "jan" => 1,
-                "feb" => 2,
-                "mar" => 3,
-                "apr" => 4,
-                "may" => 5,
-                "jun" => 6,
-                "jul" => 7,
-                "aug" => 8,
-                "sep" => 9,
-                "oct" => 10,
-                "nov" => 11,
-                "dec" => 12,
-                _ => return None,
-            };
+            let m = self.i18n.map_month(mon_str)?;
             return NaiveDate::from_ymd_opt(y, m, d);
         }
 
@@ -108,21 +94,7 @@ impl DtvNative {
             let d = caps[1].parse::<u32>().ok()?;
             let mon_str = &caps[2];
             let y = caps[3].parse::<i32>().ok()?;
-            let m = match mon_str.to_lowercase().as_str() {
-                "januar" => 1,
-                "februar" => 2,
-                "märz" => 3,
-                "april" => 4,
-                "mai" => 5,
-                "juni" => 6,
-                "juli" => 7,
-                "august" => 8,
-                "september" => 9,
-                "oktober" => 10,
-                "november" => 11,
-                "dezember" => 12,
-                _ => return None,
-            };
+            let m = self.i18n.map_month(mon_str)?;
             return NaiveDate::from_ymd_opt(y, m, d);
         }
 
@@ -130,58 +102,7 @@ impl DtvNative {
     }
 
     pub fn parse_dances(&self, s: &str) -> Vec<Dance> {
-        let mut dances = Vec::new();
-        let s_up = s.to_uppercase();
-
-        // Standard
-        if s_up.contains("SW") || s_up.contains("LW") || s_up.contains("WALZER") {
-            dances.push(Dance::SlowWaltz);
-        }
-        if s_up.contains("TG") || s_up.contains("TANGO") {
-            dances.push(Dance::Tango);
-        }
-        if s_up.contains("VW") || s_up.contains("WIENER") {
-            dances.push(Dance::VienneseWaltz);
-        }
-        if s_up.contains("VW") || s_up.contains("WW") || s_up.contains("WIENER") {
-            dances.push(Dance::VienneseWaltz);
-        }
-        if (s_up.contains("SF") && !s_up.contains("WDSF")) || s_up.contains("SLOW") || s_up.contains("FOX") {
-            dances.push(Dance::SlowFoxtrot);
-        }
-        if s_up.contains("QS") || s_up.contains("QU") || s_up.contains("QUICK") {
-            dances.push(Dance::Quickstep);
-        }
-
-        // Latin
-        if dances.is_empty() {
-            if s_up.contains("CC") || s_up.contains("CHA") {
-                dances.push(Dance::ChaChaCha);
-            }
-            if s_up.contains("SB") || s_up.contains("SA") || s_up.contains("SAMBA") {
-                dances.push(Dance::Samba);
-            }
-            if s_up.contains("RB") || s_up.contains("RU") || s_up.contains("RUMBA") {
-                dances.push(Dance::Rumba);
-            }
-            if s_up.contains("PD") || s_up.contains("PASO") {
-                dances.push(Dance::PasoDoble);
-            }
-            if s_up.contains("JV") || s_up.contains("JI") || s_up.contains("JIVE") {
-                dances.push(Dance::Jive);
-            }
-        }
-
-        // Fallback for broad disciplines
-        if dances.is_empty() {
-             if s_up.contains("STANDARD") {
-                 dances = vec![Dance::SlowWaltz, Dance::Tango, Dance::VienneseWaltz, Dance::SlowFoxtrot, Dance::Quickstep];
-             } else if s_up.contains("LATEIN") || s_up.contains("LATIN") {
-                 dances = vec![Dance::Samba, Dance::ChaChaCha, Dance::Rumba, Dance::PasoDoble, Dance::Jive];
-             }
-        }
-
-        dances
+        self.i18n.parse_dances(s)
     }
 
     pub fn parse_dances_from_table(&self, html: &str) -> Vec<Dance> {
@@ -859,11 +780,11 @@ impl DtvNative {
 
     pub fn parse_competition_from_title(&self, title: &str) -> Result<Competition, ParsingError> {
         let title_up = title.to_uppercase();
-        let mut sorted_age_keys: Vec<_> = self.i18n.aliases.age_groups.keys().collect();
+        let mut sorted_age_keys = self.i18n.age_group_keys();
         sorted_age_keys.sort_by_key(|k| k.len());
         sorted_age_keys.reverse();
 
-        let mut sorted_disc_keys: Vec<_> = self.i18n.aliases.dances.keys().collect();
+        let mut sorted_disc_keys = self.i18n.style_keys();
         sorted_disc_keys.sort_by_key(|k| k.len());
         sorted_disc_keys.reverse();
 
@@ -907,7 +828,7 @@ impl DtvNative {
         let style = style.unwrap();
         let level = level.unwrap();
         let dances = self.parse_dances(title);
-        let min_dances = crate::models::validation::get_min_dances_for_level(&self.config.levels, &level, &date);
+        let min_dances = crate::models::validation::get_min_dances_for_level(&level, &date);
 
         Ok(Competition {
             level,
@@ -997,8 +918,7 @@ pub fn get_config_and_i18n(config_path: &str) -> Result<(Config, I18n)> {
     let config_content = fs::read_to_string(config_path)?;
     let config: Config = toml::from_str(&config_content)?;
 
-    let aliases_path = "assets/aliases.toml";
-    let i18n = I18n::new(aliases_path)?;
+    let i18n = I18n::new();
     Ok((config, i18n))
 }
 
@@ -1140,14 +1060,13 @@ pub fn extract_event_data(data_dir: &str) -> Result<Event> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::i18n::Aliases;
     use crate::models::{AgeGroup, Level, Style};
     use std::fs;
 
     #[test]
     fn test_parse_date() {
-        let i18n = I18n { aliases: Aliases { age_groups: HashMap::new(), dances: HashMap::new(), roles: HashMap::new() } };
-        let config = Config { sources: crate::crawler::client::Sources { urls: vec![] }, levels: None };
+        let i18n = I18n::new();
+        let config = Config { sources: crate::crawler::client::Sources { urls: vec![] } };
         let parser = DtvNative::new(config, SelectorConfig::default(), i18n);
 
         assert_eq!(parser.parse_date("11.05.2024"), Some(NaiveDate::from_ymd_opt(2024, 5, 11).unwrap()));
@@ -1157,15 +1076,8 @@ mod tests {
 
     #[test]
     fn test_parse_competition_from_title() {
-        let aliases_content = r#"
-            [age_groups]
-            "Hgr.II" = "adult_2"
-            [dances]
-            "Standard" = "std"
-        "#;
-        let aliases: Aliases = toml::from_str(aliases_content).unwrap();
-        let i18n = I18n { aliases };
-        let config = Config { sources: crate::crawler::client::Sources { urls: vec![] }, levels: None };
+        let i18n = I18n::new();
+        let config = Config { sources: crate::crawler::client::Sources { urls: vec![] } };
         let parser = DtvNative::new(config, SelectorConfig::default(), i18n);
 
         let comp = parser.parse_competition_from_title("11.05.2024 Hgr.II D Standard").unwrap();
@@ -1183,8 +1095,8 @@ mod tests {
             </table>
          "#;
         let dances = vec![Dance::SlowWaltz];
-        let i18n = I18n { aliases: Aliases { age_groups: HashMap::new(), dances: HashMap::new(), roles: HashMap::new() } };
-        let config = Config { sources: crate::crawler::client::Sources { urls: vec![] }, levels: None };
+        let i18n = I18n::new();
+        let config = Config { sources: crate::crawler::client::Sources { urls: vec![] } };
         let parser = DtvNative::new(config, SelectorConfig::default(), i18n);
 
         let crosses = parser.parse_tabges(html, &dances);
@@ -1200,8 +1112,8 @@ mod tests {
                 <tr><td>A</td><td>MM+CP 9.50</td></tr>
             </table>
          "#;
-        let i18n = I18n { aliases: Aliases { age_groups: HashMap::new(), dances: HashMap::new(), roles: HashMap::new() } };
-        let config = Config { sources: crate::crawler::client::Sources { urls: vec![] }, levels: None };
+        let i18n = I18n::new();
+        let config = Config { sources: crate::crawler::client::Sources { urls: vec![] } };
         let parser = DtvNative::new(config, SelectorConfig::default(), i18n);
 
         let scores = parser.parse_wdsf_scores(html);
@@ -1217,19 +1129,9 @@ mod tests {
         let config_str = r#"
             [sources]
             urls = []
-            [levels.D]
-            min_dances_legacy = 3
-            min_dances_2026 = 4
         "#;
         let config: Config = toml::from_str(config_str).unwrap();
-        let aliases_content = r#"
-            [age_groups]
-            "Hgr.II" = "adult_2"
-            [dances]
-            "Standard" = "std"
-        "#;
-        let aliases: Aliases = toml::from_str(aliases_content).unwrap();
-        let i18n = I18n { aliases };
+        let i18n = I18n::new();
         let parser = DtvNative::new(config, SelectorConfig::default(), i18n);
 
         let comp2024 = parser.parse_competition_from_title("11.05.2024 Hgr.II D Standard").unwrap();
@@ -1248,8 +1150,8 @@ mod tests {
                 </TR>
             </TABLE>
         "#;
-        let i18n = I18n { aliases: Aliases { age_groups: HashMap::new(), dances: HashMap::new(), roles: HashMap::new() } };
-        let config = Config { sources: crate::crawler::client::Sources { urls: vec![] }, levels: None };
+        let i18n = I18n::new();
+        let config = Config { sources: crate::crawler::client::Sources { urls: vec![] } };
         let parser = DtvNative::new(config, SelectorConfig::default(), i18n);
         let participants = parser.parse_participants(html).unwrap();
         assert_eq!(participants[0].bib_number, 610);
@@ -1270,10 +1172,8 @@ mod tests {
                 </TR>
             </TABLE>
         "#;
-        let mut roles = HashMap::new();
-        roles.insert("Turnierleiter".to_string(), "responsible_person".to_string());
-        let i18n = I18n { aliases: Aliases { age_groups: HashMap::new(), dances: HashMap::new(), roles } };
-        let config = Config { sources: crate::crawler::client::Sources { urls: vec![] }, levels: None };
+        let i18n = I18n::new();
+        let config = Config { sources: crate::crawler::client::Sources { urls: vec![] } };
         let parser = DtvNative::new(config, SelectorConfig::default(), i18n);
         let officials = parser.parse_officials(html).unwrap();
         assert!(officials.responsible_person.is_some());
@@ -1284,8 +1184,8 @@ mod tests {
     fn test_real_wdsf_world_open_tabges() {
         let html = fs::read_to_string("tests/44-0507_wdsfworldopenlatadult/tabges.htm").unwrap();
         let dances = vec![Dance::Samba];
-        let i18n = I18n { aliases: Aliases { age_groups: HashMap::new(), dances: HashMap::new(), roles: HashMap::new() } };
-        let config = Config { sources: crate::crawler::client::Sources { urls: vec![] }, levels: None };
+        let i18n = I18n::new();
+        let config = Config { sources: crate::crawler::client::Sources { urls: vec![] } };
         let parser = DtvNative::new(config, SelectorConfig::default(), i18n);
 
         let results = parser.parse_tabges(&html, &dances);
@@ -1297,12 +1197,13 @@ mod tests {
     fn test_real_wdsf_rising_stars_ergwert() {
         let html = fs::read_to_string("tests/47-0507_wdsfopenstdrisingstars/ergwert.htm").unwrap();
         let dances = vec![Dance::SlowWaltz, Dance::Tango, Dance::VienneseWaltz, Dance::SlowFoxtrot, Dance::Quickstep];
-        let i18n = I18n { aliases: Aliases { age_groups: HashMap::new(), dances: HashMap::new(), roles: HashMap::new() } };
-        let config = Config { sources: crate::crawler::client::Sources { urls: vec![] }, levels: None };
+        let i18n = I18n::new();
+        let config = Config { sources: crate::crawler::client::Sources { urls: vec![] } };
         let parser = DtvNative::new(config, SelectorConfig::default(), i18n);
 
         let results = parser.parse_ergwert(&html, &dances);
-        assert!(results[0].1.contains_key("D"));
-        assert!(results[0].1["D"].contains_key(&721));
+        // Bib 721 is seeded and starts later. In this file, Endrunde (index 4) contains its ranks.
+        assert!(results.1[4].1.contains_key("D"));
+        assert!(results.1[4].1["D"].contains_key(&721));
     }
 }
