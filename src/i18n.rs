@@ -57,13 +57,13 @@ const DANCE_ABBREVIATIONS: &[(Dance, &[&str])] = &[
 
 pub fn map_age_group(s: &str) -> Option<AgeGroup> {
     AGE_GROUP_MAPPINGS.iter()
-        .find(|&&(k, _)| k == s)
+        .find(|&&(k, _)| k.eq_ignore_ascii_case(s))
         .and_then(|&(_, id)| AgeGroup::from_id(id))
 }
 
 pub fn map_discipline(s: &str) -> Option<Style> {
     STYLE_MAPPINGS.iter()
-        .find(|&&(k, _)| k == s)
+        .find(|&&(k, _)| k.eq_ignore_ascii_case(s))
         .and_then(|&(_, id)| Style::from_id(id))
 }
 
