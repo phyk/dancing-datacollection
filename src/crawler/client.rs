@@ -7,7 +7,6 @@ use std::fs;
 use std::path::Path;
 use tokio::time::{sleep, Duration, Instant};
 use url::Url;
-use crate::crawler::manifest::Manifest;
 
 #[derive(Debug, Deserialize, Clone, Serialize)]
 pub struct Config {
@@ -205,8 +204,8 @@ impl Scraper {
                 continue;
             }
 
-            if Manifest::is_already_downloaded(&data_dir, rel_file) {
-                log::debug!("File {:?} already exists, skipping (Smart Skip)", data_dir.join(rel_file));
+            if data_dir.join(rel_file).exists() {
+                log::debug!("File {:?} already exists, skipping", data_dir.join(rel_file));
                 continue;
             }
 
