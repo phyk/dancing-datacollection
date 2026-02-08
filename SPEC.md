@@ -60,7 +60,7 @@ Localization Module:
 
 Store German/English aliases for Age Groups and Levels in a separate, accessible module to allow easy language switching.
 
-Input & Output Input: A configuration file (.toml or .yaml) containing source URLs and site-specific parameters.
+Input & Output Input: Direct URL via API or CLI.
 Output Formats:
 
 Human-Readable: .json for single competition events.
@@ -74,6 +74,7 @@ pub trait ResultSource {
     fn name(&self) -> &str;
     fn fetch(&self, url: &str) -> Result<String, Box<dyn std::error::Error>>;
     fn parse(&self, html: &str) -> Result<crate::models::Event, crate::sources::ParsingError>;
+    fn parse_date(&self, s: &str) -> Option<chrono::NaiveDate>;
 }
 
 Error Handling: Every failure must log a specific reason (NETWORK_ERROR, MISSING_REQUIRED_DATA, PARSING_ERROR, CRITICAL_VALIDATION_ERROR).

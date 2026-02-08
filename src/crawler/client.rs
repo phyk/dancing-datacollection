@@ -1,22 +1,11 @@
 use anyhow::Result;
 use robotstxt::DefaultMatcher;
 use scraper::{Html, Selector};
-use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
 use tokio::time::{sleep, Duration, Instant};
 use url::Url;
-
-#[derive(Debug, Deserialize, Clone, Serialize)]
-pub struct Config {
-    pub sources: Sources,
-}
-
-#[derive(Debug, Deserialize, Clone, Serialize)]
-pub struct Sources {
-    pub urls: Vec<String>,
-}
 
 pub struct RobotsChecker {
     matchers: HashMap<String, String>, // base_url -> robots_txt content
@@ -134,8 +123,8 @@ impl Scraper {
         Ok(text)
     }
 
-    pub async fn scrape_all(&mut self, config: &Config) -> Result<()> {
-        for base_url in &config.sources.urls {
+    pub async fn scrape_all(&mut self, urls: &[String]) -> Result<()> {
+        for base_url in urls {
             if !self.robots_checker.is_allowed(base_url).await {
                 log::warn!("robots.txt disallows scraping {}, skipping", base_url);
                 continue;
@@ -226,8 +215,8 @@ impl Scraper {
                 continue;
             }
 
-            if data_dir.join(rel_file).exists() {
-                log::debug!("File {:?} already exists, skipping", data_dir.join(rel_file));
+            if target_dir.join(rel_file).exists() {
+                log::debug!("File {:?} already exists, skipping", target_dir.join(rel_file));
                 continue;
             }
 
@@ -269,40 +258,6 @@ impl Scraper {
     }
 }
 
-pub fn run_download(config_path: &str) -> Result<()> {
-    let config_content = fs::read_to_string(config_path)?;
-    let config: Config = toml::from_str(&config_content)?;
-
-    let rt = tokio::runtime::Runtime::new().unwrap();
-    rt.block_on(async {
-        let mut scraper = Scraper::new();
-        scraper.scrape_all(&config).await
-    })
-}
-
-pub fn collect_all_data(config_path: &str) -> Result<Vec<crate::models::Event>> {
-    run_download(config_path)?;
-
-    let mut all_events = Vec::new();
-    let data_dir = Path::new("data");
-    if !data_dir.exists() {
-         return Ok(all_events);
-    }
-
-    let entries = fs::read_dir(data_dir)?;
-    for entry in entries {
-        let entry = entry?;
-        if entry.path().is_dir() {
-            let dir_str = entry.path().to_string_lossy().to_string();
-            if let Ok(event) = crate::sources::dtv_native::extract_event_data(&dir_str) {
-                if crate::models::validation::validate_event_fidelity(&event) {
-                    all_events.push(event);
-                }
-            }
-        }
-    }
-    Ok(all_events)
-}
 
 #[cfg(test)]
 mod tests {
@@ -346,7 +301,7 @@ mod tests {
     fn test_extract_competition_links_malformed() {
         let scraper = Scraper::new();
         let links = scraper
-            .extract_competition_links("not html at all", "http://example.com/")
+            .extract_competition_links("not html at all", "http://example.com/", None)
             .unwrap();
         assert_eq!(links.len(), 0);
     }
@@ -376,7 +331,7 @@ mod tests {
             </html>
         "#;
         let base_url = "http://example.com/";
-        let links = scraper.extract_competition_links(html, base_url).unwrap();
+        let links = scraper.extract_competition_links(html, base_url, None).unwrap();
 
         assert_eq!(links.len(), 2);
         assert!(links.contains(&"http://example.com/comp1/index.htm".to_string()));

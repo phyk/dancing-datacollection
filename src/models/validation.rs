@@ -275,6 +275,7 @@ mod tests {
             date: None,
             organizer: None,
             hosting_club: None,
+            source_url: None,
             competitions_list: vec![create_mock_competition()],
         };
         assert!(validate_event_fidelity(&event));
@@ -284,7 +285,7 @@ mod tests {
     fn test_insufficient_judges() {
         let mut comp = create_mock_competition();
         comp.officials.judges.pop();
-        let event = Event { name: "Test Event".to_string(), date: None, organizer: None, hosting_club: None, competitions_list: vec![comp] };
+        let event = Event { name: "Test Event".to_string(), date: None, organizer: None, hosting_club: None, source_url: None, competitions_list: vec![comp] };
         assert!(!validate_event_fidelity(&event));
     }
 
@@ -292,7 +293,7 @@ mod tests {
     fn test_missing_judge_in_round() {
         let mut comp = create_mock_competition();
         if let Some(ref mut ranks) = comp.rounds[0].dtv_ranks { ranks.remove("C"); }
-        let event = Event { name: "Test Event".to_string(), date: None, organizer: None, hosting_club: None, competitions_list: vec![comp] };
+        let event = Event { name: "Test Event".to_string(), date: None, organizer: None, hosting_club: None, source_url: None, competitions_list: vec![comp] };
         assert!(!validate_event_fidelity(&event));
     }
 
@@ -305,7 +306,7 @@ mod tests {
             bm.insert(Dance::Tango, 1);
             ranks.get_mut("A").unwrap().insert(102, bm);
         }
-        let event = Event { name: "Test Event".to_string(), date: None, organizer: None, hosting_club: None, competitions_list: vec![comp] };
+        let event = Event { name: "Test Event".to_string(), date: None, organizer: None, hosting_club: None, source_url: None, competitions_list: vec![comp] };
         assert!(!validate_event_fidelity(&event));
     }
 
@@ -315,7 +316,7 @@ mod tests {
         if let Some(ref mut ranks) = comp.rounds[0].dtv_ranks {
             ranks.get_mut("A").unwrap().get_mut(&101).unwrap().remove(&Dance::Tango);
         }
-        let event = Event { name: "Test Event".to_string(), date: None, organizer: None, hosting_club: None, competitions_list: vec![comp] };
+        let event = Event { name: "Test Event".to_string(), date: None, organizer: None, hosting_club: None, source_url: None, competitions_list: vec![comp] };
         assert!(!validate_event_fidelity(&event));
     }
 
@@ -338,7 +339,7 @@ mod tests {
             }
             Some(m)
         };
-        let event = Event { name: "Test Event".to_string(), date: None, organizer: None, hosting_club: None, competitions_list: vec![comp] };
+        let event = Event { name: "Test Event".to_string(), date: None, organizer: None, hosting_club: None, source_url: None, competitions_list: vec![comp] };
         assert!(validate_event_fidelity(&event));
     }
 
@@ -358,7 +359,7 @@ mod tests {
             }
             Some(m)
         };
-        let event = Event { name: "Test Event".to_string(), date: None, organizer: None, hosting_club: None, competitions_list: vec![comp] };
+        let event = Event { name: "Test Event".to_string(), date: None, organizer: None, hosting_club: None, source_url: None, competitions_list: vec![comp] };
         assert!(validate_event_fidelity(&event));
     }
 
@@ -390,7 +391,7 @@ mod tests {
             ranks.get_mut("B").unwrap().insert(102, bm.clone());
             ranks.get_mut("C").unwrap().insert(102, bm);
         }
-        let event = Event { name: "Test Event".to_string(), date: None, organizer: None, hosting_club: None, competitions_list: vec![comp] };
+        let event = Event { name: "Test Event".to_string(), date: None, organizer: None, hosting_club: None, source_url: None, competitions_list: vec![comp] };
         assert!(!validate_event_fidelity(&event));
     }
 
@@ -432,7 +433,7 @@ mod tests {
             dtv_ranks: None,
             wdsf_scores: None,
         });
-        let event = Event { name: "Test Event".to_string(), date: None, organizer: None, hosting_club: None, competitions_list: vec![comp] };
+        let event = Event { name: "Test Event".to_string(), date: None, organizer: None, hosting_club: None, source_url: None, competitions_list: vec![comp] };
         assert!(!validate_event_fidelity(&event));
     }
 
@@ -449,7 +450,7 @@ mod tests {
                 jm.insert(102, bm);
             }
         }
-        let event = Event { name: "Test Event".to_string(), date: None, organizer: None, hosting_club: None, competitions_list: vec![comp] };
+        let event = Event { name: "Test Event".to_string(), date: None, organizer: None, hosting_club: None, source_url: None, competitions_list: vec![comp] };
         assert!(!validate_event_fidelity(&event));
     }
 
@@ -469,7 +470,7 @@ mod tests {
             }
             m
         });
-        let event = Event { name: "Test Event".to_string(), date: None, organizer: None, hosting_club: None, competitions_list: vec![comp] };
+        let event = Event { name: "Test Event".to_string(), date: None, organizer: None, hosting_club: None, source_url: None, competitions_list: vec![comp] };
         assert!(!validate_event_fidelity(&event));
     }
 }
