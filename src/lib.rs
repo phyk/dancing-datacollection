@@ -1,3 +1,4 @@
+pub mod assets;
 pub mod crawler;
 pub mod i18n;
 pub mod models;
@@ -5,8 +6,7 @@ pub mod sources;
 pub mod storage;
 
 use pyo3::prelude::*;
-use crate::models::{Level, sanitize_name};
-use std::str::FromStr;
+use crate::models::sanitize_name;
 use std::path::Path;
 use std::fs;
 
@@ -116,7 +116,7 @@ fn load_competition_results(
                      if let Some(s) = crate::i18n::map_discipline(s_str) { comp.style = s; }
                  }
                  if let Some(ref l_str) = level {
-                     if let Some(l) = Level::from_str(l_str).ok() { comp.level = l; }
+                     if let Some(l) = crate::i18n::parse_level(l_str) { comp.level = l; }
                  }
 
                  let comp_id = format!("{:?}_{:?}_{:?}", comp.age_group, comp.level, comp.style);

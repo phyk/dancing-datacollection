@@ -3,6 +3,7 @@
 //! It must be updated if national regulations change.
 
 use crate::models::{AgeGroup, Style, Level, Dance};
+use crate::assets::*;
 use chrono::{NaiveDate, Datelike};
 
 /// Returns the minimum number of dances required for a given level and date.
@@ -19,78 +20,68 @@ pub fn get_min_dances(level: Level, date: NaiveDate) -> u32 {
     }
 }
 
-const AGE_GROUP_MAPPINGS: &[(&str, &str)] = &[
-    ("Hgr", "adult"), ("Hgr.", "adult"), ("Hauptgruppe", "adult"), ("Adult", "adult"), ("Adults", "adult"), ("Rising Stars", "adult"),
-    ("Hgr.II", "adult_2"), ("Hgr II", "adult_2"), ("Hauptgruppe II", "adult_2"),
-    ("Sen", "senior"), ("Sen.", "senior"), ("Mas.", "senior"),
-    ("Sen.I", "sen_1"), ("Mas.I", "sen_1"), ("Senioren I", "sen_1"),
-    ("Sen.II", "sen_2"), ("Mas.II", "sen_2"), ("Senioren II", "sen_2"),
-    ("Sen.III", "sen_3"), ("Mas.III", "sen_3"), ("Senioren III", "sen_3"),
-    ("Sen.IV", "sen_4"), ("Mas.IV", "sen_4"), ("Senioren IV", "sen_4"),
-    ("Sen.V", "sen_5"), ("Mas.V", "sen_5"), ("Senioren V", "sen_5"),
-    ("Kinder I", "juv_1"), ("Kin.I", "juv_1"),
-    ("Kinder II", "juv_2"), ("Kin.II", "juv_2"),
-    ("Kin.", "juv"),
-    ("Junioren I", "jun_1"), ("Jun.I", "jun_1"),
-    ("Junioren II", "jun_2"), ("Jun.II", "jun_2"),
-    ("Jugend", "youth"), ("Jug.", "youth"),
-];
+pub fn parse_level(s: &str) -> Option<Level> {
+    match s.to_uppercase().as_str() {
+        "E" => Some(Level::E),
+        "D" => Some(Level::D),
+        "C" => Some(Level::C),
+        "B" => Some(Level::B),
+        "A" => Some(Level::A),
+        "S" => Some(Level::S),
+        _ => None,
+    }
+}
 
-const STYLE_MAPPINGS: &[(&str, &str)] = &[
-    ("Standard", "std"),
-    ("Latein", "lat"),
-    ("Latin", "lat"),
-];
+pub fn parse_style(s: &str) -> Option<Style> {
+    match s.to_lowercase().as_str() {
+        "std" | "standard" => Some(Style::Standard),
+        "lat" | "latin" | "latein" => Some(Style::Latein),
+        _ => None,
+    }
+}
 
-const DANCE_ABBREVIATIONS: &[(Dance, &[&str])] = &[
-    (Dance::SlowWaltz, &["SW", "LW", "WALZER"]),
-    (Dance::Tango, &["TG", "TANGO"]),
-    (Dance::VienneseWaltz, &["VW", "WIENER", "WW"]),
-    (Dance::SlowFoxtrot, &["SF", "SLOW", "FOX"]),
-    (Dance::Quickstep, &["QS", "QU", "QUICK"]),
-    (Dance::ChaChaCha, &["CC", "CHA"]),
-    (Dance::Samba, &["SB", "SA", "SAMBA"]),
-    (Dance::Rumba, &["RB", "RU", "RUMBA"]),
-    (Dance::PasoDoble, &["PD", "PASO"]),
-    (Dance::Jive, &["JV", "JI", "JIVE"]),
-];
+pub fn parse_age_group(s: &str) -> Option<AgeGroup> {
+    match s.to_lowercase().as_str() {
+        "juv_1" => Some(AgeGroup::Juv1),
+        "juv_2" => Some(AgeGroup::Juv2),
+        "jun_1" => Some(AgeGroup::Jun1),
+        "jun_2" => Some(AgeGroup::Jun2),
+        "youth" => Some(AgeGroup::Youth),
+        "adult" => Some(AgeGroup::Adult),
+        "adult_2" => Some(AgeGroup::Adult2),
+        "sen_1" => Some(AgeGroup::Sen1),
+        "sen_2" => Some(AgeGroup::Sen2),
+        "sen_3" => Some(AgeGroup::Sen3),
+        "sen_4" => Some(AgeGroup::Sen4),
+        "sen_5" => Some(AgeGroup::Sen5),
+        "senior" => Some(AgeGroup::Senior),
+        _ => None,
+    }
+}
 
 pub fn map_age_group(s: &str) -> Option<AgeGroup> {
     AGE_GROUP_MAPPINGS.iter()
         .find(|&&(k, _)| k == s)
-        .and_then(|&(_, id)| AgeGroup::from_id(id))
+        .and_then(|&(_, id)| parse_age_group(id))
 }
 
 pub fn map_discipline(s: &str) -> Option<Style> {
     STYLE_MAPPINGS.iter()
         .find(|&&(k, _)| k == s)
-        .and_then(|&(_, id)| Style::from_id(id))
+        .and_then(|&(_, id)| parse_style(id))
 }
 
 pub fn map_role(s: &str) -> Option<String> {
-    match s {
-        "Turnierleiter" => Some("responsible_person".to_string()),
-        "Beisitzer" => Some("assistant".to_string()),
-        _ => None,
-    }
+    ROLE_MAPPINGS.iter()
+        .find(|&&(k, _)| k == s)
+        .map(|&(_, id)| id.to_string())
 }
 
 pub fn map_month(mon_str: &str) -> Option<u32> {
-    match mon_str.to_lowercase().as_str() {
-        "jan" | "januar" => Some(1),
-        "feb" | "februar" => Some(2),
-        "mar" | "märz" => Some(3),
-        "apr" | "april" => Some(4),
-        "may" | "mai" => Some(5),
-        "jun" | "juni" => Some(6),
-        "jul" | "juli" => Some(7),
-        "aug" | "august" => Some(8),
-        "sep" | "september" => Some(9),
-        "oct" | "oktober" => Some(10),
-        "nov" | "november" => Some(11),
-        "dec" | "dezember" => Some(12),
-        _ => None,
-    }
+    let lower = mon_str.to_lowercase();
+    MONTH_MAPPINGS.iter()
+        .find(|&&(k, _)| k == lower)
+        .map(|&(_, m)| m)
 }
 
 pub fn parse_dances(s: &str) -> Vec<Dance> {
@@ -120,6 +111,54 @@ pub fn parse_dances(s: &str) -> Vec<Dance> {
     dances.sort_by_key(|&d| d as u32);
     dances.dedup();
     dances
+}
+
+pub fn parse_round_name(name: &str) -> Option<String> {
+    let lower = name.to_lowercase();
+    for &(marker, canonical) in ROUND_NAME_MAPPINGS {
+        if lower.contains(marker) {
+            if marker == "zwischenrunde" {
+                 if lower.contains("1.") || lower.contains("erste") {
+                      return Some("1. Zwischenrunde".to_string());
+                 } else if lower.contains("2.") || lower.contains("zweite") {
+                      return Some("2. Zwischenrunde".to_string());
+                 } else if lower.contains("3.") || lower.contains("dritte") {
+                      return Some("3. Zwischenrunde".to_string());
+                 }
+            }
+            return Some(canonical.to_string());
+        }
+    }
+    None
+}
+
+pub fn get_round_name_from_id(p: &str) -> String {
+    if p == "F" {
+        "Endrunde".to_string()
+    } else if let Ok(n) = p.parse::<u32>() {
+        if n == 1 {
+            "Vorrunde".to_string()
+        } else if n > 1 {
+            format!("{}. Zwischenrunde", n - 1)
+        } else {
+            p.to_string()
+        }
+    } else {
+        p.to_string()
+    }
+}
+
+pub fn is_redance(name: &str) -> bool {
+    let name_lower = name.to_lowercase();
+    REDANCE_MARKERS.iter().any(|&m| name_lower.contains(m))
+}
+
+pub fn is_organizer_marker(s: &str) -> bool {
+    ORGANIZER_MARKERS.iter().any(|&m| s.contains(m))
+}
+
+pub fn is_hosting_club_marker(s: &str) -> bool {
+    HOSTING_CLUB_MARKERS.iter().any(|&m| s.contains(m))
 }
 
 pub fn age_group_keys() -> Vec<&'static str> {
