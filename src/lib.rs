@@ -39,8 +39,7 @@ fn load_competition_results(
 
     let mut scraper = crate::crawler::client::Scraper::new();
 
-    let manifest_path = Path::new(&target_folder).join("manifest.json");
-    let mut manifest = crate::crawler::manifest::Manifest::load(&manifest_path);
+    let mut manifest = crate::crawler::manifest::Manifest::from_target_folder(Path::new(&target_folder));
 
     rt.block_on(async {
         // 1. Determine if URL is event index or single competition
@@ -77,7 +76,7 @@ fn load_competition_results(
 
              // 2. Parse
              let event_res = crate::sources::dtv_native::extract_event_data(&temp_dir.to_string_lossy());
-             let event = match event_res {
+             let mut event = match event_res {
                  Ok(e) => e,
                  Err(e) => {
                      log::error!("Failed to parse competition from {}: {}", comp_url, e);
@@ -85,6 +84,8 @@ fn load_competition_results(
                      continue;
                  }
              };
+
+             event.source_url = Some(comp_url.clone());
 
              let year = event.date.map(|d| d.format("%Y").to_string()).unwrap_or_else(|| "0000".to_string());
              let sanitized_event_name = sanitize_name(&event.name);
@@ -130,7 +131,7 @@ fn load_competition_results(
                      continue;
                  }
 
-                 // Mark as processed in manifest
+                 // Mark as processed in manifest (for this run's deduplication)
                  manifest.mark_processed(comp_url.clone());
 
                  // 4. Save JSON
@@ -161,7 +162,6 @@ fn load_competition_results(
              // Cleanup temp dir
              let _ = fs::remove_dir_all(&temp_dir);
         }
-        let _ = manifest.save(&manifest_path);
         Ok(())
     })
 }

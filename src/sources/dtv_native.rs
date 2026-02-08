@@ -908,6 +908,7 @@ impl ResultSource for DtvNative {
             hosting_club,
             competitions_list: competitions,
             date: event_date,
+            source_url: None,
         })
     }
 }

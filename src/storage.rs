@@ -65,6 +65,7 @@ mod tests {
             date: None,
             organizer: Some("Organizer".to_string()),
             hosting_club: None,
+            source_url: None,
             competitions_list: vec![Competition {
                 level: Level::S,
                 age_group: AgeGroup::Adult,

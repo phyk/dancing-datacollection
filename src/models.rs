@@ -209,6 +209,7 @@ pub struct Event {
     pub organizer: Option<String>,
     pub hosting_club: Option<String>,
     pub competitions_list: Vec<Competition>,
+    pub source_url: Option<String>,
 }
 
 /// Sanitizes a string to be used as a filename or directory name.

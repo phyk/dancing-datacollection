@@ -1,29 +1,45 @@
-use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 use std::fs;
 use std::path::Path;
+use crate::models::Event;
 
-#[derive(Serialize, Deserialize, Default)]
+#[derive(Default)]
 pub struct Manifest {
     pub processed_ids: HashSet<String>,
 }
 
 impl Manifest {
-    pub fn load(path: &Path) -> Self {
-        if let Ok(content) = fs::read_to_string(path) {
-            serde_json::from_str(&content).unwrap_or_default()
-        } else {
-            Self::default()
-        }
+    pub fn new() -> Self {
+        Self::default()
     }
 
-    pub fn save(&self, path: &Path) -> anyhow::Result<()> {
-        if let Some(parent) = path.parent() {
-            let _ = fs::create_dir_all(parent);
+    pub fn from_target_folder(target_folder: &Path) -> Self {
+        let mut processed_ids = HashSet::new();
+        if !target_folder.exists() {
+            return Self { processed_ids };
         }
-        let content = serde_json::to_string_pretty(self)?;
-        fs::write(path, content)?;
-        Ok(())
+
+        if let Ok(entries) = fs::read_dir(target_folder) {
+            for entry in entries.flatten() {
+                if entry.path().is_dir() {
+                    if let Ok(sub_entries) = fs::read_dir(entry.path()) {
+                        for sub_entry in sub_entries.flatten() {
+                            if sub_entry.path().extension().map_or(false, |ext| ext == "json") {
+                                if let Ok(content) = fs::read_to_string(sub_entry.path()) {
+                                    if let Ok(event) = serde_json::from_str::<Event>(&content) {
+                                        if let Some(url) = event.source_url {
+                                            processed_ids.insert(url);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        Self { processed_ids }
     }
 
     pub fn is_processed(&self, id: &str) -> bool {
