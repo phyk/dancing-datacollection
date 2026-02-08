@@ -1,6 +1,5 @@
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
-use std::str::FromStr;
 
 pub mod validation;
 pub mod skating;
@@ -16,53 +15,11 @@ pub enum Level {
     S,
 }
 
-impl Level {
-    /// Creates a Level from an ID string.
-    pub fn from_id(id: &str) -> Option<Self> {
-        Self::from_str(id).ok()
-    }
-}
-
-impl FromStr for Level {
-    type Err = ();
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s.to_uppercase().as_str() {
-            "E" => Ok(Level::E),
-            "D" => Ok(Level::D),
-            "C" => Ok(Level::C),
-            "B" => Ok(Level::B),
-            "A" => Ok(Level::A),
-            "S" => Ok(Level::S),
-            _ => Err(()),
-        }
-    }
-}
-
 /// Represents the dance style (Standard or Latin).
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub enum Style {
     Standard,
     Latein,
-}
-
-impl Style {
-    /// Creates a Style from an ID string.
-    pub fn from_id(id: &str) -> Option<Self> {
-        Self::from_str(id).ok()
-    }
-}
-
-impl FromStr for Style {
-    type Err = ();
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s.to_lowercase().as_str() {
-            "std" | "standard" => Ok(Style::Standard),
-            "lat" | "latin" | "latein" => Ok(Style::Latein),
-            _ => Err(()),
-        }
-    }
 }
 
 /// Represents an individual dance.
@@ -96,36 +53,6 @@ pub enum AgeGroup {
     Sen4,
     Sen5,
     Senior,
-}
-
-impl AgeGroup {
-    /// Creates an AgeGroup from an ID string.
-    pub fn from_id(id: &str) -> Option<Self> {
-        Self::from_str(id).ok()
-    }
-}
-
-impl FromStr for AgeGroup {
-    type Err = ();
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s.to_lowercase().as_str() {
-            "juv_1" => Ok(AgeGroup::Juv1),
-            "juv_2" => Ok(AgeGroup::Juv2),
-            "jun_1" => Ok(AgeGroup::Jun1),
-            "jun_2" => Ok(AgeGroup::Jun2),
-            "youth" => Ok(AgeGroup::Youth),
-            "adult" => Ok(AgeGroup::Adult),
-            "adult_2" => Ok(AgeGroup::Adult2),
-            "sen_1" => Ok(AgeGroup::Sen1),
-            "sen_2" => Ok(AgeGroup::Sen2),
-            "sen_3" => Ok(AgeGroup::Sen3),
-            "sen_4" => Ok(AgeGroup::Sen4),
-            "sen_5" => Ok(AgeGroup::Sen5),
-            "senior" => Ok(AgeGroup::Senior),
-            _ => Err(()),
-        }
-    }
 }
 
 /// Represents a judge in a competition.

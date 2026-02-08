@@ -283,21 +283,21 @@ impl DtvNative {
         let mut round_names = Vec::new();
         for h2 in document.select(&h2_sel) {
             let text = h2.text().collect::<Vec<_>>().join(" ").trim().to_string();
-            round_names.push(self.canonicalize_round_name(&text).unwrap_or(text));
+            round_names.push(crate::i18n::parse_round_name(&text).unwrap_or(text));
         }
 
         if round_names.is_empty() {
              for head in document.select(&comphead_sel) {
                   let text = head.text().collect::<Vec<_>>().join(" ").trim().to_string();
                   if text.to_lowercase().contains("runde") || text.to_lowercase().contains("table") || text.to_lowercase().contains("ergebnis") || text.to_lowercase().contains("ranking") {
-                       round_names.push(self.canonicalize_round_name(&text).unwrap_or(text));
+                       round_names.push(crate::i18n::parse_round_name(&text).unwrap_or(text));
                   }
              }
 
              let td_sel = Selector::parse("td.td1, td.td3").unwrap();
              for td in document.select(&td_sel) {
                  let text = td.text().collect::<Vec<_>>().join(" ").trim().to_string();
-                 if let Some(name) = self.canonicalize_round_name(&text) {
+                 if let Some(name) = crate::i18n::parse_round_name(&text) {
                       if !round_names.contains(&name) {
                           round_names.push(name);
                       }
@@ -558,19 +558,7 @@ impl DtvNative {
                   for part in idx_html.split("<br>") {
                        let p = part.trim();
                        if p.is_empty() { continue; }
-                       let name = if p == "F" {
-                            "Endrunde".to_string()
-                       } else if let Ok(n) = p.parse::<u32>() {
-                            if n == 1 {
-                                 "Vorrunde".to_string()
-                            } else if n > 1 {
-                                 format!("{}. Zwischenrunde", n - 1)
-                            } else {
-                                 p.to_string()
-                            }
-                       } else {
-                            p.to_string()
-                       };
+                       let name = crate::i18n::get_round_name_from_id(p);
                        global_round_ids.insert(p.to_string(), name);
                   }
              }
@@ -751,27 +739,6 @@ impl DtvNative {
         results
     }
 
-    pub fn canonicalize_round_name(&self, name: &str) -> Option<String> {
-        let lower = name.to_lowercase();
-        if lower.contains("vorrunde") {
-             Some("Vorrunde".to_string())
-        } else if lower.contains("zwischenrunde") {
-             if lower.contains("1.") || lower.contains("erste") {
-                  Some("1. Zwischenrunde".to_string())
-             } else if lower.contains("2.") || lower.contains("zweite") {
-                  Some("2. Zwischenrunde".to_string())
-             } else if lower.contains("3.") || lower.contains("dritte") {
-                  Some("3. Zwischenrunde".to_string())
-             } else {
-                  Some("Zwischenrunde".to_string())
-             }
-        } else if lower.contains("endrunde") || lower.contains("finale") || lower.contains("final") {
-             Some("Endrunde".to_string())
-        } else {
-             None
-        }
-    }
-
     pub fn parse_competition_from_title(&self, title: &str) -> Result<Competition, ParsingError> {
         let title_up = title.to_uppercase();
         let mut sorted_age_keys = crate::i18n::age_group_keys();
@@ -803,7 +770,7 @@ impl DtvNative {
         for l_id in ["S", "A", "B", "C", "D", "E"] {
             let pattern = format!(" {} ", l_id);
             if title_up.contains(&pattern) || title_up.ends_with(&format!(" {}", l_id)) {
-                level = Level::from_id(l_id);
+                level = crate::i18n::parse_level(l_id);
                 break;
             }
         }
@@ -1016,9 +983,9 @@ pub fn extract_event_data(data_dir: &str) -> Result<Event> {
                                 if cells.len() >= 2 {
                                     let key = cells[0].text().collect::<String>();
                                     let val = cells[1].text().collect::<String>().trim().to_string();
-                                    if key.contains("Veranstalter") && event.organizer.is_none() {
+                                    if crate::i18n::is_organizer_marker(&key) && event.organizer.is_none() {
                                         event.organizer = Some(val);
-                                    } else if key.contains("Ausrichter") && event.hosting_club.is_none() {
+                                    } else if crate::i18n::is_hosting_club_marker(&key) && event.hosting_club.is_none() {
                                         event.hosting_club = Some(val);
                                     }
                                 }

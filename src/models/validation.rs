@@ -3,10 +3,7 @@ use crate::models::{Level, Event, Round, Dance, Judge, Competition};
 use crate::models::skating::{calculate_dance_ranks, calculate_final_ranks, verify_wdsf_score};
 
 fn is_redance(name: &str) -> bool {
-    let name_lower = name.to_lowercase();
-    name_lower.contains("redance")
-        || name_lower.contains("hoffnung")
-        || name_lower.contains("h-lauf")
+    crate::i18n::is_redance(name)
 }
 
 pub fn get_min_dances_for_level(
