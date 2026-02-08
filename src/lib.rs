@@ -1,3 +1,4 @@
+pub mod assets;
 pub mod crawler;
 pub mod i18n;
 pub mod models;
@@ -94,9 +95,9 @@ fn load_competition_results(
              for mut comp in competitions {
                  let mut event_metadata = event_metadata_base.clone();
 
-                 // 3. Filtering Logic
+                 // 3a. Filtering Logic
                  if let Some(ref ag_filter) = age_group {
-                     let target = crate::i18n::map_age_group(ag_filter).or_else(|| crate::models::AgeGroup::from_id(ag_filter));
+                     let target = crate::i18n::map_age_group(ag_filter).or_else(|| crate::i18n::parse_age_group(ag_filter));
                      if let Some(t) = target {
                          if comp.age_group != t { continue; }
                      } else {
@@ -104,7 +105,7 @@ fn load_competition_results(
                      }
                  }
                  if let Some(ref s_filter) = style {
-                     let target = crate::i18n::map_discipline(s_filter).or_else(|| crate::models::Style::from_id(s_filter));
+                     let target = crate::i18n::map_discipline(s_filter).or_else(|| crate::i18n::parse_style(s_filter));
                      if let Some(t) = target {
                          if comp.style != t { continue; }
                      } else {
@@ -112,7 +113,7 @@ fn load_competition_results(
                      }
                  }
                  if let Some(ref l_filter) = level {
-                     let target = crate::models::Level::from_id(l_filter);
+                     let target = crate::i18n::parse_level(l_filter);
                      if let Some(t) = target {
                          if comp.level != t { continue; }
                      } else {
