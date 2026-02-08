@@ -83,6 +83,10 @@ Performance: The binary format must be significantly smaller than the JSON outpu
 
 Documentation: Short "why-not-how" inline docstrings for all public functions.
 
-Python Access: The library exposes a single high-level entry point:
+Python Access: The library exposes a single high-level entry point, which serves as the **Source of Truth** for the library's operational flow:
 - `load_competition_results(target_folder: str, url: str, date: Optional[str] = None, age_group: Optional[str] = None, style: Optional[str] = None, level: Optional[str] = None, download_html: bool = True, output_format: str = "json") -> None`:
-  Orchestrator that downloads, parses, validates, and archives results. It handles both event indices and single competition URLs. Data is saved in `target_folder/{EventName_Year}/{Competition_ID}.json`. If `download_html` is enabled, raw HTML files are stored in a `raw/` subfolder.
+  This orchestrator manages the full lifecycle:
+  1. **Discovery & Crawling**: Resolves URLs, respects `robots.txt`, and skips already processed competitions via a local manifest.
+  2. **Filtering**: Robust, case-insensitive filtering by `date`, `age_group`, `style`, and `level` against canonical IDs.
+  3. **Safety Shield**: Every competition must pass the **Fidelity Gate** (structural integrity) and **Skating System Math Check** (rank recalculation) before archival. If `date >= 2026-01-01`, the 2026 dance count standards are automatically enforced.
+  4. **Storage**: Archives results in a standardized folder structure: `target_folder/{Event_Name}_{Year}/` with filenames formatted as `{AgeGroup}_{Level}_{Style}.json`. If `download_html` is enabled, raw HTML sources are archived in a `raw/` subfolder.
