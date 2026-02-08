@@ -7,12 +7,10 @@ use std::fs;
 use std::path::Path;
 use tokio::time::{sleep, Duration, Instant};
 use url::Url;
-use crate::models::validation::LevelConfig;
 
 #[derive(Debug, Deserialize, Clone, Serialize)]
 pub struct Config {
     pub sources: Sources,
-    pub levels: Option<HashMap<String, LevelConfig>>,
 }
 
 #[derive(Debug, Deserialize, Clone, Serialize)]

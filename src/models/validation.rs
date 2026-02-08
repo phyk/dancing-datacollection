@@ -1,31 +1,6 @@
-use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap, HashMap, HashSet};
+use std::collections::{BTreeMap, HashSet};
 use crate::models::{Level, Event, Round, Dance, Judge, Competition};
 use crate::models::skating::{calculate_dance_ranks, calculate_final_ranks, verify_wdsf_score};
-
-#[derive(Debug, Deserialize, Clone, Serialize)]
-pub struct LevelConfig {
-    pub min_dances: Option<u32>,
-    pub min_dances_legacy: Option<u32>,
-    pub min_dances_2026: Option<u32>,
-}
-
-impl LevelConfig {
-    pub fn get_min_dances(&self, date: &chrono::NaiveDate) -> u32 {
-        use chrono::Datelike;
-        if let Some(min) = self.min_dances {
-            return min;
-        }
-        let is_2026_or_later = date.year() >= 2026;
-        if is_2026_or_later {
-            self.min_dances_2026
-                .or(self.min_dances_legacy)
-                .unwrap_or(0)
-        } else {
-            self.min_dances_legacy.unwrap_or(0)
-        }
-    }
-}
 
 fn is_redance(name: &str) -> bool {
     let name_lower = name.to_lowercase();
@@ -35,17 +10,10 @@ fn is_redance(name: &str) -> bool {
 }
 
 pub fn get_min_dances_for_level(
-    levels: &Option<HashMap<String, LevelConfig>>, // Config still uses HashMap
     level: &Level,
     date: &chrono::NaiveDate,
 ) -> u32 {
-    let level_str = format!("{:?}", level);
-    if let Some(levels) = levels {
-        if let Some(config) = levels.get(&level_str) {
-            return config.get_min_dances(date);
-        }
-    }
-    0
+    crate::i18n::get_min_dances(*level, *date)
 }
 
 /// Helper method to check if all expected data is present in a round.
