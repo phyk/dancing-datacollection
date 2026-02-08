@@ -2,7 +2,6 @@ use crate::models::{
     CommitteeMember, Competition, Dance, Event, IdentityType, Judge, Level, Officials,
     Participant, Round, WDSFScore,
 };
-use crate::crawler::client::Config;
 use crate::sources::{ParsingError, ResultSource};
 use anyhow::Result;
 use chrono::NaiveDate;
@@ -50,20 +49,18 @@ impl Default for SelectorConfig {
 
 /// Parser for DTV (German Dance Sport Federation) competition results.
 pub struct DtvNative {
-    pub config: Config,
     pub selectors: SelectorConfig,
 }
 
 impl DtvNative {
     /// Creates a new DtvNative parser.
-    pub fn new(config: Config, selectors: SelectorConfig) -> Self {
+    pub fn new(selectors: SelectorConfig) -> Self {
         Self {
-            config,
             selectors,
         }
     }
 
-    pub fn parse_date(&self, s: &str) -> Option<NaiveDate> {
+    pub fn do_parse_date(&self, s: &str) -> Option<NaiveDate> {
         let s = s.trim();
 
         // Regex for DD.MM.YYYY
@@ -815,7 +812,7 @@ impl DtvNative {
             level = Some(Level::S);
         }
 
-        let date = self.parse_date(title).unwrap_or_else(|| NaiveDate::from_ymd_opt(2024, 1, 1).unwrap());
+        let date = self.do_parse_date(title).unwrap_or_else(|| NaiveDate::from_ymd_opt(2024, 1, 1).unwrap());
 
         if age_group.is_none() || style.is_none() || level.is_none() {
              return Err(ParsingError::MissingRequiredData(format!("Incomplete metadata in title: {}", title)));
@@ -854,6 +851,10 @@ impl ResultSource for DtvNative {
         Ok(resp.text()?)
     }
 
+    fn parse_date(&self, s: &str) -> Option<NaiveDate> {
+        self.do_parse_date(s)
+    }
+
     fn parse(&self, html: &str) -> Result<Event, ParsingError> {
         let document = Html::parse_document(html);
 
@@ -866,7 +867,7 @@ impl ResultSource for DtvNative {
         let date_sel = Selector::parse(&self.selectors.event_date).unwrap();
         let date_text = document.select(&date_sel).next().map(|e| e.text().collect::<String>().trim().to_string());
 
-        let event_date = date_text.and_then(|dt| self.parse_date(&dt)).or_else(|| self.parse_date(&title));
+        let event_date = date_text.and_then(|dt| self.do_parse_date(&dt)).or_else(|| self.do_parse_date(&title));
 
         let organizer_sel = Selector::parse(&self.selectors.organizer).unwrap();
         let organizer = document.select(&organizer_sel).next().map(|e| e.text().collect::<String>().trim().to_string());
@@ -911,17 +912,8 @@ impl ResultSource for DtvNative {
     }
 }
 
-pub fn get_config(config_path: &str) -> Result<Config> {
-    let config_content = fs::read_to_string(config_path)?;
-    let config: Config = toml::from_str(&config_content)?;
-
-    Ok(config)
-}
-
 pub fn extract_event_data(data_dir: &str) -> Result<Event> {
-    let config_path = "config/config.toml";
-    let config = get_config(config_path)?;
-    let parser = DtvNative::new(config, SelectorConfig::default());
+    let parser = DtvNative::new(SelectorConfig::default());
 
     let dir_path = Path::new(data_dir);
     let index_path = dir_path.join("index.htm");
@@ -1059,12 +1051,9 @@ mod tests {
     use crate::models::{AgeGroup, Level, Style};
     use std::fs;
 
-    use std::collections::HashMap;
-
     #[test]
     fn test_parse_date() {
-        let config = Config { sources: crate::crawler::client::Sources { urls: vec![] } };
-        let parser = DtvNative::new(config, SelectorConfig::default());
+        let parser = DtvNative::new(SelectorConfig::default());
 
         assert_eq!(parser.parse_date("11.05.2024"), Some(NaiveDate::from_ymd_opt(2024, 5, 11).unwrap()));
         assert_eq!(parser.parse_date("05/Jul/2025"), Some(NaiveDate::from_ymd_opt(2025, 7, 5).unwrap()));
@@ -1073,8 +1062,7 @@ mod tests {
 
     #[test]
     fn test_parse_competition_from_title() {
-        let config = Config { sources: crate::crawler::client::Sources { urls: vec![] } };
-        let parser = DtvNative::new(config, SelectorConfig::default());
+        let parser = DtvNative::new(SelectorConfig::default());
 
         let comp = parser.parse_competition_from_title("11.05.2024 Hgr.II D Standard").unwrap();
         assert_eq!(comp.level, Level::D);
@@ -1091,8 +1079,7 @@ mod tests {
             </table>
          "#;
         let dances = vec![Dance::SlowWaltz];
-        let config = Config { sources: crate::crawler::client::Sources { urls: vec![] } };
-        let parser = DtvNative::new(config, SelectorConfig::default());
+        let parser = DtvNative::new(SelectorConfig::default());
 
         let crosses = parser.parse_tabges(html, &dances);
         assert!(crosses[0].1["AT"][&101][&Dance::SlowWaltz]);
@@ -1107,8 +1094,7 @@ mod tests {
                 <tr><td>A</td><td>MM+CP 9.50</td></tr>
             </table>
          "#;
-        let config = Config { sources: crate::crawler::client::Sources { urls: vec![] } };
-        let parser = DtvNative::new(config, SelectorConfig::default());
+        let parser = DtvNative::new(SelectorConfig::default());
 
         let scores = parser.parse_wdsf_scores(html);
         let s = &scores["A"][&284];
@@ -1120,12 +1106,7 @@ mod tests {
 
     #[test]
     fn test_min_dances_2026_compliance() {
-        let config_str = r#"
-            [sources]
-            urls = []
-        "#;
-        let config: Config = toml::from_str(config_str).unwrap();
-        let parser = DtvNative::new(config, SelectorConfig::default());
+        let parser = DtvNative::new(SelectorConfig::default());
 
         let comp2024 = parser.parse_competition_from_title("11.05.2024 Hgr.II D Standard").unwrap();
         assert_eq!(comp2024.min_dances, 3);
@@ -1143,8 +1124,7 @@ mod tests {
                 </TR>
             </TABLE>
         "#;
-        let config = Config { sources: crate::crawler::client::Sources { urls: vec![] } };
-        let parser = DtvNative::new(config, SelectorConfig::default());
+        let parser = DtvNative::new(SelectorConfig::default());
         let participants = parser.parse_participants(html).unwrap();
         assert_eq!(participants[0].bib_number, 610);
         assert_eq!(participants[0].name_one, "Jonathan Kummetz");
@@ -1164,8 +1144,7 @@ mod tests {
                 </TR>
             </TABLE>
         "#;
-        let config = Config { sources: crate::crawler::client::Sources { urls: vec![] } };
-        let parser = DtvNative::new(config, SelectorConfig::default());
+        let parser = DtvNative::new(SelectorConfig::default());
         let officials = parser.parse_officials(html).unwrap();
         assert!(officials.responsible_person.is_some());
         assert_eq!(officials.judges[0].code, "AT");
@@ -1175,8 +1154,7 @@ mod tests {
     fn test_real_wdsf_world_open_tabges() {
         let html = fs::read_to_string("tests/44-0507_wdsfworldopenlatadult/tabges.htm").unwrap();
         let dances = vec![Dance::Samba];
-        let config = Config { sources: crate::crawler::client::Sources { urls: vec![] } };
-        let parser = DtvNative::new(config, SelectorConfig::default());
+        let parser = DtvNative::new(SelectorConfig::default());
 
         let results = parser.parse_tabges(&html, &dances);
         // Bib 284 is seeded and only starts in Round 2 (index 1)
@@ -1187,8 +1165,7 @@ mod tests {
     fn test_real_wdsf_rising_stars_ergwert() {
         let html = fs::read_to_string("tests/47-0507_wdsfopenstdrisingstars/ergwert.htm").unwrap();
         let dances = vec![Dance::SlowWaltz, Dance::Tango, Dance::VienneseWaltz, Dance::SlowFoxtrot, Dance::Quickstep];
-        let config = Config { sources: crate::crawler::client::Sources { urls: vec![] } };
-        let parser = DtvNative::new(config, SelectorConfig::default());
+        let parser = DtvNative::new(SelectorConfig::default());
 
         let results = parser.parse_ergwert(&html, &dances);
         // Bib 721 is seeded and starts later. In this file, Endrunde (index 4) contains its ranks.

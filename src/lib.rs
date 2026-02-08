@@ -34,15 +34,13 @@ fn load_competition_results(
         pyo3::exceptions::PyRuntimeError::new_err(format!("Failed to create tokio runtime: {}", e))
     })?;
 
-    let (config, i18n) = crate::sources::dtv_native::get_config_and_i18n("config/config.toml")
-        .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(format!("Config error: {}", e)))?;
+    let parser = crate::sources::get_source_for_url(&url)
+        .ok_or_else(|| pyo3::exceptions::PyValueError::new_err(format!("No parser found for URL: {}", url)))?;
 
     let mut scraper = crate::crawler::client::Scraper::new();
-    let parser = crate::sources::dtv_native::DtvNative::new(
-        config.clone(),
-        crate::sources::dtv_native::SelectorConfig::default(),
-        i18n.clone(),
-    );
+
+    let manifest_path = Path::new(&target_folder).join("manifest.json");
+    let mut manifest = crate::crawler::manifest::Manifest::load(&manifest_path);
 
     rt.block_on(async {
         // 1. Determine if URL is event index or single competition
@@ -55,6 +53,11 @@ fn load_competition_results(
         };
 
         for comp_url in urls_to_process {
+            if manifest.is_processed(&comp_url) {
+                log::info!("Skipping already processed URL: {}", comp_url);
+                continue;
+            }
+
              // Create a temp directory for this competition
              let temp_dir = Path::new(&target_folder).join(format!("tmp_download_{}", sanitize_name(&comp_url)));
              if temp_dir.exists() {
@@ -102,14 +105,14 @@ fn load_competition_results(
                  if let Some(ref d_str) = date {
                      if let Some(d) = parser.parse_date(d_str) {
                          event_metadata.date = Some(d);
-                         comp.min_dances = crate::models::validation::get_min_dances_for_level(&config.levels, &comp.level, &d);
+                         comp.min_dances = crate::models::validation::get_min_dances_for_level(&comp.level, &d);
                      }
                  }
                  if let Some(ref ag_str) = age_group {
-                     if let Some(ag) = i18n.map_age_group(ag_str) { comp.age_group = ag; }
+                     if let Some(ag) = crate::i18n::map_age_group(ag_str) { comp.age_group = ag; }
                  }
                  if let Some(ref s_str) = style {
-                     if let Some(s) = i18n.map_discipline(s_str) { comp.style = s; }
+                     if let Some(s) = crate::i18n::map_discipline(s_str) { comp.style = s; }
                  }
                  if let Some(ref l_str) = level {
                      if let Some(l) = Level::from_str(l_str).ok() { comp.level = l; }
@@ -126,6 +129,9 @@ fn load_competition_results(
                      log::error!("CRITICAL_VALIDATION_ERROR: Competition {} failed fidelity gate or math check", comp_id);
                      continue;
                  }
+
+                 // Mark as processed in manifest
+                 manifest.mark_processed(comp_url.clone());
 
                  // 4. Save JSON
                  let json_path = event_path.join(format!("{}.json", sanitized_comp_id));
@@ -155,6 +161,7 @@ fn load_competition_results(
              // Cleanup temp dir
              let _ = fs::remove_dir_all(&temp_dir);
         }
+        let _ = manifest.save(&manifest_path);
         Ok(())
     })
 }
