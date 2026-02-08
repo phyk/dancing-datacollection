@@ -210,3 +210,19 @@ pub struct Event {
     pub hosting_club: Option<String>,
     pub competitions_list: Vec<Competition>,
 }
+
+/// Sanitizes a string to be used as a filename or directory name.
+pub fn sanitize_name(name: &str) -> String {
+    let mut s: String = name
+        .chars()
+        .map(|c| {
+            if c.is_alphanumeric() || c == '-' {
+                c
+            } else {
+                '_'
+            }
+        })
+        .collect();
+    s.truncate(64);
+    s
+}

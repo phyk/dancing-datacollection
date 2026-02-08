@@ -1059,6 +1059,8 @@ mod tests {
     use crate::models::{AgeGroup, Level, Style};
     use std::fs;
 
+    use std::collections::HashMap;
+
     #[test]
     fn test_parse_date() {
         let config = Config { sources: crate::crawler::client::Sources { urls: vec![] } };
