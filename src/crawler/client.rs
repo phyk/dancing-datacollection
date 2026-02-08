@@ -7,13 +7,10 @@ use std::fs;
 use std::path::Path;
 use tokio::time::{sleep, Duration, Instant};
 use url::Url;
-use crate::models::validation::LevelConfig;
-use crate::crawler::manifest::Manifest;
 
 #[derive(Debug, Deserialize, Clone, Serialize)]
 pub struct Config {
     pub sources: Sources,
-    pub levels: Option<HashMap<String, LevelConfig>>,
 }
 
 #[derive(Debug, Deserialize, Clone, Serialize)]
@@ -229,8 +226,8 @@ impl Scraper {
                 continue;
             }
 
-            if Manifest::is_already_downloaded(target_dir, rel_file) {
-                log::debug!("File {:?} already exists, skipping (Smart Skip)", target_dir.join(rel_file));
+            if data_dir.join(rel_file).exists() {
+                log::debug!("File {:?} already exists, skipping", data_dir.join(rel_file));
                 continue;
             }
 

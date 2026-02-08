@@ -1,11 +1,6 @@
-use dancing_datacollection::sources::dtv_native::{DtvNative, SelectorConfig};
-use dancing_datacollection::sources::ResultSource;
-use dancing_datacollection::crawler::client::Config;
-use dancing_datacollection::i18n::I18n;
 use std::fs;
 use std::path::Path;
 use serde_json;
-use toml;
 
 fn run_full_pipeline_test(dir_name: &str) {
     let dir_path = Path::new("tests").join(dir_name);
@@ -64,13 +59,6 @@ fn test_golden_file_03_dtv_d_lat() {
     use chrono::NaiveDate;
 
     let dir_name = "3-0407_ot_mas2dlat";
-    let config_path = "config/config.toml";
-    let aliases_path = "assets/aliases.toml";
-    let config_content = fs::read_to_string(config_path).unwrap();
-    let config: Config = toml::from_str(&config_content).unwrap();
-    let i18n = I18n::new(aliases_path).unwrap();
-    let parser = DtvNative::new(config, SelectorConfig::default(), i18n);
-
     let dir_path = Path::new("tests").join(dir_name);
 
     let mut event = dancing_datacollection::sources::dtv_native::extract_event_data(dir_path.to_str().unwrap()).unwrap();
@@ -103,7 +91,6 @@ fn test_golden_file_03_dtv_d_lat() {
     event.date = Some(NaiveDate::from_ymd_opt(2026, 3, 4).unwrap());
     for comp in &mut event.competitions_list {
         comp.min_dances = dancing_datacollection::models::validation::get_min_dances_for_level(
-            &parser.config.levels,
             &comp.level,
             &event.date.unwrap()
         );
