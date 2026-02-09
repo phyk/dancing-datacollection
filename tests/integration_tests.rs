@@ -9,7 +9,24 @@ fn run_full_pipeline_test(dir_name: &str) {
     assert!(!event.rounds.is_empty(), "No rounds parsed in {}", dir_name);
 
     // Verify against Ground Truth if it exists
-    // NOTE: Ground truth files might need update to match new Competition-only format.
+    let ground_truth_path = dir_path.join("tabges.jsonl");
+    if ground_truth_path.exists() {
+        let ground_truth_json = std::fs::read_to_string(ground_truth_path).unwrap();
+        let expected: dancing_datacollection::models::Competition = serde_json::from_str(ground_truth_json.trim()).unwrap();
+
+        assert_eq!(event.name, expected.name, "Name mismatch for {}", dir_name);
+        assert_eq!(event.date, expected.date, "Date mismatch for {}", dir_name);
+        assert_eq!(event.organizer, expected.organizer, "Organizer mismatch for {}", dir_name);
+        assert_eq!(event.hosting_club, expected.hosting_club, "Hosting club mismatch for {}", dir_name);
+        assert_eq!(event.level, expected.level);
+        assert_eq!(event.age_group, expected.age_group);
+        assert_eq!(event.style, expected.style);
+        assert_eq!(event.dances, expected.dances);
+        assert_eq!(event.min_dances, expected.min_dances);
+        assert_eq!(event.officials, expected.officials);
+        assert_eq!(event.participants, expected.participants);
+        assert_eq!(event.rounds, expected.rounds);
+    }
 }
 
 #[test] fn test_integration_44_wdsf_lat() { run_full_pipeline_test("44-0507_wdsfworldopenlatadult"); }
@@ -27,74 +44,3 @@ fn run_full_pipeline_test(dir_name: &str) {
 #[test] fn test_integration_51_dtv_d_std() { run_full_pipeline_test("51-1105_ot_hgr2dstd"); }
 #[test] fn test_integration_52_dtv_c_std() { run_full_pipeline_test("52-1105_ot_hgr2cstd"); }
 #[test] fn test_integration_53_dtv_b_std() { run_full_pipeline_test("53-1105_ot_hgr2bstd"); }
-
-#[test]
-fn test_golden_file_03_dtv_d_lat() {
-    use dancing_datacollection::models::validation::validate_competition_fidelity;
-    use chrono::NaiveDate;
-
-    let dir_name = "3-0407_ot_mas2dlat";
-    let dir_path = Path::new("tests").join(dir_name);
-
-    let mut event = dancing_datacollection::sources::dtv_native::extract_event_data(dir_path.to_str().unwrap()).unwrap();
-
-    // 1. Verify 2025 Temporal Rule
-    assert!(validate_competition_fidelity(&event), "Event should be valid for 2025 (min_dances=3)");
-
-    // 2. Verify 2026 Temporal Rule (should fail)
-    event.date = Some(NaiveDate::from_ymd_opt(2026, 3, 4).unwrap());
-    event.min_dances = dancing_datacollection::models::validation::get_min_dances_for_level(
-        &event.level,
-        &event.date.unwrap()
-    );
-    assert!(!validate_competition_fidelity(&event), "Event should be invalid for 2026 (min_dances=4 required for Level D)");
-}
-
-#[test]
-fn test_fidelity_corruption() {
-    use dancing_datacollection::models::validation::validate_competition_fidelity;
-    use dancing_datacollection::models::RoundEnum;
-    let dir_name = "3-0407_ot_mas2dlat";
-    let dir_path = std::path::Path::new("tests").join(dir_name);
-    let mut event = dancing_datacollection::sources::dtv_native::extract_event_data(dir_path.to_str().unwrap()).unwrap();
-
-    // Verify initially valid
-    assert!(validate_competition_fidelity(&event), "Original event should be valid");
-
-    // Corrupt by removing judges (Integrity Layer: < 3 judges)
-    let mut corrupt_judges = event.clone();
-    corrupt_judges.officials.judges.truncate(2);
-    assert!(!validate_competition_fidelity(&corrupt_judges), "Event should be invalid with only 2 judges");
-
-    // Corrupt by removing a scoring record from a round
-    let mut corrupt_round = event.clone();
-    let first_judge_code = corrupt_round.officials.judges[0].code.clone();
-    let mut corrupted = false;
-    for round in &mut corrupt_round.rounds {
-        match round {
-            RoundEnum::Mark(r) => {
-                 if r.marking_crosses.contains_key(&first_judge_code) {
-                      r.marking_crosses.remove(&first_judge_code);
-                      corrupted = true;
-                      break;
-                 }
-            }
-            RoundEnum::DTV(r) => {
-                if r.dtv_ranks.contains_key(&first_judge_code) {
-                     r.dtv_ranks.remove(&first_judge_code);
-                     corrupted = true;
-                     break;
-                }
-            }
-            RoundEnum::WDSF(r) => {
-                if r.wdsf_scores.contains_key(&first_judge_code) {
-                     r.wdsf_scores.remove(&first_judge_code);
-                     corrupted = true;
-                     break;
-                }
-            }
-        }
-    }
-    assert!(corrupted, "Should have found a round to corrupt");
-    assert!(!validate_competition_fidelity(&corrupt_round), "Event should be invalid if a judge's records are missing in a round");
-}

@@ -123,7 +123,7 @@ pub struct MarkRound {
     pub judges: Vec<String>,
     pub dances: Vec<Dance>,
     pub participant_numbers: Vec<u32>,
-    pub marking_crosses: BTreeMap<String, BTreeMap<u32, BTreeMap<Dance, bool>>>,
+    pub marking_crosses: BTreeMap<String, BTreeMap<String, BTreeMap<Dance, bool>>>,
 }
 
 impl Round for MarkRound {
@@ -152,7 +152,7 @@ pub struct DTVScoreRound {
     pub judges: Vec<String>,
     pub dances: Vec<Dance>,
     pub participant_numbers: Vec<u32>,
-    pub dtv_ranks: BTreeMap<String, BTreeMap<u32, BTreeMap<Dance, u32>>>,
+    pub dtv_ranks: BTreeMap<String, BTreeMap<String, BTreeMap<Dance, u32>>>,
 }
 
 impl Round for DTVScoreRound {
@@ -181,7 +181,7 @@ pub struct WDSFScoreRound {
     pub judges: Vec<String>,
     pub dances: Vec<Dance>,
     pub participant_numbers: Vec<u32>,
-    pub wdsf_scores: BTreeMap<String, BTreeMap<u32, WDSFScore>>,
+    pub wdsf_scores: BTreeMap<String, BTreeMap<String, WDSFScore>>,
 }
 
 impl Round for WDSFScoreRound {

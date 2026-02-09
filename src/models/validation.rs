@@ -34,7 +34,7 @@ fn is_round_complete(
                     None => return false,
                 };
                 for &bib in participants {
-                    let bib_map = match judge_map.get(&bib) {
+                    let bib_map = match judge_map.get(&bib.to_string()) {
                         Some(m) => m,
                         None => return false,
                     };
@@ -54,7 +54,7 @@ fn is_round_complete(
                     None => return false,
                 };
                 for &bib in participants {
-                    let bib_map = match judge_map.get(&bib) {
+                    let bib_map = match judge_map.get(&bib.to_string()) {
                         Some(m) => m,
                         None => return false,
                     };
@@ -74,7 +74,7 @@ fn is_round_complete(
                     None => return false,
                 };
                 for &bib in participants {
-                    if !judge_map.contains_key(&bib) {
+                    if !judge_map.contains_key(&bib.to_string()) {
                         return false;
                     }
                 }
@@ -105,22 +105,22 @@ pub fn validate_competition_fidelity(comp: &Competition) -> bool {
         match round {
             RoundEnum::Mark(r) => {
                 for jm in r.marking_crosses.values() {
-                    for &b in jm.keys() {
-                        round_participants.insert(b);
+                    for b in jm.keys() {
+                        round_participants.insert(b.parse::<u32>().unwrap_or(0));
                     }
                 }
             }
             RoundEnum::DTV(r) => {
                 for jm in r.dtv_ranks.values() {
-                    for &b in jm.keys() {
-                        round_participants.insert(b);
+                    for b in jm.keys() {
+                        round_participants.insert(b.parse::<u32>().unwrap_or(0));
                     }
                 }
             }
             RoundEnum::WDSF(r) => {
                 for jm in r.wdsf_scores.values() {
-                    for &b in jm.keys() {
-                        round_participants.insert(b);
+                    for b in jm.keys() {
+                        round_participants.insert(b.parse::<u32>().unwrap_or(0));
                     }
                 }
             }
@@ -178,9 +178,11 @@ pub fn validate_competition_fidelity(comp: &Competition) -> bool {
                 let mut jm_for_dance = BTreeMap::new();
                 for (j_code, bib_map) in dtv_marks {
                     let mut marks = BTreeMap::new();
-                    for (bib, d_map) in bib_map {
-                        if let Some(&m) = d_map.get(dance) {
-                            marks.insert(*bib, m);
+                    for (bib_str, d_map) in bib_map {
+                        if let Ok(bib) = bib_str.parse::<u32>() {
+                            if let Some(&m) = d_map.get(dance) {
+                                marks.insert(bib, m);
+                            }
                         }
                     }
                     jm_for_dance.insert(j_code.clone(), marks);
@@ -273,7 +275,7 @@ mod tests {
                         let mut bm = BTreeMap::new();
                         bm.insert(Dance::SlowWaltz, 1);
                         bm.insert(Dance::Tango, 1);
-                        jm.insert(101, bm);
+                        jm.insert(101.to_string(), bm);
                         m.insert(j.to_string(), jm);
                     }
                     m
@@ -311,7 +313,7 @@ mod tests {
             let mut bm = BTreeMap::new();
             bm.insert(Dance::SlowWaltz, 1);
             bm.insert(Dance::Tango, 1);
-            r.dtv_ranks.get_mut("A").unwrap().insert(102, bm);
+            r.dtv_ranks.get_mut("A").unwrap().insert(102.to_string(), bm);
         }
         assert!(!validate_competition_fidelity(&comp));
     }
@@ -323,7 +325,7 @@ mod tests {
             r.dtv_ranks
                 .get_mut("A")
                 .unwrap()
-                .get_mut(&101)
+            .get_mut("101")
                 .unwrap()
                 .remove(&Dance::Tango);
         }
@@ -344,7 +346,7 @@ mod tests {
                 for j in &["A", "B", "C"] {
                     let mut jm = BTreeMap::new();
                     jm.insert(
-                        101,
+                        101.to_string(),
                         crate::models::WDSFScore {
                             technical_quality: 10.0,
                             movement_to_music: 10.0,
@@ -377,7 +379,7 @@ mod tests {
                     let mut bm = BTreeMap::new();
                     bm.insert(Dance::SlowWaltz, 1);
                     bm.insert(Dance::Tango, 2);
-                    jm.insert(101, bm);
+                    jm.insert(101.to_string(), bm);
                     m.insert(j.to_string(), jm);
                 }
                 m
@@ -404,7 +406,7 @@ mod tests {
                         let mut bm = BTreeMap::new();
                         bm.insert(Dance::SlowWaltz, true);
                         bm.insert(Dance::Tango, true);
-                        jm.insert(101, bm);
+                        jm.insert(101.to_string(), bm);
                         m.insert(j.to_string(), jm);
                     }
                     m
@@ -415,9 +417,9 @@ mod tests {
             let mut bm = BTreeMap::new();
             bm.insert(Dance::SlowWaltz, 1);
             bm.insert(Dance::Tango, 1);
-            r.dtv_ranks.get_mut("A").unwrap().insert(102, bm.clone());
-            r.dtv_ranks.get_mut("B").unwrap().insert(102, bm.clone());
-            r.dtv_ranks.get_mut("C").unwrap().insert(102, bm);
+            r.dtv_ranks.get_mut("A").unwrap().insert(102.to_string(), bm.clone());
+            r.dtv_ranks.get_mut("B").unwrap().insert(102.to_string(), bm.clone());
+            r.dtv_ranks.get_mut("C").unwrap().insert(102.to_string(), bm);
         }
         assert!(!validate_competition_fidelity(&comp));
     }
@@ -440,8 +442,8 @@ mod tests {
                         let mut bm = BTreeMap::new();
                         bm.insert(Dance::SlowWaltz, true);
                         bm.insert(Dance::Tango, true);
-                        jm.insert(101, bm.clone());
-                        jm.insert(102, bm.clone());
+                        jm.insert(101.to_string(), bm.clone());
+                        jm.insert(102.to_string(), bm.clone());
                         m.insert(j.to_string(), jm);
                     }
                     m
@@ -463,7 +465,7 @@ mod tests {
                         let mut bm = BTreeMap::new();
                         bm.insert(Dance::SlowWaltz, true);
                         bm.insert(Dance::Tango, true);
-                        jm.insert(102, bm);
+                        jm.insert(102.to_string(), bm);
                         m.insert(j.to_string(), jm);
                     }
                     m
@@ -479,11 +481,11 @@ mod tests {
         comp.participants[0].final_rank = Some(1);
         if let RoundEnum::DTV(ref mut r) = comp.rounds[0] {
             for jm in r.dtv_ranks.values_mut() {
-                jm.remove(&101);
+                jm.remove("101");
                 let mut bm = BTreeMap::new();
                 bm.insert(Dance::SlowWaltz, 1);
                 bm.insert(Dance::Tango, 1);
-                jm.insert(102, bm);
+                jm.insert(102.to_string(), bm);
             }
         }
         assert!(!validate_competition_fidelity(&comp));
@@ -505,7 +507,7 @@ mod tests {
                     let mut bm = BTreeMap::new();
                     bm.insert(Dance::SlowWaltz, true);
                     bm.insert(Dance::Tango, true);
-                    jm.insert(101, bm);
+                    jm.insert(101.to_string(), bm);
                     m.insert(j.to_string(), jm);
                 }
                 m

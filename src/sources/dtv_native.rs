@@ -367,7 +367,7 @@ impl DtvNative {
                   let judges: HashSet<String> = wdsf_scores.keys().cloned().collect();
                   let mut participants = HashSet::new();
                   for jm in wdsf_scores.values() {
-                       for &b in jm.keys() { participants.insert(b); }
+                        for b in jm.keys() { participants.insert(b.parse::<u32>().unwrap_or(0)); }
                   }
                   let mut judges_vec: Vec<_> = judges.into_iter().collect();
                   judges_vec.sort();
@@ -386,7 +386,7 @@ impl DtvNative {
                   let judges: HashSet<String> = dtv_ranks.keys().cloned().collect();
                   let mut participants = HashSet::new();
                   for jm in dtv_ranks.values() {
-                       for &b in jm.keys() { participants.insert(b); }
+                        for b in jm.keys() { participants.insert(b.parse::<u32>().unwrap_or(0)); }
                   }
                   let mut judges_vec: Vec<_> = judges.into_iter().collect();
                   judges_vec.sort();
@@ -405,7 +405,7 @@ impl DtvNative {
                   let judges: HashSet<String> = marking_crosses.keys().cloned().collect();
                   let mut participants = HashSet::new();
                   for jm in marking_crosses.values() {
-                       for &b in jm.keys() { participants.insert(b); }
+                        for b in jm.keys() { participants.insert(b.parse::<u32>().unwrap_or(0)); }
                   }
                   let mut judges_vec: Vec<_> = judges.into_iter().collect();
                   judges_vec.sort();
@@ -430,8 +430,8 @@ impl DtvNative {
         &self,
         html: &str,
         dances: &[Dance],
-    ) -> Vec<(String, BTreeMap<String, BTreeMap<u32, BTreeMap<Dance, bool>>>)> {
-        let mut all_results: Vec<(String, BTreeMap<String, BTreeMap<u32, BTreeMap<Dance, bool>>>)> = Vec::new();
+    ) -> Vec<(String, BTreeMap<String, BTreeMap<String, BTreeMap<Dance, bool>>>)> {
+        let mut all_results: Vec<(String, BTreeMap<String, BTreeMap<String, BTreeMap<Dance, bool>>>)> = Vec::new();
         let document = Html::parse_document(html);
         let tr_sel = Selector::parse("tr").unwrap();
         let td_sel = Selector::parse("td").unwrap();
@@ -509,7 +509,7 @@ impl DtvNative {
                                              let val = lines[line_idx].trim();
                                              let has_cross = val.to_lowercase().contains('x') || val.parse::<u32>().unwrap_or(0) > 0;
                                              let bib_map = current_results.entry(adj_code.clone()).or_insert_with(BTreeMap::new)
-                                                 .entry(*bib).or_insert_with(BTreeMap::new);
+                                                 .entry(bib.to_string()).or_insert_with(BTreeMap::new);
                                              for dance in dances {
                                                   bib_map.insert(*dance, has_cross);
                                              }
@@ -526,7 +526,7 @@ impl DtvNative {
                                    let provided_total: u32 = cells[cell_idx].text().collect::<String>().trim().parse().unwrap_or(0);
                                    let mut calculated_total = 0;
                                    for judge_map in current_results.values() {
-                                        if let Some(bib_map) = judge_map.get(bib) {
+                                        if let Some(bib_map) = judge_map.get(&bib.to_string()) {
                                              if bib_map.values().any(|&v| v) {
                                                   calculated_total += 1;
                                              }
@@ -567,7 +567,7 @@ impl DtvNative {
                             let cell_idx = 2 + i;
                             if cell_idx < cells.len() {
                                 let cross_text = cells[cell_idx].text().collect::<String>();
-                                let bib_map = current_results.entry(judge_code.clone()).or_insert_with(BTreeMap::new).entry(bib).or_insert_with(BTreeMap::new);
+                                let bib_map = current_results.entry(judge_code.clone()).or_insert_with(BTreeMap::new).entry(bib.to_string()).or_insert_with(BTreeMap::new);
                                 for dance in dances {
                                     bib_map.insert(*dance, cross_text.to_lowercase().contains('x'));
                                 }
@@ -591,9 +591,9 @@ impl DtvNative {
         all_results
     }
 
-    pub fn parse_ergwert(&self, html: &str, dances: &[Dance]) -> (Vec<(String, BTreeMap<String, BTreeMap<u32, BTreeMap<Dance, bool>>>)>, Vec<(String, BTreeMap<String, BTreeMap<u32, BTreeMap<Dance, u32>>>)>) {
-        let mut all_rank_results: Vec<(String, BTreeMap<String, BTreeMap<u32, BTreeMap<Dance, u32>>>)> = Vec::new();
-        let mut all_mark_results: Vec<(String, BTreeMap<String, BTreeMap<u32, BTreeMap<Dance, bool>>>)> = Vec::new();
+    pub fn parse_ergwert(&self, html: &str, dances: &[Dance]) -> (Vec<(String, BTreeMap<String, BTreeMap<String, BTreeMap<Dance, bool>>>)>, Vec<(String, BTreeMap<String, BTreeMap<String, BTreeMap<Dance, u32>>>)>) {
+        let mut all_rank_results: Vec<(String, BTreeMap<String, BTreeMap<String, BTreeMap<Dance, u32>>>)> = Vec::new();
+        let mut all_mark_results: Vec<(String, BTreeMap<String, BTreeMap<String, BTreeMap<Dance, bool>>>)> = Vec::new();
         let document = Html::parse_document(html);
         let tr_sel = Selector::parse("tr").unwrap();
         let td_sel = Selector::parse("td").unwrap();
@@ -704,7 +704,7 @@ impl DtvNative {
                                       all_rank_results[global_idx].0 = global_round_ids[&sorted_ids[global_idx]].clone();
                                       let results = &mut all_rank_results[global_idx].1;
                                       if let Some(d) = dance {
-                                           results.entry(adj_code).or_insert_with(BTreeMap::new).entry(bib).or_insert_with(BTreeMap::new).insert(*d, rank);
+                                           results.entry(adj_code).or_insert_with(BTreeMap::new).entry(bib.to_string()).or_insert_with(BTreeMap::new).insert(*d, rank);
                                       }
                                  } else if val.to_lowercase().contains('x') || val == "-" {
                                       let has_cross = val.to_lowercase().contains('x');
@@ -714,7 +714,7 @@ impl DtvNative {
                                       all_mark_results[global_idx].0 = global_round_ids[&sorted_ids[global_idx]].clone();
                                       let results = &mut all_mark_results[global_idx].1;
                                       if let Some(d) = dance {
-                                           results.entry(adj_code).or_insert_with(BTreeMap::new).entry(bib).or_insert_with(BTreeMap::new).insert(*d, has_cross);
+                                           results.entry(adj_code).or_insert_with(BTreeMap::new).entry(bib.to_string()).or_insert_with(BTreeMap::new).insert(*d, has_cross);
                                       }
                                  }
                             }
@@ -727,7 +727,7 @@ impl DtvNative {
         (all_mark_results, all_rank_results)
     }
 
-    pub fn parse_wdsf_scores(&self, html: &str) -> BTreeMap<String, BTreeMap<u32, WDSFScore>> {
+    pub fn parse_wdsf_scores(&self, html: &str) -> BTreeMap<String, BTreeMap<String, WDSFScore>> {
         let mut results = BTreeMap::new();
         let document = Html::parse_document(html);
         let tr_sel = Selector::parse("tr").unwrap();
@@ -758,7 +758,7 @@ impl DtvNative {
 
                 if !scores.is_empty() {
                     let score_entry = results.entry(current_judge.clone()).or_insert_with(BTreeMap::new)
-                        .entry(current_bib).or_insert(WDSFScore {
+                        .entry(current_bib.to_string()).or_insert(WDSFScore {
                             technical_quality: 0.0,
                             movement_to_music: 0.0,
                             partnering_skills: 0.0,
@@ -1075,7 +1075,7 @@ mod tests {
         let parser = DtvNative::new(SelectorConfig::default());
 
         let crosses = parser.parse_tabges(html, &dances);
-        assert!(crosses[0].1["AT"][&101][&Dance::SlowWaltz]);
+        assert!(crosses[0].1["AT"]["101"][&Dance::SlowWaltz]);
     }
 
     #[test]
@@ -1090,7 +1090,7 @@ mod tests {
         let parser = DtvNative::new(SelectorConfig::default());
 
         let scores = parser.parse_wdsf_scores(html);
-        let s = &scores["A"][&284];
+        let s = &scores["A"]["284"];
         assert_eq!(s.technical_quality, 9.75);
         assert_eq!(s.partnering_skills, 9.75);
         assert_eq!(s.movement_to_music, 9.50);
@@ -1151,7 +1151,7 @@ mod tests {
 
         let results = parser.parse_tabges(&html, &dances);
         // Bib 284 is seeded and only starts in Round 2 (index 1)
-        assert!(results[1].1["A"][&284][&Dance::Samba]);
+        assert!(results[1].1["A"]["284"][&Dance::Samba]);
     }
 
     #[test]
@@ -1163,6 +1163,6 @@ mod tests {
         let results = parser.parse_ergwert(&html, &dances);
         // Bib 721 is seeded and starts later. In this file, Endrunde (index 4) contains its ranks.
         assert!(results.1[4].1.contains_key("D"));
-        assert!(results.1[4].1["D"].contains_key(&721));
+        assert!(results.1[4].1["D"].contains_key("721"));
     }
 }
