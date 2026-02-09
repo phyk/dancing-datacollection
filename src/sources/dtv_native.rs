@@ -7,7 +7,7 @@ use anyhow::Result;
 use chrono::NaiveDate;
 use regex::Regex;
 use scraper::{Html, Selector};
-use std::collections::{BTreeMap, HashSet};
+use std::collections::BTreeMap;
 use std::fs;
 use std::path::Path;
 
@@ -364,60 +364,24 @@ impl DtvNative {
              }
 
              if let Some(wdsf_scores) = wdsf {
-                  let judges: HashSet<String> = wdsf_scores.keys().cloned().collect();
-                  let mut participants = HashSet::new();
-                  for jm in wdsf_scores.values() {
-                        for b in jm.keys() { participants.insert(b.parse::<u32>().unwrap_or(0)); }
-                  }
-                  let mut judges_vec: Vec<_> = judges.into_iter().collect();
-                  judges_vec.sort();
-                  let mut participants_vec: Vec<_> = participants.into_iter().collect();
-                  participants_vec.sort();
-
                   rounds.push(RoundEnum::WDSF(WDSFScoreRound {
                        name,
                        order: i as u32,
-                       judges: judges_vec,
                        dances: dances.to_vec(),
-                       participant_numbers: participants_vec,
                        wdsf_scores,
                   }));
              } else if let Some(dtv_ranks) = ranks {
-                  let judges: HashSet<String> = dtv_ranks.keys().cloned().collect();
-                  let mut participants = HashSet::new();
-                  for jm in dtv_ranks.values() {
-                        for b in jm.keys() { participants.insert(b.parse::<u32>().unwrap_or(0)); }
-                  }
-                  let mut judges_vec: Vec<_> = judges.into_iter().collect();
-                  judges_vec.sort();
-                  let mut participants_vec: Vec<_> = participants.into_iter().collect();
-                  participants_vec.sort();
-
                   rounds.push(RoundEnum::DTV(DTVScoreRound {
                        name,
                        order: i as u32,
-                       judges: judges_vec,
                        dances: dances.to_vec(),
-                       participant_numbers: participants_vec,
                        dtv_ranks,
                   }));
              } else if let Some(marking_crosses) = marks {
-                  let judges: HashSet<String> = marking_crosses.keys().cloned().collect();
-                  let mut participants = HashSet::new();
-                  for jm in marking_crosses.values() {
-                        for b in jm.keys() { participants.insert(b.parse::<u32>().unwrap_or(0)); }
-                  }
-                  let mut judges_vec: Vec<_> = judges.into_iter().collect();
-                  judges_vec.sort();
-                  let mut participants_vec: Vec<_> = participants.into_iter().collect();
-                  participants_vec.sort();
-
                   rounds.push(RoundEnum::Mark(MarkRound {
                        name,
                        order: i as u32,
-                       judges: judges_vec,
                        dances: dances.to_vec(),
-                       participant_numbers: participants_vec,
                        marking_crosses,
                   }));
              }

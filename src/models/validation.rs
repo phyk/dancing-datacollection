@@ -265,9 +265,7 @@ mod tests {
             rounds: vec![RoundEnum::DTV(DTVScoreRound {
                 name: "Final".to_string(),
                 order: 1,
-                judges: vec!["A".to_string(), "B".to_string(), "C".to_string()],
                 dances: vec![Dance::SlowWaltz, Dance::Tango],
-                participant_numbers: vec![101],
                 dtv_ranks: {
                     let mut m = BTreeMap::new();
                     for j in &["A", "B", "C"] {
@@ -338,9 +336,7 @@ mod tests {
         comp.rounds[0] = RoundEnum::WDSF(WDSFScoreRound {
             name: "Final".to_string(),
             order: 1,
-            judges: vec!["A".to_string(), "B".to_string(), "C".to_string()],
             dances: vec![Dance::SlowWaltz, Dance::Tango],
-            participant_numbers: vec![101],
             wdsf_scores: {
                 let mut m = BTreeMap::new();
                 for j in &["A", "B", "C"] {
@@ -369,9 +365,7 @@ mod tests {
         comp.rounds[0] = RoundEnum::DTV(DTVScoreRound {
             name: "Final".to_string(),
             order: 1,
-            judges: vec!["A".to_string(), "B".to_string(), "C".to_string()],
             dances: vec![Dance::SlowWaltz, Dance::Tango],
-            participant_numbers: vec![101],
             dtv_ranks: {
                 let mut m = BTreeMap::new();
                 for j in &["A", "B", "C"] {
@@ -396,9 +390,7 @@ mod tests {
             RoundEnum::Mark(MarkRound {
                 name: "Vorrunde".to_string(),
                 order: 0,
-                judges: vec!["A".to_string(), "B".to_string(), "C".to_string()],
                 dances: vec![Dance::SlowWaltz, Dance::Tango],
-                participant_numbers: vec![101],
                 marking_crosses: {
                     let mut m = BTreeMap::new();
                     for j in &["A", "B", "C"] {
@@ -432,9 +424,7 @@ mod tests {
             RoundEnum::Mark(MarkRound {
                 name: "Vorrunde".to_string(),
                 order: 0,
-                judges: vec!["A".to_string(), "B".to_string(), "C".to_string()],
                 dances: vec![Dance::SlowWaltz, Dance::Tango],
-                participant_numbers: vec![101, 102],
                 marking_crosses: {
                     let mut m = BTreeMap::new();
                     for j in &["A", "B", "C"] {
@@ -455,9 +445,7 @@ mod tests {
             RoundEnum::Mark(MarkRound {
                 name: "Semi".to_string(),
                 order: 1,
-                judges: vec!["A".to_string(), "B".to_string(), "C".to_string()],
                 dances: vec![Dance::SlowWaltz, Dance::Tango],
-                participant_numbers: vec![102],
                 marking_crosses: {
                     let mut m = BTreeMap::new();
                     for j in &["A", "B", "C"] {
@@ -497,9 +485,7 @@ mod tests {
         comp.rounds[0] = RoundEnum::Mark(MarkRound {
             name: "Final".to_string(),
             order: 1,
-            judges: vec!["A".to_string(), "B".to_string(), "C".to_string()],
             dances: vec![Dance::SlowWaltz, Dance::Tango],
-            participant_numbers: vec![101],
             marking_crosses: {
                 let mut m = BTreeMap::new();
                 for j in &["A", "B", "C"] {

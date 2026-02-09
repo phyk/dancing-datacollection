@@ -110,9 +110,7 @@ pub struct WDSFScore {
 pub trait Round {
     fn name(&self) -> &str;
     fn order(&self) -> u32;
-    fn judges(&self) -> &[String];
     fn dances(&self) -> &[Dance];
-    fn participant_numbers(&self) -> &[u32];
 }
 
 /// A round containing marking crosses.
@@ -120,9 +118,7 @@ pub trait Round {
 pub struct MarkRound {
     pub name: String,
     pub order: u32,
-    pub judges: Vec<String>,
     pub dances: Vec<Dance>,
-    pub participant_numbers: Vec<u32>,
     pub marking_crosses: BTreeMap<String, BTreeMap<String, BTreeMap<Dance, bool>>>,
 }
 
@@ -133,14 +129,8 @@ impl Round for MarkRound {
     fn order(&self) -> u32 {
         self.order
     }
-    fn judges(&self) -> &[String] {
-        &self.judges
-    }
     fn dances(&self) -> &[Dance] {
         &self.dances
-    }
-    fn participant_numbers(&self) -> &[u32] {
-        &self.participant_numbers
     }
 }
 
@@ -149,9 +139,7 @@ impl Round for MarkRound {
 pub struct DTVScoreRound {
     pub name: String,
     pub order: u32,
-    pub judges: Vec<String>,
     pub dances: Vec<Dance>,
-    pub participant_numbers: Vec<u32>,
     pub dtv_ranks: BTreeMap<String, BTreeMap<String, BTreeMap<Dance, u32>>>,
 }
 
@@ -162,14 +150,8 @@ impl Round for DTVScoreRound {
     fn order(&self) -> u32 {
         self.order
     }
-    fn judges(&self) -> &[String] {
-        &self.judges
-    }
     fn dances(&self) -> &[Dance] {
         &self.dances
-    }
-    fn participant_numbers(&self) -> &[u32] {
-        &self.participant_numbers
     }
 }
 
@@ -178,9 +160,7 @@ impl Round for DTVScoreRound {
 pub struct WDSFScoreRound {
     pub name: String,
     pub order: u32,
-    pub judges: Vec<String>,
     pub dances: Vec<Dance>,
-    pub participant_numbers: Vec<u32>,
     pub wdsf_scores: BTreeMap<String, BTreeMap<String, WDSFScore>>,
 }
 
@@ -191,14 +171,8 @@ impl Round for WDSFScoreRound {
     fn order(&self) -> u32 {
         self.order
     }
-    fn judges(&self) -> &[String] {
-        &self.judges
-    }
     fn dances(&self) -> &[Dance] {
         &self.dances
-    }
-    fn participant_numbers(&self) -> &[u32] {
-        &self.participant_numbers
     }
 }
 
@@ -226,25 +200,11 @@ impl Round for RoundEnum {
             RoundEnum::WDSF(r) => r.order(),
         }
     }
-    fn judges(&self) -> &[String] {
-        match self {
-            RoundEnum::Mark(r) => r.judges(),
-            RoundEnum::DTV(r) => r.judges(),
-            RoundEnum::WDSF(r) => r.judges(),
-        }
-    }
     fn dances(&self) -> &[Dance] {
         match self {
             RoundEnum::Mark(r) => r.dances(),
             RoundEnum::DTV(r) => r.dances(),
             RoundEnum::WDSF(r) => r.dances(),
-        }
-    }
-    fn participant_numbers(&self) -> &[u32] {
-        match self {
-            RoundEnum::Mark(r) => r.participant_numbers(),
-            RoundEnum::DTV(r) => r.participant_numbers(),
-            RoundEnum::WDSF(r) => r.participant_numbers(),
         }
     }
 }
@@ -281,4 +241,14 @@ pub fn sanitize_name(name: &str) -> String {
         .collect();
     s.truncate(64);
     s
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn test_competition_serde() {
+        let json = r#"{"name":"test","level":"D","age_group":"Adult","style":"Standard","dances":[],"min_dances":0,"officials":{"responsible_person":null,"assistant":null,"judges":[]},"participants":[],"rounds":[{"round_type":"DTV","name":"Final","order":0,"dances":[],"dtv_ranks":{"A":{"101":{"SlowWaltz":1}}}}]}"#;
+        let _: Competition = serde_json::from_str(json).unwrap();
+    }
 }
