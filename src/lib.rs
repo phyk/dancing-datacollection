@@ -12,7 +12,21 @@ use std::fs;
 
 /// Orchestrator to load, parse, validate, and store competition results.
 ///
-/// This is the primary entry point for the Python API.
+/// This function follows a multi-stage process:
+/// 1. Discovery & Crawling: Identifies competition links from the provided URL, respecting robots.txt and using a manifest for deduplication.
+/// 2. Filtering: Applies optional case-insensitive filters for date, age group, style, and level.
+/// 3. Fidelity Validation (Safety Shield): Ensures structural integrity, including judge counts and skating system math verification.
+/// 4. Structured Storage: Saves validated results as JSON files in a directory hierarchy: {Event_Name}_{Year}/{AgeGroup}_{Level}_{Style}.json.
+///
+/// # Arguments
+/// * `target_folder` - The base directory where the results and optional raw files will be stored.
+/// * `url` - The URL of the competition or event index page to process.
+/// * `date` - Optional date filter or override (e.g., "2024-05-01").
+/// * `age_group` - Optional filter for a specific age group (e.g., "Adult", "Sen I").
+/// * `style` - Optional filter for a specific dance style ("Standard" or "Latein").
+/// * `level` - Optional filter for a specific skill level (e.g., "D", "C", "B", "A", "S").
+/// * `download_html` - If True, archives raw HTML source files in a 'raw' subfolder.
+/// * `output_format` - The serialization format for the output files (only "json" is supported).
 #[pyfunction]
 #[pyo3(signature = (target_folder, url, date=None, age_group=None, style=None, level=None, download_html=true, output_format="json"))]
 #[allow(clippy::too_many_arguments)]
