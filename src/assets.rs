@@ -1,29 +1,52 @@
 //! Assets for DTV Competition Ruleset and Internationalization
 //! This file contains hardcoded constants and mappings.
 
-use crate::models::Dance;
+use crate::models::{Dance, AgeGroup, Style, Level};
 
-pub const AGE_GROUP_MAPPINGS: &[(&str, &str)] = &[
-    ("Hgr", "adult"), ("Hgr.", "adult"), ("Hauptgruppe", "adult"), ("Adult", "adult"), ("Adults", "adult"), ("Rising Stars", "adult"),
-    ("Hgr.II", "adult_2"), ("Hgr II", "adult_2"), ("Hauptgruppe II", "adult_2"),
-    ("Sen", "senior"), ("Sen.", "senior"), ("Mas.", "senior"),
-    ("Sen.I", "sen_1"), ("Mas.I", "sen_1"), ("Senioren I", "sen_1"),
-    ("Sen.II", "sen_2"), ("Mas.II", "sen_2"), ("Senioren II", "sen_2"),
-    ("Sen.III", "sen_3"), ("Mas.III", "sen_3"), ("Senioren III", "sen_3"),
-    ("Sen.IV", "sen_4"), ("Mas.IV", "sen_4"), ("Senioren IV", "sen_4"),
-    ("Sen.V", "sen_5"), ("Mas.V", "sen_5"), ("Senioren V", "sen_5"),
-    ("Kinder I", "juv_1"), ("Kin.I", "juv_1"),
-    ("Kinder II", "juv_2"), ("Kin.II", "juv_2"),
-    ("Kin.", "juv"),
-    ("Junioren I", "jun_1"), ("Jun.I", "jun_1"),
-    ("Junioren II", "jun_2"), ("Jun.II", "jun_2"),
-    ("Jugend", "youth"), ("Jug.", "youth"),
+pub const AGE_GROUP_MAPPINGS: &[(&str, AgeGroup)] = &[
+    ("Hgr", AgeGroup::Adult), ("Hgr.", AgeGroup::Adult), ("Hauptgruppe", AgeGroup::Adult), ("Adult", AgeGroup::Adult), ("Adults", AgeGroup::Adult), ("Rising Stars", AgeGroup::Adult),
+    ("Hgr.II", AgeGroup::Adult2), ("Hgr II", AgeGroup::Adult2), ("Hauptgruppe II", AgeGroup::Adult2),
+    ("Sen", AgeGroup::Senior), ("Sen.", AgeGroup::Senior), ("Mas.", AgeGroup::Senior),
+    ("Sen.I", AgeGroup::Sen1), ("Mas.I", AgeGroup::Sen1), ("Senioren I", AgeGroup::Sen1),
+    ("Sen.II", AgeGroup::Sen2), ("Mas.II", AgeGroup::Sen2), ("Senioren II", AgeGroup::Sen2),
+    ("Sen.III", AgeGroup::Sen3), ("Mas.III", AgeGroup::Sen3), ("Senioren III", AgeGroup::Sen3),
+    ("Sen.IV", AgeGroup::Sen4), ("Mas.IV", AgeGroup::Sen4), ("Senioren IV", AgeGroup::Sen4),
+    ("Sen.V", AgeGroup::Sen5), ("Mas.V", AgeGroup::Sen5), ("Senioren V", AgeGroup::Sen5),
+    ("Kinder I", AgeGroup::Juv1), ("Kin.I", AgeGroup::Juv1),
+    ("Kinder II", AgeGroup::Juv2), ("Kin.II", AgeGroup::Juv2),
+    ("Junioren I", AgeGroup::Jun1), ("Jun.I", AgeGroup::Jun1),
+    ("Junioren II", AgeGroup::Jun2), ("Jun.II", AgeGroup::Jun2),
+    ("Jugend", AgeGroup::Youth), ("Jug.", AgeGroup::Youth),
 ];
 
-pub const STYLE_MAPPINGS: &[(&str, &str)] = &[
-    ("Standard", "std"),
-    ("Latein", "lat"),
-    ("Latin", "lat"),
+pub const AGE_GROUP_ID_MAPPINGS: &[(&str, AgeGroup)] = &[
+    ("juv_1", AgeGroup::Juv1),
+    ("juv_2", AgeGroup::Juv2),
+    ("jun_1", AgeGroup::Jun1),
+    ("jun_2", AgeGroup::Jun2),
+    ("youth", AgeGroup::Youth),
+    ("adult", AgeGroup::Adult),
+    ("adult_2", AgeGroup::Adult2),
+    ("sen_1", AgeGroup::Sen1),
+    ("sen_2", AgeGroup::Sen2),
+    ("sen_3", AgeGroup::Sen3),
+    ("sen_4", AgeGroup::Sen4),
+    ("sen_5", AgeGroup::Sen5),
+    ("senior", AgeGroup::Senior),
+];
+
+pub const STYLE_MAPPINGS: &[(&str, Style)] = &[
+    ("Standard", Style::Standard),
+    ("Latein", Style::Latein),
+    ("Latin", Style::Latein),
+];
+
+pub const STYLE_ID_MAPPINGS: &[(&str, Style)] = &[
+    ("std", Style::Standard),
+    ("standard", Style::Standard),
+    ("lat", Style::Latein),
+    ("latin", Style::Latein),
+    ("latein", Style::Latein),
 ];
 
 pub const DANCE_ABBREVIATIONS: &[(Dance, &[&str])] = &[
@@ -39,13 +62,13 @@ pub const DANCE_ABBREVIATIONS: &[(Dance, &[&str])] = &[
     (Dance::Jive, &["JV", "JI", "JIVE"]),
 ];
 
-pub const LEVEL_MAPPINGS: &[(&str, &str)] = &[
-    ("E", "E"),
-    ("D", "D"),
-    ("C", "C"),
-    ("B", "B"),
-    ("A", "A"),
-    ("S", "S"),
+pub const LEVEL_MAPPINGS: &[(&str, Level)] = &[
+    ("E", Level::E),
+    ("D", Level::D),
+    ("C", Level::C),
+    ("B", Level::B),
+    ("A", Level::A),
+    ("S", Level::S),
 ];
 
 pub const ROLE_MAPPINGS: &[(&str, &str)] = &[

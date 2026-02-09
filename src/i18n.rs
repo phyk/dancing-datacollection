@@ -21,54 +21,33 @@ pub fn get_min_dances(level: Level, date: NaiveDate) -> u32 {
 }
 
 pub fn parse_level(s: &str) -> Option<Level> {
-    match s.to_uppercase().as_str() {
-        "E" => Some(Level::E),
-        "D" => Some(Level::D),
-        "C" => Some(Level::C),
-        "B" => Some(Level::B),
-        "A" => Some(Level::A),
-        "S" => Some(Level::S),
-        _ => None,
-    }
+    LEVEL_MAPPINGS.iter()
+        .find(|&&(k, _)| k.eq_ignore_ascii_case(s))
+        .map(|&(_, v)| v)
 }
 
 pub fn parse_style(s: &str) -> Option<Style> {
-    match s.to_lowercase().as_str() {
-        "std" | "standard" => Some(Style::Standard),
-        "lat" | "latin" | "latein" => Some(Style::Latein),
-        _ => None,
-    }
+    STYLE_ID_MAPPINGS.iter()
+        .find(|&&(k, _)| k.eq_ignore_ascii_case(s))
+        .map(|&(_, v)| v)
 }
 
 pub fn parse_age_group(s: &str) -> Option<AgeGroup> {
-    match s.to_lowercase().as_str() {
-        "juv_1" => Some(AgeGroup::Juv1),
-        "juv_2" => Some(AgeGroup::Juv2),
-        "jun_1" => Some(AgeGroup::Jun1),
-        "jun_2" => Some(AgeGroup::Jun2),
-        "youth" => Some(AgeGroup::Youth),
-        "adult" => Some(AgeGroup::Adult),
-        "adult_2" => Some(AgeGroup::Adult2),
-        "sen_1" => Some(AgeGroup::Sen1),
-        "sen_2" => Some(AgeGroup::Sen2),
-        "sen_3" => Some(AgeGroup::Sen3),
-        "sen_4" => Some(AgeGroup::Sen4),
-        "sen_5" => Some(AgeGroup::Sen5),
-        "senior" => Some(AgeGroup::Senior),
-        _ => None,
-    }
+    AGE_GROUP_ID_MAPPINGS.iter()
+        .find(|&&(k, _)| k.eq_ignore_ascii_case(s))
+        .map(|&(_, v)| v)
 }
 
 pub fn map_age_group(s: &str) -> Option<AgeGroup> {
     AGE_GROUP_MAPPINGS.iter()
         .find(|&&(k, _)| k.eq_ignore_ascii_case(s))
-        .and_then(|&(_, id)| parse_age_group(id))
+        .map(|&(_, v)| v)
 }
 
 pub fn map_discipline(s: &str) -> Option<Style> {
     STYLE_MAPPINGS.iter()
         .find(|&&(k, _)| k.eq_ignore_ascii_case(s))
-        .and_then(|&(_, id)| parse_style(id))
+        .map(|&(_, v)| v)
 }
 
 pub fn map_role(s: &str) -> Option<String> {
