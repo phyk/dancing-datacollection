@@ -1,110 +1,38 @@
-# Dancing Competition Data Collection
+# Dancing Data Collection
 
-## Overview
-This Python application downloads, parses, and standardizes data from dancing competitions, storing results in a structured, analysis-ready format. It is designed for extensibility and reliability, following the detailed specification in `project-brief.md`.
+This library provides a high-performance Rust-based engine with Python bindings to download, parse, and validate dancing competition results (TopTurnier/DTV-native format).
 
-## Quickstart
-1. **Install dependencies:**
-   ```sh
-   uv add beautifulsoup4 polars pyarrow toml tqdm
-   ```
-2. **Install the package in editable mode:**
-   ```sh
-   uv pip install -e .
-   ```
-3. **Configure URLs:**
-   - Edit `config.toml` to add base URLs of competition events (see below).
-4. **Run the application:**
-   ```sh
-   uv run python -m dancing_datacollection
-   ```
+## Main Entrypoint
 
-## Configuration File
-- The configuration file (`config.toml`) lists base URLs to check for new competitions.
-- Example:
-  ```toml
-  [sources]
-  urls = [
-    "https://hessen-tanzt.de/media/ht2024/"
-  ]
-  ```
+The library exposes a single primary orchestrator function:
 
-## Output Structure
-- Output is organized as:
-  ```
-  data/
-    2024-HessenTanzt/
-      judges.parquet
-      scores.parquet
-      final_scoring.parquet
-      ...
-  logs/
-    app.log
-    error.log
-  ```
-- Each competition gets its own directory, named as `year-competition`.
-- Each data category is saved as a separate Parquet file.
-- All logs and errors are written to the `logs/` directory. See `error.log` for detailed error messages and stack traces.
+### `load_competition_results`
 
-## Module Overview
-- `dancing_datacollection/main.py`: CLI entry point and workflow orchestration.
-- `dancing_datacollection/parsing_base.py`: Abstract base class for competition parsers.
-- `dancing_datacollection/parsing_topturnier.py`: Parser for TopTurnier HTML format.
-- `dancing_datacollection/output.py`: Output and schema validation utilities.
-- `dancing_datacollection/parsing_utils.py`: Download, deduplication, and helper functions.
-- `tests/`: Sample HTML files and test suite for all parsing logic.
+Downloads, parses, validates, and stores competition results from a given URL.
 
-## Usage
+#### Parameters
 
-### Download and process competitions from remote URLs
+- `target_folder` (str): The directory where the results will be stored.
+- `url` (str): The URL of the competition or event index.
+- `date` (str, optional): Filter by date (YYYY-MM-DD).
+- `age_group` (str, optional): Filter by age group (e.g., "Hgr", "Sen I").
+- `style` (str, optional): Filter by style/discipline (e.g., "Std", "Lat").
+- `level` (str, optional): Filter by level/class (e.g., "D", "S").
+- `download_html` (bool, optional): Whether to archive the raw HTML source files. Defaults to `True`.
+- `output_format` (str, optional): The format of the output file. Currently only "json" is supported.
 
-```sh
-uv run python -m dancing_datacollection
+#### Usage Example
+
+```python
+from dancing_datacollection import load_competition_results
+
+load_competition_results(
+    target_folder="data/results",
+    url="https://www.dancecomp.de/2024/ergebnisse/index.htm",
+    age_group="Hgr",
+    style="Std",
+    level="S"
+)
 ```
 
-### Process all .htm files in a local directory (for testing/offline)
-
-```sh
-uv run python -m dancing_datacollection --local-dir tests/51-1105_ot_hgr2dstd
-```
-
-This will extract and deduplicate all participants from all `.htm` files in the specified directory and save them as a Parquet file in the appropriate output location.
-
-## Extensibility
-- To support a new HTML format, add a new parser class inheriting from `CompetitionParser` in a new module.
-- Register the new parser in the main workflow as needed.
-- Add tests and sample HTML files for the new format in `tests/`.
-
-## Development Workflow with uv
-- Add dependencies: `uv add <package>`
-- Install editable package: `uv pip install -e .`
-- Run scripts/tests: `uv run python ...`
-
-## Further Details
-See `project-brief.md` for the full specification, requirements, and architecture.
-
-## Cancellation Handling
-- If a competition is canceled (e.g., due to insufficient participants), this is detected in `deck.htm`.
-- The application logs and prints a cancellation message, and skips writing any output files for that event.
-- No Parquet files are written for canceled competitions, so schema validation will skip them.
-
-## Respect for robots.txt
-- Before downloading or scraping any competition URL, the application checks the site's `robots.txt`.
-- If scraping is disallowed for the relevant user-agent, the URL is skipped and a warning is logged.
-- If `robots.txt` cannot be fetched, the application logs an error and defaults to allowing access.
-
-## Schema Validation & Troubleshooting
-- After processing, run the schema validation script to check all output files:
-  ```sh
-  uv run python tests/test_output_schema.py
-  ```
-- If a file fails validation, check the logs for details. Common reasons:
-  - The competition was canceled (no output files written)
-  - The source HTML was malformed or missing
-  - The event uses an unsupported format (add a new parser as below)
-
-## Extensibility: Adding a New Parser
-- To support a new HTML format, create a new parser class in `dancing_datacollection/parsing_template.py` (see template).
-- Implement the required extraction methods (`extract_participants`, `extract_judges`, etc.).
-- Register the new parser in the main workflow if needed.
-- Add tests for the new format in `tests/`.
+The function handles discovery of individual competitions from an event index, respects `robots.txt` and crawl delays, performs math verification (Safety Shield), and stores the results in a structured JSON format.
