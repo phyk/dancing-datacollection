@@ -87,42 +87,64 @@ fn load_competition_results(
 
              event.source_url = Some(comp_url.clone());
 
-             let year = event.date.map(|d| d.format("%Y").to_string()).unwrap_or_else(|| "0000".to_string());
-             let sanitized_event_name = sanitize_name(&event.name);
-             let event_folder_name = format!("{}_{}", sanitized_event_name, year);
-             let event_path = Path::new(&target_folder).join(&event_folder_name);
-             if let Err(e) = fs::create_dir_all(&event_path) {
-                 log::error!("Failed to create event directory {:?}: {}", event_path, e);
-                 let _ = fs::remove_dir_all(&temp_dir);
-                 continue;
-             }
-
              // 3. Apply overrides and Validate
              let competitions = event.competitions_list.clone();
-             let mut event_metadata = event.clone();
-             event_metadata.competitions_list = vec![];
+             let mut event_metadata_base = event.clone();
+             event_metadata_base.competitions_list = vec![];
 
              for mut comp in competitions {
-                 if let Some(ref d_str) = date {
-                     if let Some(d) = parser.parse_date(d_str) {
-                         event_metadata.date = Some(d);
-                         comp.min_dances = crate::models::validation::get_min_dances_for_level(&comp.level, &d);
+                 let mut event_metadata = event_metadata_base.clone();
+
+                 // 3a. Filtering Logic
+                 if let Some(ref ag_filter) = age_group {
+                     let target = crate::i18n::map_age_group(ag_filter).or_else(|| crate::i18n::parse_age_group(ag_filter));
+                     if let Some(t) = target {
+                         if comp.age_group != t { continue; }
+                     } else {
+                         continue;
                      }
                  }
-                 if let Some(ref ag_str) = age_group {
-                     if let Some(ag) = crate::i18n::map_age_group(ag_str) { comp.age_group = ag; }
+                 if let Some(ref s_filter) = style {
+                     let target = crate::i18n::map_discipline(s_filter).or_else(|| crate::i18n::parse_style(s_filter));
+                     if let Some(t) = target {
+                         if comp.style != t { continue; }
+                     } else {
+                         continue;
+                     }
                  }
-                 if let Some(ref s_str) = style {
-                     if let Some(s) = crate::i18n::map_discipline(s_str) { comp.style = s; }
+                 if let Some(ref l_filter) = level {
+                     let target = crate::i18n::parse_level(l_filter);
+                     if let Some(t) = target {
+                         if comp.level != t { continue; }
+                     } else {
+                         continue;
+                     }
                  }
-                 if let Some(ref l_str) = level {
-                     if let Some(l) = crate::i18n::parse_level(l_str) { comp.level = l; }
+
+                 if let Some(ref d_str) = date {
+                     match parser.parse_date(d_str) {
+                         Some(d) => {
+                             if let Some(event_date) = event_metadata.date {
+                                  if event_date != d { continue; }
+                             } else {
+                                  event_metadata.date = Some(d);
+                             }
+                             comp.min_dances = crate::models::validation::get_min_dances_for_level(&comp.level, &d);
+                         }
+                         None => {
+                             log::error!("Provided date filter '{}' could not be parsed.", d_str);
+                             continue;
+                         }
+                     }
+                 } else if let Some(event_date) = event_metadata.date {
+                      // Ensure min_dances is correct for the parsed event date
+                      comp.min_dances = crate::models::validation::get_min_dances_for_level(&comp.level, &event_date);
                  }
 
                  let comp_id = format!("{:?}_{:?}_{:?}", comp.age_group, comp.level, comp.style);
                  let sanitized_comp_id = sanitize_name(&comp_id);
 
-                 // Math Check & Fidelity Gate
+                 // Math Check & Fidelity Gate (The Safety Shield)
                  let mut single_comp_event = event_metadata.clone();
                  single_comp_event.competitions_list = vec![comp];
 
@@ -134,7 +156,17 @@ fn load_competition_results(
                  // Mark as processed in manifest (for this run's deduplication)
                  manifest.mark_processed(comp_url.clone());
 
-                 // 4. Save JSON
+                 // 4. Folder structure: {Event_Name}_{Year}/
+                 let year = event_metadata.date.map(|d| d.format("%Y").to_string()).unwrap_or_else(|| "0000".to_string());
+                 let sanitized_event_name = sanitize_name(&event_metadata.name);
+                 let event_folder_name = format!("{}_{}", sanitized_event_name, year);
+                 let event_path = Path::new(&target_folder).join(&event_folder_name);
+                 if let Err(e) = fs::create_dir_all(&event_path) {
+                     log::error!("Failed to create event directory {:?}: {}", event_path, e);
+                     continue;
+                 }
+
+                 // 5. File naming: {Age}_{Level}_{Style}.json
                  let json_path = event_path.join(format!("{}.json", sanitized_comp_id));
                  match serde_json::to_string_pretty(&single_comp_event) {
                     Ok(json_data) => {
@@ -145,7 +177,7 @@ fn load_competition_results(
                     Err(e) => log::error!("Failed to serialize event: {}", e),
                  }
 
-                 // 5. Handle raw HTML
+                 // 6. Handle raw HTML
                  if download_html {
                      let raw_path = event_path.join("raw").join(&sanitized_comp_id);
                      if let Ok(_) = fs::create_dir_all(&raw_path) {
