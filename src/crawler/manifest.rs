@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 use std::fs;
 use std::path::Path;
-use crate::models::Event;
+use crate::models::Competition;
 
 #[derive(Default)]
 pub struct Manifest {
@@ -26,7 +26,7 @@ impl Manifest {
                         for sub_entry in sub_entries.flatten() {
                             if sub_entry.path().extension().map_or(false, |ext| ext == "json") {
                                 if let Ok(content) = fs::read_to_string(sub_entry.path()) {
-                                    if let Ok(event) = serde_json::from_str::<Event>(&content) {
+                                    if let Ok(event) = serde_json::from_str::<Competition>(&content) {
                                         if let Some(url) = event.source_url {
                                             processed_ids.insert(url);
                                         }

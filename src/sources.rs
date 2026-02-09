@@ -1,4 +1,4 @@
-use crate::models::Event;
+use crate::models::Competition;
 use thiserror::Error;
 
 /// Error types for the scraping and parsing process.
@@ -27,8 +27,8 @@ pub trait ResultSource {
     /// Fetches the HTML content from the given URL.
     fn fetch(&self, url: &str) -> Result<String, Box<dyn std::error::Error>>;
 
-    /// Parses the HTML content into an Event model.
-    fn parse(&self, html: &str) -> Result<Event, ParsingError>;
+    /// Parses the HTML content into a Competition model.
+    fn parse(&self, html: &str) -> Result<Competition, ParsingError>;
 
     /// Parses a date string into a NaiveDate.
     fn parse_date(&self, s: &str) -> Option<chrono::NaiveDate>;
