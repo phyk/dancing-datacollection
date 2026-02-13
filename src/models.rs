@@ -106,107 +106,30 @@ pub struct WDSFScore {
     pub total: f64,
 }
 
-/// Trait for all types of competition rounds.
-pub trait Round {
-    fn name(&self) -> &str;
-    fn order(&self) -> u32;
-    fn dances(&self) -> &[Dance];
-}
-
-/// A round containing marking crosses.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub struct MarkRound {
-    pub name: String,
-    pub order: u32,
-    pub dances: Vec<Dance>,
-    pub marking_crosses: BTreeMap<String, BTreeMap<String, BTreeMap<Dance, bool>>>,
-}
-
-impl Round for MarkRound {
-    fn name(&self) -> &str {
-        &self.name
-    }
-    fn order(&self) -> u32 {
-        self.order
-    }
-    fn dances(&self) -> &[Dance] {
-        &self.dances
-    }
-}
-
-/// A round containing DTV ranks.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub struct DTVScoreRound {
-    pub name: String,
-    pub order: u32,
-    pub dances: Vec<Dance>,
-    pub dtv_ranks: BTreeMap<String, BTreeMap<String, BTreeMap<Dance, u32>>>,
-}
-
-impl Round for DTVScoreRound {
-    fn name(&self) -> &str {
-        &self.name
-    }
-    fn order(&self) -> u32 {
-        self.order
-    }
-    fn dances(&self) -> &[Dance] {
-        &self.dances
-    }
-}
-
-/// A round containing WDSF scores.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub struct WDSFScoreRound {
-    pub name: String,
-    pub order: u32,
-    pub dances: Vec<Dance>,
-    pub wdsf_scores: BTreeMap<String, BTreeMap<String, WDSFScore>>,
-}
-
-impl Round for WDSFScoreRound {
-    fn name(&self) -> &str {
-        &self.name
-    }
-    fn order(&self) -> u32 {
-        self.order
-    }
-    fn dances(&self) -> &[Dance] {
-        &self.dances
-    }
-}
-
-/// Enum wrapping different round types for serialization.
+/// Enum containing the specific scoring data for a round.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(tag = "round_type")]
-pub enum RoundEnum {
-    Mark(MarkRound),
-    DTV(DTVScoreRound),
-    WDSF(WDSFScoreRound),
+pub enum RoundData {
+    #[serde(rename = "Mark")]
+    Marking {
+        marking_crosses: BTreeMap<String, BTreeMap<String, BTreeMap<Dance, bool>>>,
+    },
+    DTV {
+        dtv_ranks: BTreeMap<String, BTreeMap<String, BTreeMap<Dance, u32>>>,
+    },
+    WDSF {
+        wdsf_scores: BTreeMap<String, BTreeMap<String, WDSFScore>>,
+    },
 }
 
-impl Round for RoundEnum {
-    fn name(&self) -> &str {
-        match self {
-            RoundEnum::Mark(r) => r.name(),
-            RoundEnum::DTV(r) => r.name(),
-            RoundEnum::WDSF(r) => r.name(),
-        }
-    }
-    fn order(&self) -> u32 {
-        match self {
-            RoundEnum::Mark(r) => r.order(),
-            RoundEnum::DTV(r) => r.order(),
-            RoundEnum::WDSF(r) => r.order(),
-        }
-    }
-    fn dances(&self) -> &[Dance] {
-        match self {
-            RoundEnum::Mark(r) => r.dances(),
-            RoundEnum::DTV(r) => r.dances(),
-            RoundEnum::WDSF(r) => r.dances(),
-        }
-    }
+/// Represents a single round in a competition.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct Round {
+    pub name: String,
+    pub order: u32,
+    pub dances: Vec<Dance>,
+    #[serde(flatten)]
+    pub data: RoundData,
 }
 
 /// Represents a dance competition and all its results.
@@ -224,7 +147,7 @@ pub struct Competition {
     pub min_dances: u32,
     pub officials: Officials,
     pub participants: Vec<Participant>,
-    pub rounds: Vec<RoundEnum>,
+    pub rounds: Vec<Round>,
 }
 
 /// Sanitizes a string to be used as a filename or directory name.

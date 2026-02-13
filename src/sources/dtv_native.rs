@@ -1,6 +1,6 @@
 use crate::models::{
     CommitteeMember, Competition, Dance, IdentityType, Judge, Level, Officials,
-    Participant, RoundEnum, WDSFScore, MarkRound, DTVScoreRound, WDSFScoreRound, Round,
+    Participant, WDSFScore, Round, RoundData,
 };
 use crate::sources::{ParsingError, ResultSource};
 use anyhow::Result;
@@ -275,7 +275,7 @@ impl DtvNative {
         Ok(officials)
     }
 
-    pub fn parse_rounds(&self, html: &str, dances: &[Dance]) -> Vec<RoundEnum> {
+    pub fn parse_rounds(&self, html: &str, dances: &[Dance]) -> Vec<Round> {
         let document = Html::parse_document(html);
         let h2_sel = Selector::parse("h2").unwrap();
         let comphead_sel = Selector::parse(".comphead").unwrap();
@@ -364,26 +364,26 @@ impl DtvNative {
              }
 
              if let Some(wdsf_scores) = wdsf {
-                  rounds.push(RoundEnum::WDSF(WDSFScoreRound {
+                  rounds.push(Round {
                        name,
                        order: i as u32,
                        dances: dances.to_vec(),
-                       wdsf_scores,
-                  }));
+                       data: RoundData::WDSF { wdsf_scores },
+                  });
              } else if let Some(dtv_ranks) = ranks {
-                  rounds.push(RoundEnum::DTV(DTVScoreRound {
+                  rounds.push(Round {
                        name,
                        order: i as u32,
                        dances: dances.to_vec(),
-                       dtv_ranks,
-                  }));
+                       data: RoundData::DTV { dtv_ranks },
+                  });
              } else if let Some(marking_crosses) = marks {
-                  rounds.push(RoundEnum::Mark(MarkRound {
+                  rounds.push(Round {
                        name,
                        order: i as u32,
                        dances: dances.to_vec(),
-                       marking_crosses,
-                  }));
+                       data: RoundData::Marking { marking_crosses },
+                  });
              }
         }
 
@@ -954,7 +954,7 @@ pub fn extract_event_data(data_dir: &str) -> Result<Competition> {
                         }
                         let rounds = parser.parse_rounds(&content, &comp.dances);
                         for r in rounds {
-                            if let Some(existing) = comp.rounds.iter_mut().find(|existing| existing.name() == r.name()) {
+                            if let Some(existing) = comp.rounds.iter_mut().find(|existing| existing.name == r.name) {
                                  // Simple replacement for now, favoring newer parsed data
                                  *existing = r;
                             } else {
@@ -986,7 +986,7 @@ pub fn extract_event_data(data_dir: &str) -> Result<Competition> {
                     "tabges.htm" | "ergwert.htm" => {
                         let rounds = parser.parse_rounds(&content, &comp.dances);
                         for r in rounds {
-                            if let Some(existing) = comp.rounds.iter_mut().find(|existing| existing.name() == r.name()) {
+                            if let Some(existing) = comp.rounds.iter_mut().find(|existing| existing.name == r.name) {
                                  *existing = r;
                             } else {
                                 comp.rounds.push(r);
