@@ -1,17 +1,7 @@
 use std::collections::{BTreeMap, HashSet};
-use crate::models::{Level, Round, RoundData, Dance, Judge, Competition};
+use crate::models::{Round, RoundData, Dance, Judge, Competition};
 use crate::models::skating::{calculate_dance_ranks, calculate_final_ranks, verify_wdsf_score};
 
-fn is_redance(name: &str) -> bool {
-    crate::i18n::is_redance(name)
-}
-
-pub fn get_min_dances_for_level(
-    level: &Level,
-    date: &chrono::NaiveDate,
-) -> u32 {
-    crate::i18n::get_min_dances(*level, *date)
-}
 
 /// Helper method to check if all expected data is present in a round.
 fn is_round_complete(
@@ -24,62 +14,34 @@ fn is_round_complete(
         return false;
     }
 
-    match &round.data {
-        RoundData::Marking { marking_crosses } => {
-            for judge in expected_judges {
-                let judge_map = match marking_crosses.get(&judge.code) {
-                    Some(m) => m,
-                    None => return false,
-                };
-                for &bib in participants {
-                    let bib_map = match judge_map.get(&bib.to_string()) {
-                        Some(m) => m,
-                        None => return false,
-                    };
-                    for dance in dances {
-                        if !bib_map.contains_key(dance) {
-                            return false;
-                        }
-                    }
+    for judge in expected_judges {
+        for &bib in participants {
+            let bib_str = bib.to_string();
+            let data_present = match &round.data {
+                RoundData::Marking { marking_crosses } => {
+                    marking_crosses.get(&judge.code)
+                        .and_then(|jm| jm.get(&bib_str))
+                        .map(|bm| dances.iter().all(|d| bm.contains_key(d)))
+                        .unwrap_or(false)
                 }
-            }
-            true
-        }
-        RoundData::DTV { dtv_ranks } => {
-            for judge in expected_judges {
-                let judge_map = match dtv_ranks.get(&judge.code) {
-                    Some(m) => m,
-                    None => return false,
-                };
-                for &bib in participants {
-                    let bib_map = match judge_map.get(&bib.to_string()) {
-                        Some(m) => m,
-                        None => return false,
-                    };
-                    for dance in dances {
-                        if !bib_map.contains_key(dance) {
-                            return false;
-                        }
-                    }
+                RoundData::DTV { dtv_ranks } => {
+                    dtv_ranks.get(&judge.code)
+                        .and_then(|jm| jm.get(&bib_str))
+                        .map(|bm| dances.iter().all(|d| bm.contains_key(d)))
+                        .unwrap_or(false)
                 }
-            }
-            true
-        }
-        RoundData::WDSF { wdsf_scores } => {
-            for judge in expected_judges {
-                let judge_map = match wdsf_scores.get(&judge.code) {
-                    Some(m) => m,
-                    None => return false,
-                };
-                for &bib in participants {
-                    if !judge_map.contains_key(&bib.to_string()) {
-                        return false;
-                    }
+                RoundData::WDSF { wdsf_scores } => {
+                    wdsf_scores.get(&judge.code)
+                        .map(|jm| jm.contains_key(&bib_str))
+                        .unwrap_or(false)
                 }
+            };
+            if !data_present {
+                return false;
             }
-            true
         }
     }
+    true
 }
 
 /// Checks whether the competition extracted reproduces the downloaded sources (Fidelity Gate).
@@ -143,8 +105,8 @@ pub fn validate_competition_fidelity(comp: &Competition) -> bool {
         }
         if i > 0 {
             let prev_set = &round_participant_sets[i - 1];
-            let current_is_redance = is_redance(&comp.rounds[i].name);
-            let prev_is_redance = is_redance(&comp.rounds[i - 1].name);
+            let current_is_redance = crate::i18n::is_redance(&comp.rounds[i].name);
+            let prev_is_redance = crate::i18n::is_redance(&comp.rounds[i - 1].name);
 
             if !current_is_redance && !prev_is_redance {
                 if !current_set.is_subset(prev_set) || current_set.len() > prev_set.len() { return false; }
@@ -157,7 +119,7 @@ pub fn validate_competition_fidelity(comp: &Competition) -> bool {
     for participant in &comp.participants {
         if let Some(rank) = participant.final_rank {
             for (i, round_set) in round_participant_sets.iter().enumerate() {
-                if is_redance(&comp.rounds[i].name) {
+                if crate::i18n::is_redance(&comp.rounds[i].name) {
                     continue;
                 }
                 if rank <= round_set.len() as u32 && !round_set.contains(&participant.bib_number) {
@@ -225,7 +187,7 @@ fn verify_round_math(round: &Round) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::models::{Officials, Participant, IdentityType, Style, AgeGroup};
+    use crate::models::{Officials, Participant, IdentityType, Style, AgeGroup, Level};
 
     fn create_mock_judge(code: &str) -> Judge {
         Judge { code: code.to_string(), name: format!("Judge {}", code), club: None }

@@ -803,7 +803,7 @@ impl DtvNative {
         let style = style.unwrap();
         let level = level.unwrap();
         let dances = self.parse_dances(title);
-        let min_dances = crate::models::validation::get_min_dances_for_level(&level, &date);
+        let min_dances = crate::i18n::get_min_dances(level, date);
 
         Ok(Competition {
             name: title.to_string(),
