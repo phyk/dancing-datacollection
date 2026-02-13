@@ -118,7 +118,7 @@ pub enum RoundData {
         dtv_ranks: BTreeMap<String, BTreeMap<String, BTreeMap<Dance, u32>>>,
     },
     WDSF {
-        wdsf_scores: BTreeMap<String, BTreeMap<String, WDSFScore>>,
+        wdsf_scores: BTreeMap<String, BTreeMap<String, BTreeMap<Dance, WDSFScore>>>,
     },
 }
 

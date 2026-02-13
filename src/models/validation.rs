@@ -32,7 +32,8 @@ fn is_round_complete(
                 }
                 RoundData::WDSF { wdsf_scores } => {
                     wdsf_scores.get(&judge.code)
-                        .map(|jm| jm.contains_key(&bib_str))
+                        .and_then(|jm| jm.get(&bib_str))
+                        .map(|bm| dances.iter().all(|d| bm.contains_key(d)))
                         .unwrap_or(false)
                 }
             };
@@ -174,9 +175,11 @@ pub fn validate_competition_fidelity(comp: &Competition) -> bool {
 fn verify_round_math(round: &Round) -> bool {
     if let RoundData::WDSF { wdsf_scores } = &round.data {
         for judge_map in wdsf_scores.values() {
-            for score in judge_map.values() {
-                if !verify_wdsf_score(score) {
-                    return false;
+            for bib_map in judge_map.values() {
+                for score in bib_map.values() {
+                    if !verify_wdsf_score(score) {
+                        return false;
+                    }
                 }
             }
         }
@@ -304,16 +307,17 @@ mod tests {
                     let mut m = BTreeMap::new();
                     for j in &["A", "B", "C"] {
                         let mut jm = BTreeMap::new();
-                        jm.insert(
-                            101.to_string(),
-                            crate::models::WDSFScore {
-                                technical_quality: 10.0,
-                                movement_to_music: 10.0,
-                                partnering_skills: 10.0,
-                                choreography: 10.0,
-                                total: 10.0,
-                            },
-                        );
+                        let mut bm = BTreeMap::new();
+                        let score = crate::models::WDSFScore {
+                            technical_quality: 10.0,
+                            movement_to_music: 10.0,
+                            partnering_skills: 10.0,
+                            choreography: 10.0,
+                            total: 10.0,
+                        };
+                        bm.insert(Dance::SlowWaltz, score.clone());
+                        bm.insert(Dance::Tango, score);
+                        jm.insert(101.to_string(), bm);
                         m.insert(j.to_string(), jm);
                     }
                     m
