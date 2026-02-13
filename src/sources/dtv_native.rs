@@ -59,17 +59,13 @@ pub fn parse_date(s: &str) -> Option<NaiveDate> {
     None
 }
 
-pub fn parse_dances(s: &str) -> Vec<Dance> {
-    crate::i18n::parse_dances(s)
-}
-
 pub fn parse_dances_from_table(html: &str) -> Vec<Dance> {
     let fragment = Html::parse_document(html);
     let td_sel = Selector::parse("td.td2cw, td.td2ww").unwrap();
     let mut dances = Vec::new();
     for td in fragment.select(&td_sel) {
         let text = td.text().collect::<String>().trim().to_string();
-        let d = parse_dances(&text);
+        let d = crate::i18n::parse_dances(&text);
         if !d.is_empty() {
             dances.push(d[0]);
         }
@@ -765,7 +761,7 @@ pub fn parse_competition_from_title(title: &str) -> Result<Competition, ParsingE
     let age_group = age_group.unwrap();
     let style = style.unwrap();
     let level = level.unwrap();
-    let dances = parse_dances(title);
+    let dances = crate::i18n::parse_dances(title);
     let min_dances = crate::models::validation::get_min_dances_for_level(&level, &date);
 
     Ok(Competition {
