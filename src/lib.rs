@@ -5,7 +5,6 @@ pub mod models;
 pub mod sources;
 pub mod storage;
 
-use crate::sources::ResultSource;
 use pyo3::prelude::*;
 use crate::models::sanitize_name;
 use std::path::Path;
@@ -48,10 +47,6 @@ fn load_competition_results(
     let rt = tokio::runtime::Runtime::new().map_err(|e| {
         pyo3::exceptions::PyRuntimeError::new_err(format!("Failed to create tokio runtime: {}", e))
     })?;
-
-    let parser = crate::sources::dtv_native::DtvNative::new(
-        crate::sources::dtv_native::SelectorConfig::default(),
-    );
 
     let mut scraper = crate::crawler::client::Scraper::new();
 
@@ -149,7 +144,7 @@ fn load_competition_results(
             }
 
             if let Some(ref d_str) = date {
-                match parser.parse_date(d_str) {
+                match crate::sources::dtv_native::parse_date(d_str) {
                     Some(d) => {
                         if let Some(comp_date) = comp.date {
                             if comp_date != d {
