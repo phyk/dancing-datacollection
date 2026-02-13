@@ -235,7 +235,7 @@ pub fn parse_officials(html: &str) -> Result<Officials, ParsingError> {
     Ok(officials)
 }
 
-pub fn parse_rounds(html: &str, dances: &[Dance]) -> Vec<Round> {
+pub fn parse_rounds(html: &str, dances: &[Dance], is_wdsf_hint: bool) -> Vec<Round> {
     let document = Html::parse_document(html);
     let h2_sel = Selector::parse("h2").unwrap();
     let comphead_sel = Selector::parse(".comphead").unwrap();
@@ -273,8 +273,8 @@ pub fn parse_rounds(html: &str, dances: &[Dance]) -> Vec<Round> {
     let mut rounds = Vec::new();
     let marking_results = parse_tabges(html, dances);
     let (erg_marks, erg_ranks) = parse_ergwert(html, dances);
-    let is_wdsf = html.contains("TQ") || html.contains("MM");
-    let wdsf_results = if is_wdsf {
+    let is_wdsf = is_wdsf_hint || html.contains("TQ") || html.contains("MM");
+    let wdsf_results = if html.contains("TQ") || html.contains("MM") {
          Some(parse_wdsf_scores(html, dances))
     } else {
          None
@@ -319,18 +319,21 @@ pub fn parse_rounds(html: &str, dances: &[Dance]) -> Vec<Round> {
          }
 
          let mut name = round_name.unwrap_or_else(|| format!("Round {}", i + 1));
-         if name.to_lowercase().contains("ranking report") || name.to_lowercase().contains("table of results") {
+         let lower_name = name.to_lowercase();
+         if lower_name.contains("ranking report") || lower_name.contains("table of results") {
               continue;
          }
 
          if is_wdsf {
-              if name == "Endrunde" || name == "Finale" || name.to_lowercase() == "final" {
+              if lower_name == "endrunde" || lower_name == "finale" || lower_name == "final" || lower_name.contains("result of final") {
                    name = "Final".to_string();
               } else if num_rounds >= 3 {
-                   if i == num_rounds - 2 { name = "Semifinal".to_string(); }
+                   if i == num_rounds - 1 { name = "Final".to_string(); }
+                   else if i == num_rounds - 2 { name = "Semifinal".to_string(); }
                    else if i == num_rounds - 3 { name = "Quarterfinal".to_string(); }
               } else if num_rounds == 2 {
-                   if i == num_rounds - 2 { name = "Semifinal".to_string(); }
+                   if i == num_rounds - 1 { name = "Final".to_string(); }
+                   else if i == num_rounds - 2 { name = "Semifinal".to_string(); }
               }
          }
 
@@ -1052,7 +1055,8 @@ pub fn extract_event_data(data_dir: &str) -> Result<Competition> {
                         if !detected_dances.is_empty() {
                             comp.dances = detected_dances;
                         }
-                        let rounds = parse_rounds(&content, &comp.dances);
+                        let is_wdsf = comp.level == Level::S || content.contains("TQ") || content.contains("MM");
+                        let rounds = parse_rounds(&content, &comp.dances, is_wdsf);
                         for r in rounds {
                             if let Some(existing) = comp.rounds.iter_mut().find(|existing| existing.name == r.name) {
                                  // Simple replacement for now, favoring newer parsed data
@@ -1084,7 +1088,8 @@ pub fn extract_event_data(data_dir: &str) -> Result<Competition> {
                         }
                     }
                     "tabges.htm" | "ergwert.htm" => {
-                        let rounds = parse_rounds(&content, &comp.dances);
+                        let is_wdsf = comp.level == Level::S || content.contains("TQ") || content.contains("MM");
+                        let rounds = parse_rounds(&content, &comp.dances, is_wdsf);
                         for r in rounds {
                             if let Some(existing) = comp.rounds.iter_mut().find(|existing| existing.name == r.name) {
                                  *existing = r;
@@ -1099,6 +1104,7 @@ pub fn extract_event_data(data_dir: &str) -> Result<Competition> {
         }
     }
 
+    comp.rounds.sort_by_key(|r| r.order);
     Ok(comp)
 }
 
