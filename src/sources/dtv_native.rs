@@ -1,6 +1,6 @@
 use crate::models::{
-    CommitteeMember, Competition, Dance, Event, IdentityType, Judge, Level, Officials,
-    Participant, Round, WDSFScore,
+    CommitteeMember, Competition, Dance, IdentityType, Judge, Level, Officials,
+    Participant, RoundEnum, WDSFScore, MarkRound, DTVScoreRound, WDSFScoreRound, Round,
 };
 use crate::sources::{ParsingError, ResultSource};
 use anyhow::Result;
@@ -275,7 +275,7 @@ impl DtvNative {
         Ok(officials)
     }
 
-    pub fn parse_rounds(&self, html: &str, dances: &[Dance]) -> Vec<Round> {
+    pub fn parse_rounds(&self, html: &str, dances: &[Dance]) -> Vec<RoundEnum> {
         let document = Html::parse_document(html);
         let h2_sel = Selector::parse("h2").unwrap();
         let comphead_sel = Selector::parse(".comphead").unwrap();
@@ -356,20 +356,34 @@ impl DtvNative {
 
              let name = round_name.unwrap_or_else(|| format!("Round {}", i + 1));
 
-             let mut round = Round {
-                  name,
-                  marking_crosses: marks,
-                  dtv_ranks: ranks,
-                  wdsf_scores: None,
-             };
-
-             if let Some(ref wdsf) = wdsf_results {
+             let mut wdsf = None;
+             if let Some(ref wdsf_res) = wdsf_results {
                   if i == 0 { // Assume WDSF results are for the first round detected in the file
-                       round.wdsf_scores = Some(wdsf.clone());
+                       wdsf = Some(wdsf_res.clone());
                   }
              }
-             if round.marking_crosses.is_some() || round.dtv_ranks.is_some() || round.wdsf_scores.is_some() {
-                  rounds.push(round);
+
+             if let Some(wdsf_scores) = wdsf {
+                  rounds.push(RoundEnum::WDSF(WDSFScoreRound {
+                       name,
+                       order: i as u32,
+                       dances: dances.to_vec(),
+                       wdsf_scores,
+                  }));
+             } else if let Some(dtv_ranks) = ranks {
+                  rounds.push(RoundEnum::DTV(DTVScoreRound {
+                       name,
+                       order: i as u32,
+                       dances: dances.to_vec(),
+                       dtv_ranks,
+                  }));
+             } else if let Some(marking_crosses) = marks {
+                  rounds.push(RoundEnum::Mark(MarkRound {
+                       name,
+                       order: i as u32,
+                       dances: dances.to_vec(),
+                       marking_crosses,
+                  }));
              }
         }
 
@@ -380,8 +394,8 @@ impl DtvNative {
         &self,
         html: &str,
         dances: &[Dance],
-    ) -> Vec<(String, BTreeMap<String, BTreeMap<u32, BTreeMap<Dance, bool>>>)> {
-        let mut all_results: Vec<(String, BTreeMap<String, BTreeMap<u32, BTreeMap<Dance, bool>>>)> = Vec::new();
+    ) -> Vec<(String, BTreeMap<String, BTreeMap<String, BTreeMap<Dance, bool>>>)> {
+        let mut all_results: Vec<(String, BTreeMap<String, BTreeMap<String, BTreeMap<Dance, bool>>>)> = Vec::new();
         let document = Html::parse_document(html);
         let tr_sel = Selector::parse("tr").unwrap();
         let td_sel = Selector::parse("td").unwrap();
@@ -459,7 +473,7 @@ impl DtvNative {
                                              let val = lines[line_idx].trim();
                                              let has_cross = val.to_lowercase().contains('x') || val.parse::<u32>().unwrap_or(0) > 0;
                                              let bib_map = current_results.entry(adj_code.clone()).or_insert_with(BTreeMap::new)
-                                                 .entry(*bib).or_insert_with(BTreeMap::new);
+                                                 .entry(bib.to_string()).or_insert_with(BTreeMap::new);
                                              for dance in dances {
                                                   bib_map.insert(*dance, has_cross);
                                              }
@@ -476,7 +490,7 @@ impl DtvNative {
                                    let provided_total: u32 = cells[cell_idx].text().collect::<String>().trim().parse().unwrap_or(0);
                                    let mut calculated_total = 0;
                                    for judge_map in current_results.values() {
-                                        if let Some(bib_map) = judge_map.get(bib) {
+                                        if let Some(bib_map) = judge_map.get(&bib.to_string()) {
                                              if bib_map.values().any(|&v| v) {
                                                   calculated_total += 1;
                                              }
@@ -517,7 +531,7 @@ impl DtvNative {
                             let cell_idx = 2 + i;
                             if cell_idx < cells.len() {
                                 let cross_text = cells[cell_idx].text().collect::<String>();
-                                let bib_map = current_results.entry(judge_code.clone()).or_insert_with(BTreeMap::new).entry(bib).or_insert_with(BTreeMap::new);
+                                let bib_map = current_results.entry(judge_code.clone()).or_insert_with(BTreeMap::new).entry(bib.to_string()).or_insert_with(BTreeMap::new);
                                 for dance in dances {
                                     bib_map.insert(*dance, cross_text.to_lowercase().contains('x'));
                                 }
@@ -541,9 +555,9 @@ impl DtvNative {
         all_results
     }
 
-    pub fn parse_ergwert(&self, html: &str, dances: &[Dance]) -> (Vec<(String, BTreeMap<String, BTreeMap<u32, BTreeMap<Dance, bool>>>)>, Vec<(String, BTreeMap<String, BTreeMap<u32, BTreeMap<Dance, u32>>>)>) {
-        let mut all_rank_results: Vec<(String, BTreeMap<String, BTreeMap<u32, BTreeMap<Dance, u32>>>)> = Vec::new();
-        let mut all_mark_results: Vec<(String, BTreeMap<String, BTreeMap<u32, BTreeMap<Dance, bool>>>)> = Vec::new();
+    pub fn parse_ergwert(&self, html: &str, dances: &[Dance]) -> (Vec<(String, BTreeMap<String, BTreeMap<String, BTreeMap<Dance, bool>>>)>, Vec<(String, BTreeMap<String, BTreeMap<String, BTreeMap<Dance, u32>>>)>) {
+        let mut all_rank_results: Vec<(String, BTreeMap<String, BTreeMap<String, BTreeMap<Dance, u32>>>)> = Vec::new();
+        let mut all_mark_results: Vec<(String, BTreeMap<String, BTreeMap<String, BTreeMap<Dance, bool>>>)> = Vec::new();
         let document = Html::parse_document(html);
         let tr_sel = Selector::parse("tr").unwrap();
         let td_sel = Selector::parse("td").unwrap();
@@ -654,7 +668,7 @@ impl DtvNative {
                                       all_rank_results[global_idx].0 = global_round_ids[&sorted_ids[global_idx]].clone();
                                       let results = &mut all_rank_results[global_idx].1;
                                       if let Some(d) = dance {
-                                           results.entry(adj_code).or_insert_with(BTreeMap::new).entry(bib).or_insert_with(BTreeMap::new).insert(*d, rank);
+                                           results.entry(adj_code).or_insert_with(BTreeMap::new).entry(bib.to_string()).or_insert_with(BTreeMap::new).insert(*d, rank);
                                       }
                                  } else if val.to_lowercase().contains('x') || val == "-" {
                                       let has_cross = val.to_lowercase().contains('x');
@@ -664,7 +678,7 @@ impl DtvNative {
                                       all_mark_results[global_idx].0 = global_round_ids[&sorted_ids[global_idx]].clone();
                                       let results = &mut all_mark_results[global_idx].1;
                                       if let Some(d) = dance {
-                                           results.entry(adj_code).or_insert_with(BTreeMap::new).entry(bib).or_insert_with(BTreeMap::new).insert(*d, has_cross);
+                                           results.entry(adj_code).or_insert_with(BTreeMap::new).entry(bib.to_string()).or_insert_with(BTreeMap::new).insert(*d, has_cross);
                                       }
                                  }
                             }
@@ -677,7 +691,7 @@ impl DtvNative {
         (all_mark_results, all_rank_results)
     }
 
-    pub fn parse_wdsf_scores(&self, html: &str) -> BTreeMap<String, BTreeMap<u32, WDSFScore>> {
+    pub fn parse_wdsf_scores(&self, html: &str) -> BTreeMap<String, BTreeMap<String, WDSFScore>> {
         let mut results = BTreeMap::new();
         let document = Html::parse_document(html);
         let tr_sel = Selector::parse("tr").unwrap();
@@ -708,7 +722,7 @@ impl DtvNative {
 
                 if !scores.is_empty() {
                     let score_entry = results.entry(current_judge.clone()).or_insert_with(BTreeMap::new)
-                        .entry(current_bib).or_insert(WDSFScore {
+                        .entry(current_bib.to_string()).or_insert(WDSFScore {
                             technical_quality: 0.0,
                             movement_to_music: 0.0,
                             partnering_skills: 0.0,
@@ -792,6 +806,11 @@ impl DtvNative {
         let min_dances = crate::models::validation::get_min_dances_for_level(&level, &date);
 
         Ok(Competition {
+            name: title.to_string(),
+            date: Some(date),
+            organizer: None,
+            hosting_club: None,
+            source_url: None,
             level,
             age_group,
             style,
@@ -822,7 +841,7 @@ impl ResultSource for DtvNative {
         self.do_parse_date(s)
     }
 
-    fn parse(&self, html: &str) -> Result<Event, ParsingError> {
+    fn parse(&self, html: &str) -> Result<Competition, ParsingError> {
         let document = Html::parse_document(html);
 
         let title_sel = Selector::parse("title").unwrap();
@@ -847,19 +866,28 @@ impl ResultSource for DtvNative {
 
         for item in document.select(&item_sel) {
             let item_text = item.text().collect::<String>().trim().to_string();
-            if let Ok(comp) = self.parse_competition_from_title(&item_text) {
+            if let Ok(mut comp) = self.parse_competition_from_title(&item_text) {
+                comp.organizer = organizer.clone();
+                comp.hosting_club = hosting_club.clone();
+                if comp.date.is_none() { comp.date = event_date; }
                 competitions.push(comp);
             }
         }
 
         if competitions.is_empty() {
             if let Some(ref name) = event_name {
-                if let Ok(comp) = self.parse_competition_from_title(name) {
+                if let Ok(mut comp) = self.parse_competition_from_title(name) {
+                    comp.organizer = organizer.clone();
+                    comp.hosting_club = hosting_club.clone();
+                    if comp.date.is_none() { comp.date = event_date; }
                     competitions.push(comp);
                 }
             }
             if competitions.is_empty() && !title.is_empty() {
-                if let Ok(comp) = self.parse_competition_from_title(&title) {
+                if let Ok(mut comp) = self.parse_competition_from_title(&title) {
+                    comp.organizer = organizer.clone();
+                    comp.hosting_club = hosting_club.clone();
+                    if comp.date.is_none() { comp.date = event_date; }
                     competitions.push(comp);
                 }
             }
@@ -869,18 +897,17 @@ impl ResultSource for DtvNative {
             return Err(ParsingError::MissingRequiredData("No valid competitions found in event index".to_string()));
         }
 
-        Ok(Event {
-            name: event_name.unwrap_or(title),
-            organizer,
-            hosting_club,
-            competitions_list: competitions,
-            date: event_date,
-            source_url: None,
-        })
+        // Return the first one as Competition is now single-contest
+        let mut comp = competitions.remove(0);
+        if comp.organizer.is_none() { comp.organizer = organizer; }
+        if comp.hosting_club.is_none() { comp.hosting_club = hosting_club; }
+        if comp.date.is_none() { comp.date = event_date; }
+
+        Ok(comp)
     }
 }
 
-pub fn extract_event_data(data_dir: &str) -> Result<Event> {
+pub fn extract_event_data(data_dir: &str) -> Result<Competition> {
     let parser = DtvNative::new(SelectorConfig::default());
 
     let dir_path = Path::new(data_dir);
@@ -899,9 +926,9 @@ pub fn extract_event_data(data_dir: &str) -> Result<Event> {
         None
     };
 
-    let mut event = if let Some(ref html) = index_html {
+    let mut comp = if let Some(ref html) = index_html {
         match parser.parse(html) {
-            Ok(e) => e,
+            Ok(c) => c,
             Err(_) if erg_html.is_some() => parser.parse(erg_html.as_ref().unwrap()).map_err(|e| anyhow::anyhow!("Parsing error: {}", e))?,
             Err(e) => return Err(anyhow::anyhow!("Parsing error: {}", e)),
         }
@@ -911,106 +938,68 @@ pub fn extract_event_data(data_dir: &str) -> Result<Event> {
         return Err(anyhow::anyhow!("No valid htm files found in {}", data_dir));
     };
 
-    for comp in &mut event.competitions_list {
-        let files = ["erg.htm", "deck.htm", "tabges.htm", "ergwert.htm"];
-        for file in files {
-            let p = dir_path.join(file);
-            if p.exists() {
-                if let Ok(content) = fs::read_to_string(&p) {
-                    match file {
-                        "erg.htm" => {
-                            if let Ok(parts) = parser.parse_participants(&content) {
-                                comp.participants = parts;
-                            }
-                            let detected_dances = parser.parse_dances_from_table(&content);
-                            if !detected_dances.is_empty() {
-                                comp.dances = detected_dances;
-                            }
-                            let rounds = parser.parse_rounds(&content, &comp.dances);
-                            for r in rounds {
-                                if let Some(existing) = comp.rounds.iter_mut().find(|existing| existing.name == r.name) {
-                                     if let Some(new_marks) = r.marking_crosses {
-                                          if let Some(ref mut existing_marks) = existing.marking_crosses {
-                                               // Merge: prefer new_marks if they are more detailed (vary by dance)
-                                               // Actually, just always merge judge by judge, bib by bib.
-                                               for (judge, bibs) in new_marks {
-                                                    let existing_judge = existing_marks.entry(judge).or_default();
-                                                    for (bib, dances) in bibs {
-                                                         let existing_bib = existing_judge.entry(bib).or_default();
-                                                         for (dance, has_cross) in dances {
-                                                              // Only overwrite if existing is missing or if new has more info?
-                                                              // Simplify: if new_marks come from ergwert, they are detailed.
-                                                              // Tabges aggregate marks will set all dances to the same value.
-                                                              existing_bib.insert(dance, has_cross);
-                                                         }
-                                                    }
-                                               }
-                                          } else {
-                                               existing.marking_crosses = Some(new_marks);
-                                          }
-                                     }
-                                     if let Some(new_ranks) = r.dtv_ranks {
-                                          if let Some(ref mut existing_ranks) = existing.dtv_ranks {
-                                               for (judge, bibs) in new_ranks {
-                                                    let existing_judge = existing_ranks.entry(judge).or_default();
-                                                    for (bib, dances) in bibs {
-                                                         let existing_bib = existing_judge.entry(bib).or_default();
-                                                         for (dance, rank) in dances {
-                                                              existing_bib.insert(dance, rank);
-                                                         }
-                                                    }
-                                               }
-                                          } else {
-                                               existing.dtv_ranks = Some(new_ranks);
-                                          }
-                                     }
-                                     if r.wdsf_scores.is_some() { existing.wdsf_scores = r.wdsf_scores; }
-                                } else {
-                                    comp.rounds.push(r);
-                                }
+    let files = ["erg.htm", "deck.htm", "tabges.htm", "ergwert.htm"];
+    for file in files {
+        let p = dir_path.join(file);
+        if p.exists() {
+            if let Ok(content) = fs::read_to_string(&p) {
+                match file {
+                    "erg.htm" => {
+                        if let Ok(parts) = parser.parse_participants(&content) {
+                            comp.participants = parts;
+                        }
+                        let detected_dances = parser.parse_dances_from_table(&content);
+                        if !detected_dances.is_empty() {
+                            comp.dances = detected_dances;
+                        }
+                        let rounds = parser.parse_rounds(&content, &comp.dances);
+                        for r in rounds {
+                            if let Some(existing) = comp.rounds.iter_mut().find(|existing| existing.name() == r.name()) {
+                                 // Simple replacement for now, favoring newer parsed data
+                                 *existing = r;
+                            } else {
+                                comp.rounds.push(r);
                             }
                         }
-                        "deck.htm" => {
-                            if let Ok(off) = parser.parse_officials(&content) {
-                                comp.officials = off;
-                            }
-                            // Extract organizer and hosting club if missing
-                            let doc = scraper::Html::parse_document(&content);
-                            let tr_sel = scraper::Selector::parse("tr").unwrap();
-                            let td_sel = scraper::Selector::parse("td").unwrap();
-                            for row in doc.select(&tr_sel) {
-                                let cells: Vec<_> = row.select(&td_sel).collect();
-                                if cells.len() >= 2 {
-                                    let key = cells[0].text().collect::<String>();
-                                    let val = cells[1].text().collect::<String>().trim().to_string();
-                                    if crate::i18n::is_organizer_marker(&key) && event.organizer.is_none() {
-                                        event.organizer = Some(val);
-                                    } else if crate::i18n::is_hosting_club_marker(&key) && event.hosting_club.is_none() {
-                                        event.hosting_club = Some(val);
-                                    }
-                                }
-                            }
-                        }
-                        "tabges.htm" | "ergwert.htm" => {
-                            let rounds = parser.parse_rounds(&content, &comp.dances);
-                            for r in rounds {
-                                if let Some(existing) = comp.rounds.iter_mut().find(|existing| existing.name == r.name) {
-                                     if r.marking_crosses.is_some() { existing.marking_crosses = r.marking_crosses; }
-                                     if r.dtv_ranks.is_some() { existing.dtv_ranks = r.dtv_ranks; }
-                                     if r.wdsf_scores.is_some() { existing.wdsf_scores = r.wdsf_scores; }
-                                } else {
-                                    comp.rounds.push(r);
-                                }
-                            }
-                        }
-                        _ => {}
                     }
+                    "deck.htm" => {
+                        if let Ok(off) = parser.parse_officials(&content) {
+                            comp.officials = off;
+                        }
+                        // Extract organizer and hosting club if missing
+                        let doc = scraper::Html::parse_document(&content);
+                        let tr_sel = scraper::Selector::parse("tr").unwrap();
+                        let td_sel = scraper::Selector::parse("td").unwrap();
+                        for row in doc.select(&tr_sel) {
+                            let cells: Vec<_> = row.select(&td_sel).collect();
+                            if cells.len() >= 2 {
+                                let key = cells[0].text().collect::<String>();
+                                let val = cells[1].text().collect::<String>().trim().to_string();
+                                if crate::i18n::is_organizer_marker(&key) && comp.organizer.is_none() {
+                                    comp.organizer = Some(val);
+                                } else if crate::i18n::is_hosting_club_marker(&key) && comp.hosting_club.is_none() {
+                                    comp.hosting_club = Some(val);
+                                }
+                            }
+                        }
+                    }
+                    "tabges.htm" | "ergwert.htm" => {
+                        let rounds = parser.parse_rounds(&content, &comp.dances);
+                        for r in rounds {
+                            if let Some(existing) = comp.rounds.iter_mut().find(|existing| existing.name() == r.name()) {
+                                 *existing = r;
+                            } else {
+                                comp.rounds.push(r);
+                            }
+                        }
+                    }
+                    _ => {}
                 }
             }
         }
     }
 
-    Ok(event)
+    Ok(comp)
 }
 
 #[cfg(test)]
@@ -1050,7 +1039,7 @@ mod tests {
         let parser = DtvNative::new(SelectorConfig::default());
 
         let crosses = parser.parse_tabges(html, &dances);
-        assert!(crosses[0].1["AT"][&101][&Dance::SlowWaltz]);
+        assert!(crosses[0].1["AT"]["101"][&Dance::SlowWaltz]);
     }
 
     #[test]
@@ -1065,7 +1054,7 @@ mod tests {
         let parser = DtvNative::new(SelectorConfig::default());
 
         let scores = parser.parse_wdsf_scores(html);
-        let s = &scores["A"][&284];
+        let s = &scores["A"]["284"];
         assert_eq!(s.technical_quality, 9.75);
         assert_eq!(s.partnering_skills, 9.75);
         assert_eq!(s.movement_to_music, 9.50);
@@ -1126,7 +1115,7 @@ mod tests {
 
         let results = parser.parse_tabges(&html, &dances);
         // Bib 284 is seeded and only starts in Round 2 (index 1)
-        assert!(results[1].1["A"][&284][&Dance::Samba]);
+        assert!(results[1].1["A"]["284"][&Dance::Samba]);
     }
 
     #[test]
@@ -1138,6 +1127,6 @@ mod tests {
         let results = parser.parse_ergwert(&html, &dances);
         // Bib 721 is seeded and starts later. In this file, Endrunde (index 4) contains its ranks.
         assert!(results.1[4].1.contains_key("D"));
-        assert!(results.1[4].1["D"].contains_key(&721));
+        assert!(results.1[4].1["D"].contains_key("721"));
     }
 }

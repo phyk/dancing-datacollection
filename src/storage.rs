@@ -1,4 +1,4 @@
-use crate::models::Event;
+use crate::models::Competition;
 use std::fs;
 use std::path::PathBuf;
 
@@ -17,8 +17,8 @@ impl StorageManager {
         Self { base_path: path }
     }
 
-    /// Saves an Event to disk in both JSONL and Postcard binary formats.
-    pub fn save_event(&self, event: &Event) -> anyhow::Result<()> {
+    /// Saves a Competition to disk in both JSONL and Postcard binary formats.
+    pub fn save_event(&self, event: &Competition) -> anyhow::Result<()> {
         let sanitized_name = self.sanitize_name(&event.name);
         let event_dir = self.base_path.join(sanitized_name);
         fs::create_dir_all(&event_dir).map_err(|e| {
@@ -60,37 +60,35 @@ mod tests {
 
     #[test]
     fn test_serialization_roundtrip() {
-        let event = Event {
+        let event = Competition {
             name: "Test Event".to_string(),
             date: None,
             organizer: Some("Organizer".to_string()),
             hosting_club: None,
             source_url: None,
-            competitions_list: vec![Competition {
-                level: Level::S,
-                age_group: AgeGroup::Adult,
-                style: Style::Standard,
-                dances: vec![Dance::SlowWaltz, Dance::Tango],
-                min_dances: 2,
-                officials: Officials {
-                    responsible_person: None,
-                    assistant: None,
-                    judges: vec![Judge {
-                        code: "A".to_string(),
-                        name: "Judge A".to_string(),
-                        club: None,
-                    }],
-                },
-                participants: vec![Participant {
-                    identity_type: IdentityType::Couple,
-                    name_one: "Dancer One".to_string(),
-                    bib_number: 101,
-                    name_two: Some("Dancer Two".to_string()),
-                    affiliation: None,
-                    final_rank: Some(1),
+            level: Level::S,
+            age_group: AgeGroup::Adult,
+            style: Style::Standard,
+            dances: vec![Dance::SlowWaltz, Dance::Tango],
+            min_dances: 2,
+            officials: Officials {
+                responsible_person: None,
+                assistant: None,
+                judges: vec![Judge {
+                    code: "A".to_string(),
+                    name: "Judge A".to_string(),
+                    club: None,
                 }],
-                rounds: vec![],
+            },
+            participants: vec![Participant {
+                identity_type: IdentityType::Couple,
+                name_one: "Dancer One".to_string(),
+                bib_number: 101,
+                name_two: Some("Dancer Two".to_string()),
+                affiliation: None,
+                final_rank: Some(1),
             }],
+            rounds: vec![],
         };
 
         let base_dir = "test_storage_roundtrip";
@@ -103,13 +101,15 @@ mod tests {
         // Verify JSONL
         let json_path = event_dir.join("event.jsonl");
         let json_content = fs::read_to_string(&json_path).expect("Read JSON failed");
-        let deserialized_json: Event = serde_json::from_str(json_content.trim()).expect("Deserialize JSON failed");
+        let deserialized_json: Competition =
+            serde_json::from_str(json_content.trim()).expect("Deserialize JSON failed");
         assert_eq!(deserialized_json, event);
 
         // Verify Postcard
         let bin_path = event_dir.join("event.bin");
         let bin_content = fs::read(bin_path).expect("Read Bin failed");
-        let deserialized_bin: Event = postcard::from_bytes(&bin_content).expect("Deserialize Bin failed");
+        let deserialized_bin: Competition =
+            postcard::from_bytes(&bin_content).expect("Deserialize Bin failed");
         assert_eq!(deserialized_bin, event);
 
         // Cleanup
