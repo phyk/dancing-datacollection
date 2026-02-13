@@ -155,7 +155,7 @@ fn load_competition_results(
                             comp.date = Some(d);
                         }
                         comp.min_dances =
-                            crate::models::validation::get_min_dances_for_level(&comp.level, &d);
+                            crate::i18n::get_min_dances(comp.level, d);
                     }
                     None => {
                         log::error!("Provided date filter '{}' could not be parsed.", d_str);
@@ -165,9 +165,9 @@ fn load_competition_results(
                 }
             } else if let Some(comp_date) = comp.date {
                 // Ensure min_dances is correct for the parsed event date
-                comp.min_dances = crate::models::validation::get_min_dances_for_level(
-                    &comp.level,
-                    &comp_date,
+                comp.min_dances = crate::i18n::get_min_dances(
+                    comp.level,
+                    comp_date,
                 );
             }
 
