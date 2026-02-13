@@ -8,7 +8,7 @@ Interop: pyo3 and maturin.
 
 Formatting: Strict adherence to rustfmt.
 
-Code Style: "Flat" abstractions. Minimize layers. Use Traits for extensibility rather than deep object hierarchies.
+Code Style: "Flat" abstractions. Minimize layers.
 
 Dependencies: reqwest (HTTP), scraper (HTML parsing), serde (Serialization), postcard (Binary format), clap (CLI).
 
@@ -69,15 +69,7 @@ Optimized Binary: postcard or MessagePack (Internal/Optional).
 
 Standardized Table Assumption: The tool assumes all provided URLs contain DTV/TopTurnier compatible result tables. Domain-based filtering is removed to support any domain using the standard DTV-Native structure. If the HTML structure is unrecognizable, the parser returns a `ParsingError::InvalidTableStructure`.
 
-Abstract Design: ResultSource Trait All scrapers must implement this trait (standardizing on `DtvNative` as the default implementation):
-Rust
-
-pub trait ResultSource {
-    fn name(&self) -> &str;
-    fn fetch(&self, url: &str) -> Result<String, Box<dyn std::error::Error>>;
-    fn parse(&self, html: &str) -> Result<crate::models::Competition, crate::sources::ParsingError>;
-    fn parse_date(&self, s: &str) -> Option<chrono::NaiveDate>;
-}
+Functional Parsing Pipeline: The library uses a direct, stateless functional pipeline for parsing. Selectors for the DTV/TopTurnier format are hardcoded as constants to ensure maximum performance and minimal abstraction overhead. The orchestrator calls these parsing functions directly.
 
 Error Handling: Every failure must log a specific reason (NETWORK_ERROR, MISSING_REQUIRED_DATA, PARSING_ERROR, CRITICAL_VALIDATION_ERROR).
 

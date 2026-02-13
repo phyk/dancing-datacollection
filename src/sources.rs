@@ -1,4 +1,3 @@
-use crate::models::Competition;
 use thiserror::Error;
 
 /// Error types for the scraping and parsing process.
@@ -19,21 +18,6 @@ pub enum ParsingError {
     ValidationError(String),
     #[error("Invalid table structure: {0}")]
     InvalidTableStructure(String),
-}
-
-/// Trait for all competition result sources.
-pub trait ResultSource {
-    /// Returns the name of the source.
-    fn name(&self) -> &str;
-
-    /// Fetches the HTML content from the given URL.
-    fn fetch(&self, url: &str) -> Result<String, Box<dyn std::error::Error>>;
-
-    /// Parses the HTML content into a Competition model.
-    fn parse(&self, html: &str) -> Result<Competition, ParsingError>;
-
-    /// Parses a date string into a NaiveDate.
-    fn parse_date(&self, s: &str) -> Option<chrono::NaiveDate>;
 }
 
 pub mod dtv_native;
