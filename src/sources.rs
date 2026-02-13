@@ -17,6 +17,8 @@ pub enum ParsingError {
     MissingRequiredMetadata(String),
     #[error("Validation error: {0}")]
     ValidationError(String),
+    #[error("Invalid table structure: {0}")]
+    InvalidTableStructure(String),
 }
 
 /// Trait for all competition result sources.
@@ -35,20 +37,3 @@ pub trait ResultSource {
 }
 
 pub mod dtv_native;
-
-/// Factory function to get the appropriate ResultSource for a given URL.
-pub fn get_source_for_url(url: &str) -> Option<Box<dyn ResultSource>> {
-    let url_lower = url.to_lowercase();
-    if url_lower.contains("dancecomp.de")
-        || url_lower.contains("topturnier.de")
-        || url_lower.contains("tanzsport-hamburg.de")
-        || url_lower.contains("hessen-tanzt.de")
-        || url_lower.contains("nrw-tanzt.de")
-    {
-        Some(Box::new(dtv_native::DtvNative::new(
-            dtv_native::SelectorConfig::default(),
-        )))
-    } else {
-        None
-    }
-}

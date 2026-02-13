@@ -67,13 +67,15 @@ Human-Readable: .json for single competition events.
 
 Optimized Binary: postcard or MessagePack (Internal/Optional).
 
-Abstract Design: ResultSource Trait To ensure efficient abstractions, all scrapers must implement this trait:
+Standardized Table Assumption: The tool assumes all provided URLs contain DTV/TopTurnier compatible result tables. Domain-based filtering is removed to support any domain using the standard DTV-Native structure. If the HTML structure is unrecognizable, the parser returns a `ParsingError::InvalidTableStructure`.
+
+Abstract Design: ResultSource Trait All scrapers must implement this trait (standardizing on `DtvNative` as the default implementation):
 Rust
 
 pub trait ResultSource {
     fn name(&self) -> &str;
     fn fetch(&self, url: &str) -> Result<String, Box<dyn std::error::Error>>;
-    fn parse(&self, html: &str) -> Result<crate::models::Event, crate::sources::ParsingError>;
+    fn parse(&self, html: &str) -> Result<crate::models::Competition, crate::sources::ParsingError>;
     fn parse_date(&self, s: &str) -> Option<chrono::NaiveDate>;
 }
 

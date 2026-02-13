@@ -894,7 +894,7 @@ impl ResultSource for DtvNative {
         }
 
         if competitions.is_empty() {
-            return Err(ParsingError::MissingRequiredData("No valid competitions found in event index".to_string()));
+            return Err(ParsingError::InvalidTableStructure("No valid competitions found in event index".to_string()));
         }
 
         // Return the first one as Competition is now single-contest
