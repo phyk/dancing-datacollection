@@ -249,7 +249,8 @@ pub fn parse_rounds(html: &str, dances: &[Dance]) -> Vec<Round> {
     if round_names.is_empty() {
          for head in document.select(&comphead_sel) {
               let text = head.text().collect::<Vec<_>>().join(" ").trim().to_string();
-              if text.to_lowercase().contains("runde") || text.to_lowercase().contains("table") || text.to_lowercase().contains("ergebnis") || text.to_lowercase().contains("ranking") {
+              if (text.to_lowercase().contains("runde") || text.to_lowercase().contains("table") || text.to_lowercase().contains("ergebnis") || text.to_lowercase().contains("ranking"))
+                 && !text.to_lowercase().contains("ranking report") && !text.to_lowercase().contains("table of results") {
                    round_names.push(crate::i18n::parse_round_name(&text).unwrap_or(text));
               }
          }
@@ -272,7 +273,8 @@ pub fn parse_rounds(html: &str, dances: &[Dance]) -> Vec<Round> {
     let mut rounds = Vec::new();
     let marking_results = parse_tabges(html, dances);
     let (erg_marks, erg_ranks) = parse_ergwert(html, dances);
-    let wdsf_results = if html.contains("TQ") || html.contains("MM") {
+    let is_wdsf = html.contains("TQ") || html.contains("MM");
+    let wdsf_results = if is_wdsf {
          Some(parse_wdsf_scores(html, dances))
     } else {
          None
@@ -290,7 +292,8 @@ pub fn parse_rounds(html: &str, dances: &[Dance]) -> Vec<Round> {
          let mut ranks = None;
 
          if let Some(r) = erg_marks.get(i) {
-              if round_name.is_none() || round_name.as_ref().unwrap().starts_with("Round") || round_name.as_ref().unwrap().contains("Ergebnis") {
+              if round_name.is_none() || round_name.as_ref().unwrap().starts_with("Round") || round_name.as_ref().unwrap().contains("Ergebnis")
+                  || round_name.as_ref().unwrap().contains("Ranking") || round_name.as_ref().unwrap().contains("Table") {
                    if !r.0.is_empty() {
                         round_name = Some(r.0.clone());
                    }
@@ -306,7 +309,8 @@ pub fn parse_rounds(html: &str, dances: &[Dance]) -> Vec<Round> {
          }
 
          if let Some(r) = erg_ranks.get(i) {
-              if round_name.is_none() || round_name.as_ref().unwrap().starts_with("Round") || round_name.as_ref().unwrap().contains("Ergebnis") {
+              if round_name.is_none() || round_name.as_ref().unwrap().starts_with("Round") || round_name.as_ref().unwrap().contains("Ergebnis")
+                  || round_name.as_ref().unwrap().contains("Ranking") || round_name.as_ref().unwrap().contains("Table") {
                    if !r.0.is_empty() {
                         round_name = Some(r.0.clone());
                    }
@@ -314,11 +318,25 @@ pub fn parse_rounds(html: &str, dances: &[Dance]) -> Vec<Round> {
               ranks = Some(r.1.clone());
          }
 
-         let name = round_name.unwrap_or_else(|| format!("Round {}", i + 1));
+         let mut name = round_name.unwrap_or_else(|| format!("Round {}", i + 1));
+         if name.to_lowercase().contains("ranking report") || name.to_lowercase().contains("table of results") {
+              continue;
+         }
+
+         if is_wdsf {
+              if name == "Endrunde" || name == "Finale" || name.to_lowercase() == "final" {
+                   name = "Final".to_string();
+              } else if num_rounds >= 3 {
+                   if i == num_rounds - 2 { name = "Semifinal".to_string(); }
+                   else if i == num_rounds - 3 { name = "Quarterfinal".to_string(); }
+              } else if num_rounds == 2 {
+                   if i == num_rounds - 2 { name = "Semifinal".to_string(); }
+              }
+         }
 
          let mut wdsf = None;
          if let Some(ref wdsf_res) = wdsf_results {
-              if i == 0 { // Assume WDSF results are for the first round detected in the file
+              if name == "Final" {
                    wdsf = Some(wdsf_res.clone());
               }
          }
