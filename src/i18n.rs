@@ -80,9 +80,9 @@ pub fn parse_dances(s: &str) -> Vec<Dance> {
     }
 
     if dances.is_empty() {
-        if s_up.contains("STANDARD") {
+        if s_up.contains(STYLE_MARKER_STANDARD) {
             dances = vec![Dance::SlowWaltz, Dance::Tango, Dance::VienneseWaltz, Dance::SlowFoxtrot, Dance::Quickstep];
-        } else if s_up.contains("LATEIN") || s_up.contains("LATIN") {
+        } else if s_up.contains(STYLE_MARKER_LATEIN) || s_up.contains(STYLE_MARKER_LATIN) {
             dances = vec![Dance::Samba, Dance::ChaChaCha, Dance::Rumba, Dance::PasoDoble, Dance::Jive];
         }
     }
@@ -96,13 +96,13 @@ pub fn parse_round_name(name: &str) -> Option<String> {
     let lower = name.to_lowercase();
     for &(marker, canonical) in ROUND_NAME_MAPPINGS {
         if lower.contains(marker) {
-            if marker == "zwischenrunde" {
+            if canonical == ROUND_NAME_ZWISCHENRUNDE {
                  if lower.contains("1.") || lower.contains("erste") {
-                      return Some("1. Zwischenrunde".to_string());
+                      return Some(format!("1. {}", ROUND_NAME_ZWISCHENRUNDE));
                  } else if lower.contains("2.") || lower.contains("zweite") {
-                      return Some("2. Zwischenrunde".to_string());
+                      return Some(format!("2. {}", ROUND_NAME_ZWISCHENRUNDE));
                  } else if lower.contains("3.") || lower.contains("dritte") {
-                      return Some("3. Zwischenrunde".to_string());
+                      return Some(format!("3. {}", ROUND_NAME_ZWISCHENRUNDE));
                  }
             }
             return Some(canonical.to_string());
@@ -112,19 +112,69 @@ pub fn parse_round_name(name: &str) -> Option<String> {
 }
 
 pub fn get_round_name_from_id(p: &str) -> String {
-    if p == "F" {
-        "Endrunde".to_string()
+    if is_final_id(p) {
+        ROUND_NAME_ENDRUNDE.to_string()
     } else if let Ok(n) = p.parse::<u32>() {
         if n == 1 {
-            "Vorrunde".to_string()
+            ROUND_NAME_VORRUNDE.to_string()
         } else if n > 1 {
-            format!("{}. Zwischenrunde", n - 1)
+            format!("{}. {}", n - 1, ROUND_NAME_ZWISCHENRUNDE)
         } else {
             p.to_string()
         }
     } else {
         p.to_string()
     }
+}
+
+pub fn is_generic_round_name(name: &str) -> bool {
+    let lower = name.to_lowercase();
+    GENERIC_ROUND_MARKERS.iter().any(|&m| lower.contains(m)) || lower.starts_with("round")
+}
+
+pub fn should_skip_round(name: &str) -> bool {
+    let lower = name.to_lowercase();
+    SKIP_ROUND_MARKERS.iter().any(|&m| lower.contains(m))
+}
+
+pub fn is_final_round(name: &str) -> bool {
+    let lower = name.to_lowercase();
+    FINAL_ROUND_MARKERS.iter().any(|&m| lower.contains(m))
+}
+
+pub fn is_result_marker(s: &str) -> bool {
+    let lower = s.to_lowercase();
+    RESULT_MARKERS.iter().any(|&m| lower.contains(m))
+}
+
+pub fn is_final_id(s: &str) -> bool {
+    s.trim() == FINAL_ID_MARKER
+}
+
+pub fn normalize_wdsf_round_name(name: &str, i: usize, num_rounds: usize) -> String {
+    let lower = name.to_lowercase();
+    if is_final_round(&lower) {
+        return ROUND_NAME_FINAL.to_string();
+    }
+
+    if num_rounds >= 3 {
+        if i == num_rounds - 1 { return ROUND_NAME_FINAL.to_string(); }
+        if i == num_rounds - 2 { return ROUND_NAME_SEMIFINAL.to_string(); }
+        if i == num_rounds - 3 { return ROUND_NAME_QUARTERFINAL.to_string(); }
+    } else if num_rounds == 2 {
+        if i == num_rounds - 1 { return ROUND_NAME_FINAL.to_string(); }
+        if i == num_rounds - 2 { return ROUND_NAME_SEMIFINAL.to_string(); }
+    }
+
+    name.to_string()
+}
+
+pub fn get_generic_round_name(i: usize) -> String {
+    format!("{} {}", ROUND_NAME_GENERIC_PREFIX, i)
+}
+
+pub fn get_result_table_name() -> String {
+    ROUND_NAME_RESULT_TABLE.to_string()
 }
 
 pub fn is_redance(name: &str) -> bool {
