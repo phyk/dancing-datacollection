@@ -344,14 +344,14 @@ pub fn parse_rounds(html: &str, dances: &[Dance], is_wdsf_hint: bool) -> Vec<Rou
               }
          }
 
-         if let Some(wdsf_scores) = wdsf {
+         if let Some(wdsf_scores) = wdsf.filter(|m| !m.is_empty()) {
               rounds.push(Round {
                    name,
                    order: i as u32,
                    dances: dances.to_vec(),
                    data: RoundData::WDSF { wdsf_scores },
               });
-         } else if let Some(dtv_ranks) = ranks {
+         } else if let Some(dtv_ranks) = ranks.filter(|m| !m.is_empty()) {
               rounds.push(Round {
                    name,
                    order: i as u32,
