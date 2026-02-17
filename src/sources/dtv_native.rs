@@ -235,7 +235,7 @@ pub fn parse_officials(html: &str) -> Result<Officials, ParsingError> {
     Ok(officials)
 }
 
-pub fn parse_rounds(html: &str, dances: &[Dance]) -> Vec<Round> {
+pub fn parse_rounds(html: &str, dances: &[Dance], is_wdsf_hint: bool) -> Vec<Round> {
     let document = Html::parse_document(html);
     let h2_sel = Selector::parse("h2").unwrap();
     let comphead_sel = Selector::parse(".comphead").unwrap();
@@ -249,7 +249,8 @@ pub fn parse_rounds(html: &str, dances: &[Dance]) -> Vec<Round> {
     if round_names.is_empty() {
          for head in document.select(&comphead_sel) {
               let text = head.text().collect::<Vec<_>>().join(" ").trim().to_string();
-              if text.to_lowercase().contains("runde") || text.to_lowercase().contains("table") || text.to_lowercase().contains("ergebnis") || text.to_lowercase().contains("ranking") {
+              if (text.to_lowercase().contains("runde") || text.to_lowercase().contains("table") || text.to_lowercase().contains("ergebnis") || text.to_lowercase().contains("ranking"))
+                 && !text.to_lowercase().contains("ranking report") && !text.to_lowercase().contains("table of results") {
                    round_names.push(crate::i18n::parse_round_name(&text).unwrap_or(text));
               }
          }
@@ -272,8 +273,9 @@ pub fn parse_rounds(html: &str, dances: &[Dance]) -> Vec<Round> {
     let mut rounds = Vec::new();
     let marking_results = parse_tabges(html, dances);
     let (erg_marks, erg_ranks) = parse_ergwert(html, dances);
+    let is_wdsf = is_wdsf_hint || html.contains("TQ") || html.contains("MM");
     let wdsf_results = if html.contains("TQ") || html.contains("MM") {
-         Some(parse_wdsf_scores(html))
+         Some(parse_wdsf_scores(html, dances))
     } else {
          None
     };
@@ -290,7 +292,8 @@ pub fn parse_rounds(html: &str, dances: &[Dance]) -> Vec<Round> {
          let mut ranks = None;
 
          if let Some(r) = erg_marks.get(i) {
-              if round_name.is_none() || round_name.as_ref().unwrap().starts_with("Round") || round_name.as_ref().unwrap().contains("Ergebnis") {
+              if round_name.is_none() || round_name.as_ref().unwrap().starts_with("Round") || round_name.as_ref().unwrap().contains("Ergebnis")
+                  || round_name.as_ref().unwrap().contains("Ranking") || round_name.as_ref().unwrap().contains("Table") {
                    if !r.0.is_empty() {
                         round_name = Some(r.0.clone());
                    }
@@ -306,7 +309,8 @@ pub fn parse_rounds(html: &str, dances: &[Dance]) -> Vec<Round> {
          }
 
          if let Some(r) = erg_ranks.get(i) {
-              if round_name.is_none() || round_name.as_ref().unwrap().starts_with("Round") || round_name.as_ref().unwrap().contains("Ergebnis") {
+              if round_name.is_none() || round_name.as_ref().unwrap().starts_with("Round") || round_name.as_ref().unwrap().contains("Ergebnis")
+                  || round_name.as_ref().unwrap().contains("Ranking") || round_name.as_ref().unwrap().contains("Table") {
                    if !r.0.is_empty() {
                         round_name = Some(r.0.clone());
                    }
@@ -314,23 +318,40 @@ pub fn parse_rounds(html: &str, dances: &[Dance]) -> Vec<Round> {
               ranks = Some(r.1.clone());
          }
 
-         let name = round_name.unwrap_or_else(|| format!("Round {}", i + 1));
+         let mut name = round_name.unwrap_or_else(|| format!("Round {}", i + 1));
+         let lower_name = name.to_lowercase();
+         if lower_name.contains("ranking report") || lower_name.contains("table of results") {
+              continue;
+         }
+
+         if is_wdsf {
+              if lower_name == "endrunde" || lower_name == "finale" || lower_name == "final" || lower_name.contains("result of final") {
+                   name = "Final".to_string();
+              } else if num_rounds >= 3 {
+                   if i == num_rounds - 1 { name = "Final".to_string(); }
+                   else if i == num_rounds - 2 { name = "Semifinal".to_string(); }
+                   else if i == num_rounds - 3 { name = "Quarterfinal".to_string(); }
+              } else if num_rounds == 2 {
+                   if i == num_rounds - 1 { name = "Final".to_string(); }
+                   else if i == num_rounds - 2 { name = "Semifinal".to_string(); }
+              }
+         }
 
          let mut wdsf = None;
          if let Some(ref wdsf_res) = wdsf_results {
-              if i == 0 { // Assume WDSF results are for the first round detected in the file
+              if name == "Final" {
                    wdsf = Some(wdsf_res.clone());
               }
          }
 
-         if let Some(wdsf_scores) = wdsf {
+         if let Some(wdsf_scores) = wdsf.filter(|m| !m.is_empty()) {
               rounds.push(Round {
                    name,
                    order: i as u32,
                    dances: dances.to_vec(),
                    data: RoundData::WDSF { wdsf_scores },
               });
-         } else if let Some(dtv_ranks) = ranks {
+         } else if let Some(dtv_ranks) = ranks.filter(|m| !m.is_empty()) {
               rounds.push(Round {
                    name,
                    order: i as u32,
@@ -650,61 +671,202 @@ pub fn parse_ergwert(html: &str, dances: &[Dance]) -> (Vec<(String, BTreeMap<Str
     (all_mark_results, all_rank_results)
 }
 
-pub fn parse_wdsf_scores(html: &str) -> BTreeMap<String, BTreeMap<String, WDSFScore>> {
+pub fn parse_wdsf_scores(
+    html: &str,
+    dances: &[Dance],
+) -> BTreeMap<String, BTreeMap<String, BTreeMap<Dance, WDSFScore>>> {
     let mut results = BTreeMap::new();
     let document = Html::parse_document(html);
     let tr_sel = Selector::parse("tr").unwrap();
     let td_sel = Selector::parse("td").unwrap();
     let score_re = Regex::new(r"(\d+[\.,]\d+)").unwrap();
 
-    let mut current_bib = 0;
-    let mut current_judge = String::new();
+    let table_sel = Selector::parse("table.tab1").unwrap();
+    if let Some(table) = document.select(&table_sel).next() {
+        let mut header_rows = table.select(&tr_sel);
+        let row1 = header_rows.next();
+        let row2 = header_rows.next();
 
-    for row in document.select(&tr_sel) {
-        let cells: Vec<_> = row.select(&td_sel).collect();
-        if cells.is_empty() { continue; }
+        if let (Some(r1), Some(r2)) = (row1, row2) {
+            let mut dance_columns = Vec::new(); // (Dance, start_col, end_col)
+            let mut judge_map_by_col = BTreeMap::new(); // col_idx -> JudgeCode
 
-        let text = cells[0].text().collect::<String>().trim().to_string();
-        if let Some(caps) = Regex::new(r"\((\d+)\)").unwrap().captures(&text) {
-            current_bib = caps[1].parse().unwrap_or(0);
-        }
+            let mut col_offset = 0;
+            let r1_cells: Vec<_> = r1.select(&td_sel).collect();
+            let r2_cells: Vec<_> = r2.select(&td_sel).collect();
+            let mut r2_cell_iter = r2_cells.iter();
 
-        if text.len() == 1 && text.chars().next().unwrap().is_ascii_uppercase() {
-            current_judge = text;
-        }
+            for cell in &r1_cells {
+                let colspan = cell.value().attr("colspan").and_then(|s| s.parse::<usize>().ok()).unwrap_or(1);
+                let rowspan = cell.value().attr("rowspan").and_then(|s| s.parse::<usize>().ok()).unwrap_or(1);
+                let text = cell.text().collect::<String>().trim().to_string();
 
-        if !current_judge.is_empty() && current_bib != 0 {
-            let cell_text = row.text().collect::<Vec<_>>().join(" ");
-            let scores: Vec<f64> = score_re.find_iter(&cell_text)
-                .filter_map(|m| m.as_str().replace(',', ".").parse().ok())
-                .collect();
+                if rowspan == 1 && colspan > 1 && !text.is_empty() {
+                    if let Some(d) = crate::i18n::parse_dances(&text).first() {
+                        dance_columns.push((*d, col_offset, col_offset + colspan));
+                    }
 
-            if !scores.is_empty() {
-                let score_entry = results.entry(current_judge.clone()).or_insert_with(BTreeMap::new)
-                    .entry(current_bib.to_string()).or_insert(WDSFScore {
-                        technical_quality: 0.0,
-                        movement_to_music: 0.0,
-                        partnering_skills: 0.0,
-                        choreography: 0.0,
-                    total: 0.0,
-                    });
-
-                if cell_text.contains("TQ") { score_entry.technical_quality = scores[0]; }
-                if cell_text.contains("MM") { score_entry.movement_to_music = scores[0]; }
-                if cell_text.contains("PS") { score_entry.partnering_skills = scores[scores.len()-1]; }
-                if cell_text.contains("CP") { score_entry.choreography = scores[scores.len()-1]; }
-
-                if scores.len() >= 2 && cell_text.contains("TQ") && cell_text.contains("PS") {
-                    score_entry.technical_quality = scores[0];
-                    score_entry.partnering_skills = scores[1];
+                    for i in 0..colspan {
+                        if let Some(r2_cell) = r2_cell_iter.next() {
+                            let r2_text = r2_cell.text().next().unwrap_or("").trim().to_string();
+                            let mut code = String::new();
+                            for c in r2_text.chars() {
+                                if c.is_ascii_uppercase() {
+                                    code.push(c);
+                                } else {
+                                    break;
+                                }
+                            }
+                            if !code.is_empty() && code.len() <= 2 {
+                                judge_map_by_col.insert(col_offset + i, code);
+                            }
+                        }
+                    }
                 }
-                if scores.len() == 1 && cell_text.contains("MM") && cell_text.contains("CP") {
-                    score_entry.movement_to_music = scores[0];
-                    score_entry.choreography = scores[0];
+                col_offset += colspan;
+            }
+
+            for row in table.select(&tr_sel).skip(2) {
+                let cells: Vec<_> = row.select(&td_sel).collect();
+                if cells.len() < 4 {
+                    continue;
                 }
 
-                if cell_text.contains("Summe") || cell_text.contains("Total") {
-                    score_entry.total = scores[0];
+                let mut bib = String::new();
+                for cell in &cells {
+                    let class = cell.value().attr("class").unwrap_or("");
+                    if class.contains("td2c") {
+                        let text = cell.text().collect::<String>().trim().to_string();
+                        if !text.is_empty() && text.chars().all(|c| c.is_ascii_digit()) {
+                            bib = text;
+                            break;
+                        }
+                    }
+                }
+
+                if bib.is_empty() {
+                    continue;
+                }
+
+                let mut round_line_idx = 0;
+                for cell in &cells {
+                    if cell.value().attr("class").unwrap_or("").contains("td5c") {
+                        let html_content = cell.inner_html();
+                        for (l_idx, line) in html_content.split("<br>").enumerate() {
+                            if line.trim() == "F" {
+                                round_line_idx = l_idx;
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                }
+
+                for (dance, start, end) in &dance_columns {
+                    for col in *start..*end {
+                        if let Some(judge_code) = judge_map_by_col.get(&col) {
+                            if let Some(cell) = cells.get(col) {
+                                let html_content = cell.inner_html();
+                                let lines: Vec<_> = html_content.split("<br>").collect();
+                                if let Some(line) = lines.get(round_line_idx) {
+                                    let text = line.trim();
+                                    let scores: Vec<f64> = score_re
+                                        .find_iter(text)
+                                        .filter_map(|m| m.as_str().replace(',', ".").parse().ok())
+                                        .collect();
+
+                                    if !scores.is_empty() {
+                                        let score_entry = results
+                                            .entry(judge_code.clone())
+                                            .or_insert_with(BTreeMap::new)
+                                            .entry(bib.clone())
+                                            .or_insert_with(BTreeMap::new)
+                                            .entry(*dance)
+                                            .or_insert(WDSFScore {
+                                                technical_quality: 0.0,
+                                                movement_to_music: 0.0,
+                                                partnering_skills: 0.0,
+                                                choreography: 0.0,
+                                                total: 0.0,
+                                            });
+
+                                        if text.contains("TQ") { score_entry.technical_quality = scores[0]; }
+                                        if text.contains("MM") { score_entry.movement_to_music = scores[0]; }
+                                        if text.contains("PS") { score_entry.partnering_skills = scores[scores.len() - 1]; }
+                                        if text.contains("CP") { score_entry.choreography = scores[scores.len() - 1]; }
+                                        if scores.len() >= 2 && text.contains("TQ") && text.contains("PS") {
+                                            score_entry.technical_quality = scores[0];
+                                            score_entry.partnering_skills = scores[1];
+                                        }
+                                        if scores.len() == 1 && text.contains("MM") && text.contains("CP") {
+                                            score_entry.movement_to_music = scores[0];
+                                            score_entry.choreography = scores[0];
+                                        }
+                                        if text.contains("Summe") || text.contains("Total") {
+                                            score_entry.total = scores[0];
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if results.is_empty() && (html.contains("TQ") || html.contains("MM")) {
+        let mut current_bib = String::new();
+        let mut current_judge = String::new();
+        let first_dance = dances.first().cloned();
+
+        for row in document.select(&tr_sel) {
+            let cells: Vec<_> = row.select(&td_sel).collect();
+            if cells.is_empty() { continue; }
+
+            let text = cells[0].text().collect::<String>().trim().to_string();
+            if let Some(caps) = Regex::new(r"\((\d+)\)").unwrap().captures(&text) {
+                current_bib = caps[1].to_string();
+            }
+
+            if text.len() == 1 && text.chars().next().unwrap().is_ascii_uppercase() {
+                current_judge = text;
+            }
+
+            if !current_judge.is_empty() && !current_bib.is_empty() {
+                let cell_text = row.text().collect::<Vec<_>>().join(" ");
+                let scores: Vec<f64> = score_re.find_iter(&cell_text)
+                    .filter_map(|m| m.as_str().replace(',', ".").parse().ok())
+                    .collect();
+
+                if !scores.is_empty() {
+                    if let Some(d) = first_dance {
+                        let score_entry = results.entry(current_judge.clone()).or_insert_with(BTreeMap::new)
+                            .entry(current_bib.clone()).or_insert_with(BTreeMap::new)
+                            .entry(d).or_insert(WDSFScore {
+                                technical_quality: 0.0,
+                                movement_to_music: 0.0,
+                                partnering_skills: 0.0,
+                                choreography: 0.0,
+                                total: 0.0,
+                            });
+
+                        if cell_text.contains("TQ") { score_entry.technical_quality = scores[0]; }
+                        if cell_text.contains("MM") { score_entry.movement_to_music = scores[0]; }
+                        if cell_text.contains("PS") { score_entry.partnering_skills = scores[scores.len()-1]; }
+                        if cell_text.contains("CP") { score_entry.choreography = scores[scores.len()-1]; }
+                        if scores.len() >= 2 && cell_text.contains("TQ") && cell_text.contains("PS") {
+                            score_entry.technical_quality = scores[0];
+                            score_entry.partnering_skills = scores[1];
+                        }
+                        if scores.len() == 1 && cell_text.contains("MM") && cell_text.contains("CP") {
+                            score_entry.movement_to_music = scores[0];
+                            score_entry.choreography = scores[0];
+                        }
+                        if cell_text.contains("Summe") || cell_text.contains("Total") {
+                            score_entry.total = scores[0];
+                        }
+                    }
                 }
             }
         }
@@ -762,7 +924,7 @@ pub fn parse_competition_from_title(title: &str) -> Result<Competition, ParsingE
     let style = style.unwrap();
     let level = level.unwrap();
     let dances = crate::i18n::parse_dances(title);
-    let min_dances = crate::models::validation::get_min_dances_for_level(&level, &date);
+    let min_dances = crate::i18n::get_min_dances(level, date);
 
     Ok(Competition {
         name: title.to_string(),
@@ -893,7 +1055,8 @@ pub fn extract_event_data(data_dir: &str) -> Result<Competition> {
                         if !detected_dances.is_empty() {
                             comp.dances = detected_dances;
                         }
-                        let rounds = parse_rounds(&content, &comp.dances);
+                        let is_wdsf = comp.level == Level::S || content.contains("TQ") || content.contains("MM");
+                        let rounds = parse_rounds(&content, &comp.dances, is_wdsf);
                         for r in rounds {
                             if let Some(existing) = comp.rounds.iter_mut().find(|existing| existing.name == r.name) {
                                  // Simple replacement for now, favoring newer parsed data
@@ -925,7 +1088,8 @@ pub fn extract_event_data(data_dir: &str) -> Result<Competition> {
                         }
                     }
                     "tabges.htm" | "ergwert.htm" => {
-                        let rounds = parse_rounds(&content, &comp.dances);
+                        let is_wdsf = comp.level == Level::S || content.contains("TQ") || content.contains("MM");
+                        let rounds = parse_rounds(&content, &comp.dances, is_wdsf);
                         for r in rounds {
                             if let Some(existing) = comp.rounds.iter_mut().find(|existing| existing.name == r.name) {
                                  *existing = r;
@@ -940,6 +1104,7 @@ pub fn extract_event_data(data_dir: &str) -> Result<Competition> {
         }
     }
 
+    comp.rounds.sort_by_key(|r| r.order);
     Ok(comp)
 }
 
@@ -979,15 +1144,16 @@ mod tests {
 
     #[test]
     fn test_parse_wdsf_scores() {
-         let html = r#"
+        let html = r#"
             <table>
                 <tr><td>(284) Rohde</td></tr>
                 <tr><td>A</td><td>TQ|PS 9.75|9.75</td></tr>
                 <tr><td>A</td><td>MM+CP 9.50</td></tr>
             </table>
          "#;
-        let scores = parse_wdsf_scores(html);
-        let s = &scores["A"]["284"];
+        let dances = vec![Dance::Samba];
+        let scores = parse_wdsf_scores(html, &dances);
+        let s = &scores["A"]["284"][&Dance::Samba];
         assert_eq!(s.technical_quality, 9.75);
         assert_eq!(s.partnering_skills, 9.75);
         assert_eq!(s.movement_to_music, 9.50);
