@@ -92,12 +92,31 @@ pub const MONTH_MAPPINGS: &[(&str, u32)] = &[
 ];
 
 pub const ROUND_NAME_MAPPINGS: &[(&str, &str)] = &[
-    ("vorrunde", "Vorrunde"),
-    ("zwischenrunde", "Zwischenrunde"),
-    ("endrunde", "Endrunde"),
-    ("finale", "Endrunde"),
-    ("final", "Endrunde"),
+    ("vorrunde", ROUND_NAME_VORRUNDE),
+    ("zwischenrunde", ROUND_NAME_ZWISCHENRUNDE),
+    ("endrunde", ROUND_NAME_ENDRUNDE),
+    ("finale", ROUND_NAME_ENDRUNDE),
+    ("final", ROUND_NAME_ENDRUNDE),
 ];
+
+pub const GENERIC_ROUND_MARKERS: &[&str] = &["runde", "round", "ergebnis", "ranking", "table"];
+pub const SKIP_ROUND_MARKERS: &[&str] = &["ranking report", "table of results"];
+pub const FINAL_ROUND_MARKERS: &[&str] = &["endrunde", "finale", "final", "result of final"];
+pub const RESULT_MARKERS: &[&str] = &["ergebnis", "result"];
+pub const FINAL_ID_MARKER: &str = "F";
+
+pub const ROUND_NAME_FINAL: &str = "Final";
+pub const ROUND_NAME_SEMIFINAL: &str = "Semifinal";
+pub const ROUND_NAME_QUARTERFINAL: &str = "Quarterfinal";
+pub const ROUND_NAME_GENERIC_PREFIX: &str = "Round";
+pub const ROUND_NAME_RESULT_TABLE: &str = "Result Table";
+pub const ROUND_NAME_VORRUNDE: &str = "Vorrunde";
+pub const ROUND_NAME_ENDRUNDE: &str = "Endrunde";
+pub const ROUND_NAME_ZWISCHENRUNDE: &str = "Zwischenrunde";
+
+pub const STYLE_MARKER_STANDARD: &str = "STANDARD";
+pub const STYLE_MARKER_LATEIN: &str = "LATEIN";
+pub const STYLE_MARKER_LATIN: &str = "LATIN";
 
 pub const REDANCE_MARKERS: &[&str] = &["redance", "hoffnung", "h-lauf"];
 

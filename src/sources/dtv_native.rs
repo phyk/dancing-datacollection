@@ -249,8 +249,7 @@ pub fn parse_rounds(html: &str, dances: &[Dance], is_wdsf_hint: bool) -> Vec<Rou
     if round_names.is_empty() {
          for head in document.select(&comphead_sel) {
               let text = head.text().collect::<Vec<_>>().join(" ").trim().to_string();
-              if (text.to_lowercase().contains("runde") || text.to_lowercase().contains("table") || text.to_lowercase().contains("ergebnis") || text.to_lowercase().contains("ranking"))
-                 && !text.to_lowercase().contains("ranking report") && !text.to_lowercase().contains("table of results") {
+              if crate::i18n::is_generic_round_name(&text) && !crate::i18n::should_skip_round(&text) {
                    round_names.push(crate::i18n::parse_round_name(&text).unwrap_or(text));
               }
          }
@@ -267,7 +266,7 @@ pub fn parse_rounds(html: &str, dances: &[Dance], is_wdsf_hint: bool) -> Vec<Rou
     }
 
     if round_names.is_empty() {
-         round_names.push("Result Table".to_string());
+         round_names.push(crate::i18n::get_result_table_name());
     }
 
     let mut rounds = Vec::new();
@@ -292,8 +291,7 @@ pub fn parse_rounds(html: &str, dances: &[Dance], is_wdsf_hint: bool) -> Vec<Rou
          let mut ranks = None;
 
          if let Some(r) = erg_marks.get(i) {
-              if round_name.is_none() || round_name.as_ref().unwrap().starts_with("Round") || round_name.as_ref().unwrap().contains("Ergebnis")
-                  || round_name.as_ref().unwrap().contains("Ranking") || round_name.as_ref().unwrap().contains("Table") {
+              if round_name.as_ref().map(|s| crate::i18n::is_generic_round_name(s)).unwrap_or(true) {
                    if !r.0.is_empty() {
                         round_name = Some(r.0.clone());
                    }
@@ -309,8 +307,7 @@ pub fn parse_rounds(html: &str, dances: &[Dance], is_wdsf_hint: bool) -> Vec<Rou
          }
 
          if let Some(r) = erg_ranks.get(i) {
-              if round_name.is_none() || round_name.as_ref().unwrap().starts_with("Round") || round_name.as_ref().unwrap().contains("Ergebnis")
-                  || round_name.as_ref().unwrap().contains("Ranking") || round_name.as_ref().unwrap().contains("Table") {
+              if round_name.as_ref().map(|s| crate::i18n::is_generic_round_name(s)).unwrap_or(true) {
                    if !r.0.is_empty() {
                         round_name = Some(r.0.clone());
                    }
@@ -318,23 +315,13 @@ pub fn parse_rounds(html: &str, dances: &[Dance], is_wdsf_hint: bool) -> Vec<Rou
               ranks = Some(r.1.clone());
          }
 
-         let mut name = round_name.unwrap_or_else(|| format!("Round {}", i + 1));
-         let lower_name = name.to_lowercase();
-         if lower_name.contains("ranking report") || lower_name.contains("table of results") {
+         let mut name = round_name.unwrap_or_else(|| crate::i18n::get_generic_round_name(i + 1));
+         if crate::i18n::should_skip_round(&name) {
               continue;
          }
 
          if is_wdsf {
-              if lower_name == "endrunde" || lower_name == "finale" || lower_name == "final" || lower_name.contains("result of final") {
-                   name = "Final".to_string();
-              } else if num_rounds >= 3 {
-                   if i == num_rounds - 1 { name = "Final".to_string(); }
-                   else if i == num_rounds - 2 { name = "Semifinal".to_string(); }
-                   else if i == num_rounds - 3 { name = "Quarterfinal".to_string(); }
-              } else if num_rounds == 2 {
-                   if i == num_rounds - 1 { name = "Final".to_string(); }
-                   else if i == num_rounds - 2 { name = "Semifinal".to_string(); }
-              }
+              name = crate::i18n::normalize_wdsf_round_name(&name, i, num_rounds);
          }
 
          let mut wdsf = None;
@@ -437,7 +424,7 @@ pub fn parse_tabges(
                                     all_results[table_round_idx].1.entry(judge).or_default().extend(bibs);
                                }
                           } else {
-                               all_results.push((format!("Round {}", all_results.len() + 1), current_results));
+                               all_results.push((crate::i18n::get_generic_round_name(all_results.len() + 1), current_results));
                           }
                           table_round_idx += 1;
                           current_results = BTreeMap::new();
@@ -463,7 +450,7 @@ pub fn parse_tabges(
                      }
                 }
 
-                if first_cell_text.contains("Ergebnis") || first_cell_text.contains("Result") {
+                if crate::i18n::is_result_marker(&first_cell_text) {
                      for (col_idx, bib) in bibs_in_cols.iter().enumerate() {
                           let cell_idx = cells.len() - bibs_in_cols.len() + col_idx;
                           if cell_idx < cells.len() {
@@ -489,7 +476,7 @@ pub fn parse_tabges(
                            all_results[table_round_idx].1.entry(judge).or_default().extend(bibs);
                       }
                  } else {
-                      all_results.push((format!("Round {}", all_results.len() + 1), current_results));
+                      all_results.push((crate::i18n::get_generic_round_name(all_results.len() + 1), current_results));
                  }
             }
         } else {
@@ -523,7 +510,7 @@ pub fn parse_tabges(
                  // In horizontal layout, we assume one round per table.
                  // But we should still merge if we have multiple tables for the same round.
                  if all_results.is_empty() {
-                      all_results.push((format!("Round 1"), current_results));
+                      all_results.push((crate::i18n::get_generic_round_name(1), current_results));
                  } else {
                       for (judge, bibs) in current_results {
                            all_results[0].1.entry(judge).or_default().extend(bibs);
@@ -753,7 +740,7 @@ pub fn parse_wdsf_scores(
                     if cell.value().attr("class").unwrap_or("").contains("td5c") {
                         let html_content = cell.inner_html();
                         for (l_idx, line) in html_content.split("<br>").enumerate() {
-                            if line.trim() == "F" {
+                            if crate::i18n::is_final_id(line) {
                                 round_line_idx = l_idx;
                                 break;
                             }
