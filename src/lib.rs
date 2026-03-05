@@ -3,7 +3,6 @@ pub mod crawler;
 pub mod i18n;
 pub mod models;
 pub mod sources;
-pub mod storage;
 
 use pyo3::prelude::*;
 use crate::models::sanitize_name;
@@ -215,13 +214,16 @@ fn load_competition_results(
             // 6. Handle raw HTML
             if download_html {
                 let raw_path = event_path.join("raw").join(&sanitized_comp_id);
-                if let Ok(_) = fs::create_dir_all(&raw_path) {
-                    if let Ok(entries) = fs::read_dir(&temp_dir) {
-                        for entry in entries.flatten() {
-                            let dest = raw_path.join(entry.file_name());
-                            let _ = fs::copy(entry.path(), dest);
+                match fs::create_dir_all(&raw_path) {
+                    Ok(_) => {
+                        if let Ok(entries) = fs::read_dir(&temp_dir) {
+                            for entry in entries.flatten() {
+                                let dest = raw_path.join(entry.file_name());
+                                let _ = fs::copy(entry.path(), dest);
+                            }
                         }
                     }
+                    Err(e) => log::error!("Failed to create raw HTML directory {:?}: {}", raw_path, e),
                 }
             }
 

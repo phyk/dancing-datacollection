@@ -8,6 +8,7 @@ pub fn calculate_dance_ranks(
     let bibs: Vec<u32> = judge_marks.values().next().map(|m| m.keys().cloned().collect()).unwrap_or_default();
     let num_judges = judge_marks.len();
     if num_judges == 0 { return BTreeMap::new(); }
+    // Skating System majority: more than half of judges must agree.
     let majority = (num_judges / 2) + 1;
     let num_participants = bibs.len();
 
@@ -157,15 +158,16 @@ pub fn calculate_final_ranks(
 fn break_rule_11(a: u32, b: u32, all_marks: &BTreeMap<Dance, BTreeMap<String, BTreeMap<u32, u32>>>) -> std::cmp::Ordering {
     let mut marks_a = Vec::new();
     let mut marks_b = Vec::new();
-    for dm in all_marks.values() {
-        for jm in dm.values() {
-            if let Some(&m) = jm.get(&a) { marks_a.push(m); }
-            if let Some(&m) = jm.get(&b) { marks_b.push(m); }
+    for dance_map in all_marks.values() {
+        for judge_map in dance_map.values() {
+            if let Some(&mark) = judge_map.get(&a) { marks_a.push(mark); }
+            if let Some(&mark) = judge_map.get(&b) { marks_b.push(mark); }
         }
     }
 
     let num_marks = marks_a.len();
     if num_marks == 0 { return std::cmp::Ordering::Equal; }
+    // Skating System majority: more than half of total judge×dance marks.
     let majority = (num_marks / 2) + 1;
     let max_mark = *marks_a.iter().chain(marks_b.iter()).max().unwrap_or(&10);
 
