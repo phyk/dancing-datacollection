@@ -10,6 +10,13 @@ fn run_full_pipeline_test(dir_name: &str) {
 
     // Verify against Ground Truth if it exists
     let ground_truth_path = dir_path.join("tabges.jsonl");
+
+    if std::env::var("UPDATE_GOLDEN").is_ok() {
+        let json = serde_json::to_string(&event).unwrap();
+        std::fs::write(&ground_truth_path, json).unwrap();
+        return;
+    }
+
     if ground_truth_path.exists() {
         let ground_truth_json = std::fs::read_to_string(&ground_truth_path).unwrap();
         let expected: dancing_datacollection::models::Competition = serde_json::from_str(ground_truth_json.trim()).unwrap();

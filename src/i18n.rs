@@ -173,6 +173,14 @@ pub fn get_generic_round_name(i: usize) -> String {
     format!("{} {}", ROUND_NAME_GENERIC_PREFIX, i)
 }
 
+pub fn get_round_name_from_pos(pos: usize) -> String {
+    if pos == 1 {
+        ROUND_NAME_VORRUNDE.to_string()
+    } else {
+        format!("{}. {}", pos - 1, ROUND_NAME_ZWISCHENRUNDE)
+    }
+}
+
 pub fn get_result_table_name() -> String {
     ROUND_NAME_RESULT_TABLE.to_string()
 }
