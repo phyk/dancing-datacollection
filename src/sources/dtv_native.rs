@@ -43,8 +43,28 @@ pub fn parse_date(s: &str) -> Option<NaiveDate> {
     NaiveDate::from_ymd_opt(y, m, d)
 }
 
-pub fn parse_metadata(html: &str) -> (Option<String>, Option<NaiveDate>) {
+pub fn parse_metadata(
+    html: &str,
+) -> (
+    Option<String>,
+    Option<NaiveDate>,
+    Option<String>,
+    Option<String>,
+) {
     let doc = Html::parse_document(html);
+    let (mut org, mut club) = (None, None);
+    for row in doc.select(&SEL_TR) {
+        let cells: Vec<_> = row.select(&SEL_TD).collect();
+        if cells.len() >= 2 {
+            let k = cells[0].text().collect::<String>();
+            let v = txt(&cells[1]);
+            if crate::i18n::is_organizer_marker(&k) {
+                org = Some(v);
+            } else if crate::i18n::is_hosting_club_marker(&k) {
+                club = Some(v);
+            }
+        }
+    }
     let name = doc
         .select(&Selector::parse(".eventhead td").unwrap())
         .next()
@@ -54,7 +74,7 @@ pub fn parse_metadata(html: &str) -> (Option<String>, Option<NaiveDate>) {
         .next()
         .map(|el| txt(&el))
         .and_then(|d| parse_date(&d));
-    (name, date)
+    (name, date, org, club)
 }
 
 fn parse_participant_row(row: ElementRef) -> Result<Participant, ParsingError> {
@@ -767,7 +787,7 @@ fn parse_wdsf_scores(
 pub fn extract_event_data(data_dir: &str) -> Result<Competition> {
     let dir = Path::new(data_dir);
     let erg_h = fs::read_to_string(dir.join("erg.htm")).unwrap_or_default();
-    let (name, date) = parse_metadata(&erg_h);
+    let (name, date, org, club) = parse_metadata(&erg_h);
     let title = Html::parse_document(&erg_h)
         .select(&SEL_TITLE)
         .next()
@@ -796,6 +816,8 @@ pub fn extract_event_data(data_dir: &str) -> Result<Competition> {
                 rounds: Vec::new(),
             },
         };
+    comp.organizer = org;
+    comp.hosting_club = club;
     comp.participants = extract_participants(&erg_h);
     comp.participants.retain(|p| {
         p.bib_number != 0
@@ -862,6 +884,45 @@ pub fn extract_event_data(data_dir: &str) -> Result<Competition> {
     if rounds.is_empty() && has_scoring_file {
         rounds = extract_round_data(&erg_h, &comp.dances, &comp.officials);
     }
+    // Filter dances based on actually parsed results
+    let mut actual_dances = std::collections::HashSet::new();
+    for r in &rounds {
+        match &r.data {
+            RoundData::DTV { dtv_ranks } => {
+                for j_marks in dtv_ranks.values() {
+                    for p_marks in j_marks.values() {
+                        for d in p_marks.keys() {
+                            actual_dances.insert(*d);
+                        }
+                    }
+                }
+            }
+            RoundData::Marking { marking_crosses } => {
+                for j_marks in marking_crosses.values() {
+                    for p_marks in j_marks.values() {
+                        for d in p_marks.keys() {
+                            actual_dances.insert(*d);
+                        }
+                    }
+                }
+            }
+            RoundData::WDSF { wdsf_scores } => {
+                for j_marks in wdsf_scores.values() {
+                    for p_marks in j_marks.values() {
+                        for d in p_marks.keys() {
+                            actual_dances.insert(*d);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    if !actual_dances.is_empty() {
+        comp.dances.retain(|d| actual_dances.contains(d));
+        for r in &mut rounds {
+            r.dances.retain(|d| actual_dances.contains(d));
+        }
+    }
     comp.rounds = rounds;
 
     if scoring_h.contains("TQ") || scoring_h.contains("MM") {
@@ -888,8 +949,18 @@ pub fn extract_event_data(data_dir: &str) -> Result<Competition> {
 
 pub fn parse_competition_from_title(title: &str) -> Result<Competition, ParsingError> {
     let (mut ag, mut st, mut lv) = (None, None, None);
-    let up = title.to_uppercase();
-    for k in crate::i18n::age_group_keys() {
+    let mut title_clean = title
+        .replace("\"GS\"", "")
+        .replace("\"OS\"", "")
+        .replace("\"MS\"", "");
+    if let Some(pos) = title_clean.find(" - ") {
+        title_clean = title_clean[pos + 3..].to_string();
+    }
+    let up = title_clean.to_uppercase();
+    let mut age_keys = crate::i18n::age_group_keys();
+    age_keys.sort_by_key(|k| k.len());
+    age_keys.reverse();
+    for k in age_keys {
         if up.contains(&k.to_uppercase()) {
             ag = crate::i18n::map_age_group(k);
             break;
@@ -915,7 +986,7 @@ pub fn parse_competition_from_title(title: &str) -> Result<Competition, ParsingE
         return Err(ParsingError::MissingRequiredData(title.into()));
     }
     Ok(Competition {
-        name: title.to_string(),
+        name: title_clean,
         date: Some(date),
         organizer: None,
         hosting_club: None,
