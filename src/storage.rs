@@ -37,7 +37,10 @@ impl StorageManager {
         // Postcard Support: Use the postcard crate for a dense binary export.
         let bin_path = event_dir.join("event.bin");
         let bin_data = postcard::to_stdvec(event).map_err(|e| {
-            pyo3::exceptions::PyValueError::new_err(format!("Failed to serialize to Postcard: {}", e))
+            pyo3::exceptions::PyValueError::new_err(format!(
+                "Failed to serialize to Postcard: {}",
+                e
+            ))
         })?;
         fs::write(bin_path, bin_data).map_err(|e| {
             pyo3::exceptions::PyIOError::new_err(format!("Failed to write binary file: {}", e))

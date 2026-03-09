@@ -1,13 +1,20 @@
-use std::collections::BTreeMap;
+type JudgeMarksMap = BTreeMap<Dance, BTreeMap<String, BTreeMap<u32, u32>>>;
 use crate::models::{Dance, WDSFScore};
+use std::collections::BTreeMap;
 
 /// Calculates the ranks for a single dance using the Skating System (Rules 5-9).
 pub fn calculate_dance_ranks(
     judge_marks: &BTreeMap<String, BTreeMap<u32, u32>>, // JudgeCode -> Bib -> Mark
 ) -> BTreeMap<u32, u32> {
-    let bibs: Vec<u32> = judge_marks.values().next().map(|m| m.keys().cloned().collect()).unwrap_or_default();
+    let bibs: Vec<u32> = judge_marks
+        .values()
+        .next()
+        .map(|m| m.keys().cloned().collect())
+        .unwrap_or_default();
     let num_judges = judge_marks.len();
-    if num_judges == 0 { return BTreeMap::new(); }
+    if num_judges == 0 {
+        return BTreeMap::new();
+    }
     let majority = (num_judges / 2) + 1;
     let num_participants = bibs.len();
 
@@ -16,7 +23,9 @@ pub fn calculate_dance_ranks(
     let mut current_place = 1;
 
     for r in 1..=(num_participants as u32) {
-        if remaining_bibs.is_empty() { break; }
+        if remaining_bibs.is_empty() {
+            break;
+        }
 
         let mut candidates = Vec::new();
         for &bib in &remaining_bibs {
@@ -89,7 +98,7 @@ pub fn calculate_dance_ranks(
 /// Calculates final ranks across all dances (Rules 10-11).
 pub fn calculate_final_ranks(
     dance_ranks: &BTreeMap<Dance, BTreeMap<u32, u32>>,
-    all_judge_marks: Option<&BTreeMap<Dance, BTreeMap<String, BTreeMap<u32, u32>>>>,
+    all_judge_marks: Option<&JudgeMarksMap>,
 ) -> BTreeMap<u32, u32> {
     let mut bib_sums: BTreeMap<u32, u32> = BTreeMap::new();
     let mut bibs = Vec::new();
@@ -154,18 +163,28 @@ pub fn calculate_final_ranks(
     final_ranks
 }
 
-fn break_rule_11(a: u32, b: u32, all_marks: &BTreeMap<Dance, BTreeMap<String, BTreeMap<u32, u32>>>) -> std::cmp::Ordering {
+fn break_rule_11(
+    a: u32,
+    b: u32,
+    all_marks: &BTreeMap<Dance, BTreeMap<String, BTreeMap<u32, u32>>>,
+) -> std::cmp::Ordering {
     let mut marks_a = Vec::new();
     let mut marks_b = Vec::new();
     for dm in all_marks.values() {
         for jm in dm.values() {
-            if let Some(&m) = jm.get(&a) { marks_a.push(m); }
-            if let Some(&m) = jm.get(&b) { marks_b.push(m); }
+            if let Some(&m) = jm.get(&a) {
+                marks_a.push(m);
+            }
+            if let Some(&m) = jm.get(&b) {
+                marks_b.push(m);
+            }
         }
     }
 
     let num_marks = marks_a.len();
-    if num_marks == 0 { return std::cmp::Ordering::Equal; }
+    if num_marks == 0 {
+        return std::cmp::Ordering::Equal;
+    }
     let majority = (num_marks / 2) + 1;
     let max_mark = *marks_a.iter().chain(marks_b.iter()).max().unwrap_or(&10);
 
@@ -189,7 +208,9 @@ fn break_rule_11(a: u32, b: u32, all_marks: &BTreeMap<Dance, BTreeMap<String, BT
 
 /// Verifies WDSF category scores against reported total.
 pub fn verify_wdsf_score(score: &WDSFScore) -> bool {
-    if score.total == 0.0 { return true; }
+    if score.total == 0.0 {
+        return true;
+    }
     let calculated_sum = score.technical_quality
         + score.movement_to_music
         + score.partnering_skills
@@ -221,14 +242,22 @@ mod tests {
     fn test_rule_7_majority_size() {
         let mut judge_marks = BTreeMap::new();
         let marks = vec![
-            ("A", 101, 1), ("A", 102, 2),
-            ("B", 101, 1), ("B", 102, 1),
-            ("C", 101, 1), ("C", 102, 1),
-            ("D", 101, 2), ("D", 102, 2),
-            ("E", 101, 2), ("E", 102, 2),
+            ("A", 101, 1),
+            ("A", 102, 2),
+            ("B", 101, 1),
+            ("B", 102, 1),
+            ("C", 101, 1),
+            ("C", 102, 1),
+            ("D", 101, 2),
+            ("D", 102, 2),
+            ("E", 101, 2),
+            ("E", 102, 2),
         ];
         for (j, b, m) in marks {
-            judge_marks.entry(j.to_string()).or_insert_with(BTreeMap::new).insert(b, m);
+            judge_marks
+                .entry(j.to_string())
+                .or_insert_with(BTreeMap::new)
+                .insert(b, m);
         }
         let ranks = calculate_dance_ranks(&judge_marks);
         assert_eq!(ranks[&101], 1);
@@ -239,14 +268,22 @@ mod tests {
     fn test_rule_8_sum_of_marks() {
         let mut judge_marks = BTreeMap::new();
         let marks = vec![
-            ("A", 101, 1), ("A", 102, 1),
-            ("B", 101, 1), ("B", 102, 2),
-            ("C", 101, 2), ("C", 102, 2),
-            ("D", 101, 2), ("D", 102, 2),
-            ("E", 101, 3), ("E", 102, 3),
+            ("A", 101, 1),
+            ("A", 102, 1),
+            ("B", 101, 1),
+            ("B", 102, 2),
+            ("C", 101, 2),
+            ("C", 102, 2),
+            ("D", 101, 2),
+            ("D", 102, 2),
+            ("E", 101, 3),
+            ("E", 102, 3),
         ];
         for (j, b, m) in marks {
-            judge_marks.entry(j.to_string()).or_insert_with(BTreeMap::new).insert(b, m);
+            judge_marks
+                .entry(j.to_string())
+                .or_insert_with(BTreeMap::new)
+                .insert(b, m);
         }
         let ranks = calculate_dance_ranks(&judge_marks);
         assert_eq!(ranks[&101], 1);

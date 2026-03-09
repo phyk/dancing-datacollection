@@ -5,10 +5,10 @@ pub mod models;
 pub mod sources;
 pub mod storage;
 
-use pyo3::prelude::*;
 use crate::models::sanitize_name;
-use std::path::Path;
+use pyo3::prelude::*;
 use std::fs;
+use std::path::Path;
 
 /// Orchestrator to load, parse, validate, and store competition results.
 ///
@@ -41,7 +41,10 @@ fn load_competition_results(
     output_format: &str,
 ) -> PyResult<()> {
     if output_format != "json" {
-        return Err(pyo3::exceptions::PyValueError::new_err(format!("Unsupported output format: {}", output_format)));
+        return Err(pyo3::exceptions::PyValueError::new_err(format!(
+            "Unsupported output format: {}",
+            output_format
+        )));
     }
 
     let rt = tokio::runtime::Runtime::new().map_err(|e| {
@@ -50,11 +53,15 @@ fn load_competition_results(
 
     let mut scraper = crate::crawler::client::Scraper::new();
 
-    let mut manifest = crate::crawler::manifest::Manifest::from_target_folder(Path::new(&target_folder));
+    let mut manifest =
+        crate::crawler::manifest::Manifest::from_target_folder(Path::new(&target_folder));
 
     rt.block_on(async {
         // 1. Determine if URL is event index or single competition
-        let competition_links = scraper.get_competition_links(&url).await.unwrap_or_default();
+        let competition_links = scraper
+            .get_competition_links(&url)
+            .await
+            .unwrap_or_default();
 
         let urls_to_process = if competition_links.is_empty() {
             vec![url.clone()]
@@ -69,10 +76,8 @@ fn load_competition_results(
             }
 
             // Create a temp directory for this competition
-            let temp_dir = Path::new(&target_folder).join(format!(
-                "tmp_download_{}",
-                sanitize_name(&comp_url)
-            ));
+            let temp_dir = Path::new(&target_folder)
+                .join(format!("tmp_download_{}", sanitize_name(&comp_url)));
             if temp_dir.exists() {
                 let _ = fs::remove_dir_all(&temp_dir);
             }
@@ -81,7 +86,9 @@ fn load_competition_results(
                 continue;
             }
 
-            let download_res = scraper.download_competition_files(&comp_url, &temp_dir).await;
+            let download_res = scraper
+                .download_competition_files(&comp_url, &temp_dir)
+                .await;
             if let Err(e) = download_res {
                 log::error!("Failed to download competition from {}: {}", comp_url, e);
                 let _ = fs::remove_dir_all(&temp_dir);
@@ -154,8 +161,7 @@ fn load_competition_results(
                         } else {
                             comp.date = Some(d);
                         }
-                        comp.min_dances =
-                            crate::i18n::get_min_dances(comp.level, d);
+                        comp.min_dances = crate::i18n::get_min_dances(comp.level, d);
                     }
                     None => {
                         log::error!("Provided date filter '{}' could not be parsed.", d_str);
@@ -165,10 +171,7 @@ fn load_competition_results(
                 }
             } else if let Some(comp_date) = comp.date {
                 // Ensure min_dances is correct for the parsed event date
-                comp.min_dances = crate::i18n::get_min_dances(
-                    comp.level,
-                    comp_date,
-                );
+                comp.min_dances = crate::i18n::get_min_dances(comp.level, comp_date);
             }
 
             let comp_id = format!("{:?}_{:?}_{:?}", comp.age_group, comp.level, comp.style);
@@ -215,7 +218,7 @@ fn load_competition_results(
             // 6. Handle raw HTML
             if download_html {
                 let raw_path = event_path.join("raw").join(&sanitized_comp_id);
-                if let Ok(_) = fs::create_dir_all(&raw_path) {
+                if fs::create_dir_all(&raw_path).is_ok() {
                     if let Ok(entries) = fs::read_dir(&temp_dir) {
                         for entry in entries.flatten() {
                             let dest = raw_path.join(entry.file_name());
