@@ -19,10 +19,10 @@ fn run_full_pipeline_test(dir_name: &str) {
     assert!(!event.rounds.is_empty(), "No rounds parsed in {}", dir_name);
 
     // Verify against Ground Truth if it exists
-    let ground_truth_path = dir_path.join("tabges.jsonl");
+    let ground_truth_path = dir_path.join("tabges.json");
 
     if std::env::var("UPDATE_GOLDEN").is_ok() {
-        let json = serde_json::to_string(&event).unwrap();
+        let json = serde_json::to_string_pretty(&event).unwrap();
         std::fs::write(&ground_truth_path, json).unwrap();
         return;
     }

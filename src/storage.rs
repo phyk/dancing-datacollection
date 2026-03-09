@@ -17,7 +17,7 @@ impl StorageManager {
         Self { base_path: path }
     }
 
-    /// Saves a Competition to disk in both JSONL and Postcard binary formats.
+    /// Saves a Competition to disk in both JSON and Postcard binary formats.
     pub fn save_event(&self, event: &Competition) -> anyhow::Result<()> {
         let sanitized_name = self.sanitize_name(&event.name);
         let event_dir = self.base_path.join(sanitized_name);
@@ -25,13 +25,13 @@ impl StorageManager {
             pyo3::exceptions::PyIOError::new_err(format!("Failed to create event directory: {}", e))
         })?;
 
-        // JSONL Support: Each event must be a single line of JSON.
-        let json_path = event_dir.join("event.jsonl");
-        let json_data = serde_json::to_string(event).map_err(|e| {
+        // JSON Support: Pretty-printed JSON.
+        let json_path = event_dir.join("event.json");
+        let json_data = serde_json::to_string_pretty(event).map_err(|e| {
             pyo3::exceptions::PyValueError::new_err(format!("Failed to serialize to JSON: {}", e))
         })?;
-        fs::write(json_path, format!("{}\n", json_data)).map_err(|e| {
-            pyo3::exceptions::PyIOError::new_err(format!("Failed to write JSONL file: {}", e))
+        fs::write(json_path, json_data).map_err(|e| {
+            pyo3::exceptions::PyIOError::new_err(format!("Failed to write JSON file: {}", e))
         })?;
 
         // Postcard Support: Use the postcard crate for a dense binary export.
@@ -101,8 +101,8 @@ mod tests {
         let sanitized_name = manager.sanitize_name(&event.name);
         let event_dir = PathBuf::from(base_dir).join(sanitized_name);
 
-        // Verify JSONL
-        let json_path = event_dir.join("event.jsonl");
+        // Verify JSON
+        let json_path = event_dir.join("event.json");
         let json_content = fs::read_to_string(&json_path).expect("Read JSON failed");
         let deserialized_json: Competition =
             serde_json::from_str(json_content.trim()).expect("Deserialize JSON failed");

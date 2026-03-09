@@ -1,0 +1,1237 @@
+{
+  "name": "OT, Hgr.II C Standard \"7\"",
+  "date": "2024-05-11",
+  "organizer": null,
+  "hosting_club": null,
+  "source_url": null,
+  "level": "C",
+  "age_group": "Adult2",
+  "style": "Standard",
+  "dances": [
+    "SlowWaltz"
+  ],
+  "min_dances": 4,
+  "officials": {
+    "responsible_person": {
+      "name": "Jungbluth, Kai",
+      "club": "Tanz-Sport-Club Fischbach"
+    },
+    "assistant": {
+      "name": "Knigge, Jens",
+      "club": "TSC Groß-Gerau d. TV 1846"
+    },
+    "judges": [
+      {
+        "code": "AR",
+        "name": "Appel, Hans-Jürgen",
+        "club": "TTC Gelb-Weiss i. Post-SV Hannover"
+      },
+      {
+        "code": "CH",
+        "name": "Mak, Annabel",
+        "club": "Grün-Gold-Casino Wuppertal"
+      },
+      {
+        "code": "DC",
+        "name": "Schöke, Manuel",
+        "club": "TTC München"
+      },
+      {
+        "code": "DV",
+        "name": "Becker, Marc",
+        "club": "TTC Fortis Nova Maintal"
+      },
+      {
+        "code": "EY",
+        "name": "Schwarz, Sonja",
+        "club": "TSZ Blau-Gold Casino, Darmstadt"
+      }
+    ]
+  },
+  "participants": [
+    {
+      "identity_type": "Couple",
+      "name_one": "Kai Klede",
+      "bib_number": 519,
+      "name_two": "Amke Beenen",
+      "affiliation": "TSC Erlangen d. TB 1888",
+      "final_rank": 1
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Gregor Kobsik",
+      "bib_number": 521,
+      "name_two": "Angelina Kleiber",
+      "affiliation": "TSC Grün-Weiß Aquisgrana Aachen",
+      "final_rank": 2
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Sebastian Hauber",
+      "bib_number": 516,
+      "name_two": "Amelie Goldfuß",
+      "affiliation": "TSA Schwarz-Gold d. ESV Ingolstadt",
+      "final_rank": 3
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Lukas Kuschel",
+      "bib_number": 523,
+      "name_two": "Katharina Hölzchen",
+      "affiliation": "TSC Schwarz-Gold im ASC Göttingen v 1846 e.V",
+      "final_rank": 4
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Dr. Felix Prihoda",
+      "bib_number": 528,
+      "name_two": "Dr. Annemarie Prihoda",
+      "affiliation": "TTC Erlangen",
+      "final_rank": 5
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Peter Brantsch",
+      "bib_number": 505,
+      "name_two": "Luisa Böck",
+      "affiliation": "TSC Astoria Karlsruhe",
+      "final_rank": 6
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Fionn Woghen Dr. Wentorp",
+      "bib_number": 509,
+      "name_two": "Aila Meschgbu",
+      "affiliation": null,
+      "final_rank": 7
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Martin Günther",
+      "bib_number": 514,
+      "name_two": "Sarah Pätow",
+      "affiliation": null,
+      "final_rank": 8
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Christian Peters",
+      "bib_number": 526,
+      "name_two": "Ronja Hormes",
+      "affiliation": null,
+      "final_rank": 9
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Nicklas Benedikt Neufang",
+      "bib_number": 525,
+      "name_two": "Eva Eisenhardt, Laura",
+      "affiliation": null,
+      "final_rank": 10
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Christoph Schlüter",
+      "bib_number": 532,
+      "name_two": "Franziska Gerlach",
+      "affiliation": null,
+      "final_rank": 11
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Sebastian Damm",
+      "bib_number": 506,
+      "name_two": "Jantje Rippe",
+      "affiliation": null,
+      "final_rank": 12
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Bernd Krauss",
+      "bib_number": 522,
+      "name_two": "Jennifer Steuer",
+      "affiliation": null,
+      "final_rank": 13
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Maximilian Dörner",
+      "bib_number": 508,
+      "name_two": "Anita Dörner",
+      "affiliation": null,
+      "final_rank": null
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Klaus Raab",
+      "bib_number": 529,
+      "name_two": "Katalin Veszpremi",
+      "affiliation": null,
+      "final_rank": null
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Johannes Pfeiffer",
+      "bib_number": 527,
+      "name_two": "Tamara Pfeiffer",
+      "affiliation": null,
+      "final_rank": null
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Frank Thiemicke",
+      "bib_number": 534,
+      "name_two": "Lea Offermann",
+      "affiliation": null,
+      "final_rank": null
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Marcel Rose",
+      "bib_number": 530,
+      "name_two": "Imke Schwan",
+      "affiliation": null,
+      "final_rank": 18
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Carsten Beck",
+      "bib_number": 501,
+      "name_two": "Jennifer Arnold",
+      "affiliation": null,
+      "final_rank": null
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Markus Hajek",
+      "bib_number": 515,
+      "name_two": "Eva Hajek",
+      "affiliation": null,
+      "final_rank": null
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Patrick Keller",
+      "bib_number": 518,
+      "name_two": "Stefanie Schenker",
+      "affiliation": null,
+      "final_rank": null
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Stefan Fischer",
+      "bib_number": 511,
+      "name_two": "Mareike Maass",
+      "affiliation": null,
+      "final_rank": null
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Jakob Zwicker",
+      "bib_number": 536,
+      "name_two": "Magdalena Bedner",
+      "affiliation": null,
+      "final_rank": null
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Alexander Behmer",
+      "bib_number": 502,
+      "name_two": "Dr. Juliane Scheil",
+      "affiliation": null,
+      "final_rank": 24
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "David Schneider",
+      "bib_number": 533,
+      "name_two": "Sonja Wendenburg",
+      "affiliation": null,
+      "final_rank": 25
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Andreas Baumeister",
+      "bib_number": 500,
+      "name_two": "Cäcilia Benzin",
+      "affiliation": null,
+      "final_rank": null
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Achim Besler",
+      "bib_number": 504,
+      "name_two": "Kathrin Besler",
+      "affiliation": null,
+      "final_rank": null
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Paul Wehle",
+      "bib_number": 535,
+      "name_two": "Melanie Höschele",
+      "affiliation": null,
+      "final_rank": null
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Pascal Gerbert",
+      "bib_number": 512,
+      "name_two": "Nelly Gerbert",
+      "affiliation": null,
+      "final_rank": null
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Dirk Schäfer",
+      "bib_number": 531,
+      "name_two": "Gertrud Lembke",
+      "affiliation": null,
+      "final_rank": null
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Alexander Kober",
+      "bib_number": 520,
+      "name_two": "Diana Bühren",
+      "affiliation": null,
+      "final_rank": 31
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Martin Erhardt",
+      "bib_number": 510,
+      "name_two": "Svenja Mozian",
+      "affiliation": null,
+      "final_rank": 32
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Patrick Hiebl",
+      "bib_number": 517,
+      "name_two": "Sylvia Kißmehl",
+      "affiliation": null,
+      "final_rank": 33
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Christian Deike",
+      "bib_number": 507,
+      "name_two": "Patrycja Krohn",
+      "affiliation": null,
+      "final_rank": 34
+    }
+  ],
+  "rounds": [
+    {
+      "name": "1. Zwischenrunde",
+      "order": 1,
+      "dances": [
+        "SlowWaltz"
+      ],
+      "round_type": "DTV",
+      "dtv_ranks": {
+        "AR": {
+          "500": {
+            "SlowWaltz": 2
+          },
+          "501": {
+            "SlowWaltz": 2
+          },
+          "502": {
+            "SlowWaltz": 4
+          },
+          "504": {
+            "SlowWaltz": 2
+          },
+          "505": {
+            "SlowWaltz": 4
+          },
+          "506": {
+            "SlowWaltz": 0
+          },
+          "507": {
+            "SlowWaltz": 1
+          },
+          "508": {
+            "SlowWaltz": 1
+          },
+          "509": {
+            "SlowWaltz": 3
+          },
+          "510": {
+            "SlowWaltz": 2
+          },
+          "511": {
+            "SlowWaltz": 4
+          },
+          "512": {
+            "SlowWaltz": 4
+          },
+          "514": {
+            "SlowWaltz": 3
+          },
+          "515": {
+            "SlowWaltz": 1
+          },
+          "516": {
+            "SlowWaltz": 4
+          },
+          "517": {
+            "SlowWaltz": 1
+          },
+          "518": {
+            "SlowWaltz": 2
+          },
+          "519": {
+            "SlowWaltz": 1
+          },
+          "520": {
+            "SlowWaltz": 1
+          },
+          "521": {
+            "SlowWaltz": 2
+          },
+          "522": {
+            "SlowWaltz": 0
+          },
+          "523": {
+            "SlowWaltz": 4
+          },
+          "525": {
+            "SlowWaltz": 0
+          },
+          "526": {
+            "SlowWaltz": 1
+          },
+          "527": {
+            "SlowWaltz": 3
+          },
+          "528": {
+            "SlowWaltz": 0
+          },
+          "529": {
+            "SlowWaltz": 3
+          },
+          "530": {
+            "SlowWaltz": 3
+          },
+          "531": {
+            "SlowWaltz": 2
+          },
+          "532": {
+            "SlowWaltz": 2
+          },
+          "533": {
+            "SlowWaltz": 4
+          },
+          "534": {
+            "SlowWaltz": 4
+          },
+          "535": {
+            "SlowWaltz": 2
+          },
+          "536": {
+            "SlowWaltz": 4
+          }
+        },
+        "CH": {
+          "500": {
+            "SlowWaltz": 3
+          },
+          "501": {
+            "SlowWaltz": 1
+          },
+          "502": {
+            "SlowWaltz": 3
+          },
+          "504": {
+            "SlowWaltz": 1
+          },
+          "505": {
+            "SlowWaltz": 0
+          },
+          "506": {
+            "SlowWaltz": 4
+          },
+          "507": {
+            "SlowWaltz": 0
+          },
+          "508": {
+            "SlowWaltz": 3
+          },
+          "509": {
+            "SlowWaltz": 1
+          },
+          "510": {
+            "SlowWaltz": 2
+          },
+          "511": {
+            "SlowWaltz": 4
+          },
+          "512": {
+            "SlowWaltz": 2
+          },
+          "514": {
+            "SlowWaltz": 0
+          },
+          "515": {
+            "SlowWaltz": 2
+          },
+          "516": {
+            "SlowWaltz": 3
+          },
+          "517": {
+            "SlowWaltz": 0
+          },
+          "518": {
+            "SlowWaltz": 2
+          },
+          "519": {
+            "SlowWaltz": 4
+          },
+          "520": {
+            "SlowWaltz": 2
+          },
+          "521": {
+            "SlowWaltz": 4
+          },
+          "522": {
+            "SlowWaltz": 0
+          },
+          "523": {
+            "SlowWaltz": 2
+          },
+          "525": {
+            "SlowWaltz": 2
+          },
+          "526": {
+            "SlowWaltz": 0
+          },
+          "527": {
+            "SlowWaltz": 4
+          },
+          "528": {
+            "SlowWaltz": 4
+          },
+          "529": {
+            "SlowWaltz": 2
+          },
+          "530": {
+            "SlowWaltz": 4
+          },
+          "531": {
+            "SlowWaltz": 1
+          },
+          "532": {
+            "SlowWaltz": 0
+          },
+          "533": {
+            "SlowWaltz": 4
+          },
+          "534": {
+            "SlowWaltz": 4
+          },
+          "535": {
+            "SlowWaltz": 1
+          },
+          "536": {
+            "SlowWaltz": 4
+          }
+        },
+        "DC": {
+          "500": {
+            "SlowWaltz": 1
+          },
+          "501": {
+            "SlowWaltz": 4
+          },
+          "502": {
+            "SlowWaltz": 0
+          },
+          "504": {
+            "SlowWaltz": 3
+          },
+          "505": {
+            "SlowWaltz": 4
+          },
+          "506": {
+            "SlowWaltz": 0
+          },
+          "507": {
+            "SlowWaltz": 1
+          },
+          "508": {
+            "SlowWaltz": 4
+          },
+          "509": {
+            "SlowWaltz": 1
+          },
+          "510": {
+            "SlowWaltz": 0
+          },
+          "511": {
+            "SlowWaltz": 3
+          },
+          "512": {
+            "SlowWaltz": 1
+          },
+          "514": {
+            "SlowWaltz": 1
+          },
+          "515": {
+            "SlowWaltz": 3
+          },
+          "516": {
+            "SlowWaltz": 3
+          },
+          "517": {
+            "SlowWaltz": 1
+          },
+          "518": {
+            "SlowWaltz": 1
+          },
+          "519": {
+            "SlowWaltz": 2
+          },
+          "520": {
+            "SlowWaltz": 3
+          },
+          "521": {
+            "SlowWaltz": 3
+          },
+          "522": {
+            "SlowWaltz": 0
+          },
+          "523": {
+            "SlowWaltz": 4
+          },
+          "525": {
+            "SlowWaltz": 2
+          },
+          "526": {
+            "SlowWaltz": 1
+          },
+          "527": {
+            "SlowWaltz": 4
+          },
+          "528": {
+            "SlowWaltz": 3
+          },
+          "529": {
+            "SlowWaltz": 3
+          },
+          "530": {
+            "SlowWaltz": 4
+          },
+          "531": {
+            "SlowWaltz": 2
+          },
+          "532": {
+            "SlowWaltz": 0
+          },
+          "533": {
+            "SlowWaltz": 1
+          },
+          "534": {
+            "SlowWaltz": 3
+          },
+          "535": {
+            "SlowWaltz": 3
+          },
+          "536": {
+            "SlowWaltz": 4
+          }
+        },
+        "DV": {
+          "500": {
+            "SlowWaltz": 2
+          },
+          "501": {
+            "SlowWaltz": 4
+          },
+          "502": {
+            "SlowWaltz": 3
+          },
+          "504": {
+            "SlowWaltz": 1
+          },
+          "505": {
+            "SlowWaltz": 1
+          },
+          "506": {
+            "SlowWaltz": 0
+          },
+          "507": {
+            "SlowWaltz": 1
+          },
+          "508": {
+            "SlowWaltz": 4
+          },
+          "509": {
+            "SlowWaltz": 0
+          },
+          "510": {
+            "SlowWaltz": 0
+          },
+          "511": {
+            "SlowWaltz": 4
+          },
+          "512": {
+            "SlowWaltz": 1
+          },
+          "514": {
+            "SlowWaltz": 1
+          },
+          "515": {
+            "SlowWaltz": 3
+          },
+          "516": {
+            "SlowWaltz": 4
+          },
+          "517": {
+            "SlowWaltz": 3
+          },
+          "518": {
+            "SlowWaltz": 3
+          },
+          "519": {
+            "SlowWaltz": 3
+          },
+          "520": {
+            "SlowWaltz": 0
+          },
+          "521": {
+            "SlowWaltz": 4
+          },
+          "522": {
+            "SlowWaltz": 0
+          },
+          "523": {
+            "SlowWaltz": 2
+          },
+          "525": {
+            "SlowWaltz": 1
+          },
+          "526": {
+            "SlowWaltz": 4
+          },
+          "527": {
+            "SlowWaltz": 3
+          },
+          "528": {
+            "SlowWaltz": 4
+          },
+          "529": {
+            "SlowWaltz": 4
+          },
+          "530": {
+            "SlowWaltz": 3
+          },
+          "531": {
+            "SlowWaltz": 3
+          },
+          "532": {
+            "SlowWaltz": 0
+          },
+          "533": {
+            "SlowWaltz": 0
+          },
+          "534": {
+            "SlowWaltz": 4
+          },
+          "535": {
+            "SlowWaltz": 2
+          },
+          "536": {
+            "SlowWaltz": 3
+          }
+        },
+        "EY": {
+          "500": {
+            "SlowWaltz": 2
+          },
+          "501": {
+            "SlowWaltz": 4
+          },
+          "502": {
+            "SlowWaltz": 4
+          },
+          "504": {
+            "SlowWaltz": 3
+          },
+          "505": {
+            "SlowWaltz": 1
+          },
+          "506": {
+            "SlowWaltz": 0
+          },
+          "507": {
+            "SlowWaltz": 1
+          },
+          "508": {
+            "SlowWaltz": 4
+          },
+          "509": {
+            "SlowWaltz": 4
+          },
+          "510": {
+            "SlowWaltz": 2
+          },
+          "511": {
+            "SlowWaltz": 2
+          },
+          "512": {
+            "SlowWaltz": 0
+          },
+          "514": {
+            "SlowWaltz": 3
+          },
+          "515": {
+            "SlowWaltz": 4
+          },
+          "516": {
+            "SlowWaltz": 4
+          },
+          "517": {
+            "SlowWaltz": 0
+          },
+          "518": {
+            "SlowWaltz": 4
+          },
+          "519": {
+            "SlowWaltz": 2
+          },
+          "520": {
+            "SlowWaltz": 1
+          },
+          "521": {
+            "SlowWaltz": 3
+          },
+          "522": {
+            "SlowWaltz": 0
+          },
+          "523": {
+            "SlowWaltz": 1
+          },
+          "525": {
+            "SlowWaltz": 1
+          },
+          "526": {
+            "SlowWaltz": 1
+          },
+          "527": {
+            "SlowWaltz": 1
+          },
+          "528": {
+            "SlowWaltz": 1
+          },
+          "529": {
+            "SlowWaltz": 4
+          },
+          "530": {
+            "SlowWaltz": 3
+          },
+          "531": {
+            "SlowWaltz": 0
+          },
+          "532": {
+            "SlowWaltz": 3
+          },
+          "533": {
+            "SlowWaltz": 2
+          },
+          "534": {
+            "SlowWaltz": 3
+          },
+          "535": {
+            "SlowWaltz": 2
+          },
+          "536": {
+            "SlowWaltz": 1
+          }
+        }
+      }
+    },
+    {
+      "name": "Vorrunde",
+      "order": 1,
+      "dances": [
+        "SlowWaltz"
+      ],
+      "round_type": "DTV",
+      "dtv_ranks": {
+        "AR": {
+          "501": {
+            "SlowWaltz": 1
+          },
+          "502": {
+            "SlowWaltz": 0
+          },
+          "505": {
+            "SlowWaltz": 3
+          },
+          "506": {
+            "SlowWaltz": 3
+          },
+          "508": {
+            "SlowWaltz": 0
+          },
+          "509": {
+            "SlowWaltz": 1
+          },
+          "511": {
+            "SlowWaltz": 1
+          },
+          "514": {
+            "SlowWaltz": 3
+          },
+          "515": {
+            "SlowWaltz": 1
+          },
+          "516": {
+            "SlowWaltz": 3
+          },
+          "518": {
+            "SlowWaltz": 1
+          },
+          "519": {
+            "SlowWaltz": 1
+          },
+          "521": {
+            "SlowWaltz": 3
+          },
+          "522": {
+            "SlowWaltz": 3
+          },
+          "523": {
+            "SlowWaltz": 4
+          },
+          "525": {
+            "SlowWaltz": 0
+          },
+          "526": {
+            "SlowWaltz": 2
+          },
+          "527": {
+            "SlowWaltz": 1
+          },
+          "528": {
+            "SlowWaltz": 4
+          },
+          "529": {
+            "SlowWaltz": 3
+          },
+          "530": {
+            "SlowWaltz": 3
+          },
+          "532": {
+            "SlowWaltz": 3
+          },
+          "534": {
+            "SlowWaltz": 1
+          },
+          "536": {
+            "SlowWaltz": 3
+          }
+        },
+        "CH": {
+          "501": {
+            "SlowWaltz": 1
+          },
+          "502": {
+            "SlowWaltz": 0
+          },
+          "505": {
+            "SlowWaltz": 4
+          },
+          "506": {
+            "SlowWaltz": 4
+          },
+          "508": {
+            "SlowWaltz": 2
+          },
+          "509": {
+            "SlowWaltz": 1
+          },
+          "511": {
+            "SlowWaltz": 0
+          },
+          "514": {
+            "SlowWaltz": 0
+          },
+          "515": {
+            "SlowWaltz": 0
+          },
+          "516": {
+            "SlowWaltz": 4
+          },
+          "518": {
+            "SlowWaltz": 0
+          },
+          "519": {
+            "SlowWaltz": 4
+          },
+          "521": {
+            "SlowWaltz": 4
+          },
+          "522": {
+            "SlowWaltz": 3
+          },
+          "523": {
+            "SlowWaltz": 2
+          },
+          "525": {
+            "SlowWaltz": 2
+          },
+          "526": {
+            "SlowWaltz": 3
+          },
+          "527": {
+            "SlowWaltz": 4
+          },
+          "528": {
+            "SlowWaltz": 4
+          },
+          "529": {
+            "SlowWaltz": 0
+          },
+          "530": {
+            "SlowWaltz": 2
+          },
+          "532": {
+            "SlowWaltz": 1
+          },
+          "534": {
+            "SlowWaltz": 3
+          },
+          "536": {
+            "SlowWaltz": 0
+          }
+        },
+        "DC": {
+          "501": {
+            "SlowWaltz": 0
+          },
+          "502": {
+            "SlowWaltz": 0
+          },
+          "505": {
+            "SlowWaltz": 4
+          },
+          "506": {
+            "SlowWaltz": 3
+          },
+          "508": {
+            "SlowWaltz": 4
+          },
+          "509": {
+            "SlowWaltz": 4
+          },
+          "511": {
+            "SlowWaltz": 2
+          },
+          "514": {
+            "SlowWaltz": 2
+          },
+          "515": {
+            "SlowWaltz": 1
+          },
+          "516": {
+            "SlowWaltz": 4
+          },
+          "518": {
+            "SlowWaltz": 0
+          },
+          "519": {
+            "SlowWaltz": 2
+          },
+          "521": {
+            "SlowWaltz": 3
+          },
+          "522": {
+            "SlowWaltz": 0
+          },
+          "523": {
+            "SlowWaltz": 2
+          },
+          "525": {
+            "SlowWaltz": 4
+          },
+          "526": {
+            "SlowWaltz": 2
+          },
+          "527": {
+            "SlowWaltz": 0
+          },
+          "528": {
+            "SlowWaltz": 3
+          },
+          "529": {
+            "SlowWaltz": 1
+          },
+          "530": {
+            "SlowWaltz": 0
+          },
+          "532": {
+            "SlowWaltz": 3
+          },
+          "534": {
+            "SlowWaltz": 4
+          },
+          "536": {
+            "SlowWaltz": 0
+          }
+        },
+        "DV": {
+          "501": {
+            "SlowWaltz": 1
+          },
+          "502": {
+            "SlowWaltz": 0
+          },
+          "505": {
+            "SlowWaltz": 3
+          },
+          "506": {
+            "SlowWaltz": 0
+          },
+          "508": {
+            "SlowWaltz": 2
+          },
+          "509": {
+            "SlowWaltz": 1
+          },
+          "511": {
+            "SlowWaltz": 0
+          },
+          "514": {
+            "SlowWaltz": 4
+          },
+          "515": {
+            "SlowWaltz": 2
+          },
+          "516": {
+            "SlowWaltz": 4
+          },
+          "518": {
+            "SlowWaltz": 0
+          },
+          "519": {
+            "SlowWaltz": 4
+          },
+          "521": {
+            "SlowWaltz": 4
+          },
+          "522": {
+            "SlowWaltz": 2
+          },
+          "523": {
+            "SlowWaltz": 3
+          },
+          "525": {
+            "SlowWaltz": 4
+          },
+          "526": {
+            "SlowWaltz": 3
+          },
+          "527": {
+            "SlowWaltz": 3
+          },
+          "528": {
+            "SlowWaltz": 3
+          },
+          "529": {
+            "SlowWaltz": 3
+          },
+          "530": {
+            "SlowWaltz": 0
+          },
+          "532": {
+            "SlowWaltz": 2
+          },
+          "534": {
+            "SlowWaltz": 0
+          },
+          "536": {
+            "SlowWaltz": 0
+          }
+        },
+        "EY": {
+          "501": {
+            "SlowWaltz": 1
+          },
+          "502": {
+            "SlowWaltz": 1
+          },
+          "505": {
+            "SlowWaltz": 4
+          },
+          "506": {
+            "SlowWaltz": 2
+          },
+          "508": {
+            "SlowWaltz": 1
+          },
+          "509": {
+            "SlowWaltz": 3
+          },
+          "511": {
+            "SlowWaltz": 0
+          },
+          "514": {
+            "SlowWaltz": 4
+          },
+          "515": {
+            "SlowWaltz": 0
+          },
+          "516": {
+            "SlowWaltz": 3
+          },
+          "518": {
+            "SlowWaltz": 3
+          },
+          "519": {
+            "SlowWaltz": 4
+          },
+          "521": {
+            "SlowWaltz": 4
+          },
+          "522": {
+            "SlowWaltz": 3
+          },
+          "523": {
+            "SlowWaltz": 4
+          },
+          "525": {
+            "SlowWaltz": 0
+          },
+          "526": {
+            "SlowWaltz": 3
+          },
+          "527": {
+            "SlowWaltz": 0
+          },
+          "528": {
+            "SlowWaltz": 1
+          },
+          "529": {
+            "SlowWaltz": 2
+          },
+          "530": {
+            "SlowWaltz": 1
+          },
+          "532": {
+            "SlowWaltz": 4
+          },
+          "534": {
+            "SlowWaltz": 0
+          },
+          "536": {
+            "SlowWaltz": 0
+          }
+        }
+      }
+    }
+  ]
+}

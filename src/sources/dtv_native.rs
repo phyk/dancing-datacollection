@@ -793,29 +793,37 @@ pub fn extract_event_data(data_dir: &str) -> Result<Competition> {
         .next()
         .map(|n| n.inner_html())
         .unwrap_or_default();
-    let mut comp =
-        match parse_competition_from_title(if let Some(ref n) = name { n } else { &title }) {
-            Ok(c) => c,
-            Err(_) => Competition {
-                name: name.unwrap_or_else(|| "TODO".into()),
-                date,
-                organizer: None,
-                hosting_club: None,
-                source_url: None,
-                level: Level::S,
-                age_group: AgeGroup::Adult,
-                style: Style::Standard,
-                dances: Vec::new(),
-                min_dances: 0,
-                officials: Officials {
-                    responsible_person: None,
-                    assistant: None,
-                    judges: Vec::new(),
-                },
-                participants: Vec::new(),
-                rounds: Vec::new(),
+    let name_for_parse = if let Some(ref n) = name {
+        if n.contains(" - ") {
+            n
+        } else {
+            &title
+        }
+    } else {
+        &title
+    };
+    let mut comp = match parse_competition_from_title(name_for_parse) {
+        Ok(c) => c,
+        Err(_) => Competition {
+            name: name.unwrap_or_else(|| "TODO".into()),
+            date,
+            organizer: None,
+            hosting_club: None,
+            source_url: None,
+            level: Level::S,
+            age_group: AgeGroup::Adult,
+            style: Style::Standard,
+            dances: Vec::new(),
+            min_dances: 0,
+            officials: Officials {
+                responsible_person: None,
+                assistant: None,
+                judges: Vec::new(),
             },
-        };
+            participants: Vec::new(),
+            rounds: Vec::new(),
+        },
+    };
     comp.organizer = org;
     comp.hosting_club = club;
     comp.participants = extract_participants(&erg_h);

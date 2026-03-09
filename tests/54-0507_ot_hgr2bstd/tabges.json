@@ -1,0 +1,1474 @@
+{
+  "name": "OT, Hgr.II B Standard ",
+  "date": "2025-07-05",
+  "organizer": null,
+  "hosting_club": null,
+  "source_url": null,
+  "level": "B",
+  "age_group": "Adult2",
+  "style": "Standard",
+  "dances": [
+    "SlowWaltz"
+  ],
+  "min_dances": 5,
+  "officials": {
+    "responsible_person": {
+      "name": "Patric Paaß",
+      "club": "TGC Rot-Weiß Porz"
+    },
+    "assistant": {
+      "name": "Martin Beumer",
+      "club": "Saltatio Bergheim"
+    },
+    "judges": [
+      {
+        "code": "AS",
+        "name": "Katharina Fenske",
+        "club": "TSC Blau-Weiß d. TV 1875 Paderborn"
+      },
+      {
+        "code": "AX",
+        "name": "Matthias Grünig",
+        "club": "TSC Schwarz-Gelb Aachen"
+      },
+      {
+        "code": "BK",
+        "name": "Martin Klose",
+        "club": "VfL Bochum 1848 TSA"
+      },
+      {
+        "code": "BL",
+        "name": "André Knoche",
+        "club": "Bielefelder TC Metropol"
+      },
+      {
+        "code": "CQ",
+        "name": "Marc Scheithauer",
+        "club": "TSC Welfen Weingarten"
+      },
+      {
+        "code": "CW",
+        "name": "Zita Antonia Simon",
+        "club": "Thieder-Tanzsport-Center Salzgitter"
+      },
+      {
+        "code": "DI",
+        "name": "Thorsten Zirm",
+        "club": "TSZ Blau-Gold Casino Darmstadt"
+      }
+    ]
+  },
+  "participants": [
+    {
+      "identity_type": "Couple",
+      "name_one": "Daniel Wohlmuth",
+      "bib_number": 1300,
+      "name_two": "Lina Schneller",
+      "affiliation": "TSC dancepoint, Königsbrunn",
+      "final_rank": 1
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Neil Koschier",
+      "bib_number": 1360,
+      "name_two": "Pia Scharfenberg",
+      "affiliation": "Schwarz-Silber, Frankfurt",
+      "final_rank": 2
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Max Köllmer",
+      "bib_number": 1380,
+      "name_two": "Liliane Keite",
+      "affiliation": "Club Saltatio Hamburg",
+      "final_rank": 3
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Tobias Pöstgens",
+      "bib_number": 1175,
+      "name_two": "Andrea Arping",
+      "affiliation": "TSA d. TSV Bocholt von 1867/1896",
+      "final_rank": 4
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Adrian Smeets",
+      "bib_number": 1059,
+      "name_two": "Sabrina Koch",
+      "affiliation": "STC Schwarz-Rot Düsseldorf",
+      "final_rank": 5
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Dominik Priebe",
+      "bib_number": 1293,
+      "name_two": "Anna Paszehr",
+      "affiliation": "Bielefelder TC Metropol",
+      "final_rank": 6
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Marcel-Felix Klein",
+      "bib_number": 1004,
+      "name_two": "Sonja Klein",
+      "affiliation": "TTC Rot-Weiß Freiburg",
+      "final_rank": 7
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Tarik Hennings",
+      "bib_number": 880,
+      "name_two": "Christine Sostmann",
+      "affiliation": null,
+      "final_rank": null
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Steffen Winkler",
+      "bib_number": 1020,
+      "name_two": "Karen Hauke",
+      "affiliation": null,
+      "final_rank": null
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Frank Thiemicke",
+      "bib_number": 1225,
+      "name_two": "Lea Offermann",
+      "affiliation": null,
+      "final_rank": 10
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Jean-Pierre Yöndemli",
+      "bib_number": 108,
+      "name_two": "Saskia Maria Skupin",
+      "affiliation": null,
+      "final_rank": 11
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Jörg Ackermann",
+      "bib_number": 1159,
+      "name_two": "Laura Dahlberg",
+      "affiliation": null,
+      "final_rank": 12
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Nicolas Brauner",
+      "bib_number": 761,
+      "name_two": "Jacqueline Harfst",
+      "affiliation": null,
+      "final_rank": null
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Christian Giesbrecht",
+      "bib_number": 1259,
+      "name_two": "Anna Lena Helmers",
+      "affiliation": null,
+      "final_rank": null
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Michael Hierer",
+      "bib_number": 1366,
+      "name_two": "Friederike Müller",
+      "affiliation": null,
+      "final_rank": 15
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Patrik Pollak",
+      "bib_number": 210,
+      "name_two": "Pia Feischen",
+      "affiliation": null,
+      "final_rank": 16
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Carl Victor Klingenburg",
+      "bib_number": 1227,
+      "name_two": "Viktoria Billhardt",
+      "affiliation": null,
+      "final_rank": 17
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Peter Brantsch",
+      "bib_number": 1413,
+      "name_two": "Luisa Böck",
+      "affiliation": null,
+      "final_rank": 18
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Christian Wenzel",
+      "bib_number": 1318,
+      "name_two": "Jannou Catrin Bergsträßer",
+      "affiliation": null,
+      "final_rank": 19
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Lukas Kuschel",
+      "bib_number": 1079,
+      "name_two": "Katharina Hölzchen",
+      "affiliation": null,
+      "final_rank": null
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "André Glade",
+      "bib_number": 1234,
+      "name_two": "Julia Obergfell",
+      "affiliation": null,
+      "final_rank": null
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Rafael Wirth",
+      "bib_number": 1169,
+      "name_two": "Aileen Gieratz",
+      "affiliation": null,
+      "final_rank": 22
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Jarves Drechsler",
+      "bib_number": 1106,
+      "name_two": "Kristin Drechsler",
+      "affiliation": null,
+      "final_rank": null
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Thomas Brunnengräber",
+      "bib_number": 1219,
+      "name_two": "Mirjam Tittlus",
+      "affiliation": null,
+      "final_rank": null
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Ole Wallenfels",
+      "bib_number": 1178,
+      "name_two": "Jana Kruschinski",
+      "affiliation": null,
+      "final_rank": 25
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Maximilian Keil",
+      "bib_number": 1398,
+      "name_two": "Annalena Krause",
+      "affiliation": null,
+      "final_rank": 26
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Peter Unrau",
+      "bib_number": 1292,
+      "name_two": "Hanna Pulpanek",
+      "affiliation": null,
+      "final_rank": 27
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Paul Wehle",
+      "bib_number": 1125,
+      "name_two": "Melanie Höschele",
+      "affiliation": null,
+      "final_rank": null
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Sullivan Sadzik",
+      "bib_number": 1258,
+      "name_two": "Laura Mayer",
+      "affiliation": null,
+      "final_rank": null
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Dirk Schäfer",
+      "bib_number": 1343,
+      "name_two": "Gertrud Lembke",
+      "affiliation": null,
+      "final_rank": 30
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Dr. Christian Schönberg",
+      "bib_number": 1333,
+      "name_two": "Julia Dislich",
+      "affiliation": null,
+      "final_rank": 31
+    }
+  ],
+  "rounds": [
+    {
+      "name": "1. Zwischenrunde",
+      "order": 1,
+      "dances": [
+        "SlowWaltz"
+      ],
+      "round_type": "DTV",
+      "dtv_ranks": {
+        "AS": {
+          "1004": {
+            "SlowWaltz": 3
+          },
+          "1020": {
+            "SlowWaltz": 3
+          },
+          "1059": {
+            "SlowWaltz": 3
+          },
+          "1079": {
+            "SlowWaltz": 4
+          },
+          "108": {
+            "SlowWaltz": 1
+          },
+          "1106": {
+            "SlowWaltz": 5
+          },
+          "1125": {
+            "SlowWaltz": 2
+          },
+          "1159": {
+            "SlowWaltz": 0
+          },
+          "1169": {
+            "SlowWaltz": 5
+          },
+          "1175": {
+            "SlowWaltz": 0
+          },
+          "1178": {
+            "SlowWaltz": 1
+          },
+          "1219": {
+            "SlowWaltz": 5
+          },
+          "1225": {
+            "SlowWaltz": 1
+          },
+          "1227": {
+            "SlowWaltz": 5
+          },
+          "1234": {
+            "SlowWaltz": 3
+          },
+          "1258": {
+            "SlowWaltz": 3
+          },
+          "1259": {
+            "SlowWaltz": 5
+          },
+          "1292": {
+            "SlowWaltz": 3
+          },
+          "1293": {
+            "SlowWaltz": 2
+          },
+          "1300": {
+            "SlowWaltz": 4
+          },
+          "1318": {
+            "SlowWaltz": 4
+          },
+          "1333": {
+            "SlowWaltz": 0
+          },
+          "1343": {
+            "SlowWaltz": 1
+          },
+          "1360": {
+            "SlowWaltz": 3
+          },
+          "1366": {
+            "SlowWaltz": 5
+          },
+          "1380": {
+            "SlowWaltz": 5
+          },
+          "1398": {
+            "SlowWaltz": 3
+          },
+          "210": {
+            "SlowWaltz": 2
+          },
+          "761": {
+            "SlowWaltz": 5
+          },
+          "880": {
+            "SlowWaltz": 5
+          }
+        },
+        "AX": {
+          "1004": {
+            "SlowWaltz": 3
+          },
+          "1020": {
+            "SlowWaltz": 0
+          },
+          "1059": {
+            "SlowWaltz": 0
+          },
+          "1079": {
+            "SlowWaltz": 4
+          },
+          "108": {
+            "SlowWaltz": 0
+          },
+          "1106": {
+            "SlowWaltz": 4
+          },
+          "1125": {
+            "SlowWaltz": 1
+          },
+          "1159": {
+            "SlowWaltz": 0
+          },
+          "1169": {
+            "SlowWaltz": 4
+          },
+          "1175": {
+            "SlowWaltz": 0
+          },
+          "1178": {
+            "SlowWaltz": 4
+          },
+          "1219": {
+            "SlowWaltz": 0
+          },
+          "1225": {
+            "SlowWaltz": 3
+          },
+          "1227": {
+            "SlowWaltz": 5
+          },
+          "1234": {
+            "SlowWaltz": 4
+          },
+          "1258": {
+            "SlowWaltz": 5
+          },
+          "1259": {
+            "SlowWaltz": 4
+          },
+          "1292": {
+            "SlowWaltz": 3
+          },
+          "1293": {
+            "SlowWaltz": 5
+          },
+          "1300": {
+            "SlowWaltz": 5
+          },
+          "1318": {
+            "SlowWaltz": 5
+          },
+          "1333": {
+            "SlowWaltz": 0
+          },
+          "1343": {
+            "SlowWaltz": 1
+          },
+          "1360": {
+            "SlowWaltz": 5
+          },
+          "1366": {
+            "SlowWaltz": 4
+          },
+          "1380": {
+            "SlowWaltz": 4
+          },
+          "1398": {
+            "SlowWaltz": 4
+          },
+          "210": {
+            "SlowWaltz": 3
+          },
+          "761": {
+            "SlowWaltz": 4
+          },
+          "880": {
+            "SlowWaltz": 5
+          }
+        },
+        "BK": {
+          "1004": {
+            "SlowWaltz": 1
+          },
+          "1020": {
+            "SlowWaltz": 5
+          },
+          "1059": {
+            "SlowWaltz": 2
+          },
+          "1079": {
+            "SlowWaltz": 5
+          },
+          "108": {
+            "SlowWaltz": 4
+          },
+          "1106": {
+            "SlowWaltz": 4
+          },
+          "1125": {
+            "SlowWaltz": 3
+          },
+          "1159": {
+            "SlowWaltz": 1
+          },
+          "1169": {
+            "SlowWaltz": 2
+          },
+          "1175": {
+            "SlowWaltz": 2
+          },
+          "1178": {
+            "SlowWaltz": 3
+          },
+          "1219": {
+            "SlowWaltz": 1
+          },
+          "1225": {
+            "SlowWaltz": 0
+          },
+          "1227": {
+            "SlowWaltz": 5
+          },
+          "1234": {
+            "SlowWaltz": 4
+          },
+          "1258": {
+            "SlowWaltz": 2
+          },
+          "1259": {
+            "SlowWaltz": 5
+          },
+          "1292": {
+            "SlowWaltz": 4
+          },
+          "1293": {
+            "SlowWaltz": 0
+          },
+          "1300": {
+            "SlowWaltz": 5
+          },
+          "1318": {
+            "SlowWaltz": 2
+          },
+          "1333": {
+            "SlowWaltz": 0
+          },
+          "1343": {
+            "SlowWaltz": 3
+          },
+          "1360": {
+            "SlowWaltz": 5
+          },
+          "1366": {
+            "SlowWaltz": 4
+          },
+          "1380": {
+            "SlowWaltz": 5
+          },
+          "1398": {
+            "SlowWaltz": 3
+          },
+          "210": {
+            "SlowWaltz": 4
+          },
+          "761": {
+            "SlowWaltz": 5
+          },
+          "880": {
+            "SlowWaltz": 0
+          }
+        },
+        "BL": {
+          "1004": {
+            "SlowWaltz": 0
+          },
+          "1020": {
+            "SlowWaltz": 0
+          },
+          "1059": {
+            "SlowWaltz": 5
+          },
+          "1079": {
+            "SlowWaltz": 4
+          },
+          "108": {
+            "SlowWaltz": 0
+          },
+          "1106": {
+            "SlowWaltz": 4
+          },
+          "1125": {
+            "SlowWaltz": 1
+          },
+          "1159": {
+            "SlowWaltz": 0
+          },
+          "1169": {
+            "SlowWaltz": 5
+          },
+          "1175": {
+            "SlowWaltz": 5
+          },
+          "1178": {
+            "SlowWaltz": 4
+          },
+          "1219": {
+            "SlowWaltz": 5
+          },
+          "1225": {
+            "SlowWaltz": 0
+          },
+          "1227": {
+            "SlowWaltz": 4
+          },
+          "1234": {
+            "SlowWaltz": 3
+          },
+          "1258": {
+            "SlowWaltz": 4
+          },
+          "1259": {
+            "SlowWaltz": 4
+          },
+          "1292": {
+            "SlowWaltz": 1
+          },
+          "1293": {
+            "SlowWaltz": 5
+          },
+          "1300": {
+            "SlowWaltz": 5
+          },
+          "1318": {
+            "SlowWaltz": 4
+          },
+          "1333": {
+            "SlowWaltz": 0
+          },
+          "1343": {
+            "SlowWaltz": 0
+          },
+          "1360": {
+            "SlowWaltz": 5
+          },
+          "1366": {
+            "SlowWaltz": 4
+          },
+          "1380": {
+            "SlowWaltz": 5
+          },
+          "1398": {
+            "SlowWaltz": 3
+          },
+          "210": {
+            "SlowWaltz": 5
+          },
+          "761": {
+            "SlowWaltz": 5
+          },
+          "880": {
+            "SlowWaltz": 0
+          }
+        },
+        "CQ": {
+          "1004": {
+            "SlowWaltz": 0
+          },
+          "1020": {
+            "SlowWaltz": 3
+          },
+          "1059": {
+            "SlowWaltz": 5
+          },
+          "1079": {
+            "SlowWaltz": 5
+          },
+          "108": {
+            "SlowWaltz": 3
+          },
+          "1106": {
+            "SlowWaltz": 1
+          },
+          "1125": {
+            "SlowWaltz": 4
+          },
+          "1159": {
+            "SlowWaltz": 0
+          },
+          "1169": {
+            "SlowWaltz": 5
+          },
+          "1175": {
+            "SlowWaltz": 5
+          },
+          "1178": {
+            "SlowWaltz": 4
+          },
+          "1219": {
+            "SlowWaltz": 5
+          },
+          "1225": {
+            "SlowWaltz": 0
+          },
+          "1227": {
+            "SlowWaltz": 4
+          },
+          "1234": {
+            "SlowWaltz": 3
+          },
+          "1258": {
+            "SlowWaltz": 1
+          },
+          "1259": {
+            "SlowWaltz": 5
+          },
+          "1292": {
+            "SlowWaltz": 4
+          },
+          "1293": {
+            "SlowWaltz": 5
+          },
+          "1300": {
+            "SlowWaltz": 5
+          },
+          "1318": {
+            "SlowWaltz": 2
+          },
+          "1333": {
+            "SlowWaltz": 0
+          },
+          "1343": {
+            "SlowWaltz": 3
+          },
+          "1360": {
+            "SlowWaltz": 2
+          },
+          "1366": {
+            "SlowWaltz": 5
+          },
+          "1380": {
+            "SlowWaltz": 0
+          },
+          "1398": {
+            "SlowWaltz": 4
+          },
+          "210": {
+            "SlowWaltz": 0
+          },
+          "761": {
+            "SlowWaltz": 5
+          },
+          "880": {
+            "SlowWaltz": 2
+          }
+        },
+        "CW": {
+          "1004": {
+            "SlowWaltz": 5
+          },
+          "1020": {
+            "SlowWaltz": 0
+          },
+          "1059": {
+            "SlowWaltz": 2
+          },
+          "1079": {
+            "SlowWaltz": 3
+          },
+          "108": {
+            "SlowWaltz": 0
+          },
+          "1106": {
+            "SlowWaltz": 5
+          },
+          "1125": {
+            "SlowWaltz": 2
+          },
+          "1159": {
+            "SlowWaltz": 5
+          },
+          "1169": {
+            "SlowWaltz": 5
+          },
+          "1175": {
+            "SlowWaltz": 0
+          },
+          "1178": {
+            "SlowWaltz": 0
+          },
+          "1219": {
+            "SlowWaltz": 4
+          },
+          "1225": {
+            "SlowWaltz": 2
+          },
+          "1227": {
+            "SlowWaltz": 5
+          },
+          "1234": {
+            "SlowWaltz": 5
+          },
+          "1258": {
+            "SlowWaltz": 3
+          },
+          "1259": {
+            "SlowWaltz": 5
+          },
+          "1292": {
+            "SlowWaltz": 2
+          },
+          "1293": {
+            "SlowWaltz": 0
+          },
+          "1300": {
+            "SlowWaltz": 5
+          },
+          "1318": {
+            "SlowWaltz": 5
+          },
+          "1333": {
+            "SlowWaltz": 1
+          },
+          "1343": {
+            "SlowWaltz": 1
+          },
+          "1360": {
+            "SlowWaltz": 5
+          },
+          "1366": {
+            "SlowWaltz": 5
+          },
+          "1380": {
+            "SlowWaltz": 5
+          },
+          "1398": {
+            "SlowWaltz": 2
+          },
+          "210": {
+            "SlowWaltz": 5
+          },
+          "761": {
+            "SlowWaltz": 5
+          },
+          "880": {
+            "SlowWaltz": 1
+          }
+        },
+        "DI": {
+          "1004": {
+            "SlowWaltz": 5
+          },
+          "1020": {
+            "SlowWaltz": 2
+          },
+          "1059": {
+            "SlowWaltz": 1
+          },
+          "1079": {
+            "SlowWaltz": 3
+          },
+          "108": {
+            "SlowWaltz": 0
+          },
+          "1106": {
+            "SlowWaltz": 4
+          },
+          "1125": {
+            "SlowWaltz": 5
+          },
+          "1159": {
+            "SlowWaltz": 1
+          },
+          "1169": {
+            "SlowWaltz": 4
+          },
+          "1175": {
+            "SlowWaltz": 5
+          },
+          "1178": {
+            "SlowWaltz": 5
+          },
+          "1219": {
+            "SlowWaltz": 5
+          },
+          "1225": {
+            "SlowWaltz": 4
+          },
+          "1227": {
+            "SlowWaltz": 5
+          },
+          "1234": {
+            "SlowWaltz": 3
+          },
+          "1258": {
+            "SlowWaltz": 0
+          },
+          "1259": {
+            "SlowWaltz": 5
+          },
+          "1292": {
+            "SlowWaltz": 2
+          },
+          "1293": {
+            "SlowWaltz": 3
+          },
+          "1300": {
+            "SlowWaltz": 4
+          },
+          "1318": {
+            "SlowWaltz": 4
+          },
+          "1333": {
+            "SlowWaltz": 0
+          },
+          "1343": {
+            "SlowWaltz": 5
+          },
+          "1360": {
+            "SlowWaltz": 5
+          },
+          "1366": {
+            "SlowWaltz": 5
+          },
+          "1380": {
+            "SlowWaltz": 0
+          },
+          "1398": {
+            "SlowWaltz": 1
+          },
+          "210": {
+            "SlowWaltz": 4
+          },
+          "761": {
+            "SlowWaltz": 5
+          },
+          "880": {
+            "SlowWaltz": 0
+          }
+        }
+      }
+    },
+    {
+      "name": "Vorrunde",
+      "order": 1,
+      "dances": [
+        "SlowWaltz"
+      ],
+      "round_type": "DTV",
+      "dtv_ranks": {
+        "AS": {
+          "1004": {
+            "SlowWaltz": 5
+          },
+          "1020": {
+            "SlowWaltz": 2
+          },
+          "1059": {
+            "SlowWaltz": 5
+          },
+          "1079": {
+            "SlowWaltz": 4
+          },
+          "108": {
+            "SlowWaltz": 2
+          },
+          "1106": {
+            "SlowWaltz": 0
+          },
+          "1159": {
+            "SlowWaltz": 5
+          },
+          "1169": {
+            "SlowWaltz": 2
+          },
+          "1175": {
+            "SlowWaltz": 1
+          },
+          "1219": {
+            "SlowWaltz": 1
+          },
+          "1225": {
+            "SlowWaltz": 3
+          },
+          "1227": {
+            "SlowWaltz": 4
+          },
+          "1234": {
+            "SlowWaltz": 0
+          },
+          "1259": {
+            "SlowWaltz": 0
+          },
+          "1293": {
+            "SlowWaltz": 1
+          },
+          "1300": {
+            "SlowWaltz": 5
+          },
+          "1318": {
+            "SlowWaltz": 1
+          },
+          "1360": {
+            "SlowWaltz": 3
+          },
+          "1366": {
+            "SlowWaltz": 4
+          },
+          "1380": {
+            "SlowWaltz": 5
+          },
+          "210": {
+            "SlowWaltz": 0
+          },
+          "761": {
+            "SlowWaltz": 1
+          },
+          "880": {
+            "SlowWaltz": 4
+          }
+        },
+        "AX": {
+          "1004": {
+            "SlowWaltz": 5
+          },
+          "1020": {
+            "SlowWaltz": 5
+          },
+          "1059": {
+            "SlowWaltz": 2
+          },
+          "1079": {
+            "SlowWaltz": 0
+          },
+          "108": {
+            "SlowWaltz": 0
+          },
+          "1106": {
+            "SlowWaltz": 1
+          },
+          "1159": {
+            "SlowWaltz": 0
+          },
+          "1169": {
+            "SlowWaltz": 0
+          },
+          "1175": {
+            "SlowWaltz": 0
+          },
+          "1219": {
+            "SlowWaltz": 0
+          },
+          "1225": {
+            "SlowWaltz": 5
+          },
+          "1227": {
+            "SlowWaltz": 1
+          },
+          "1234": {
+            "SlowWaltz": 1
+          },
+          "1259": {
+            "SlowWaltz": 2
+          },
+          "1293": {
+            "SlowWaltz": 5
+          },
+          "1300": {
+            "SlowWaltz": 5
+          },
+          "1318": {
+            "SlowWaltz": 3
+          },
+          "1360": {
+            "SlowWaltz": 5
+          },
+          "1366": {
+            "SlowWaltz": 3
+          },
+          "1380": {
+            "SlowWaltz": 5
+          },
+          "210": {
+            "SlowWaltz": 2
+          },
+          "761": {
+            "SlowWaltz": 0
+          },
+          "880": {
+            "SlowWaltz": 5
+          }
+        },
+        "BK": {
+          "1004": {
+            "SlowWaltz": 4
+          },
+          "1020": {
+            "SlowWaltz": 5
+          },
+          "1059": {
+            "SlowWaltz": 5
+          },
+          "1079": {
+            "SlowWaltz": 0
+          },
+          "108": {
+            "SlowWaltz": 5
+          },
+          "1106": {
+            "SlowWaltz": 0
+          },
+          "1159": {
+            "SlowWaltz": 5
+          },
+          "1169": {
+            "SlowWaltz": 0
+          },
+          "1175": {
+            "SlowWaltz": 4
+          },
+          "1219": {
+            "SlowWaltz": 0
+          },
+          "1225": {
+            "SlowWaltz": 2
+          },
+          "1227": {
+            "SlowWaltz": 0
+          },
+          "1234": {
+            "SlowWaltz": 0
+          },
+          "1259": {
+            "SlowWaltz": 4
+          },
+          "1293": {
+            "SlowWaltz": 2
+          },
+          "1300": {
+            "SlowWaltz": 4
+          },
+          "1318": {
+            "SlowWaltz": 0
+          },
+          "1360": {
+            "SlowWaltz": 4
+          },
+          "1366": {
+            "SlowWaltz": 0
+          },
+          "1380": {
+            "SlowWaltz": 4
+          },
+          "210": {
+            "SlowWaltz": 4
+          },
+          "761": {
+            "SlowWaltz": 5
+          },
+          "880": {
+            "SlowWaltz": 3
+          }
+        },
+        "BL": {
+          "1004": {
+            "SlowWaltz": 4
+          },
+          "1020": {
+            "SlowWaltz": 3
+          },
+          "1059": {
+            "SlowWaltz": 5
+          },
+          "1079": {
+            "SlowWaltz": 1
+          },
+          "108": {
+            "SlowWaltz": 5
+          },
+          "1106": {
+            "SlowWaltz": 0
+          },
+          "1159": {
+            "SlowWaltz": 1
+          },
+          "1169": {
+            "SlowWaltz": 2
+          },
+          "1175": {
+            "SlowWaltz": 5
+          },
+          "1219": {
+            "SlowWaltz": 0
+          },
+          "1225": {
+            "SlowWaltz": 4
+          },
+          "1227": {
+            "SlowWaltz": 0
+          },
+          "1234": {
+            "SlowWaltz": 0
+          },
+          "1259": {
+            "SlowWaltz": 4
+          },
+          "1293": {
+            "SlowWaltz": 5
+          },
+          "1300": {
+            "SlowWaltz": 5
+          },
+          "1318": {
+            "SlowWaltz": 0
+          },
+          "1360": {
+            "SlowWaltz": 5
+          },
+          "1366": {
+            "SlowWaltz": 0
+          },
+          "1380": {
+            "SlowWaltz": 5
+          },
+          "210": {
+            "SlowWaltz": 0
+          },
+          "761": {
+            "SlowWaltz": 5
+          },
+          "880": {
+            "SlowWaltz": 1
+          }
+        },
+        "CQ": {
+          "1004": {
+            "SlowWaltz": 0
+          },
+          "1020": {
+            "SlowWaltz": 5
+          },
+          "1059": {
+            "SlowWaltz": 5
+          },
+          "1079": {
+            "SlowWaltz": 1
+          },
+          "108": {
+            "SlowWaltz": 5
+          },
+          "1106": {
+            "SlowWaltz": 0
+          },
+          "1159": {
+            "SlowWaltz": 0
+          },
+          "1169": {
+            "SlowWaltz": 1
+          },
+          "1175": {
+            "SlowWaltz": 5
+          },
+          "1219": {
+            "SlowWaltz": 0
+          },
+          "1225": {
+            "SlowWaltz": 1
+          },
+          "1227": {
+            "SlowWaltz": 4
+          },
+          "1234": {
+            "SlowWaltz": 2
+          },
+          "1259": {
+            "SlowWaltz": 2
+          },
+          "1293": {
+            "SlowWaltz": 4
+          },
+          "1300": {
+            "SlowWaltz": 5
+          },
+          "1318": {
+            "SlowWaltz": 0
+          },
+          "1360": {
+            "SlowWaltz": 4
+          },
+          "1366": {
+            "SlowWaltz": 3
+          },
+          "1380": {
+            "SlowWaltz": 3
+          },
+          "210": {
+            "SlowWaltz": 0
+          },
+          "761": {
+            "SlowWaltz": 5
+          },
+          "880": {
+            "SlowWaltz": 5
+          }
+        },
+        "CW": {
+          "1004": {
+            "SlowWaltz": 3
+          },
+          "1020": {
+            "SlowWaltz": 0
+          },
+          "1059": {
+            "SlowWaltz": 5
+          },
+          "1079": {
+            "SlowWaltz": 0
+          },
+          "108": {
+            "SlowWaltz": 4
+          },
+          "1106": {
+            "SlowWaltz": 0
+          },
+          "1159": {
+            "SlowWaltz": 5
+          },
+          "1169": {
+            "SlowWaltz": 0
+          },
+          "1175": {
+            "SlowWaltz": 0
+          },
+          "1219": {
+            "SlowWaltz": 0
+          },
+          "1225": {
+            "SlowWaltz": 4
+          },
+          "1227": {
+            "SlowWaltz": 0
+          },
+          "1234": {
+            "SlowWaltz": 3
+          },
+          "1259": {
+            "SlowWaltz": 5
+          },
+          "1293": {
+            "SlowWaltz": 0
+          },
+          "1300": {
+            "SlowWaltz": 5
+          },
+          "1318": {
+            "SlowWaltz": 3
+          },
+          "1360": {
+            "SlowWaltz": 5
+          },
+          "1366": {
+            "SlowWaltz": 5
+          },
+          "1380": {
+            "SlowWaltz": 5
+          },
+          "210": {
+            "SlowWaltz": 4
+          },
+          "761": {
+            "SlowWaltz": 0
+          },
+          "880": {
+            "SlowWaltz": 4
+          }
+        },
+        "DI": {
+          "1004": {
+            "SlowWaltz": 5
+          },
+          "1020": {
+            "SlowWaltz": 2
+          },
+          "1059": {
+            "SlowWaltz": 2
+          },
+          "1079": {
+            "SlowWaltz": 0
+          },
+          "108": {
+            "SlowWaltz": 0
+          },
+          "1106": {
+            "SlowWaltz": 2
+          },
+          "1159": {
+            "SlowWaltz": 4
+          },
+          "1169": {
+            "SlowWaltz": 0
+          },
+          "1175": {
+            "SlowWaltz": 5
+          },
+          "1219": {
+            "SlowWaltz": 2
+          },
+          "1225": {
+            "SlowWaltz": 5
+          },
+          "1227": {
+            "SlowWaltz": 3
+          },
+          "1234": {
+            "SlowWaltz": 0
+          },
+          "1259": {
+            "SlowWaltz": 1
+          },
+          "1293": {
+            "SlowWaltz": 4
+          },
+          "1300": {
+            "SlowWaltz": 5
+          },
+          "1318": {
+            "SlowWaltz": 1
+          },
+          "1360": {
+            "SlowWaltz": 5
+          },
+          "1366": {
+            "SlowWaltz": 1
+          },
+          "1380": {
+            "SlowWaltz": 1
+          },
+          "210": {
+            "SlowWaltz": 4
+          },
+          "761": {
+            "SlowWaltz": 2
+          },
+          "880": {
+            "SlowWaltz": 2
+          }
+        }
+      }
+    }
+  ]
+}
