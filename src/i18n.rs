@@ -234,3 +234,59 @@ pub fn age_group_keys() -> Vec<&'static str> {
 pub fn style_keys() -> Vec<&'static str> {
     STYLE_MAPPINGS.iter().map(|&(k, _)| k).collect()
 }
+
+pub fn is_bib_column_marker(s: &str) -> bool {
+    let lower = s.to_lowercase();
+    BIB_COLUMN_MARKERS.iter().any(|&m| lower == m)
+}
+
+pub fn is_rank_column_marker(s: &str) -> bool {
+    let lower = s.to_lowercase();
+    RANK_COLUMN_MARKERS.iter().any(|&m| lower.contains(m))
+}
+
+pub fn is_sum_column_marker(s: &str) -> bool {
+    let lower = s.to_lowercase();
+    SUM_COLUMN_MARKERS.iter().any(|&m| lower == m || lower.contains("pz"))
+}
+
+pub fn is_round_column_marker(s: &str) -> bool {
+    let lower = s.to_lowercase();
+    ROUND_COLUMN_MARKERS.iter().any(|&m| lower == m)
+}
+
+pub fn is_participant_marker(s: &str) -> bool {
+    let lower = s.to_lowercase();
+    PARTICIPANT_MARKERS.iter().any(|&m| lower.contains(m))
+}
+
+pub fn is_qualification_marker(s: &str) -> bool {
+    let lower = s.to_lowercase();
+    QUALIFICATION_MARKERS.iter().any(|&m| lower.contains(m))
+}
+
+pub fn map_wdsf_score_type(line: &str) -> Option<&'static str> {
+    WDSF_SCORE_TYPES
+        .iter()
+        .find(|&&(marker, _)| line.contains(marker))
+        .map(|&(_, id)| id)
+}
+
+pub fn clean_competition_title(title: &str) -> String {
+    let mut title_clean = title.to_string();
+    for s in TITLE_CLEANUP_STRINGS {
+        title_clean = title_clean.replace(s, "");
+    }
+    if let Some(pos) = title_clean.find(" - ") {
+        title_clean = title_clean[pos + 3..].to_string();
+    }
+    title_clean.trim().to_string()
+}
+
+pub fn is_level_s_marker(up: &str) -> bool {
+    LEVEL_S_MARKERS.iter().any(|&m| up.contains(m))
+}
+
+pub fn is_result_cell_class(cl: &str) -> bool {
+    RESULT_CELL_CLASSES.iter().any(|&m| cl.contains(m))
+}
