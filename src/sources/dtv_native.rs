@@ -53,10 +53,17 @@ pub fn parse_metadata(
 ) {
     let doc = Html::parse_document(html);
     let (mut org, mut club) = (None, None);
+    if let Some(meta_author) = doc
+        .select(&Selector::parse("meta[name='Author'], meta[name='author']").unwrap())
+        .next()
+    {
+        org = meta_author.value().attr("content").map(|s| s.to_string());
+    }
+
     for row in doc.select(&SEL_TR) {
         let cells: Vec<_> = row.select(&SEL_TD).collect();
         if cells.len() >= 2 {
-            let k = cells[0].text().collect::<String>();
+            let k = txt(&cells[0]);
             let v = txt(&cells[1]);
             if crate::i18n::is_organizer_marker(&k) {
                 org = Some(v);
@@ -303,11 +310,8 @@ fn analyze_table(table: ElementRef) -> (Option<TableType>, Vec<ColumnMap>, usize
                             .chars()
                             .take_while(|c| c.is_ascii_uppercase() || c.is_ascii_digit())
                             .collect::<String>();
-                        if t.len() > code.len()
-                            && t.chars().nth(code.len()).unwrap().is_ascii_lowercase()
-                            && code.len() > 1
-                        {
-                            Some(code[..code.len() - 1].to_string())
+                        if code.is_empty() {
+                            None
                         } else {
                             Some(code)
                         }
@@ -705,6 +709,11 @@ pub fn extract_round_data(html: &str, dances: &[Dance], officials: &Officials) -
         }
     }
     rounds.sort_by_key(|r| r.order);
+    rounds.retain(|r| match &r.data {
+        RoundData::DTV { dtv_ranks } => !dtv_ranks.is_empty(),
+        RoundData::Marking { marking_crosses } => !marking_crosses.is_empty(),
+        RoundData::WDSF { wdsf_scores } => !wdsf_scores.is_empty(),
+    });
     rounds
 }
 
@@ -787,12 +796,13 @@ fn parse_wdsf_scores(
 pub fn extract_event_data(data_dir: &str) -> Result<Competition> {
     let dir = Path::new(data_dir);
     let erg_h = fs::read_to_string(dir.join("erg.htm")).unwrap_or_default();
-    let (name, date, org, club) = parse_metadata(&erg_h);
+    let (name, date, mut org, mut club) = parse_metadata(&erg_h);
     let title = Html::parse_document(&erg_h)
         .select(&SEL_TITLE)
         .next()
         .map(|n| n.inner_html())
         .unwrap_or_default();
+
     let name_for_parse = if let Some(ref n) = name {
         if n.contains(" - ") {
             n
@@ -805,7 +815,7 @@ pub fn extract_event_data(data_dir: &str) -> Result<Competition> {
     let mut comp = match parse_competition_from_title(name_for_parse) {
         Ok(c) => c,
         Err(_) => Competition {
-            name: name.unwrap_or_else(|| "TODO".into()),
+            name: name.clone().unwrap_or_else(|| "TODO".into()),
             date,
             organizer: None,
             hosting_club: None,
@@ -824,16 +834,26 @@ pub fn extract_event_data(data_dir: &str) -> Result<Competition> {
             rounds: Vec::new(),
         },
     };
-    comp.organizer = org;
-    comp.hosting_club = club;
-    comp.participants = extract_participants(&erg_h);
-    comp.participants.retain(|p| {
-        p.bib_number != 0
-            && !p.name_one.to_lowercase().contains("teilnehmer")
-            && !p.name_one.to_lowercase().contains("platz")
-    });
 
     if let Ok(deck_h) = fs::read_to_string(dir.join("deck.htm")) {
+        let (d_name, _d_date, d_org, d_club) = parse_metadata(&deck_h);
+        if org.is_none() {
+            org = d_org;
+        }
+        if club.is_none() {
+            club = d_club;
+        }
+        if name.is_none() {
+            if let Some(ref n) = d_name {
+                if let Ok(c) = parse_competition_from_title(n) {
+                    comp.name = c.name;
+                    comp.age_group = c.age_group;
+                    comp.style = c.style;
+                    comp.level = c.level;
+                }
+            }
+        }
+
         let doc = Html::parse_document(&deck_h);
         let mut off = Officials {
             responsible_person: None,
@@ -855,7 +875,16 @@ pub fn extract_event_data(data_dir: &str) -> Result<Competition> {
                     .map(|el| txt(&el))
                     .unwrap_or_default();
                 let c = d_el.select(&SEL_SPAN).nth(1).map(|el| txt(&el));
-                if let Some(m) = crate::i18n::map_role(&r) {
+
+                if crate::i18n::is_organizer_marker(&r) {
+                    if comp.organizer.is_none() {
+                        comp.organizer = Some(txt(&d_el));
+                    }
+                } else if crate::i18n::is_hosting_club_marker(&r) {
+                    if comp.hosting_club.is_none() {
+                        comp.hosting_club = Some(txt(&d_el));
+                    }
+                } else if let Some(m) = crate::i18n::map_role(&r) {
                     let mem = CommitteeMember { name: n, club: c };
                     if m == "responsible_person" {
                         off.responsible_person = Some(mem);
@@ -875,6 +904,31 @@ pub fn extract_event_data(data_dir: &str) -> Result<Competition> {
         }
         comp.officials = off;
     }
+
+    if org.is_none() || club.is_none() {
+        if let Ok(index_h) = fs::read_to_string(dir.join("index.htm")) {
+            let (_, _, i_org, i_club) = parse_metadata(&index_h);
+            if org.is_none() {
+                org = i_org;
+            }
+            if club.is_none() {
+                club = i_club;
+            }
+        }
+    }
+
+    if comp.organizer.is_none() {
+        comp.organizer = org;
+    }
+    if comp.hosting_club.is_none() {
+        comp.hosting_club = club;
+    }
+    comp.participants = extract_participants(&erg_h);
+    comp.participants.retain(|p| {
+        p.bib_number != 0
+            && !p.name_one.to_lowercase().contains("teilnehmer")
+            && !p.name_one.to_lowercase().contains("platz")
+    });
 
     let mut scoring_h = fs::read_to_string(dir.join("tabges.htm")).unwrap_or_default();
     if scoring_h.is_empty() {
@@ -952,6 +1006,19 @@ pub fn extract_event_data(data_dir: &str) -> Result<Competition> {
         }
     }
     comp.rounds.sort_by_key(|r| r.order);
+
+    if comp.source_url.is_none() {
+        if let Ok(index_h) = fs::read_to_string(dir.join("index.htm")) {
+            let doc = Html::parse_document(&index_h);
+            if let Some(link) = doc
+                .select(&Selector::parse("link[rel='canonical']").unwrap())
+                .next()
+            {
+                comp.source_url = link.value().attr("href").map(|s| s.to_string());
+            }
+        }
+    }
+
     Ok(comp)
 }
 
@@ -960,10 +1027,16 @@ pub fn parse_competition_from_title(title: &str) -> Result<Competition, ParsingE
     let mut title_clean = title
         .replace("\"GS\"", "")
         .replace("\"OS\"", "")
-        .replace("\"MS\"", "");
+        .replace("\"MS\"", "")
+        .replace("&#34;GS&#34;", "")
+        .replace("&#34;OS&#34;", "")
+        .replace("&#34;MS&#34;", "");
     if let Some(pos) = title_clean.find(" - ") {
         title_clean = title_clean[pos + 3..].to_string();
     }
+    title_clean = title_clean.replace("OT, ", "");
+    title_clean = title_clean.trim().to_string();
+
     let up = title_clean.to_uppercase();
     let mut age_keys = crate::i18n::age_group_keys();
     age_keys.sort_by_key(|k| k.len());

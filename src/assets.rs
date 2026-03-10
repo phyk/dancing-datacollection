@@ -167,5 +167,5 @@ pub const STYLE_MARKER_LATIN: &str = "LATIN";
 
 pub const REDANCE_MARKERS: &[&str] = &["redance", "hoffnung", "h-lauf"];
 
-pub const ORGANIZER_MARKERS: &[&str] = &["Veranstalter"];
-pub const HOSTING_CLUB_MARKERS: &[&str] = &["Ausrichter"];
+pub const ORGANIZER_MARKERS: &[&str] = &["Veranstalter", "Organizer", "organizer"];
+pub const HOSTING_CLUB_MARKERS: &[&str] = &["Ausrichter", "Hosting club", "Hosting Club"];
