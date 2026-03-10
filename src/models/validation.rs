@@ -19,18 +19,18 @@ fn is_round_complete(
             let data_present = match &round.data {
                 RoundData::Marking { marking_crosses } => marking_crosses
                     .get(&judge.code)
-                    .and_then(|jm| jm.get(&bib_str))
-                    .map(|bm| dances.iter().all(|d| bm.contains_key(d)))
+                    .and_then(|judge_map| judge_map.get(&bib_str))
+                    .map(|bib_map| dances.iter().all(|d| bib_map.contains_key(d)))
                     .unwrap_or(false),
                 RoundData::DTV { dtv_ranks } => dtv_ranks
                     .get(&judge.code)
-                    .and_then(|jm| jm.get(&bib_str))
-                    .map(|bm| dances.iter().all(|d| bm.contains_key(d)))
+                    .and_then(|judge_map| judge_map.get(&bib_str))
+                    .map(|bib_map| dances.iter().all(|d| bib_map.contains_key(d)))
                     .unwrap_or(false),
                 RoundData::WDSF { wdsf_scores } => wdsf_scores
                     .get(&judge.code)
-                    .and_then(|jm| jm.get(&bib_str))
-                    .map(|bm| dances.iter().all(|d| bm.contains_key(d)))
+                    .and_then(|judge_map| judge_map.get(&bib_str))
+                    .map(|bib_map| dances.iter().all(|d| bib_map.contains_key(d)))
                     .unwrap_or(false),
             };
             if !data_present {
@@ -60,23 +60,23 @@ pub fn validate_competition_fidelity(comp: &Competition) -> bool {
         let mut round_participants = HashSet::new();
         match &round.data {
             RoundData::Marking { marking_crosses } => {
-                for jm in marking_crosses.values() {
-                    for b in jm.keys() {
-                        round_participants.insert(b.parse::<u32>().unwrap_or(0));
+                for judge_map in marking_crosses.values() {
+                    for bib_str in judge_map.keys() {
+                        round_participants.insert(bib_str.parse::<u32>().unwrap_or(0));
                     }
                 }
             }
             RoundData::DTV { dtv_ranks } => {
-                for jm in dtv_ranks.values() {
-                    for b in jm.keys() {
-                        round_participants.insert(b.parse::<u32>().unwrap_or(0));
+                for judge_map in dtv_ranks.values() {
+                    for bib_str in judge_map.keys() {
+                        round_participants.insert(bib_str.parse::<u32>().unwrap_or(0));
                     }
                 }
             }
             RoundData::WDSF { wdsf_scores } => {
-                for jm in wdsf_scores.values() {
-                    for b in jm.keys() {
-                        round_participants.insert(b.parse::<u32>().unwrap_or(0));
+                for judge_map in wdsf_scores.values() {
+                    for bib_str in judge_map.keys() {
+                        round_participants.insert(bib_str.parse::<u32>().unwrap_or(0));
                     }
                 }
             }
@@ -145,8 +145,8 @@ pub fn validate_competition_fidelity(comp: &Competition) -> bool {
                     let mut marks = BTreeMap::new();
                     for (bib_str, d_map) in bib_map {
                         if let Ok(bib) = bib_str.parse::<u32>() {
-                            if let Some(&m) = d_map.get(dance) {
-                                marks.insert(bib, m);
+                            if let Some(&mark) = d_map.get(dance) {
+                                marks.insert(bib, mark);
                             }
                         }
                     }

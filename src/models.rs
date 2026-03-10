@@ -162,6 +162,7 @@ pub fn sanitize_name(name: &str) -> String {
             }
         })
         .collect();
+    // 64 chars keeps filenames safe on all major filesystems (FAT32, ext4, APFS).
     s.truncate(64);
     s
 }
