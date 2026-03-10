@@ -1,3 +1,4 @@
+use crate::assets::*;
 use crate::models::{
     AgeGroup, CommitteeMember, Competition, Dance, IdentityType, Judge, Level, Officials,
     Participant, Round, RoundData, Style, WDSFScore,
@@ -13,15 +14,15 @@ use std::path::Path;
 use std::sync::LazyLock;
 
 // --- Selectors & Regex ---
-static SEL_TR: LazyLock<Selector> = LazyLock::new(|| Selector::parse("tr").unwrap());
-static SEL_TD: LazyLock<Selector> = LazyLock::new(|| Selector::parse("td").unwrap());
-static SEL_SPAN: LazyLock<Selector> = LazyLock::new(|| Selector::parse("span").unwrap());
-static SEL_I: LazyLock<Selector> = LazyLock::new(|| Selector::parse("i").unwrap());
-static SEL_TITLE: LazyLock<Selector> = LazyLock::new(|| Selector::parse("title").unwrap());
-static RE_BIB_PARENS: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\((\d+)\)").unwrap());
-static RE_SCORE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"(\d+[\.,]\d+)").unwrap());
-static RE_DATE: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r"(\d{1,2})[\./]([a-zA-Z0-9]{2,3})[\./](\d{4})").unwrap());
+static SEL_TR: LazyLock<Selector> = LazyLock::new(|| Selector::parse(SELECTOR_TR).unwrap());
+static SEL_TD: LazyLock<Selector> = LazyLock::new(|| Selector::parse(SELECTOR_TD).unwrap());
+static SEL_SPAN: LazyLock<Selector> = LazyLock::new(|| Selector::parse(SELECTOR_SPAN).unwrap());
+static SEL_I: LazyLock<Selector> = LazyLock::new(|| Selector::parse(SELECTOR_I).unwrap());
+static SEL_TITLE: LazyLock<Selector> = LazyLock::new(|| Selector::parse(SELECTOR_TITLE).unwrap());
+static RE_BIB_PARENS: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(PATTERN_BIB_PARENS).unwrap());
+static RE_SCORE: LazyLock<Regex> = LazyLock::new(|| Regex::new(PATTERN_SCORE).unwrap());
+static RE_DATE: LazyLock<Regex> = LazyLock::new(|| Regex::new(PATTERN_DATE).unwrap());
 
 // --- Utilities ---
 fn clean(s: &str) -> String {
@@ -54,7 +55,7 @@ pub fn parse_metadata(
     let doc = Html::parse_document(html);
     let (mut org, mut club) = (None, None);
     if let Some(meta_author) = doc
-        .select(&Selector::parse("meta[name='Author'], meta[name='author']").unwrap())
+        .select(&Selector::parse(SELECTOR_META_AUTHOR).unwrap())
         .next()
     {
         org = meta_author.value().attr("content").map(|s| s.to_string());
@@ -73,11 +74,11 @@ pub fn parse_metadata(
         }
     }
     let name = doc
-        .select(&Selector::parse(".eventhead td").unwrap())
+        .select(&Selector::parse(SELECTOR_EVENT_HEAD).unwrap())
         .next()
         .map(|el| txt(&el));
     let date = doc
-        .select(&Selector::parse(".comphead").unwrap())
+        .select(&Selector::parse(SELECTOR_COMP_HEAD).unwrap())
         .next()
         .map(|el| txt(&el))
         .and_then(|d| parse_date(&d));
@@ -86,11 +87,11 @@ pub fn parse_metadata(
 
 fn parse_participant_row(row: ElementRef) -> Result<Participant, ParsingError> {
     let rank = row
-        .select(&Selector::parse("td.td3r, td.td3c").unwrap())
+        .select(&Selector::parse(SELECTOR_PARTICIPANT_RANK).unwrap())
         .next()
         .and_then(|el| txt(&el).trim_end_matches('.').parse::<u32>().ok());
     let data_cells: Vec<_> = row
-        .select(&Selector::parse("td.td2c, td.td5, td.td6").unwrap())
+        .select(&Selector::parse(SELECTOR_PARTICIPANT_DATA).unwrap())
         .collect();
     if data_cells.is_empty() {
         return Err(ParsingError::ParsingError("NoData".into()));
@@ -228,12 +229,7 @@ fn analyze_table(table: ElementRef) -> (Option<TableType>, Vec<ColumnMap>, usize
                 .and_then(|c| c.text().next())
                 .and_then(|s| {
                     let t = s.trim();
-                    if t == "Nr"
-                        || t == "Nr."
-                        || t == "Startnummer"
-                        || t == "No."
-                        || t.contains("Pl.")
-                        || t.contains("Platz")
+                    if crate::i18n::is_bib_column_marker(t) || crate::i18n::is_rank_column_marker(t)
                     {
                         return None;
                     }
@@ -262,7 +258,7 @@ fn analyze_table(table: ElementRef) -> (Option<TableType>, Vec<ColumnMap>, usize
                 || rows
                     .iter()
                     .take(5)
-                    .any(|r| txt(r).to_lowercase().contains("teilnehmer")))
+                    .any(|r| crate::i18n::is_participant_marker(&txt(r))))
         {
             let start = rows
                 .iter()
@@ -303,8 +299,7 @@ fn analyze_table(table: ElementRef) -> (Option<TableType>, Vec<ColumnMap>, usize
                         && t.chars().next().unwrap().is_ascii_uppercase()
                         && (t.len() == 1 || !t.chars().nth(1).unwrap().is_ascii_lowercase())
                         && ds.is_empty()
-                        && !t.contains("Pl.")
-                        && !t.contains("Platz")
+                        && !crate::i18n::is_rank_column_marker(&t)
                     {
                         let code = t
                             .chars()
@@ -327,16 +322,10 @@ fn analyze_table(table: ElementRef) -> (Option<TableType>, Vec<ColumnMap>, usize
                             if let Some(ref ref_j) = j {
                                 map[idx].judge = Some(ref_j.clone());
                             }
-                            let lower = t.to_lowercase();
-                            if lower == "su"
-                                || lower == "summe"
-                                || lower == "total"
-                                || lower.contains("pz")
-                                || lower == "sum"
-                            {
+                            if crate::i18n::is_sum_column_marker(&t) {
                                 map[idx].is_sum = true;
                             }
-                            if lower == "r" || lower == "round" || lower == "runde" {
+                            if crate::i18n::is_round_column_marker(&t) {
                                 map[idx].is_round = true;
                             }
                             if rspan > 1 {
@@ -369,10 +358,10 @@ pub fn extract_round_data(html: &str, dances: &[Dance], officials: &Officials) -
     let doc = Html::parse_document(html);
     let mut rounds: Vec<Round> = Vec::new();
     let global_name = doc
-        .select(&Selector::parse(".comphead, h2, td.td1").unwrap())
+        .select(&Selector::parse(SELECTOR_ROUND_NAME).unwrap())
         .find_map(|e| crate::i18n::parse_round_name(&txt(&e)));
 
-    for table in doc.select(&Selector::parse("table").unwrap()) {
+    for table in doc.select(&Selector::parse(SELECTOR_TABLE).unwrap()) {
         let (stype, map, start) = analyze_table(table);
         let rows: Vec<_> = table.select(&SEL_TR).collect();
         match stype {
@@ -438,7 +427,7 @@ pub fn extract_round_data(html: &str, dances: &[Dance], officials: &Officials) -
 
                     let r_cell = cells.iter().find(|c| {
                         let cl = c.value().attr("class").unwrap_or("");
-                        cl.contains("td5c") || cl.contains("td5cv") || cl.contains("td3w")
+                        crate::i18n::is_result_cell_class(cl)
                     });
                     let r_idxs: Vec<usize> = r_cell
                         .map(|c| {
@@ -577,11 +566,7 @@ pub fn extract_round_data(html: &str, dances: &[Dance], officials: &Officials) -
                 );
                 for row in rows.iter().skip(start) {
                     let text = txt(row).to_lowercase();
-                    if text.contains("result of")
-                        || text.contains("qualified for")
-                        || text.contains("ergebnis")
-                        || text.contains("qualifiziert")
-                    {
+                    if crate::i18n::is_qualification_marker(&text) {
                         if text.contains("2nd") || text.contains("2.") {
                             curr_order = 2;
                         } else if text.contains("3rd") || text.contains("3.") {
@@ -592,7 +577,7 @@ pub fn extract_round_data(html: &str, dances: &[Dance], officials: &Officials) -
                             curr_order = 1;
                         }
                         if let Some(n) = crate::i18n::parse_round_name(&text) {
-                            if n.contains("Zwischenrunde")
+                            if n.contains(ROUND_NAME_ZWISCHENRUNDE)
                                 || n == crate::i18n::get_round_name_from_pos(1)
                             {
                                 curr_name =
@@ -723,7 +708,7 @@ fn parse_wdsf_scores(
 ) -> BTreeMap<String, BTreeMap<String, BTreeMap<Dance, WDSFScore>>> {
     let mut res = BTreeMap::new();
     let doc = Html::parse_document(html);
-    for table in doc.select(&Selector::parse("table").unwrap()) {
+    for table in doc.select(&Selector::parse(SELECTOR_TABLE).unwrap()) {
         let (stype, map, start) = analyze_table(table);
         if stype.is_none() {
             continue;
@@ -772,16 +757,16 @@ fn parse_wdsf_scores(
                                         choreography: 0.0,
                                         total: 0.0,
                                     });
-                                if line.contains("tq") {
-                                    s.technical_quality = sc[0];
-                                } else if line.contains("mm") {
-                                    s.movement_to_music = sc[0];
-                                } else if line.contains("ps") {
-                                    s.partnering_skills = *sc.last().unwrap();
-                                } else if line.contains("cp") {
-                                    s.choreography = *sc.last().unwrap();
-                                } else if line.contains("total") {
-                                    s.total = sc[0];
+
+                                if let Some(score_type) = crate::i18n::map_wdsf_score_type(line) {
+                                    match score_type {
+                                        "technical_quality" => s.technical_quality = sc[0],
+                                        "movement_to_music" => s.movement_to_music = sc[0],
+                                        "partnering_skills" => s.partnering_skills = *sc.last().unwrap(),
+                                        "choreography" => s.choreography = *sc.last().unwrap(),
+                                        "total" => s.total = sc[0],
+                                        _ => {}
+                                    }
                                 }
                             }
                         }
@@ -862,8 +847,8 @@ pub fn extract_event_data(data_dir: &str) -> Result<Competition> {
         };
         for row in doc.select(&SEL_TR) {
             let (role_sel, data_sel) = (
-                Selector::parse("td.td2, td.td2r").unwrap(),
-                Selector::parse("td.td5").unwrap(),
+                Selector::parse(SELECTOR_OFFICIAL_ROLE).unwrap(),
+                Selector::parse(SELECTOR_OFFICIAL_DATA).unwrap(),
             );
             if let (Some(r_el), Some(d_el)) =
                 (row.select(&role_sel).next(), row.select(&data_sel).next())
@@ -926,8 +911,8 @@ pub fn extract_event_data(data_dir: &str) -> Result<Competition> {
     comp.participants = extract_participants(&erg_h);
     comp.participants.retain(|p| {
         p.bib_number != 0
-            && !p.name_one.to_lowercase().contains("teilnehmer")
-            && !p.name_one.to_lowercase().contains("platz")
+            && !crate::i18n::is_participant_marker(&p.name_one)
+            && !crate::i18n::is_rank_column_marker(&p.name_one)
     });
 
     let mut scoring_h = fs::read_to_string(dir.join("tabges.htm")).unwrap_or_default();
@@ -1011,7 +996,7 @@ pub fn extract_event_data(data_dir: &str) -> Result<Competition> {
         if let Ok(index_h) = fs::read_to_string(dir.join("index.htm")) {
             let doc = Html::parse_document(&index_h);
             if let Some(link) = doc
-                .select(&Selector::parse("link[rel='canonical']").unwrap())
+                .select(&Selector::parse(SELECTOR_CANONICAL).unwrap())
                 .next()
             {
                 comp.source_url = link.value().attr("href").map(|s| s.to_string());
@@ -1024,18 +1009,7 @@ pub fn extract_event_data(data_dir: &str) -> Result<Competition> {
 
 pub fn parse_competition_from_title(title: &str) -> Result<Competition, ParsingError> {
     let (mut ag, mut st, mut lv) = (None, None, None);
-    let mut title_clean = title
-        .replace("\"GS\"", "")
-        .replace("\"OS\"", "")
-        .replace("\"MS\"", "")
-        .replace("&#34;GS&#34;", "")
-        .replace("&#34;OS&#34;", "")
-        .replace("&#34;MS&#34;", "");
-    if let Some(pos) = title_clean.find(" - ") {
-        title_clean = title_clean[pos + 3..].to_string();
-    }
-    title_clean = title_clean.replace("OT, ", "");
-    title_clean = title_clean.trim().to_string();
+    let title_clean = crate::i18n::clean_competition_title(title);
 
     let up = title_clean.to_uppercase();
     let mut age_keys = crate::i18n::age_group_keys();
@@ -1059,7 +1033,7 @@ pub fn parse_competition_from_title(title: &str) -> Result<Competition, ParsingE
             break;
         }
     }
-    if lv.is_none() && (up.contains("WDSF") || up.contains("OPEN")) {
+    if lv.is_none() && crate::i18n::is_level_s_marker(&up) {
         lv = Some(Level::S);
     }
     let date = parse_date(title).unwrap_or_else(|| NaiveDate::from_ymd_opt(2024, 1, 1).unwrap());

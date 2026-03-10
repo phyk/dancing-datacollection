@@ -169,3 +169,52 @@ pub const REDANCE_MARKERS: &[&str] = &["redance", "hoffnung", "h-lauf"];
 
 pub const ORGANIZER_MARKERS: &[&str] = &["Veranstalter", "Organizer", "organizer"];
 pub const HOSTING_CLUB_MARKERS: &[&str] = &["Ausrichter", "Hosting club", "Hosting Club"];
+
+// --- CSS Selectors ---
+pub const SELECTOR_META_AUTHOR: &str = "meta[name='Author'], meta[name='author']";
+pub const SELECTOR_EVENT_HEAD: &str = ".eventhead td";
+pub const SELECTOR_COMP_HEAD: &str = ".comphead";
+pub const SELECTOR_PARTICIPANT_RANK: &str = "td.td3r, td.td3c";
+pub const SELECTOR_PARTICIPANT_DATA: &str = "td.td2c, td.td5, td.td6";
+pub const SELECTOR_ROUND_NAME: &str = ".comphead, h2, td.td1";
+pub const SELECTOR_OFFICIAL_ROLE: &str = "td.td2, td.td2r";
+pub const SELECTOR_OFFICIAL_DATA: &str = "td.td5";
+pub const SELECTOR_CANONICAL: &str = "link[rel='canonical']";
+pub const SELECTOR_TR: &str = "tr";
+pub const SELECTOR_TD: &str = "td";
+pub const SELECTOR_SPAN: &str = "span";
+pub const SELECTOR_I: &str = "i";
+pub const SELECTOR_TITLE: &str = "title";
+pub const SELECTOR_TABLE: &str = "table";
+
+// --- Regex Patterns ---
+pub const PATTERN_BIB_PARENS: &str = r"\((\d+)\)";
+pub const PATTERN_SCORE: &str = r"(\d+[\.,]\d+)";
+pub const PATTERN_DATE: &str = r"(\d{1,2})[\./]([a-zA-Z0-9]{2,3})[\./](\d{4})";
+
+// --- Interpretation Markers ---
+pub const BIB_COLUMN_MARKERS: &[&str] = &["nr", "nr.", "startnummer", "no."];
+pub const RANK_COLUMN_MARKERS: &[&str] = &["pl.", "platz"];
+pub const SUM_COLUMN_MARKERS: &[&str] = &["su", "summe", "total", "pz", "sum"];
+pub const ROUND_COLUMN_MARKERS: &[&str] = &["r", "round", "runde"];
+pub const PARTICIPANT_MARKERS: &[&str] = &["teilnehmer"];
+pub const QUALIFICATION_MARKERS: &[&str] = &["result of", "qualified for", "ergebnis", "qualifiziert"];
+pub const LEVEL_S_MARKERS: &[&str] = &["WDSF", "OPEN"];
+pub const TITLE_CLEANUP_STRINGS: &[&str] = &[
+    "\"GS\"",
+    "\"OS\"",
+    "\"MS\"",
+    "&#34;GS&#34;",
+    "&#34;OS&#34;",
+    "&#34;MS&#34;",
+    "OT, ",
+];
+pub const RESULT_CELL_CLASSES: &[&str] = &["td5c", "td5cv", "td3w"];
+
+pub const WDSF_SCORE_TYPES: &[(&str, &str)] = &[
+    ("tq", "technical_quality"),
+    ("mm", "movement_to_music"),
+    ("ps", "partnering_skills"),
+    ("cp", "choreography"),
+    ("total", "total"),
+];
