@@ -1,22 +1,46 @@
 //! Assets for DTV Competition Ruleset and Internationalization
 //! This file contains hardcoded constants and mappings.
 
-use crate::models::{Dance, AgeGroup, Style, Level};
+use crate::models::{AgeGroup, Dance, Level, Style};
 
 pub const AGE_GROUP_MAPPINGS: &[(&str, AgeGroup)] = &[
-    ("Hgr", AgeGroup::Adult), ("Hgr.", AgeGroup::Adult), ("Hauptgruppe", AgeGroup::Adult), ("Adult", AgeGroup::Adult), ("Adults", AgeGroup::Adult), ("Rising Stars", AgeGroup::Adult),
-    ("Hgr.II", AgeGroup::Adult2), ("Hgr II", AgeGroup::Adult2), ("Hauptgruppe II", AgeGroup::Adult2),
-    ("Sen", AgeGroup::Senior), ("Sen.", AgeGroup::Senior), ("Mas.", AgeGroup::Senior),
-    ("Sen.I", AgeGroup::Sen1), ("Mas.I", AgeGroup::Sen1), ("Senioren I", AgeGroup::Sen1),
-    ("Sen.II", AgeGroup::Sen2), ("Mas.II", AgeGroup::Sen2), ("Senioren II", AgeGroup::Sen2),
-    ("Sen.III", AgeGroup::Sen3), ("Mas.III", AgeGroup::Sen3), ("Senioren III", AgeGroup::Sen3),
-    ("Sen.IV", AgeGroup::Sen4), ("Mas.IV", AgeGroup::Sen4), ("Senioren IV", AgeGroup::Sen4),
-    ("Sen.V", AgeGroup::Sen5), ("Mas.V", AgeGroup::Sen5), ("Senioren V", AgeGroup::Sen5),
-    ("Kinder I", AgeGroup::Juv1), ("Kin.I", AgeGroup::Juv1),
-    ("Kinder II", AgeGroup::Juv2), ("Kin.II", AgeGroup::Juv2),
-    ("Junioren I", AgeGroup::Jun1), ("Jun.I", AgeGroup::Jun1),
-    ("Junioren II", AgeGroup::Jun2), ("Jun.II", AgeGroup::Jun2),
-    ("Jugend", AgeGroup::Youth), ("Jug.", AgeGroup::Youth),
+    ("Hgr", AgeGroup::Adult),
+    ("Hgr.", AgeGroup::Adult),
+    ("Hauptgruppe", AgeGroup::Adult),
+    ("Adult", AgeGroup::Adult),
+    ("Adults", AgeGroup::Adult),
+    ("Rising Stars", AgeGroup::Adult),
+    ("Hgr.II", AgeGroup::Adult2),
+    ("Hgr II", AgeGroup::Adult2),
+    ("Hauptgruppe II", AgeGroup::Adult2),
+    ("Sen", AgeGroup::Senior),
+    ("Sen.", AgeGroup::Senior),
+    ("Mas.", AgeGroup::Senior),
+    ("Sen.I", AgeGroup::Sen1),
+    ("Mas.I", AgeGroup::Sen1),
+    ("Senioren I", AgeGroup::Sen1),
+    ("Sen.II", AgeGroup::Sen2),
+    ("Mas.II", AgeGroup::Sen2),
+    ("Senioren II", AgeGroup::Sen2),
+    ("Sen.III", AgeGroup::Sen3),
+    ("Mas.III", AgeGroup::Sen3),
+    ("Senioren III", AgeGroup::Sen3),
+    ("Sen.IV", AgeGroup::Sen4),
+    ("Mas.IV", AgeGroup::Sen4),
+    ("Senioren IV", AgeGroup::Sen4),
+    ("Sen.V", AgeGroup::Sen5),
+    ("Mas.V", AgeGroup::Sen5),
+    ("Senioren V", AgeGroup::Sen5),
+    ("Kinder I", AgeGroup::Juv1),
+    ("Kin.I", AgeGroup::Juv1),
+    ("Kinder II", AgeGroup::Juv2),
+    ("Kin.II", AgeGroup::Juv2),
+    ("Junioren I", AgeGroup::Jun1),
+    ("Jun.I", AgeGroup::Jun1),
+    ("Junioren II", AgeGroup::Jun2),
+    ("Jun.II", AgeGroup::Jun2),
+    ("Jugend", AgeGroup::Youth),
+    ("Jug.", AgeGroup::Youth),
 ];
 
 pub const AGE_GROUP_ID_MAPPINGS: &[(&str, AgeGroup)] = &[
@@ -55,7 +79,7 @@ pub const DANCE_ABBREVIATIONS: &[(Dance, &[&str])] = &[
     (Dance::VienneseWaltz, &["VW", "WIENER", "WW"]),
     (Dance::SlowFoxtrot, &["SF", "SLOW", "FOX"]),
     (Dance::Quickstep, &["QS", "QU", "QUICK"]),
-    (Dance::ChaChaCha, &["CC", "CHA"]),
+    (Dance::ChaChaCha, &["CC", "CHA", "CCC"]),
     (Dance::Samba, &["SB", "SA", "SAMBA"]),
     (Dance::Rumba, &["RB", "RU", "RUMBA"]),
     (Dance::PasoDoble, &["PD", "PASO"]),
@@ -77,23 +101,46 @@ pub const ROLE_MAPPINGS: &[(&str, &str)] = &[
 ];
 
 pub const MONTH_MAPPINGS: &[(&str, u32)] = &[
-    ("jan", 1), ("januar", 1),
-    ("feb", 2), ("februar", 2),
-    ("mar", 3), ("märz", 3),
-    ("apr", 4), ("april", 4),
-    ("may", 5), ("mai", 5),
-    ("jun", 6), ("juni", 6),
-    ("jul", 7), ("juli", 7),
-    ("aug", 8), ("august", 8),
-    ("sep", 9), ("september", 9),
-    ("oct", 10), ("oktober", 10),
-    ("nov", 11), ("november", 11),
-    ("dec", 12), ("dezember", 12),
+    ("jan", 1),
+    ("januar", 1),
+    ("feb", 2),
+    ("februar", 2),
+    ("mar", 3),
+    ("märz", 3),
+    ("apr", 4),
+    ("april", 4),
+    ("may", 5),
+    ("mai", 5),
+    ("jun", 6),
+    ("juni", 6),
+    ("jul", 7),
+    ("juli", 7),
+    ("aug", 8),
+    ("august", 8),
+    ("sep", 9),
+    ("september", 9),
+    ("oct", 10),
+    ("oktober", 10),
+    ("nov", 11),
+    ("november", 11),
+    ("dec", 12),
+    ("dezember", 12),
 ];
 
 pub const ROUND_NAME_MAPPINGS: &[(&str, &str)] = &[
     ("vorrunde", ROUND_NAME_VORRUNDE),
+    ("1st round", ROUND_NAME_VORRUNDE),
+    ("1. runde", ROUND_NAME_VORRUNDE),
     ("zwischenrunde", ROUND_NAME_ZWISCHENRUNDE),
+    ("2nd round", ROUND_NAME_ZWISCHENRUNDE),
+    ("3rd round", ROUND_NAME_ZWISCHENRUNDE),
+    ("2. runde", ROUND_NAME_ZWISCHENRUNDE),
+    ("3. runde", ROUND_NAME_ZWISCHENRUNDE),
+    ("semifinal", ROUND_NAME_SEMIFINAL),
+    ("semi-final", ROUND_NAME_SEMIFINAL),
+    ("1/2 finale", ROUND_NAME_SEMIFINAL),
+    ("quarterfinal", ROUND_NAME_QUARTERFINAL),
+    ("1/4 finale", ROUND_NAME_QUARTERFINAL),
     ("endrunde", ROUND_NAME_ENDRUNDE),
     ("finale", ROUND_NAME_ENDRUNDE),
     ("final", ROUND_NAME_ENDRUNDE),
@@ -120,5 +167,5 @@ pub const STYLE_MARKER_LATIN: &str = "LATIN";
 
 pub const REDANCE_MARKERS: &[&str] = &["redance", "hoffnung", "h-lauf"];
 
-pub const ORGANIZER_MARKERS: &[&str] = &["Veranstalter"];
-pub const HOSTING_CLUB_MARKERS: &[&str] = &["Ausrichter"];
+pub const ORGANIZER_MARKERS: &[&str] = &["Veranstalter", "Organizer", "organizer"];
+pub const HOSTING_CLUB_MARKERS: &[&str] = &["Ausrichter", "Hosting club", "Hosting Club"];

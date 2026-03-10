@@ -7,15 +7,14 @@ use std::path::Path;
 use tokio::time::{sleep, Duration, Instant};
 use url::Url;
 
+#[derive(Default)]
 pub struct RobotsChecker {
     matchers: HashMap<String, String>, // base_url -> robots_txt content
 }
 
 impl RobotsChecker {
     pub fn new() -> Self {
-        Self {
-            matchers: HashMap::new(),
-        }
+        Self::default()
     }
 
     pub async fn is_allowed(&mut self, url_str: &str) -> bool {
@@ -94,11 +93,7 @@ pub struct Scraper {
 
 impl Scraper {
     pub fn new() -> Self {
-        Self {
-            client: reqwest::Client::new(),
-            robots_checker: RobotsChecker::new(),
-            last_request_times: HashMap::new(),
-        }
+        Self::default()
     }
 
     async fn fetch_with_rate_limit(&mut self, url_str: &str) -> Result<String> {
@@ -151,7 +146,12 @@ impl Scraper {
         self.extract_competition_links(&html_content, url_str, Some(selector_str))
     }
 
-    pub fn extract_competition_links(&self, html: &str, base_url: &str, selector_str: Option<&str>) -> Result<Vec<String>> {
+    pub fn extract_competition_links(
+        &self,
+        html: &str,
+        base_url: &str,
+        selector_str: Option<&str>,
+    ) -> Result<Vec<String>> {
         let fragment = Html::parse_document(html);
         let selector = Selector::parse(selector_str.unwrap_or("a[href]")).unwrap();
         let base = Url::parse(base_url)?;
@@ -184,7 +184,11 @@ impl Scraper {
         self.download_competition_files(url_str, &data_dir).await
     }
 
-    pub async fn download_competition_files(&mut self, url_str: &str, target_dir: &Path) -> Result<()> {
+    pub async fn download_competition_files(
+        &mut self,
+        url_str: &str,
+        target_dir: &Path,
+    ) -> Result<()> {
         if !self.robots_checker.is_allowed(url_str).await {
             log::warn!("robots.txt disallows scraping {}, skipping", url_str);
             return Ok(());
@@ -216,7 +220,10 @@ impl Scraper {
             }
 
             if target_dir.join(rel_file).exists() {
-                log::debug!("File {:?} already exists, skipping", target_dir.join(rel_file));
+                log::debug!(
+                    "File {:?} already exists, skipping",
+                    target_dir.join(rel_file)
+                );
                 continue;
             }
 
@@ -258,6 +265,15 @@ impl Scraper {
     }
 }
 
+impl Default for Scraper {
+    fn default() -> Self {
+        Self {
+            client: reqwest::Client::new(),
+            robots_checker: RobotsChecker::default(),
+            last_request_times: HashMap::new(),
+        }
+    }
+}
 
 #[cfg(test)]
 mod tests {
@@ -331,7 +347,9 @@ mod tests {
             </html>
         "#;
         let base_url = "http://example.com/";
-        let links = scraper.extract_competition_links(html, base_url, None).unwrap();
+        let links = scraper
+            .extract_competition_links(html, base_url, None)
+            .unwrap();
 
         assert_eq!(links.len(), 2);
         assert!(links.contains(&"http://example.com/comp1/index.htm".to_string()));

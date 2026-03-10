@@ -1,8 +1,8 @@
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
-pub mod validation;
 pub mod skating;
+pub mod validation;
 
 /// Represents the skill level of a competition.
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash)]

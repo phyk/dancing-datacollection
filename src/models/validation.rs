@@ -1,7 +1,6 @@
-use std::collections::{BTreeMap, HashSet};
-use crate::models::{Round, RoundData, Dance, Judge, Competition};
 use crate::models::skating::{calculate_dance_ranks, calculate_final_ranks, verify_wdsf_score};
-
+use crate::models::{Competition, Dance, Judge, Round, RoundData};
+use std::collections::{BTreeMap, HashSet};
 
 /// Helper method to check if all expected data is present in a round.
 fn is_round_complete(
@@ -18,24 +17,21 @@ fn is_round_complete(
         for &bib in participants {
             let bib_str = bib.to_string();
             let data_present = match &round.data {
-                RoundData::Marking { marking_crosses } => {
-                    marking_crosses.get(&judge.code)
-                        .and_then(|judge_map| judge_map.get(&bib_str))
-                        .map(|bib_map| dances.iter().all(|d| bib_map.contains_key(d)))
-                        .unwrap_or(false)
-                }
-                RoundData::DTV { dtv_ranks } => {
-                    dtv_ranks.get(&judge.code)
-                        .and_then(|judge_map| judge_map.get(&bib_str))
-                        .map(|bib_map| dances.iter().all(|d| bib_map.contains_key(d)))
-                        .unwrap_or(false)
-                }
-                RoundData::WDSF { wdsf_scores } => {
-                    wdsf_scores.get(&judge.code)
-                        .and_then(|judge_map| judge_map.get(&bib_str))
-                        .map(|bib_map| dances.iter().all(|d| bib_map.contains_key(d)))
-                        .unwrap_or(false)
-                }
+                RoundData::Marking { marking_crosses } => marking_crosses
+                    .get(&judge.code)
+                    .and_then(|judge_map| judge_map.get(&bib_str))
+                    .map(|bib_map| dances.iter().all(|d| bib_map.contains_key(d)))
+                    .unwrap_or(false),
+                RoundData::DTV { dtv_ranks } => dtv_ranks
+                    .get(&judge.code)
+                    .and_then(|judge_map| judge_map.get(&bib_str))
+                    .map(|bib_map| dances.iter().all(|d| bib_map.contains_key(d)))
+                    .unwrap_or(false),
+                RoundData::WDSF { wdsf_scores } => wdsf_scores
+                    .get(&judge.code)
+                    .and_then(|judge_map| judge_map.get(&bib_str))
+                    .map(|bib_map| dances.iter().all(|d| bib_map.contains_key(d)))
+                    .unwrap_or(false),
             };
             if !data_present {
                 return false;
@@ -55,9 +51,8 @@ pub fn validate_competition_fidelity(comp: &Competition) -> bool {
     }
 
     let last_round = comp.rounds.last().unwrap();
-    match &last_round.data {
-        RoundData::Marking { .. } => return false, // Last round must be a scoring round
-        _ => {}
+    if let RoundData::Marking { .. } = &last_round.data {
+        return false; // Last round must be a scoring round
     }
 
     let mut round_participant_sets = Vec::new();
@@ -88,7 +83,12 @@ pub fn validate_competition_fidelity(comp: &Competition) -> bool {
         }
 
         let participants_vec: Vec<u32> = round_participants.iter().cloned().collect();
-        if !is_round_complete(round, &comp.officials.judges, &participants_vec, &comp.dances) {
+        if !is_round_complete(
+            round,
+            &comp.officials.judges,
+            &participants_vec,
+            &comp.dances,
+        ) {
             return false;
         }
 
@@ -102,7 +102,9 @@ pub fn validate_competition_fidelity(comp: &Competition) -> bool {
     let round_0_bibs = &round_participant_sets[0];
     for (i, current_set) in round_participant_sets.iter().enumerate() {
         for bib in current_set {
-            if !round_0_bibs.contains(bib) { return false; }
+            if !round_0_bibs.contains(bib) {
+                return false;
+            }
         }
         if i > 0 {
             let prev_set = &round_participant_sets[i - 1];
@@ -110,9 +112,11 @@ pub fn validate_competition_fidelity(comp: &Competition) -> bool {
             let prev_is_redance = crate::i18n::is_redance(&comp.rounds[i - 1].name);
 
             if !current_is_redance && !prev_is_redance {
-                if !current_set.is_subset(prev_set) || current_set.len() > prev_set.len() { return false; }
-            } else if current_is_redance {
-                if !current_set.is_subset(prev_set) { return false; }
+                if !current_set.is_subset(prev_set) || current_set.len() > prev_set.len() {
+                    return false;
+                }
+            } else if current_is_redance && !current_set.is_subset(prev_set) {
+                return false;
             }
         }
     }
@@ -190,10 +194,14 @@ fn verify_round_math(round: &Round) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::models::{Officials, Participant, IdentityType, Style, AgeGroup, Level};
+    use crate::models::{AgeGroup, IdentityType, Level, Officials, Participant, Style};
 
     fn create_mock_judge(code: &str) -> Judge {
-        Judge { code: code.to_string(), name: format!("Judge {}", code), club: None }
+        Judge {
+            code: code.to_string(),
+            name: format!("Judge {}", code),
+            club: None,
+        }
     }
 
     fn create_mock_competition() -> Competition {
@@ -288,7 +296,7 @@ mod tests {
             dtv_ranks
                 .get_mut("A")
                 .unwrap()
-            .get_mut("101")
+                .get_mut("101")
                 .unwrap()
                 .remove(&Dance::Tango);
         }
@@ -381,8 +389,14 @@ mod tests {
             let mut bm = BTreeMap::new();
             bm.insert(Dance::SlowWaltz, 1);
             bm.insert(Dance::Tango, 1);
-            dtv_ranks.get_mut("A").unwrap().insert(102.to_string(), bm.clone());
-            dtv_ranks.get_mut("B").unwrap().insert(102.to_string(), bm.clone());
+            dtv_ranks
+                .get_mut("A")
+                .unwrap()
+                .insert(102.to_string(), bm.clone());
+            dtv_ranks
+                .get_mut("B")
+                .unwrap()
+                .insert(102.to_string(), bm.clone());
             dtv_ranks.get_mut("C").unwrap().insert(102.to_string(), bm);
         }
         assert!(!validate_competition_fidelity(&comp));

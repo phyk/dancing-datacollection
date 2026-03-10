@@ -2,9 +2,9 @@
 //! This file contains the hardcoded "DTV Competition Ruleset" and string mappings.
 //! It must be updated if national regulations change.
 
-use crate::models::{AgeGroup, Style, Level, Dance};
 use crate::assets::*;
-use chrono::{NaiveDate, Datelike};
+use crate::models::{AgeGroup, Dance, Level, Style};
+use chrono::{Datelike, NaiveDate};
 
 /// Returns the minimum number of dances required for a given level and date.
 /// Implements the 2026 rule transition logic.
@@ -21,44 +21,51 @@ pub fn get_min_dances(level: Level, date: NaiveDate) -> u32 {
 }
 
 pub fn parse_level(s: &str) -> Option<Level> {
-    LEVEL_MAPPINGS.iter()
+    LEVEL_MAPPINGS
+        .iter()
         .find(|&&(k, _)| k.eq_ignore_ascii_case(s))
         .map(|&(_, v)| v)
 }
 
 pub fn parse_style(s: &str) -> Option<Style> {
-    STYLE_ID_MAPPINGS.iter()
+    STYLE_ID_MAPPINGS
+        .iter()
         .find(|&&(k, _)| k.eq_ignore_ascii_case(s))
         .map(|&(_, v)| v)
 }
 
 pub fn parse_age_group(s: &str) -> Option<AgeGroup> {
-    AGE_GROUP_ID_MAPPINGS.iter()
+    AGE_GROUP_ID_MAPPINGS
+        .iter()
         .find(|&&(k, _)| k.eq_ignore_ascii_case(s))
         .map(|&(_, v)| v)
 }
 
 pub fn map_age_group(s: &str) -> Option<AgeGroup> {
-    AGE_GROUP_MAPPINGS.iter()
+    AGE_GROUP_MAPPINGS
+        .iter()
         .find(|&&(k, _)| k.eq_ignore_ascii_case(s))
         .map(|&(_, v)| v)
 }
 
 pub fn map_discipline(s: &str) -> Option<Style> {
-    STYLE_MAPPINGS.iter()
+    STYLE_MAPPINGS
+        .iter()
         .find(|&&(k, _)| k.eq_ignore_ascii_case(s))
         .map(|&(_, v)| v)
 }
 
 pub fn map_role(s: &str) -> Option<String> {
-    ROLE_MAPPINGS.iter()
+    ROLE_MAPPINGS
+        .iter()
         .find(|&&(k, _)| k == s)
         .map(|&(_, id)| id.to_string())
 }
 
 pub fn map_month(mon_str: &str) -> Option<u32> {
     let lower = mon_str.to_lowercase();
-    MONTH_MAPPINGS.iter()
+    MONTH_MAPPINGS
+        .iter()
         .find(|&&(k, _)| k == lower)
         .map(|&(_, m)| m)
 }
@@ -81,9 +88,21 @@ pub fn parse_dances(s: &str) -> Vec<Dance> {
 
     if dances.is_empty() {
         if s_up.contains(STYLE_MARKER_STANDARD) {
-            dances = vec![Dance::SlowWaltz, Dance::Tango, Dance::VienneseWaltz, Dance::SlowFoxtrot, Dance::Quickstep];
+            dances = vec![
+                Dance::SlowWaltz,
+                Dance::Tango,
+                Dance::VienneseWaltz,
+                Dance::SlowFoxtrot,
+                Dance::Quickstep,
+            ];
         } else if s_up.contains(STYLE_MARKER_LATEIN) || s_up.contains(STYLE_MARKER_LATIN) {
-            dances = vec![Dance::Samba, Dance::ChaChaCha, Dance::Rumba, Dance::PasoDoble, Dance::Jive];
+            dances = vec![
+                Dance::Samba,
+                Dance::ChaChaCha,
+                Dance::Rumba,
+                Dance::PasoDoble,
+                Dance::Jive,
+            ];
         }
     }
 
@@ -97,13 +116,13 @@ pub fn parse_round_name(name: &str) -> Option<String> {
     for &(marker, canonical) in ROUND_NAME_MAPPINGS {
         if lower.contains(marker) {
             if canonical == ROUND_NAME_ZWISCHENRUNDE {
-                 if lower.contains("1.") || lower.contains("erste") {
-                      return Some(format!("1. {}", ROUND_NAME_ZWISCHENRUNDE));
-                 } else if lower.contains("2.") || lower.contains("zweite") {
-                      return Some(format!("2. {}", ROUND_NAME_ZWISCHENRUNDE));
-                 } else if lower.contains("3.") || lower.contains("dritte") {
-                      return Some(format!("3. {}", ROUND_NAME_ZWISCHENRUNDE));
-                 }
+                if lower.contains("1.") || lower.contains("erste") {
+                    return Some(format!("1. {}", ROUND_NAME_ZWISCHENRUNDE));
+                } else if lower.contains("2.") || lower.contains("zweite") {
+                    return Some(format!("2. {}", ROUND_NAME_ZWISCHENRUNDE));
+                } else if lower.contains("3.") || lower.contains("dritte") {
+                    return Some(format!("3. {}", ROUND_NAME_ZWISCHENRUNDE));
+                }
             }
             return Some(canonical.to_string());
         }
@@ -158,12 +177,22 @@ pub fn normalize_wdsf_round_name(name: &str, i: usize, num_rounds: usize) -> Str
     }
 
     if num_rounds >= 3 {
-        if i == num_rounds - 1 { return ROUND_NAME_FINAL.to_string(); }
-        if i == num_rounds - 2 { return ROUND_NAME_SEMIFINAL.to_string(); }
-        if i == num_rounds - 3 { return ROUND_NAME_QUARTERFINAL.to_string(); }
+        if i == num_rounds - 1 {
+            return ROUND_NAME_FINAL.to_string();
+        }
+        if i == num_rounds - 2 {
+            return ROUND_NAME_SEMIFINAL.to_string();
+        }
+        if i == num_rounds - 3 {
+            return ROUND_NAME_QUARTERFINAL.to_string();
+        }
     } else if num_rounds == 2 {
-        if i == num_rounds - 1 { return ROUND_NAME_FINAL.to_string(); }
-        if i == num_rounds - 2 { return ROUND_NAME_SEMIFINAL.to_string(); }
+        if i == num_rounds - 1 {
+            return ROUND_NAME_FINAL.to_string();
+        }
+        if i == num_rounds - 2 {
+            return ROUND_NAME_SEMIFINAL.to_string();
+        }
     }
 
     name.to_string()
@@ -171,6 +200,14 @@ pub fn normalize_wdsf_round_name(name: &str, i: usize, num_rounds: usize) -> Str
 
 pub fn get_generic_round_name(i: usize) -> String {
     format!("{} {}", ROUND_NAME_GENERIC_PREFIX, i)
+}
+
+pub fn get_round_name_from_pos(pos: usize) -> String {
+    if pos == 1 {
+        ROUND_NAME_VORRUNDE.to_string()
+    } else {
+        format!("{}. {}", pos - 1, ROUND_NAME_ZWISCHENRUNDE)
+    }
 }
 
 pub fn get_result_table_name() -> String {
