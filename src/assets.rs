@@ -74,7 +74,7 @@ pub const STYLE_ID_MAPPINGS: &[(&str, Style)] = &[
 ];
 
 pub const DANCE_ABBREVIATIONS: &[(Dance, &[&str])] = &[
-    (Dance::SlowWaltz, &["SW", "LW", "WALZER"]),
+    (Dance::SlowWaltz, &["SW", "LW", "WALZER", "WALTZ"]),
     (Dance::Tango, &["TG", "TANGO"]),
     (Dance::VienneseWaltz, &["VW", "WIENER", "WW"]),
     (Dance::SlowFoxtrot, &["SF", "SLOW", "FOX"]),

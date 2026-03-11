@@ -46,7 +46,7 @@ pub fn validate_competition_fidelity(comp: &Competition) -> bool {
     if comp.officials.judges.len() < 3 || comp.participants.is_empty() || comp.rounds.is_empty() {
         return false;
     }
-    if (comp.dances.len() as u32) < comp.min_dances {
+    if (comp.dances.len() as u32) != comp.min_dances {
         return false;
     }
 

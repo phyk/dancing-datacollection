@@ -8,7 +8,11 @@
   "age_group": "Adult",
   "style": "Standard",
   "dances": [
-    "SlowWaltz"
+    "SlowWaltz",
+    "Tango",
+    "VienneseWaltz",
+    "SlowFoxtrot",
+    "Quickstep"
   ],
   "min_dances": 4,
   "officials": {
@@ -374,1393 +378,2422 @@
   ],
   "rounds": [
     {
-      "name": "1. Zwischenrunde",
-      "order": 1,
+      "name": "Endrunde",
+      "order": 0,
       "dances": [
-        "SlowWaltz"
+        "SlowWaltz",
+        "Tango",
+        "VienneseWaltz",
+        "SlowFoxtrot",
+        "Quickstep"
       ],
       "round_type": "DTV",
       "dtv_ranks": {
         "AE": {
-          "1005": {
-            "SlowWaltz": 3
-          },
-          "1009": {
-            "SlowWaltz": 4
-          },
-          "1012": {
-            "SlowWaltz": 0
-          },
-          "1026": {
-            "SlowWaltz": 2
-          },
-          "1028": {
-            "SlowWaltz": 0
-          },
-          "1046": {
-            "SlowWaltz": 0
-          },
-          "1066": {
-            "SlowWaltz": 4
-          },
-          "1068": {
-            "SlowWaltz": 3
-          },
-          "1087": {
-            "SlowWaltz": 3
-          },
-          "1099": {
-            "SlowWaltz": 1
-          },
-          "1103": {
-            "SlowWaltz": 3
-          },
           "1111": {
-            "SlowWaltz": 0
-          },
-          "1117": {
-            "SlowWaltz": 2
-          },
-          "1124": {
-            "SlowWaltz": 0
+            "SlowWaltz": 6,
+            "Tango": 6,
+            "VienneseWaltz": 6,
+            "SlowFoxtrot": 5,
+            "Quickstep": 6
           },
           "1142": {
-            "SlowWaltz": 4
-          },
-          "1149": {
-            "SlowWaltz": 0
-          },
-          "1152": {
-            "SlowWaltz": 4
-          },
-          "1159": {
-            "SlowWaltz": 3
-          },
-          "1161": {
-            "SlowWaltz": 4
-          },
-          "1163": {
-            "SlowWaltz": 3
+            "SlowWaltz": 2,
+            "Tango": 3,
+            "VienneseWaltz": 2,
+            "SlowFoxtrot": 2,
+            "Quickstep": 1
           },
           "1165": {
-            "SlowWaltz": 4
-          },
-          "1184": {
-            "SlowWaltz": 1
+            "SlowWaltz": 3,
+            "Tango": 1,
+            "VienneseWaltz": 3,
+            "SlowFoxtrot": 1,
+            "Quickstep": 2
           },
           "1185": {
-            "SlowWaltz": 4
-          },
-          "1203": {
-            "SlowWaltz": 0
-          },
-          "1205": {
-            "SlowWaltz": 0
+            "SlowWaltz": 1,
+            "Tango": 2,
+            "VienneseWaltz": 1,
+            "SlowFoxtrot": 3,
+            "Quickstep": 3
           },
           "1206": {
-            "SlowWaltz": 1
-          },
-          "1217": {
-            "SlowWaltz": 4
-          },
-          "1232": {
-            "SlowWaltz": 3
-          },
-          "1275": {
-            "SlowWaltz": 2
-          },
-          "1299": {
-            "SlowWaltz": 3
-          },
-          "1311": {
-            "SlowWaltz": 1
-          },
-          "1354": {
-            "SlowWaltz": 0
-          },
-          "1356": {
-            "SlowWaltz": 0
-          },
-          "1365": {
-            "SlowWaltz": 0
-          },
-          "1374": {
-            "SlowWaltz": 0
-          },
-          "1393": {
-            "SlowWaltz": 3
-          },
-          "1395": {
-            "SlowWaltz": 4
-          },
-          "587": {
-            "SlowWaltz": 0
+            "SlowWaltz": 4,
+            "Tango": 4,
+            "VienneseWaltz": 4,
+            "SlowFoxtrot": 4,
+            "Quickstep": 4
           },
           "688": {
-            "SlowWaltz": 0
+            "SlowWaltz": 5,
+            "Tango": 5,
+            "VienneseWaltz": 5,
+            "SlowFoxtrot": 6,
+            "Quickstep": 5
           }
         },
         "AW": {
-          "1005": {
-            "SlowWaltz": 2
-          },
-          "1009": {
-            "SlowWaltz": 0
-          },
-          "1012": {
-            "SlowWaltz": 0
-          },
-          "1026": {
-            "SlowWaltz": 1
-          },
-          "1028": {
-            "SlowWaltz": 3
-          },
-          "1046": {
-            "SlowWaltz": 0
-          },
-          "1066": {
-            "SlowWaltz": 4
-          },
-          "1068": {
-            "SlowWaltz": 0
-          },
-          "1087": {
-            "SlowWaltz": 3
-          },
-          "1099": {
-            "SlowWaltz": 4
-          },
-          "1103": {
-            "SlowWaltz": 2
-          },
           "1111": {
-            "SlowWaltz": 2
-          },
-          "1117": {
-            "SlowWaltz": 1
-          },
-          "1124": {
-            "SlowWaltz": 0
+            "SlowWaltz": 5,
+            "Tango": 5,
+            "VienneseWaltz": 5,
+            "SlowFoxtrot": 5,
+            "Quickstep": 5
           },
           "1142": {
-            "SlowWaltz": 4
-          },
-          "1149": {
-            "SlowWaltz": 0
-          },
-          "1152": {
-            "SlowWaltz": 3
-          },
-          "1159": {
-            "SlowWaltz": 4
-          },
-          "1161": {
-            "SlowWaltz": 3
-          },
-          "1163": {
-            "SlowWaltz": 2
+            "SlowWaltz": 2,
+            "Tango": 3,
+            "VienneseWaltz": 2,
+            "SlowFoxtrot": 3,
+            "Quickstep": 2
           },
           "1165": {
-            "SlowWaltz": 4
-          },
-          "1184": {
-            "SlowWaltz": 0
+            "SlowWaltz": 1,
+            "Tango": 2,
+            "VienneseWaltz": 1,
+            "SlowFoxtrot": 1,
+            "Quickstep": 1
           },
           "1185": {
-            "SlowWaltz": 4
-          },
-          "1203": {
-            "SlowWaltz": 0
-          },
-          "1205": {
-            "SlowWaltz": 0
+            "SlowWaltz": 3,
+            "Tango": 1,
+            "VienneseWaltz": 3,
+            "SlowFoxtrot": 2,
+            "Quickstep": 3
           },
           "1206": {
-            "SlowWaltz": 0
-          },
-          "1217": {
-            "SlowWaltz": 0
-          },
-          "1232": {
-            "SlowWaltz": 3
-          },
-          "1275": {
-            "SlowWaltz": 4
-          },
-          "1299": {
-            "SlowWaltz": 4
-          },
-          "1311": {
-            "SlowWaltz": 3
-          },
-          "1354": {
-            "SlowWaltz": 4
-          },
-          "1356": {
-            "SlowWaltz": 0
-          },
-          "1365": {
-            "SlowWaltz": 2
-          },
-          "1374": {
-            "SlowWaltz": 0
-          },
-          "1393": {
-            "SlowWaltz": 0
-          },
-          "1395": {
-            "SlowWaltz": 2
-          },
-          "587": {
-            "SlowWaltz": 4
+            "SlowWaltz": 6,
+            "Tango": 6,
+            "VienneseWaltz": 6,
+            "SlowFoxtrot": 6,
+            "Quickstep": 6
           },
           "688": {
-            "SlowWaltz": 4
+            "SlowWaltz": 4,
+            "Tango": 4,
+            "VienneseWaltz": 4,
+            "SlowFoxtrot": 4,
+            "Quickstep": 4
           }
         },
         "AZ": {
-          "1005": {
-            "SlowWaltz": 1
-          },
-          "1009": {
-            "SlowWaltz": 0
-          },
-          "1012": {
-            "SlowWaltz": 0
-          },
-          "1026": {
-            "SlowWaltz": 0
-          },
-          "1028": {
-            "SlowWaltz": 2
-          },
-          "1046": {
-            "SlowWaltz": 0
-          },
-          "1066": {
-            "SlowWaltz": 4
-          },
-          "1068": {
-            "SlowWaltz": 1
-          },
-          "1087": {
-            "SlowWaltz": 2
-          },
-          "1099": {
-            "SlowWaltz": 4
-          },
-          "1103": {
-            "SlowWaltz": 4
-          },
           "1111": {
-            "SlowWaltz": 3
-          },
-          "1117": {
-            "SlowWaltz": 1
-          },
-          "1124": {
-            "SlowWaltz": 1
+            "SlowWaltz": 3,
+            "Tango": 3,
+            "VienneseWaltz": 3,
+            "SlowFoxtrot": 3,
+            "Quickstep": 3
           },
           "1142": {
-            "SlowWaltz": 4
-          },
-          "1149": {
-            "SlowWaltz": 0
-          },
-          "1152": {
-            "SlowWaltz": 3
-          },
-          "1159": {
-            "SlowWaltz": 3
-          },
-          "1161": {
-            "SlowWaltz": 4
-          },
-          "1163": {
-            "SlowWaltz": 2
+            "SlowWaltz": 1,
+            "Tango": 1,
+            "VienneseWaltz": 1,
+            "SlowFoxtrot": 1,
+            "Quickstep": 1
           },
           "1165": {
-            "SlowWaltz": 0
-          },
-          "1184": {
-            "SlowWaltz": 1
+            "SlowWaltz": 6,
+            "Tango": 6,
+            "VienneseWaltz": 6,
+            "SlowFoxtrot": 6,
+            "Quickstep": 6
           },
           "1185": {
-            "SlowWaltz": 4
-          },
-          "1203": {
-            "SlowWaltz": 0
-          },
-          "1205": {
-            "SlowWaltz": 2
+            "SlowWaltz": 5,
+            "Tango": 4,
+            "VienneseWaltz": 5,
+            "SlowFoxtrot": 4,
+            "Quickstep": 4
           },
           "1206": {
-            "SlowWaltz": 2
-          },
-          "1217": {
-            "SlowWaltz": 0
-          },
-          "1232": {
-            "SlowWaltz": 2
-          },
-          "1275": {
-            "SlowWaltz": 4
-          },
-          "1299": {
-            "SlowWaltz": 4
-          },
-          "1311": {
-            "SlowWaltz": 2
-          },
-          "1354": {
-            "SlowWaltz": 0
-          },
-          "1356": {
-            "SlowWaltz": 0
-          },
-          "1365": {
-            "SlowWaltz": 4
-          },
-          "1374": {
-            "SlowWaltz": 1
-          },
-          "1393": {
-            "SlowWaltz": 4
-          },
-          "1395": {
-            "SlowWaltz": 4
-          },
-          "587": {
-            "SlowWaltz": 1
+            "SlowWaltz": 4,
+            "Tango": 5,
+            "VienneseWaltz": 4,
+            "SlowFoxtrot": 5,
+            "Quickstep": 5
           },
           "688": {
-            "SlowWaltz": 3
+            "SlowWaltz": 2,
+            "Tango": 2,
+            "VienneseWaltz": 2,
+            "SlowFoxtrot": 2,
+            "Quickstep": 2
           }
         },
         "BC": {
-          "1005": {
-            "SlowWaltz": 2
-          },
-          "1009": {
-            "SlowWaltz": 3
-          },
-          "1012": {
-            "SlowWaltz": 1
-          },
-          "1026": {
-            "SlowWaltz": 2
-          },
-          "1028": {
-            "SlowWaltz": 0
-          },
-          "1046": {
-            "SlowWaltz": 0
-          },
-          "1066": {
-            "SlowWaltz": 4
-          },
-          "1068": {
-            "SlowWaltz": 0
-          },
-          "1087": {
-            "SlowWaltz": 2
-          },
-          "1099": {
-            "SlowWaltz": 2
-          },
-          "1103": {
-            "SlowWaltz": 4
-          },
           "1111": {
-            "SlowWaltz": 3
-          },
-          "1117": {
-            "SlowWaltz": 4
-          },
-          "1124": {
-            "SlowWaltz": 2
+            "SlowWaltz": 4,
+            "Tango": 3,
+            "VienneseWaltz": 4,
+            "SlowFoxtrot": 3,
+            "Quickstep": 4
           },
           "1142": {
-            "SlowWaltz": 4
-          },
-          "1149": {
-            "SlowWaltz": 0
-          },
-          "1152": {
-            "SlowWaltz": 4
-          },
-          "1159": {
-            "SlowWaltz": 4
-          },
-          "1161": {
-            "SlowWaltz": 3
-          },
-          "1163": {
-            "SlowWaltz": 1
+            "SlowWaltz": 1,
+            "Tango": 1,
+            "VienneseWaltz": 1,
+            "SlowFoxtrot": 1,
+            "Quickstep": 1
           },
           "1165": {
-            "SlowWaltz": 4
-          },
-          "1184": {
-            "SlowWaltz": 0
+            "SlowWaltz": 2,
+            "Tango": 2,
+            "VienneseWaltz": 2,
+            "SlowFoxtrot": 2,
+            "Quickstep": 2
           },
           "1185": {
-            "SlowWaltz": 0
-          },
-          "1203": {
-            "SlowWaltz": 0
-          },
-          "1205": {
-            "SlowWaltz": 0
+            "SlowWaltz": 6,
+            "Tango": 6,
+            "VienneseWaltz": 6,
+            "SlowFoxtrot": 6,
+            "Quickstep": 6
           },
           "1206": {
-            "SlowWaltz": 4
-          },
-          "1217": {
-            "SlowWaltz": 3
-          },
-          "1232": {
-            "SlowWaltz": 3
-          },
-          "1275": {
-            "SlowWaltz": 2
-          },
-          "1299": {
-            "SlowWaltz": 0
-          },
-          "1311": {
-            "SlowWaltz": 3
-          },
-          "1354": {
-            "SlowWaltz": 2
-          },
-          "1356": {
-            "SlowWaltz": 2
-          },
-          "1365": {
-            "SlowWaltz": 0
-          },
-          "1374": {
-            "SlowWaltz": 0
-          },
-          "1393": {
-            "SlowWaltz": 2
-          },
-          "1395": {
-            "SlowWaltz": 2
-          },
-          "587": {
-            "SlowWaltz": 1
+            "SlowWaltz": 3,
+            "Tango": 4,
+            "VienneseWaltz": 3,
+            "SlowFoxtrot": 4,
+            "Quickstep": 3
           },
           "688": {
-            "SlowWaltz": 2
+            "SlowWaltz": 5,
+            "Tango": 5,
+            "VienneseWaltz": 5,
+            "SlowFoxtrot": 5,
+            "Quickstep": 5
           }
         },
         "BG": {
-          "1005": {
-            "SlowWaltz": 1
-          },
-          "1009": {
-            "SlowWaltz": 0
-          },
-          "1012": {
-            "SlowWaltz": 4
-          },
-          "1026": {
-            "SlowWaltz": 1
-          },
-          "1028": {
-            "SlowWaltz": 2
-          },
-          "1046": {
-            "SlowWaltz": 1
-          },
-          "1066": {
-            "SlowWaltz": 1
-          },
-          "1068": {
-            "SlowWaltz": 3
-          },
-          "1087": {
-            "SlowWaltz": 3
-          },
-          "1099": {
-            "SlowWaltz": 3
-          },
-          "1103": {
-            "SlowWaltz": 2
-          },
           "1111": {
-            "SlowWaltz": 2
-          },
-          "1117": {
-            "SlowWaltz": 0
-          },
-          "1124": {
-            "SlowWaltz": 3
+            "SlowWaltz": 4,
+            "Tango": 6,
+            "VienneseWaltz": 4,
+            "SlowFoxtrot": 4,
+            "Quickstep": 6
           },
           "1142": {
-            "SlowWaltz": 3
-          },
-          "1149": {
-            "SlowWaltz": 2
-          },
-          "1152": {
-            "SlowWaltz": 3
-          },
-          "1159": {
-            "SlowWaltz": 4
-          },
-          "1161": {
-            "SlowWaltz": 2
-          },
-          "1163": {
-            "SlowWaltz": 3
+            "SlowWaltz": 3,
+            "Tango": 2,
+            "VienneseWaltz": 3,
+            "SlowFoxtrot": 3,
+            "Quickstep": 3
           },
           "1165": {
-            "SlowWaltz": 1
-          },
-          "1184": {
-            "SlowWaltz": 0
+            "SlowWaltz": 5,
+            "Tango": 5,
+            "VienneseWaltz": 5,
+            "SlowFoxtrot": 6,
+            "Quickstep": 4
           },
           "1185": {
-            "SlowWaltz": 1
-          },
-          "1203": {
-            "SlowWaltz": 1
-          },
-          "1205": {
-            "SlowWaltz": 0
+            "SlowWaltz": 6,
+            "Tango": 4,
+            "VienneseWaltz": 6,
+            "SlowFoxtrot": 5,
+            "Quickstep": 5
           },
           "1206": {
-            "SlowWaltz": 4
-          },
-          "1217": {
-            "SlowWaltz": 4
-          },
-          "1232": {
-            "SlowWaltz": 3
-          },
-          "1275": {
-            "SlowWaltz": 2
-          },
-          "1299": {
-            "SlowWaltz": 3
-          },
-          "1311": {
-            "SlowWaltz": 2
-          },
-          "1354": {
-            "SlowWaltz": 2
-          },
-          "1356": {
-            "SlowWaltz": 4
-          },
-          "1365": {
-            "SlowWaltz": 0
-          },
-          "1374": {
-            "SlowWaltz": 1
-          },
-          "1393": {
-            "SlowWaltz": 2
-          },
-          "1395": {
-            "SlowWaltz": 1
-          },
-          "587": {
-            "SlowWaltz": 4
+            "SlowWaltz": 1,
+            "Tango": 1,
+            "VienneseWaltz": 1,
+            "SlowFoxtrot": 2,
+            "Quickstep": 2
           },
           "688": {
-            "SlowWaltz": 2
+            "SlowWaltz": 2,
+            "Tango": 3,
+            "VienneseWaltz": 2,
+            "SlowFoxtrot": 1,
+            "Quickstep": 1
           }
         },
         "BT": {
-          "1005": {
-            "SlowWaltz": 0
-          },
-          "1009": {
-            "SlowWaltz": 0
-          },
-          "1012": {
-            "SlowWaltz": 0
-          },
-          "1026": {
-            "SlowWaltz": 0
-          },
-          "1028": {
-            "SlowWaltz": 0
-          },
-          "1046": {
-            "SlowWaltz": 0
-          },
-          "1066": {
-            "SlowWaltz": 3
-          },
-          "1068": {
-            "SlowWaltz": 2
-          },
-          "1087": {
-            "SlowWaltz": 0
-          },
-          "1099": {
-            "SlowWaltz": 3
-          },
-          "1103": {
-            "SlowWaltz": 4
-          },
           "1111": {
-            "SlowWaltz": 3
-          },
-          "1117": {
-            "SlowWaltz": 1
-          },
-          "1124": {
-            "SlowWaltz": 0
+            "SlowWaltz": 2,
+            "Tango": 2,
+            "VienneseWaltz": 2,
+            "SlowFoxtrot": 2,
+            "Quickstep": 1
           },
           "1142": {
-            "SlowWaltz": 0
-          },
-          "1149": {
-            "SlowWaltz": 0
-          },
-          "1152": {
-            "SlowWaltz": 4
-          },
-          "1159": {
-            "SlowWaltz": 4
-          },
-          "1161": {
-            "SlowWaltz": 3
-          },
-          "1163": {
-            "SlowWaltz": 2
+            "SlowWaltz": 6,
+            "Tango": 5,
+            "VienneseWaltz": 6,
+            "SlowFoxtrot": 5,
+            "Quickstep": 6
           },
           "1165": {
-            "SlowWaltz": 2
-          },
-          "1184": {
-            "SlowWaltz": 1
+            "SlowWaltz": 3,
+            "Tango": 3,
+            "VienneseWaltz": 3,
+            "SlowFoxtrot": 3,
+            "Quickstep": 3
           },
           "1185": {
-            "SlowWaltz": 2
-          },
-          "1203": {
-            "SlowWaltz": 0
-          },
-          "1205": {
-            "SlowWaltz": 4
+            "SlowWaltz": 5,
+            "Tango": 6,
+            "VienneseWaltz": 5,
+            "SlowFoxtrot": 6,
+            "Quickstep": 5
           },
           "1206": {
-            "SlowWaltz": 4
-          },
-          "1217": {
-            "SlowWaltz": 2
-          },
-          "1232": {
-            "SlowWaltz": 4
-          },
-          "1275": {
-            "SlowWaltz": 1
-          },
-          "1299": {
-            "SlowWaltz": 4
-          },
-          "1311": {
-            "SlowWaltz": 3
-          },
-          "1354": {
-            "SlowWaltz": 2
-          },
-          "1356": {
-            "SlowWaltz": 3
-          },
-          "1365": {
-            "SlowWaltz": 1
-          },
-          "1374": {
-            "SlowWaltz": 0
-          },
-          "1393": {
-            "SlowWaltz": 4
-          },
-          "1395": {
-            "SlowWaltz": 2
-          },
-          "587": {
-            "SlowWaltz": 3
+            "SlowWaltz": 1,
+            "Tango": 1,
+            "VienneseWaltz": 1,
+            "SlowFoxtrot": 1,
+            "Quickstep": 2
           },
           "688": {
-            "SlowWaltz": 1
+            "SlowWaltz": 4,
+            "Tango": 4,
+            "VienneseWaltz": 4,
+            "SlowFoxtrot": 4,
+            "Quickstep": 4
           }
         },
         "DF": {
-          "1005": {
-            "SlowWaltz": 2
-          },
-          "1009": {
-            "SlowWaltz": 4
-          },
-          "1012": {
-            "SlowWaltz": 0
-          },
-          "1026": {
-            "SlowWaltz": 1
-          },
-          "1028": {
-            "SlowWaltz": 2
-          },
-          "1046": {
-            "SlowWaltz": 0
-          },
-          "1066": {
-            "SlowWaltz": 4
-          },
-          "1068": {
-            "SlowWaltz": 0
-          },
-          "1087": {
-            "SlowWaltz": 2
-          },
-          "1099": {
-            "SlowWaltz": 2
-          },
-          "1103": {
-            "SlowWaltz": 2
-          },
           "1111": {
-            "SlowWaltz": 2
-          },
-          "1117": {
-            "SlowWaltz": 2
-          },
-          "1124": {
-            "SlowWaltz": 3
+            "SlowWaltz": 4,
+            "Tango": 5,
+            "VienneseWaltz": 4,
+            "SlowFoxtrot": 4,
+            "Quickstep": 4
           },
           "1142": {
-            "SlowWaltz": 4
-          },
-          "1149": {
-            "SlowWaltz": 0
-          },
-          "1152": {
-            "SlowWaltz": 1
-          },
-          "1159": {
-            "SlowWaltz": 4
-          },
-          "1161": {
-            "SlowWaltz": 3
-          },
-          "1163": {
-            "SlowWaltz": 4
+            "SlowWaltz": 1,
+            "Tango": 2,
+            "VienneseWaltz": 1,
+            "SlowFoxtrot": 1,
+            "Quickstep": 2
           },
           "1165": {
-            "SlowWaltz": 4
-          },
-          "1184": {
-            "SlowWaltz": 0
+            "SlowWaltz": 3,
+            "Tango": 4,
+            "VienneseWaltz": 3,
+            "SlowFoxtrot": 3,
+            "Quickstep": 3
           },
           "1185": {
-            "SlowWaltz": 0
-          },
-          "1203": {
-            "SlowWaltz": 0
-          },
-          "1205": {
-            "SlowWaltz": 0
+            "SlowWaltz": 5,
+            "Tango": 3,
+            "VienneseWaltz": 5,
+            "SlowFoxtrot": 5,
+            "Quickstep": 5
           },
           "1206": {
-            "SlowWaltz": 1
-          },
-          "1217": {
-            "SlowWaltz": 0
-          },
-          "1232": {
-            "SlowWaltz": 2
-          },
-          "1275": {
-            "SlowWaltz": 3
-          },
-          "1299": {
-            "SlowWaltz": 3
-          },
-          "1311": {
-            "SlowWaltz": 3
-          },
-          "1354": {
-            "SlowWaltz": 0
-          },
-          "1356": {
-            "SlowWaltz": 1
-          },
-          "1365": {
-            "SlowWaltz": 4
-          },
-          "1374": {
-            "SlowWaltz": 3
-          },
-          "1393": {
-            "SlowWaltz": 3
-          },
-          "1395": {
-            "SlowWaltz": 3
-          },
-          "587": {
-            "SlowWaltz": 1
+            "SlowWaltz": 6,
+            "Tango": 6,
+            "VienneseWaltz": 6,
+            "SlowFoxtrot": 6,
+            "Quickstep": 6
           },
           "688": {
-            "SlowWaltz": 4
+            "SlowWaltz": 2,
+            "Tango": 1,
+            "VienneseWaltz": 2,
+            "SlowFoxtrot": 2,
+            "Quickstep": 1
           }
         }
       }
     },
     {
-      "name": "Vorrunde",
+      "name": "1. Zwischenrunde",
       "order": 1,
       "dances": [
-        "SlowWaltz"
+        "SlowWaltz",
+        "Tango",
+        "VienneseWaltz",
+        "SlowFoxtrot",
+        "Quickstep"
       ],
-      "round_type": "DTV",
-      "dtv_ranks": {
+      "round_type": "Mark",
+      "marking_crosses": {
         "AE": {
-          "1009": {
-            "SlowWaltz": 4
+          "1005": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
+          "1009": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1012": {},
+          "1026": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1028": {},
+          "1046": {},
           "1066": {
-            "SlowWaltz": 2
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1068": {
-            "SlowWaltz": 4
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1087": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1099": {
-            "SlowWaltz": 0
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1103": {
-            "SlowWaltz": 0
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1111": {
-            "SlowWaltz": 2
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
+          "1117": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1124": {},
           "1142": {
-            "SlowWaltz": 4
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
+          "1149": {},
           "1152": {
-            "SlowWaltz": 3
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1159": {
-            "SlowWaltz": 0
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1161": {
-            "SlowWaltz": 4
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1163": {
-            "SlowWaltz": 0
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1165": {
-            "SlowWaltz": 3
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1184": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1185": {
-            "SlowWaltz": 4
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
+          "1203": {},
           "1205": {
-            "SlowWaltz": 4
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1206": {
-            "SlowWaltz": 4
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1217": {
-            "SlowWaltz": 4
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1232": {
-            "SlowWaltz": 0
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1275": {
-            "SlowWaltz": 0
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1299": {
-            "SlowWaltz": 0
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1311": {
-            "SlowWaltz": 0
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
+          "1354": {},
+          "1356": {},
           "1365": {
-            "SlowWaltz": 4
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
+          "1374": {},
           "1393": {
-            "SlowWaltz": 0
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1395": {
-            "SlowWaltz": 0
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "587": {
-            "SlowWaltz": 2
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "688": {
-            "SlowWaltz": 0
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           }
         },
         "AW": {
-          "1009": {
-            "SlowWaltz": 3
+          "1005": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
+          "1009": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1012": {},
+          "1026": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1028": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1046": {},
           "1066": {
-            "SlowWaltz": 2
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1068": {
-            "SlowWaltz": 1
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1087": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1099": {
-            "SlowWaltz": 3
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1103": {
-            "SlowWaltz": 2
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1111": {
-            "SlowWaltz": 1
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
+          "1117": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1124": {},
           "1142": {
-            "SlowWaltz": 4
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
+          "1149": {},
           "1152": {
-            "SlowWaltz": 2
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1159": {
-            "SlowWaltz": 0
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1161": {
-            "SlowWaltz": 1
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1163": {
-            "SlowWaltz": 0
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1165": {
-            "SlowWaltz": 4
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
+          "1184": {},
           "1185": {
-            "SlowWaltz": 4
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
+          "1203": {},
           "1205": {
-            "SlowWaltz": 1
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1206": {
-            "SlowWaltz": 1
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1217": {
-            "SlowWaltz": 1
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1232": {
-            "SlowWaltz": 0
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1275": {
-            "SlowWaltz": 4
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1299": {
-            "SlowWaltz": 2
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1311": {
-            "SlowWaltz": 0
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
+          "1354": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1356": {},
           "1365": {
-            "SlowWaltz": 4
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
-          "1393": {
-            "SlowWaltz": 0
-          },
+          "1374": {},
+          "1393": {},
           "1395": {
-            "SlowWaltz": 0
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "587": {
-            "SlowWaltz": 4
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "688": {
-            "SlowWaltz": 4
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           }
         },
         "AZ": {
-          "1009": {
-            "SlowWaltz": 1
+          "1005": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
+          "1009": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1012": {},
+          "1026": {},
+          "1028": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1046": {},
           "1066": {
-            "SlowWaltz": 4
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1068": {
-            "SlowWaltz": 2
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1087": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1099": {
-            "SlowWaltz": 3
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1103": {
-            "SlowWaltz": 3
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1111": {
-            "SlowWaltz": 2
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1117": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1124": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1142": {
-            "SlowWaltz": 4
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
+          "1149": {},
           "1152": {
-            "SlowWaltz": 0
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1159": {
-            "SlowWaltz": 2
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1161": {
-            "SlowWaltz": 4
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1163": {
-            "SlowWaltz": 0
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1165": {
-            "SlowWaltz": 1
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1184": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1185": {
-            "SlowWaltz": 4
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
+          "1203": {},
           "1205": {
-            "SlowWaltz": 3
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1206": {
-            "SlowWaltz": 3
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1217": {
-            "SlowWaltz": 1
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1232": {
-            "SlowWaltz": 0
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1275": {
-            "SlowWaltz": 0
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1299": {
-            "SlowWaltz": 1
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1311": {
-            "SlowWaltz": 0
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
+          "1354": {},
+          "1356": {},
           "1365": {
-            "SlowWaltz": 4
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1374": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1393": {
-            "SlowWaltz": 1
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1395": {
-            "SlowWaltz": 0
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "587": {
-            "SlowWaltz": 1
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "688": {
-            "SlowWaltz": 4
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          }
+        },
+        "BC": {
+          "1005": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1009": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1012": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1026": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1028": {},
+          "1046": {},
+          "1066": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1068": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1087": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1099": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1103": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1111": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1117": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1124": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1142": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1149": {},
+          "1152": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1159": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1161": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1163": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1165": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1184": {},
+          "1185": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1203": {},
+          "1205": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1206": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1217": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1232": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1275": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1299": {},
+          "1311": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1354": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1356": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1365": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1374": {},
+          "1393": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1395": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "587": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "688": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          }
+        },
+        "BG": {
+          "1005": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1009": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1012": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1026": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1028": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1046": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1066": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1068": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1087": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1099": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1103": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1111": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1117": {},
+          "1124": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1142": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1149": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1152": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1159": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1161": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1163": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1165": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1184": {},
+          "1185": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1203": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1205": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1206": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1217": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1232": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1275": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1299": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1311": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1354": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1356": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1365": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1374": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1393": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1395": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "587": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "688": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          }
+        },
+        "BT": {
+          "1005": {},
+          "1009": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1012": {},
+          "1026": {},
+          "1028": {},
+          "1046": {},
+          "1066": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1068": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1087": {},
+          "1099": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1103": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1111": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1117": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1124": {},
+          "1142": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1149": {},
+          "1152": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1159": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1161": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1163": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1165": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1184": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1185": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1203": {},
+          "1205": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1206": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1217": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1232": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1275": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1299": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1311": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1354": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1356": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1365": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1374": {},
+          "1393": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1395": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "587": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "688": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          }
+        },
+        "DF": {
+          "1005": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1009": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1012": {},
+          "1026": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1028": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1046": {},
+          "1066": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1068": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1087": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1099": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1103": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1111": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1117": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1124": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1142": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1149": {},
+          "1152": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1159": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1161": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1163": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1165": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1184": {},
+          "1185": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1203": {},
+          "1205": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1206": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1217": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1232": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1275": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1299": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1311": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1354": {},
+          "1356": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1365": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1374": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1393": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1395": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "587": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "688": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          }
+        }
+      }
+    },
+    {
+      "name": "2. Zwischenrunde",
+      "order": 3,
+      "dances": [
+        "SlowWaltz",
+        "Tango",
+        "VienneseWaltz",
+        "SlowFoxtrot",
+        "Quickstep"
+      ],
+      "round_type": "Mark",
+      "marking_crosses": {
+        "AE": {
+          "1009": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1068": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1111": {},
+          "1142": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1165": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1185": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1205": {},
+          "1206": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1217": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1365": {},
+          "587": {},
+          "688": {}
+        },
+        "AW": {
+          "1009": {},
+          "1068": {},
+          "1111": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1142": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1165": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1185": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1205": {},
+          "1206": {},
+          "1217": {},
+          "1365": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "587": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "688": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          }
+        },
+        "AZ": {
+          "1009": {},
+          "1068": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1111": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1142": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1165": {},
+          "1185": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1205": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1206": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1217": {},
+          "1365": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "587": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "688": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           }
         },
         "BC": {
           "1009": {
-            "SlowWaltz": 4
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
-          "1066": {
-            "SlowWaltz": 3
-          },
-          "1068": {
-            "SlowWaltz": 1
-          },
-          "1099": {
-            "SlowWaltz": 0
-          },
-          "1103": {
-            "SlowWaltz": 0
-          },
+          "1068": {},
           "1111": {
-            "SlowWaltz": 4
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1142": {
-            "SlowWaltz": 4
-          },
-          "1152": {
-            "SlowWaltz": 1
-          },
-          "1159": {
-            "SlowWaltz": 0
-          },
-          "1161": {
-            "SlowWaltz": 0
-          },
-          "1163": {
-            "SlowWaltz": 0
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1165": {
-            "SlowWaltz": 4
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
-          "1185": {
-            "SlowWaltz": 4
-          },
-          "1205": {
-            "SlowWaltz": 3
-          },
+          "1185": {},
+          "1205": {},
           "1206": {
-            "SlowWaltz": 4
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1217": {
-            "SlowWaltz": 4
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
-          "1232": {
-            "SlowWaltz": 0
-          },
-          "1275": {
-            "SlowWaltz": 0
-          },
-          "1299": {
-            "SlowWaltz": 0
-          },
-          "1311": {
-            "SlowWaltz": 2
-          },
-          "1365": {
-            "SlowWaltz": 3
-          },
-          "1393": {
-            "SlowWaltz": 0
-          },
-          "1395": {
-            "SlowWaltz": 0
-          },
+          "1365": {},
           "587": {
-            "SlowWaltz": 4
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "688": {
-            "SlowWaltz": 3
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           }
         },
         "BG": {
-          "1009": {
-            "SlowWaltz": 0
-          },
-          "1066": {
-            "SlowWaltz": 0
-          },
+          "1009": {},
           "1068": {
-            "SlowWaltz": 2
-          },
-          "1099": {
-            "SlowWaltz": 3
-          },
-          "1103": {
-            "SlowWaltz": 2
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1111": {
-            "SlowWaltz": 4
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1142": {
-            "SlowWaltz": 3
-          },
-          "1152": {
-            "SlowWaltz": 0
-          },
-          "1159": {
-            "SlowWaltz": 3
-          },
-          "1161": {
-            "SlowWaltz": 0
-          },
-          "1163": {
-            "SlowWaltz": 1
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1165": {
-            "SlowWaltz": 1
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1185": {
-            "SlowWaltz": 3
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
-          "1205": {
-            "SlowWaltz": 3
-          },
+          "1205": {},
           "1206": {
-            "SlowWaltz": 3
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1217": {
-            "SlowWaltz": 4
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
-          "1232": {
-            "SlowWaltz": 2
-          },
-          "1275": {
-            "SlowWaltz": 0
-          },
-          "1299": {
-            "SlowWaltz": 1
-          },
-          "1311": {
-            "SlowWaltz": 0
-          },
-          "1365": {
-            "SlowWaltz": 2
-          },
-          "1393": {
-            "SlowWaltz": 2
-          },
-          "1395": {
-            "SlowWaltz": 2
-          },
+          "1365": {},
           "587": {
-            "SlowWaltz": 3
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "688": {
-            "SlowWaltz": 4
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           }
         },
         "BT": {
-          "1009": {
-            "SlowWaltz": 0
-          },
-          "1066": {
-            "SlowWaltz": 0
-          },
+          "1009": {},
           "1068": {
-            "SlowWaltz": 4
-          },
-          "1099": {
-            "SlowWaltz": 0
-          },
-          "1103": {
-            "SlowWaltz": 3
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1111": {
-            "SlowWaltz": 4
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
-          "1142": {
-            "SlowWaltz": 0
-          },
-          "1152": {
-            "SlowWaltz": 3
-          },
-          "1159": {
-            "SlowWaltz": 2
-          },
-          "1161": {
-            "SlowWaltz": 0
-          },
-          "1163": {
-            "SlowWaltz": 0
-          },
+          "1142": {},
           "1165": {
-            "SlowWaltz": 4
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1185": {
-            "SlowWaltz": 4
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1205": {
-            "SlowWaltz": 4
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1206": {
-            "SlowWaltz": 4
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1217": {
-            "SlowWaltz": 4
-          },
-          "1232": {
-            "SlowWaltz": 0
-          },
-          "1275": {
-            "SlowWaltz": 0
-          },
-          "1299": {
-            "SlowWaltz": 3
-          },
-          "1311": {
-            "SlowWaltz": 0
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1365": {
-            "SlowWaltz": 0
-          },
-          "1393": {
-            "SlowWaltz": 0
-          },
-          "1395": {
-            "SlowWaltz": 1
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "587": {
-            "SlowWaltz": 4
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "688": {
-            "SlowWaltz": 4
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           }
         },
         "DF": {
           "1009": {
-            "SlowWaltz": 4
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
-          "1066": {
-            "SlowWaltz": 2
-          },
-          "1068": {
-            "SlowWaltz": 0
-          },
-          "1099": {
-            "SlowWaltz": 2
-          },
-          "1103": {
-            "SlowWaltz": 0
-          },
+          "1068": {},
           "1111": {
-            "SlowWaltz": 4
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1142": {
-            "SlowWaltz": 4
-          },
-          "1152": {
-            "SlowWaltz": 1
-          },
-          "1159": {
-            "SlowWaltz": 2
-          },
-          "1161": {
-            "SlowWaltz": 3
-          },
-          "1163": {
-            "SlowWaltz": 2
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "1165": {
-            "SlowWaltz": 4
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
-          "1185": {
-            "SlowWaltz": 1
-          },
-          "1205": {
-            "SlowWaltz": 2
-          },
+          "1185": {},
+          "1205": {},
           "1206": {
-            "SlowWaltz": 3
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
-          "1217": {
-            "SlowWaltz": 0
-          },
-          "1232": {
-            "SlowWaltz": 0
-          },
-          "1275": {
-            "SlowWaltz": 0
-          },
-          "1299": {
-            "SlowWaltz": 1
-          },
-          "1311": {
-            "SlowWaltz": 0
-          },
+          "1217": {},
           "1365": {
-            "SlowWaltz": 4
-          },
-          "1393": {
-            "SlowWaltz": 1
-          },
-          "1395": {
-            "SlowWaltz": 1
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "587": {
-            "SlowWaltz": 3
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "688": {
-            "SlowWaltz": 4
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           }
         }
       }

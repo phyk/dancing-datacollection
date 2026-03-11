@@ -10,6 +10,7 @@
   "dances": [
     "SlowWaltz",
     "Tango",
+    "VienneseWaltz",
     "Quickstep"
   ],
   "min_dances": 3,
@@ -109,6 +110,7 @@
       "dances": [
         "SlowWaltz",
         "Tango",
+        "VienneseWaltz",
         "Quickstep"
       ],
       "round_type": "DTV",
@@ -117,26 +119,31 @@
           "1039": {
             "SlowWaltz": 5,
             "Tango": 1,
+            "VienneseWaltz": 5,
             "Quickstep": 1
           },
           "1144": {
             "SlowWaltz": 2,
             "Tango": 3,
+            "VienneseWaltz": 2,
             "Quickstep": 2
           },
           "1245": {
             "SlowWaltz": 1,
             "Tango": 2,
+            "VienneseWaltz": 1,
             "Quickstep": 4
           },
           "1344": {
             "SlowWaltz": 4,
             "Tango": 4,
+            "VienneseWaltz": 4,
             "Quickstep": 3
           },
           "1358": {
             "SlowWaltz": 3,
             "Tango": 5,
+            "VienneseWaltz": 3,
             "Quickstep": 5
           }
         },
@@ -144,26 +151,31 @@
           "1039": {
             "SlowWaltz": 1,
             "Tango": 1,
+            "VienneseWaltz": 1,
             "Quickstep": 1
           },
           "1144": {
             "SlowWaltz": 2,
             "Tango": 2,
+            "VienneseWaltz": 2,
             "Quickstep": 2
           },
           "1245": {
             "SlowWaltz": 3,
             "Tango": 3,
+            "VienneseWaltz": 3,
             "Quickstep": 3
           },
           "1344": {
             "SlowWaltz": 4,
             "Tango": 4,
+            "VienneseWaltz": 4,
             "Quickstep": 4
           },
           "1358": {
             "SlowWaltz": 5,
             "Tango": 5,
+            "VienneseWaltz": 5,
             "Quickstep": 5
           }
         },
@@ -171,26 +183,31 @@
           "1039": {
             "SlowWaltz": 5,
             "Tango": 1,
+            "VienneseWaltz": 5,
             "Quickstep": 1
           },
           "1144": {
             "SlowWaltz": 2,
             "Tango": 4,
+            "VienneseWaltz": 2,
             "Quickstep": 2
           },
           "1245": {
             "SlowWaltz": 3,
             "Tango": 3,
+            "VienneseWaltz": 3,
             "Quickstep": 4
           },
           "1344": {
             "SlowWaltz": 1,
             "Tango": 2,
+            "VienneseWaltz": 1,
             "Quickstep": 3
           },
           "1358": {
             "SlowWaltz": 4,
             "Tango": 5,
+            "VienneseWaltz": 4,
             "Quickstep": 5
           }
         },
@@ -198,26 +215,31 @@
           "1039": {
             "SlowWaltz": 5,
             "Tango": 1,
+            "VienneseWaltz": 5,
             "Quickstep": 1
           },
           "1144": {
             "SlowWaltz": 1,
             "Tango": 2,
+            "VienneseWaltz": 1,
             "Quickstep": 2
           },
           "1245": {
             "SlowWaltz": 4,
             "Tango": 5,
+            "VienneseWaltz": 4,
             "Quickstep": 5
           },
           "1344": {
             "SlowWaltz": 3,
             "Tango": 4,
+            "VienneseWaltz": 3,
             "Quickstep": 4
           },
           "1358": {
             "SlowWaltz": 2,
             "Tango": 3,
+            "VienneseWaltz": 2,
             "Quickstep": 3
           }
         },
@@ -225,26 +247,31 @@
           "1039": {
             "SlowWaltz": 1,
             "Tango": 1,
+            "VienneseWaltz": 1,
             "Quickstep": 1
           },
           "1144": {
             "SlowWaltz": 2,
             "Tango": 2,
+            "VienneseWaltz": 2,
             "Quickstep": 2
           },
           "1245": {
             "SlowWaltz": 4,
             "Tango": 4,
+            "VienneseWaltz": 4,
             "Quickstep": 4
           },
           "1344": {
             "SlowWaltz": 5,
             "Tango": 5,
+            "VienneseWaltz": 5,
             "Quickstep": 5
           },
           "1358": {
             "SlowWaltz": 3,
             "Tango": 3,
+            "VienneseWaltz": 3,
             "Quickstep": 3
           }
         },
@@ -252,26 +279,31 @@
           "1039": {
             "SlowWaltz": 1,
             "Tango": 1,
+            "VienneseWaltz": 1,
             "Quickstep": 1
           },
           "1144": {
             "SlowWaltz": 2,
             "Tango": 3,
+            "VienneseWaltz": 2,
             "Quickstep": 3
           },
           "1245": {
             "SlowWaltz": 4,
             "Tango": 5,
+            "VienneseWaltz": 4,
             "Quickstep": 5
           },
           "1344": {
             "SlowWaltz": 5,
             "Tango": 2,
+            "VienneseWaltz": 5,
             "Quickstep": 4
           },
           "1358": {
             "SlowWaltz": 3,
             "Tango": 4,
+            "VienneseWaltz": 3,
             "Quickstep": 2
           }
         },
@@ -279,26 +311,31 @@
           "1039": {
             "SlowWaltz": 5,
             "Tango": 1,
+            "VienneseWaltz": 5,
             "Quickstep": 1
           },
           "1144": {
             "SlowWaltz": 3,
             "Tango": 5,
+            "VienneseWaltz": 3,
             "Quickstep": 4
           },
           "1245": {
             "SlowWaltz": 2,
             "Tango": 3,
+            "VienneseWaltz": 2,
             "Quickstep": 2
           },
           "1344": {
             "SlowWaltz": 1,
             "Tango": 2,
+            "VienneseWaltz": 1,
             "Quickstep": 5
           },
           "1358": {
             "SlowWaltz": 4,
             "Tango": 4,
+            "VienneseWaltz": 4,
             "Quickstep": 3
           }
         }

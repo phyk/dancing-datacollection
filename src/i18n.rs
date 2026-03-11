@@ -70,7 +70,7 @@ pub fn map_month(mon_str: &str) -> Option<u32> {
         .map(|&(_, m)| m)
 }
 
-pub fn parse_dances(s: &str) -> Vec<Dance> {
+pub fn parse_dances_no_fallback(s: &str) -> Vec<Dance> {
     let mut dances = Vec::new();
     let s_up = s.to_uppercase();
 
@@ -85,6 +85,15 @@ pub fn parse_dances(s: &str) -> Vec<Dance> {
             dances.push(dance);
         }
     }
+
+    dances.sort_by_key(|&d| d as u32);
+    dances.dedup();
+    dances
+}
+
+pub fn parse_dances(s: &str) -> Vec<Dance> {
+    let mut dances = parse_dances_no_fallback(s);
+    let s_up = s.to_uppercase();
 
     if dances.is_empty() {
         if s_up.contains(STYLE_MARKER_STANDARD) {

@@ -8,7 +8,11 @@
   "age_group": "Adult2",
   "style": "Latein",
   "dances": [
-    "Samba"
+    "Samba",
+    "ChaChaCha",
+    "Rumba",
+    "PasoDoble",
+    "Jive"
   ],
   "min_dances": 5,
   "officials": {
@@ -206,679 +210,1113 @@
   ],
   "rounds": [
     {
-      "name": "1. Zwischenrunde",
-      "order": 1,
+      "name": "Endrunde",
+      "order": 0,
       "dances": [
-        "Samba"
+        "Samba",
+        "ChaChaCha",
+        "Rumba",
+        "PasoDoble",
+        "Jive"
       ],
       "round_type": "DTV",
       "dtv_ranks": {
         "AB": {
-          "1107": {
-            "Samba": 0
-          },
           "129": {
-            "Samba": 5
-          },
-          "1290": {
-            "Samba": 1
-          },
-          "1323": {
-            "Samba": 5
-          },
-          "1338": {
-            "Samba": 0
-          },
-          "1362": {
-            "Samba": 4
-          },
-          "1371": {
-            "Samba": 0
+            "Samba": 4,
+            "ChaChaCha": 4,
+            "Rumba": 2,
+            "PasoDoble": 2,
+            "Jive": 4
           },
           "173": {
-            "Samba": 5
+            "Samba": 3,
+            "ChaChaCha": 3,
+            "Rumba": 4,
+            "PasoDoble": 3,
+            "Jive": 2
           },
           "183": {
-            "Samba": 5
-          },
-          "349": {
-            "Samba": 5
-          },
-          "351": {
-            "Samba": 2
-          },
-          "377": {
-            "Samba": 5
-          },
-          "492": {
-            "Samba": 2
+            "Samba": 6,
+            "ChaChaCha": 6,
+            "Rumba": 6,
+            "PasoDoble": 6,
+            "Jive": 6
           },
           "521": {
-            "Samba": 5
-          },
-          "650": {
-            "Samba": 5
+            "Samba": 2,
+            "ChaChaCha": 2,
+            "Rumba": 3,
+            "PasoDoble": 4,
+            "Jive": 3
           },
           "761": {
-            "Samba": 5
-          },
-          "924": {
-            "Samba": 1
+            "Samba": 1,
+            "ChaChaCha": 1,
+            "Rumba": 1,
+            "PasoDoble": 1,
+            "Jive": 1
           },
           "930": {
-            "Samba": 5
+            "Samba": 5,
+            "ChaChaCha": 5,
+            "Rumba": 5,
+            "PasoDoble": 5,
+            "Jive": 5
           }
         },
         "AF": {
-          "1107": {
-            "Samba": 5
-          },
           "129": {
-            "Samba": 5
-          },
-          "1290": {
-            "Samba": 3
-          },
-          "1323": {
-            "Samba": 2
-          },
-          "1338": {
-            "Samba": 1
-          },
-          "1362": {
-            "Samba": 5
-          },
-          "1371": {
-            "Samba": 0
+            "Samba": 4,
+            "ChaChaCha": 5,
+            "Rumba": 4,
+            "PasoDoble": 6,
+            "Jive": 5
           },
           "173": {
-            "Samba": 5
+            "Samba": 3,
+            "ChaChaCha": 3,
+            "Rumba": 3,
+            "PasoDoble": 3,
+            "Jive": 3
           },
           "183": {
-            "Samba": 4
-          },
-          "349": {
-            "Samba": 4
-          },
-          "351": {
-            "Samba": 0
-          },
-          "377": {
-            "Samba": 5
-          },
-          "492": {
-            "Samba": 1
+            "Samba": 5,
+            "ChaChaCha": 4,
+            "Rumba": 6,
+            "PasoDoble": 4,
+            "Jive": 4
           },
           "521": {
-            "Samba": 5
-          },
-          "650": {
-            "Samba": 5
+            "Samba": 1,
+            "ChaChaCha": 1,
+            "Rumba": 1,
+            "PasoDoble": 2,
+            "Jive": 2
           },
           "761": {
-            "Samba": 5
-          },
-          "924": {
-            "Samba": 0
+            "Samba": 2,
+            "ChaChaCha": 2,
+            "Rumba": 2,
+            "PasoDoble": 1,
+            "Jive": 1
           },
           "930": {
-            "Samba": 5
+            "Samba": 6,
+            "ChaChaCha": 6,
+            "Rumba": 5,
+            "PasoDoble": 5,
+            "Jive": 6
           }
         },
         "BB": {
-          "1107": {
-            "Samba": 3
-          },
           "129": {
-            "Samba": 5
-          },
-          "1290": {
-            "Samba": 4
-          },
-          "1323": {
-            "Samba": 5
-          },
-          "1338": {
-            "Samba": 4
-          },
-          "1362": {
-            "Samba": 0
-          },
-          "1371": {
-            "Samba": 0
+            "Samba": 3,
+            "ChaChaCha": 3,
+            "Rumba": 3,
+            "PasoDoble": 3,
+            "Jive": 3
           },
           "173": {
-            "Samba": 4
+            "Samba": 6,
+            "ChaChaCha": 6,
+            "Rumba": 6,
+            "PasoDoble": 6,
+            "Jive": 6
           },
           "183": {
-            "Samba": 5
-          },
-          "349": {
-            "Samba": 5
-          },
-          "351": {
-            "Samba": 4
-          },
-          "377": {
-            "Samba": 0
-          },
-          "492": {
-            "Samba": 0
+            "Samba": 5,
+            "ChaChaCha": 5,
+            "Rumba": 5,
+            "PasoDoble": 4,
+            "Jive": 5
           },
           "521": {
-            "Samba": 5
-          },
-          "650": {
-            "Samba": 5
+            "Samba": 1,
+            "ChaChaCha": 1,
+            "Rumba": 2,
+            "PasoDoble": 1,
+            "Jive": 1
           },
           "761": {
-            "Samba": 5
-          },
-          "924": {
-            "Samba": 1
+            "Samba": 2,
+            "ChaChaCha": 2,
+            "Rumba": 1,
+            "PasoDoble": 2,
+            "Jive": 2
           },
           "930": {
-            "Samba": 5
+            "Samba": 4,
+            "ChaChaCha": 4,
+            "Rumba": 4,
+            "PasoDoble": 5,
+            "Jive": 4
           }
         },
         "BJ": {
-          "1107": {
-            "Samba": 5
-          },
           "129": {
-            "Samba": 5
-          },
-          "1290": {
-            "Samba": 1
-          },
-          "1323": {
-            "Samba": 4
-          },
-          "1338": {
-            "Samba": 3
-          },
-          "1362": {
-            "Samba": 4
-          },
-          "1371": {
-            "Samba": 0
+            "Samba": 3,
+            "ChaChaCha": 3,
+            "Rumba": 4,
+            "PasoDoble": 3,
+            "Jive": 4
           },
           "173": {
-            "Samba": 5
+            "Samba": 4,
+            "ChaChaCha": 4,
+            "Rumba": 3,
+            "PasoDoble": 4,
+            "Jive": 3
           },
           "183": {
-            "Samba": 5
-          },
-          "349": {
-            "Samba": 5
-          },
-          "351": {
-            "Samba": 3
-          },
-          "377": {
-            "Samba": 1
-          },
-          "492": {
-            "Samba": 0
+            "Samba": 6,
+            "ChaChaCha": 5,
+            "Rumba": 5,
+            "PasoDoble": 5,
+            "Jive": 6
           },
           "521": {
-            "Samba": 5
-          },
-          "650": {
-            "Samba": 4
+            "Samba": 1,
+            "ChaChaCha": 2,
+            "Rumba": 1,
+            "PasoDoble": 2,
+            "Jive": 2
           },
           "761": {
-            "Samba": 5
-          },
-          "924": {
-            "Samba": 0
+            "Samba": 2,
+            "ChaChaCha": 1,
+            "Rumba": 2,
+            "PasoDoble": 1,
+            "Jive": 1
           },
           "930": {
-            "Samba": 5
+            "Samba": 5,
+            "ChaChaCha": 6,
+            "Rumba": 6,
+            "PasoDoble": 6,
+            "Jive": 5
           }
         },
         "BS": {
-          "1107": {
-            "Samba": 0
-          },
           "129": {
-            "Samba": 5
-          },
-          "1290": {
-            "Samba": 2
-          },
-          "1323": {
-            "Samba": 5
-          },
-          "1338": {
-            "Samba": 2
-          },
-          "1362": {
-            "Samba": 3
-          },
-          "1371": {
-            "Samba": 0
+            "Samba": 5,
+            "ChaChaCha": 6,
+            "Rumba": 5,
+            "PasoDoble": 5,
+            "Jive": 6
           },
           "173": {
-            "Samba": 5
+            "Samba": 2,
+            "ChaChaCha": 2,
+            "Rumba": 2,
+            "PasoDoble": 2,
+            "Jive": 2
           },
           "183": {
-            "Samba": 5
-          },
-          "349": {
-            "Samba": 4
-          },
-          "351": {
-            "Samba": 2
-          },
-          "377": {
-            "Samba": 5
-          },
-          "492": {
-            "Samba": 1
+            "Samba": 6,
+            "ChaChaCha": 5,
+            "Rumba": 6,
+            "PasoDoble": 6,
+            "Jive": 5
           },
           "521": {
-            "Samba": 5
-          },
-          "650": {
-            "Samba": 5
+            "Samba": 3,
+            "ChaChaCha": 4,
+            "Rumba": 4,
+            "PasoDoble": 4,
+            "Jive": 4
           },
           "761": {
-            "Samba": 5
-          },
-          "924": {
-            "Samba": 1
+            "Samba": 1,
+            "ChaChaCha": 1,
+            "Rumba": 1,
+            "PasoDoble": 1,
+            "Jive": 1
           },
           "930": {
-            "Samba": 5
+            "Samba": 4,
+            "ChaChaCha": 3,
+            "Rumba": 3,
+            "PasoDoble": 3,
+            "Jive": 3
           }
         },
         "BU": {
-          "1107": {
-            "Samba": 4
-          },
           "129": {
-            "Samba": 5
-          },
-          "1290": {
-            "Samba": 3
-          },
-          "1323": {
-            "Samba": 4
-          },
-          "1338": {
-            "Samba": 4
-          },
-          "1362": {
-            "Samba": 0
-          },
-          "1371": {
-            "Samba": 0
+            "Samba": 1,
+            "ChaChaCha": 1,
+            "Rumba": 2,
+            "PasoDoble": 3,
+            "Jive": 1
           },
           "173": {
-            "Samba": 5
+            "Samba": 6,
+            "ChaChaCha": 6,
+            "Rumba": 6,
+            "PasoDoble": 6,
+            "Jive": 6
           },
           "183": {
-            "Samba": 5
-          },
-          "349": {
-            "Samba": 5
-          },
-          "351": {
-            "Samba": 4
-          },
-          "377": {
-            "Samba": 1
-          },
-          "492": {
-            "Samba": 0
+            "Samba": 3,
+            "ChaChaCha": 3,
+            "Rumba": 3,
+            "PasoDoble": 4,
+            "Jive": 4
           },
           "521": {
-            "Samba": 5
-          },
-          "650": {
-            "Samba": 5
+            "Samba": 4,
+            "ChaChaCha": 5,
+            "Rumba": 5,
+            "PasoDoble": 5,
+            "Jive": 5
           },
           "761": {
-            "Samba": 5
-          },
-          "924": {
-            "Samba": 0
+            "Samba": 5,
+            "ChaChaCha": 4,
+            "Rumba": 4,
+            "PasoDoble": 2,
+            "Jive": 3
           },
           "930": {
-            "Samba": 5
+            "Samba": 2,
+            "ChaChaCha": 2,
+            "Rumba": 1,
+            "PasoDoble": 1,
+            "Jive": 2
           }
         },
         "CB": {
-          "1107": {
-            "Samba": 2
-          },
           "129": {
-            "Samba": 5
-          },
-          "1290": {
-            "Samba": 2
-          },
-          "1323": {
-            "Samba": 4
-          },
-          "1338": {
-            "Samba": 3
-          },
-          "1362": {
-            "Samba": 4
-          },
-          "1371": {
-            "Samba": 0
+            "Samba": 3,
+            "ChaChaCha": 4,
+            "Rumba": 3,
+            "PasoDoble": 4,
+            "Jive": 3
           },
           "173": {
-            "Samba": 5
+            "Samba": 4,
+            "ChaChaCha": 3,
+            "Rumba": 4,
+            "PasoDoble": 3,
+            "Jive": 4
           },
           "183": {
-            "Samba": 5
-          },
-          "349": {
-            "Samba": 2
-          },
-          "351": {
-            "Samba": 2
-          },
-          "377": {
-            "Samba": 5
-          },
-          "492": {
-            "Samba": 0
+            "Samba": 5,
+            "ChaChaCha": 6,
+            "Rumba": 5,
+            "PasoDoble": 6,
+            "Jive": 5
           },
           "521": {
-            "Samba": 5
-          },
-          "650": {
-            "Samba": 5
+            "Samba": 1,
+            "ChaChaCha": 1,
+            "Rumba": 2,
+            "PasoDoble": 2,
+            "Jive": 2
           },
           "761": {
-            "Samba": 5
-          },
-          "924": {
-            "Samba": 1
+            "Samba": 2,
+            "ChaChaCha": 2,
+            "Rumba": 1,
+            "PasoDoble": 1,
+            "Jive": 1
           },
           "930": {
-            "Samba": 5
+            "Samba": 6,
+            "ChaChaCha": 5,
+            "Rumba": 6,
+            "PasoDoble": 5,
+            "Jive": 6
           }
         }
       }
     },
     {
-      "name": "Vorrunde",
+      "name": "1. Zwischenrunde",
       "order": 1,
       "dances": [
-        "Samba"
+        "Samba",
+        "ChaChaCha",
+        "Rumba",
+        "PasoDoble",
+        "Jive"
       ],
-      "round_type": "DTV",
-      "dtv_ranks": {
+      "round_type": "Mark",
+      "marking_crosses": {
         "AB": {
-          "1107": {
-            "Samba": 0
-          },
+          "1107": {},
           "129": {
-            "Samba": 5
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
+          },
+          "1290": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
           "1323": {
-            "Samba": 0
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
+          "1338": {},
           "1362": {
-            "Samba": 0
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
+          "1371": {},
           "173": {
-            "Samba": 5
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
           "183": {
-            "Samba": 0
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
           "349": {
-            "Samba": 0
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
+          },
+          "351": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
           "377": {
-            "Samba": 3
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
+          },
+          "492": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
           "521": {
-            "Samba": 5
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
           "650": {
-            "Samba": 2
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
           "761": {
-            "Samba": 5
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
+          },
+          "924": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
           "930": {
-            "Samba": 5
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           }
         },
         "AF": {
           "1107": {
-            "Samba": 0
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
           "129": {
-            "Samba": 5
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
+          },
+          "1290": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
           "1323": {
-            "Samba": 0
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
+          },
+          "1338": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
           "1362": {
-            "Samba": 1
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
+          "1371": {},
           "173": {
-            "Samba": 5
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
           "183": {
-            "Samba": 2
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
           "349": {
-            "Samba": 0
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
+          "351": {},
           "377": {
-            "Samba": 0
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
+          },
+          "492": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
           "521": {
-            "Samba": 5
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
           "650": {
-            "Samba": 2
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
           "761": {
-            "Samba": 5
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
+          "924": {},
           "930": {
-            "Samba": 5
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           }
         },
         "BB": {
           "1107": {
-            "Samba": 0
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
           "129": {
-            "Samba": 5
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
+          },
+          "1290": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
           "1323": {
-            "Samba": 1
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
-          "1362": {
-            "Samba": 0
+          "1338": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
+          "1362": {},
+          "1371": {},
           "173": {
-            "Samba": 0
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
           "183": {
-            "Samba": 5
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
           "349": {
-            "Samba": 0
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
-          "377": {
-            "Samba": 0
+          "351": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
+          "377": {},
+          "492": {},
           "521": {
-            "Samba": 5
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
           "650": {
-            "Samba": 4
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
           "761": {
-            "Samba": 5
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
+          },
+          "924": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
           "930": {
-            "Samba": 5
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           }
         },
         "BJ": {
           "1107": {
-            "Samba": 0
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
           "129": {
-            "Samba": 5
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
+          },
+          "1290": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
           "1323": {
-            "Samba": 0
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
+          },
+          "1338": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
           "1362": {
-            "Samba": 0
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
+          "1371": {},
           "173": {
-            "Samba": 5
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
           "183": {
-            "Samba": 5
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
           "349": {
-            "Samba": 0
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
+          },
+          "351": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
           "377": {
-            "Samba": 0
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
+          "492": {},
           "521": {
-            "Samba": 5
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
           "650": {
-            "Samba": 0
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
           "761": {
-            "Samba": 5
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
+          "924": {},
           "930": {
-            "Samba": 5
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           }
         },
         "BS": {
-          "1107": {
-            "Samba": 0
-          },
+          "1107": {},
           "129": {
-            "Samba": 2
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
+          },
+          "1290": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
           "1323": {
-            "Samba": 1
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
+          },
+          "1338": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
           "1362": {
-            "Samba": 0
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
+          "1371": {},
           "173": {
-            "Samba": 5
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
           "183": {
-            "Samba": 2
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
           "349": {
-            "Samba": 0
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
+          },
+          "351": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
           "377": {
-            "Samba": 5
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
+          },
+          "492": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
           "521": {
-            "Samba": 4
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
           "650": {
-            "Samba": 1
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
           "761": {
-            "Samba": 5
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
+          },
+          "924": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
           "930": {
-            "Samba": 5
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           }
         },
         "BU": {
           "1107": {
-            "Samba": 0
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
           "129": {
-            "Samba": 5
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
+          },
+          "1290": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
           "1323": {
-            "Samba": 0
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
+          },
+          "1338": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
           "1362": {
-            "Samba": 2
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
+          "1371": {},
           "173": {
-            "Samba": 0
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
           "183": {
-            "Samba": 5
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
           "349": {
-            "Samba": 3
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
+          },
+          "351": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
           "377": {
-            "Samba": 0
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
+          "492": {},
           "521": {
-            "Samba": 5
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
           "650": {
-            "Samba": 0
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
           "761": {
-            "Samba": 5
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
+          "924": {},
           "930": {
-            "Samba": 5
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           }
         },
         "CB": {
           "1107": {
-            "Samba": 0
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
           "129": {
-            "Samba": 5
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
+          },
+          "1290": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
           "1323": {
-            "Samba": 0
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
+          },
+          "1338": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
           "1362": {
-            "Samba": 0
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
+          "1371": {},
           "173": {
-            "Samba": 5
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
           "183": {
-            "Samba": 1
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
           "349": {
-            "Samba": 0
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
+          },
+          "351": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
           "377": {
-            "Samba": 5
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
+          "492": {},
           "521": {
-            "Samba": 5
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
           "650": {
-            "Samba": 2
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
           "761": {
-            "Samba": 5
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
+          },
+          "924": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           },
           "930": {
-            "Samba": 2
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
           }
         }
       }
