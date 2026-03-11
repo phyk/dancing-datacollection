@@ -191,6 +191,7 @@ pub const SELECTOR_TABLE: &str = "table";
 pub const PATTERN_BIB_PARENS: &str = r"\((\d+)\)";
 pub const PATTERN_SCORE: &str = r"(\d+[\.,]\d+)";
 pub const PATTERN_DATE: &str = r"(\d{1,2})[\./]([a-zA-Z0-9]{2,3})[\./](\d{4})";
+pub const PATTERN_RANK: &str = r"(\d+)";
 
 // --- Interpretation Markers ---
 pub const BIB_COLUMN_MARKERS: &[&str] = &["nr", "nr.", "startnummer", "no."];

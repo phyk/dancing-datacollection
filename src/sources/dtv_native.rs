@@ -23,6 +23,7 @@ static RE_BIB_PARENS: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(PATTERN_BIB_PARENS).unwrap());
 static RE_SCORE: LazyLock<Regex> = LazyLock::new(|| Regex::new(PATTERN_SCORE).unwrap());
 static RE_DATE: LazyLock<Regex> = LazyLock::new(|| Regex::new(PATTERN_DATE).unwrap());
+static RE_RANK: LazyLock<Regex> = LazyLock::new(|| Regex::new(PATTERN_RANK).unwrap());
 
 // --- Utilities ---
 fn clean(s: &str) -> String {
@@ -89,7 +90,11 @@ fn parse_participant_row(row: ElementRef) -> Result<Participant, ParsingError> {
     let rank = row
         .select(&Selector::parse(SELECTOR_PARTICIPANT_RANK).unwrap())
         .next()
-        .and_then(|el| txt(&el).trim_end_matches('.').parse::<u32>().ok());
+        .and_then(|el| {
+            RE_RANK
+                .captures(&txt(&el))
+                .and_then(|c| c[1].parse::<u32>().ok())
+        });
     let data_cells: Vec<_> = row
         .select(&Selector::parse(SELECTOR_PARTICIPANT_DATA).unwrap())
         .collect();

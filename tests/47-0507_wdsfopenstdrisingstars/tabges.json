@@ -151,7 +151,7 @@
       "bib_number": 505,
       "name_two": "Hanna Kalpakidis",
       "affiliation": "Germany",
-      "final_rank": null
+      "final_rank": 10
     },
     {
       "identity_type": "Couple",
@@ -159,7 +159,7 @@
       "bib_number": 554,
       "name_two": "Nicole Geller",
       "affiliation": "Germany",
-      "final_rank": null
+      "final_rank": 10
     },
     {
       "identity_type": "Couple",
@@ -215,7 +215,7 @@
       "bib_number": 299,
       "name_two": "Linda Eijssens",
       "affiliation": "Netherlands",
-      "final_rank": null
+      "final_rank": 18
     },
     {
       "identity_type": "Couple",
@@ -223,7 +223,7 @@
       "bib_number": 302,
       "name_two": "Michelle Uciteli",
       "affiliation": "Germany",
-      "final_rank": null
+      "final_rank": 18
     },
     {
       "identity_type": "Couple",
@@ -231,7 +231,7 @@
       "bib_number": 337,
       "name_two": "Alexandra Yena",
       "affiliation": "Germany",
-      "final_rank": null
+      "final_rank": 18
     },
     {
       "identity_type": "Couple",
@@ -239,7 +239,7 @@
       "bib_number": 426,
       "name_two": "Mariia Ashizheva",
       "affiliation": "Germany",
-      "final_rank": null
+      "final_rank": 21
     },
     {
       "identity_type": "Couple",
@@ -247,7 +247,7 @@
       "bib_number": 461,
       "name_two": "Rebecca Börger",
       "affiliation": "Germany",
-      "final_rank": null
+      "final_rank": 21
     },
     {
       "identity_type": "Couple",
@@ -279,7 +279,7 @@
       "bib_number": 188,
       "name_two": "Luisa Griesbaum",
       "affiliation": "Germany",
-      "final_rank": null
+      "final_rank": 26
     },
     {
       "identity_type": "Couple",
@@ -287,7 +287,7 @@
       "bib_number": 968,
       "name_two": "Ann-Christin Baier",
       "affiliation": "Germany",
-      "final_rank": null
+      "final_rank": 26
     },
     {
       "identity_type": "Couple",
@@ -311,7 +311,7 @@
       "bib_number": 159,
       "name_two": "Klara Ballata",
       "affiliation": "Germany",
-      "final_rank": null
+      "final_rank": 30
     },
     {
       "identity_type": "Couple",
@@ -319,7 +319,7 @@
       "bib_number": 303,
       "name_two": "Daphne Bouwens",
       "affiliation": "Netherlands",
-      "final_rank": null
+      "final_rank": 30
     },
     {
       "identity_type": "Couple",
@@ -359,7 +359,7 @@
       "bib_number": 131,
       "name_two": "Annemarie van Zwol",
       "affiliation": "Netherlands",
-      "final_rank": null
+      "final_rank": 36
     },
     {
       "identity_type": "Couple",
@@ -367,7 +367,7 @@
       "bib_number": 220,
       "name_two": "Carolin Sarmini",
       "affiliation": "Germany",
-      "final_rank": null
+      "final_rank": 36
     },
     {
       "identity_type": "Couple",
@@ -375,7 +375,7 @@
       "bib_number": 663,
       "name_two": "Sophia Hornbacher",
       "affiliation": "Germany",
-      "final_rank": null
+      "final_rank": 36
     },
     {
       "identity_type": "Couple",
@@ -383,7 +383,7 @@
       "bib_number": 781,
       "name_two": "Kathrin Depner",
       "affiliation": "Germany",
-      "final_rank": null
+      "final_rank": 36
     },
     {
       "identity_type": "Couple",
@@ -399,7 +399,7 @@
       "bib_number": 448,
       "name_two": "Lisa Barth",
       "affiliation": "Germany",
-      "final_rank": null
+      "final_rank": 41
     },
     {
       "identity_type": "Couple",
@@ -407,7 +407,7 @@
       "bib_number": 747,
       "name_two": "Vitalia Svirskaja",
       "affiliation": "Germany",
-      "final_rank": null
+      "final_rank": 41
     },
     {
       "identity_type": "Couple",
@@ -423,7 +423,7 @@
       "bib_number": 327,
       "name_two": "Isabella de Haas",
       "affiliation": "Netherlands",
-      "final_rank": null
+      "final_rank": 44
     },
     {
       "identity_type": "Couple",
@@ -431,7 +431,7 @@
       "bib_number": 602,
       "name_two": "Tanja Hense",
       "affiliation": "Germany",
-      "final_rank": null
+      "final_rank": 44
     },
     {
       "identity_type": "Couple",
@@ -455,7 +455,7 @@
       "bib_number": 363,
       "name_two": "Artemi Chondrokostopoulou",
       "affiliation": "Germany",
-      "final_rank": null
+      "final_rank": 48
     },
     {
       "identity_type": "Couple",
@@ -463,7 +463,7 @@
       "bib_number": 797,
       "name_two": "Theresa Volders",
       "affiliation": "Germany",
-      "final_rank": null
+      "final_rank": 48
     },
     {
       "identity_type": "Couple",
@@ -471,7 +471,7 @@
       "bib_number": 903,
       "name_two": "Clara Mazurek",
       "affiliation": "Germany",
-      "final_rank": null
+      "final_rank": 48
     },
     {
       "identity_type": "Couple",
@@ -503,7 +503,7 @@
       "bib_number": 430,
       "name_two": "Sophie Hauser",
       "affiliation": "Austria",
-      "final_rank": null
+      "final_rank": 54
     },
     {
       "identity_type": "Couple",
@@ -511,7 +511,7 @@
       "bib_number": 737,
       "name_two": "Katharina Ziener",
       "affiliation": "Germany",
-      "final_rank": null
+      "final_rank": 54
     },
     {
       "identity_type": "Couple",
@@ -527,7 +527,7 @@
       "bib_number": 392,
       "name_two": "Neele Neunzig",
       "affiliation": "Germany",
-      "final_rank": null
+      "final_rank": 57
     },
     {
       "identity_type": "Couple",
@@ -535,7 +535,7 @@
       "bib_number": 827,
       "name_two": "Alicia Konrath",
       "affiliation": "Germany",
-      "final_rank": null
+      "final_rank": 57
     },
     {
       "identity_type": "Couple",
@@ -543,7 +543,7 @@
       "bib_number": 864,
       "name_two": "Daniela Nguyen",
       "affiliation": "Germany",
-      "final_rank": null
+      "final_rank": 57
     },
     {
       "identity_type": "Couple",
@@ -551,7 +551,7 @@
       "bib_number": 189,
       "name_two": "Viktoria Buell",
       "affiliation": "Netherlands",
-      "final_rank": null
+      "final_rank": 60
     },
     {
       "identity_type": "Couple",
@@ -559,7 +559,7 @@
       "bib_number": 453,
       "name_two": "Maryam Reher",
       "affiliation": "Germany",
-      "final_rank": null
+      "final_rank": 60
     },
     {
       "identity_type": "Couple",
@@ -599,7 +599,7 @@
       "bib_number": 831,
       "name_two": "Marimel Aurelia Mayer",
       "affiliation": "Germany",
-      "final_rank": null
+      "final_rank": 66
     },
     {
       "identity_type": "Couple",
@@ -607,7 +607,7 @@
       "bib_number": 967,
       "name_two": "Larissa Wenzel",
       "affiliation": "Germany",
-      "final_rank": null
+      "final_rank": 66
     },
     {
       "identity_type": "Couple",
