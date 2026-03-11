@@ -129,7 +129,7 @@
       "bib_number": 1009,
       "name_two": "Jutta Neufeld",
       "affiliation": null,
-      "final_rank": null
+      "final_rank": 9
     },
     {
       "identity_type": "Couple",
@@ -137,7 +137,7 @@
       "bib_number": 1365,
       "name_two": "Maren Kaczor",
       "affiliation": null,
-      "final_rank": null
+      "final_rank": 9
     },
     {
       "identity_type": "Couple",
@@ -185,7 +185,7 @@
       "bib_number": 1103,
       "name_two": "Mara Plümpe",
       "affiliation": null,
-      "final_rank": null
+      "final_rank": 16
     },
     {
       "identity_type": "Couple",
@@ -193,7 +193,7 @@
       "bib_number": 1152,
       "name_two": "Neele Kuschny",
       "affiliation": null,
-      "final_rank": null
+      "final_rank": 16
     },
     {
       "identity_type": "Couple",
@@ -217,7 +217,7 @@
       "bib_number": 1275,
       "name_two": "Franka Bäder",
       "affiliation": null,
-      "final_rank": null
+      "final_rank": 20
     },
     {
       "identity_type": "Couple",
@@ -225,7 +225,7 @@
       "bib_number": 1393,
       "name_two": "Jacqueline Dziurzik",
       "affiliation": null,
-      "final_rank": null
+      "final_rank": 20
     },
     {
       "identity_type": "Couple",
@@ -233,7 +233,7 @@
       "bib_number": 1395,
       "name_two": "Finja Hasse",
       "affiliation": null,
-      "final_rank": null
+      "final_rank": 20
     },
     {
       "identity_type": "Couple",
@@ -249,7 +249,7 @@
       "bib_number": 1232,
       "name_two": "Diana Bühren",
       "affiliation": null,
-      "final_rank": null
+      "final_rank": 24
     },
     {
       "identity_type": "Couple",
@@ -257,7 +257,7 @@
       "bib_number": 1311,
       "name_two": "Caroline Schulze",
       "affiliation": null,
-      "final_rank": null
+      "final_rank": 24
     },
     {
       "identity_type": "Couple",
@@ -273,7 +273,7 @@
       "bib_number": 1005,
       "name_two": "Maja Sophia Leich",
       "affiliation": null,
-      "final_rank": null
+      "final_rank": 27
     },
     {
       "identity_type": "Couple",
@@ -281,7 +281,7 @@
       "bib_number": 1117,
       "name_two": "Nina Holtwessels",
       "affiliation": null,
-      "final_rank": null
+      "final_rank": 27
     },
     {
       "identity_type": "Couple",
@@ -289,7 +289,7 @@
       "bib_number": 1354,
       "name_two": "Karola Hauzeneder",
       "affiliation": null,
-      "final_rank": null
+      "final_rank": 29
     },
     {
       "identity_type": "Couple",
@@ -297,7 +297,7 @@
       "bib_number": 1356,
       "name_two": "Sabrina Wager",
       "affiliation": null,
-      "final_rank": null
+      "final_rank": 29
     },
     {
       "identity_type": "Couple",
@@ -305,7 +305,7 @@
       "bib_number": 1028,
       "name_two": "Katharina Sophie Neuwirth",
       "affiliation": null,
-      "final_rank": null
+      "final_rank": 31
     },
     {
       "identity_type": "Couple",
@@ -313,7 +313,7 @@
       "bib_number": 1124,
       "name_two": "Ilka Marquard",
       "affiliation": null,
-      "final_rank": null
+      "final_rank": 31
     },
     {
       "identity_type": "Couple",
@@ -329,7 +329,7 @@
       "bib_number": 1012,
       "name_two": "Theresa Löw",
       "affiliation": null,
-      "final_rank": null
+      "final_rank": 34
     },
     {
       "identity_type": "Couple",
@@ -337,7 +337,7 @@
       "bib_number": 1374,
       "name_two": "Jana Mischon",
       "affiliation": null,
-      "final_rank": null
+      "final_rank": 34
     },
     {
       "identity_type": "Couple",
@@ -361,7 +361,7 @@
       "bib_number": 1046,
       "name_two": "Cláudia Campos de Menezes Machado",
       "affiliation": null,
-      "final_rank": null
+      "final_rank": 38
     },
     {
       "identity_type": "Couple",
@@ -369,7 +369,7 @@
       "bib_number": 1203,
       "name_two": "Inga Dönges",
       "affiliation": null,
-      "final_rank": null
+      "final_rank": 38
     }
   ],
   "rounds": [

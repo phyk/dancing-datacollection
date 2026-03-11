@@ -247,7 +247,9 @@ pub fn is_rank_column_marker(s: &str) -> bool {
 
 pub fn is_sum_column_marker(s: &str) -> bool {
     let lower = s.to_lowercase();
-    SUM_COLUMN_MARKERS.iter().any(|&m| lower == m || lower.contains("pz"))
+    SUM_COLUMN_MARKERS
+        .iter()
+        .any(|&m| lower == m || lower.contains("pz"))
 }
 
 pub fn is_round_column_marker(s: &str) -> bool {
