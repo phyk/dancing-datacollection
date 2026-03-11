@@ -19,8 +19,7 @@ static SEL_TD: LazyLock<Selector> = LazyLock::new(|| Selector::parse(SELECTOR_TD
 static SEL_SPAN: LazyLock<Selector> = LazyLock::new(|| Selector::parse(SELECTOR_SPAN).unwrap());
 static SEL_I: LazyLock<Selector> = LazyLock::new(|| Selector::parse(SELECTOR_I).unwrap());
 static SEL_TITLE: LazyLock<Selector> = LazyLock::new(|| Selector::parse(SELECTOR_TITLE).unwrap());
-static RE_BIB_PARENS: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(PATTERN_BIB_PARENS).unwrap());
+static RE_BIB_PARENS: LazyLock<Regex> = LazyLock::new(|| Regex::new(PATTERN_BIB_PARENS).unwrap());
 static RE_SCORE: LazyLock<Regex> = LazyLock::new(|| Regex::new(PATTERN_SCORE).unwrap());
 static RE_DATE: LazyLock<Regex> = LazyLock::new(|| Regex::new(PATTERN_DATE).unwrap());
 static RE_RANK: LazyLock<Regex> = LazyLock::new(|| Regex::new(PATTERN_RANK).unwrap());
@@ -767,7 +766,9 @@ fn parse_wdsf_scores(
                                     match score_type {
                                         "technical_quality" => s.technical_quality = sc[0],
                                         "movement_to_music" => s.movement_to_music = sc[0],
-                                        "partnering_skills" => s.partnering_skills = *sc.last().unwrap(),
+                                        "partnering_skills" => {
+                                            s.partnering_skills = *sc.last().unwrap()
+                                        }
                                         "choreography" => s.choreography = *sc.last().unwrap(),
                                         "total" => s.total = sc[0],
                                         _ => {}

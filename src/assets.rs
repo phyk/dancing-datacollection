@@ -199,7 +199,8 @@ pub const RANK_COLUMN_MARKERS: &[&str] = &["pl.", "platz"];
 pub const SUM_COLUMN_MARKERS: &[&str] = &["su", "summe", "total", "pz", "sum"];
 pub const ROUND_COLUMN_MARKERS: &[&str] = &["r", "round", "runde"];
 pub const PARTICIPANT_MARKERS: &[&str] = &["teilnehmer"];
-pub const QUALIFICATION_MARKERS: &[&str] = &["result of", "qualified for", "ergebnis", "qualifiziert"];
+pub const QUALIFICATION_MARKERS: &[&str] =
+    &["result of", "qualified for", "ergebnis", "qualifiziert"];
 pub const LEVEL_S_MARKERS: &[&str] = &["WDSF", "OPEN"];
 pub const TITLE_CLEANUP_STRINGS: &[&str] = &[
     "\"GS\"",
