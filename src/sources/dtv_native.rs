@@ -111,11 +111,13 @@ fn parse_participant_row(row: ElementRef) -> Result<Participant, ParsingError> {
     if bib == 0 {
         let full = txt(&data_cells[0]);
         club = data_cells[0].select(&SEL_I).next().map(|el| txt(&el));
-        let name_bib = if let Some(ref c) = club {
-            full.replace(c, "").trim().to_string()
-        } else {
-            full
-        };
+        let mut name_bib = full;
+        if let Some(ref c) = club {
+            name_bib = name_bib.replace(c, "").trim().to_string();
+        } else if data_cells.len() > 1 {
+            club = Some(txt(&data_cells[1]));
+        }
+
         if let Some(caps) = RE_BIB_PARENS.captures(&name_bib) {
             bib = caps[1].parse().unwrap_or(0);
             name = RE_BIB_PARENS.replace_all(&name_bib, "").trim().to_string();
