@@ -8,7 +8,10 @@
   "age_group": "Sen1",
   "style": "Latein",
   "dances": [
-    "Samba"
+    "Samba",
+    "ChaChaCha",
+    "Rumba",
+    "Jive"
   ],
   "min_dances": 4,
   "officials": {
@@ -121,170 +124,310 @@
       "name": "Endrunde",
       "order": 1,
       "dances": [
-        "Samba"
+        "Samba",
+        "ChaChaCha",
+        "Rumba",
+        "Jive"
       ],
       "round_type": "DTV",
       "dtv_ranks": {
         "AO": {
           "1060": {
-            "Samba": 4
+            "Samba": 4,
+            "ChaChaCha": 4,
+            "Rumba": 4,
+            "Jive": 4
           },
           "1151": {
-            "Samba": 4
+            "Samba": 1,
+            "ChaChaCha": 2,
+            "Rumba": 1,
+            "Jive": 1
           },
           "1216": {
-            "Samba": 4
+            "Samba": 3,
+            "ChaChaCha": 3,
+            "Rumba": 3,
+            "Jive": 3
           },
           "1272": {
-            "Samba": 3
+            "Samba": 6,
+            "ChaChaCha": 6,
+            "Rumba": 6,
+            "Jive": 6
           },
           "1368": {
-            "Samba": 4
+            "Samba": 5,
+            "ChaChaCha": 5,
+            "Rumba": 5,
+            "Jive": 5
           },
           "203": {
-            "Samba": 4
+            "Samba": 2,
+            "ChaChaCha": 1,
+            "Rumba": 2,
+            "Jive": 2
           },
           "808": {
-            "Samba": 1
+            "Samba": 1,
+            "ChaChaCha": 1,
+            "Rumba": 1,
+            "Jive": 1
           }
         },
         "BN": {
           "1060": {
-            "Samba": 4
+            "Samba": 6,
+            "ChaChaCha": 5,
+            "Rumba": 5,
+            "Jive": 6
           },
           "1151": {
-            "Samba": 3
+            "Samba": 4,
+            "ChaChaCha": 2,
+            "Rumba": 2,
+            "Jive": 1
           },
           "1216": {
-            "Samba": 3
+            "Samba": 5,
+            "ChaChaCha": 6,
+            "Rumba": 6,
+            "Jive": 5
           },
           "1272": {
-            "Samba": 4
+            "Samba": 3,
+            "ChaChaCha": 3,
+            "Rumba": 4,
+            "Jive": 4
           },
           "1368": {
-            "Samba": 4
+            "Samba": 2,
+            "ChaChaCha": 4,
+            "Rumba": 3,
+            "Jive": 2
           },
           "203": {
-            "Samba": 4
+            "Samba": 1,
+            "ChaChaCha": 1,
+            "Rumba": 1,
+            "Jive": 3
           },
           "808": {
-            "Samba": 2
+            "Samba": 2,
+            "ChaChaCha": 2,
+            "Rumba": 2,
+            "Jive": 2
           }
         },
         "BW": {
           "1060": {
-            "Samba": 4
+            "Samba": 6,
+            "ChaChaCha": 5,
+            "Rumba": 5,
+            "Jive": 4
           },
           "1151": {
-            "Samba": 4
+            "Samba": 2,
+            "ChaChaCha": 3,
+            "Rumba": 2,
+            "Jive": 2
           },
           "1216": {
-            "Samba": 4
+            "Samba": 3,
+            "ChaChaCha": 2,
+            "Rumba": 3,
+            "Jive": 1
           },
           "1272": {
-            "Samba": 3
+            "Samba": 5,
+            "ChaChaCha": 6,
+            "Rumba": 6,
+            "Jive": 6
           },
           "1368": {
-            "Samba": 4
+            "Samba": 4,
+            "ChaChaCha": 4,
+            "Rumba": 4,
+            "Jive": 5
           },
           "203": {
-            "Samba": 4
+            "Samba": 1,
+            "ChaChaCha": 1,
+            "Rumba": 1,
+            "Jive": 3
           },
           "808": {
-            "Samba": 1
+            "Samba": 1,
+            "ChaChaCha": 1,
+            "Rumba": 1,
+            "Jive": 1
           }
         },
         "CF": {
           "1060": {
-            "Samba": 4
+            "Samba": 5,
+            "ChaChaCha": 5,
+            "Rumba": 5,
+            "Jive": 4
           },
           "1151": {
-            "Samba": 4
+            "Samba": 2,
+            "ChaChaCha": 3,
+            "Rumba": 3,
+            "Jive": 3
           },
           "1216": {
-            "Samba": 4
+            "Samba": 1,
+            "ChaChaCha": 1,
+            "Rumba": 2,
+            "Jive": 2
           },
           "1272": {
-            "Samba": 3
+            "Samba": 6,
+            "ChaChaCha": 6,
+            "Rumba": 6,
+            "Jive": 6
           },
           "1368": {
-            "Samba": 4
+            "Samba": 4,
+            "ChaChaCha": 4,
+            "Rumba": 4,
+            "Jive": 5
           },
           "203": {
-            "Samba": 4
+            "Samba": 3,
+            "ChaChaCha": 2,
+            "Rumba": 1,
+            "Jive": 1
           },
           "808": {
-            "Samba": 1
+            "Samba": 1,
+            "ChaChaCha": 1,
+            "Rumba": 1,
+            "Jive": 1
           }
         },
         "CY": {
           "1060": {
-            "Samba": 4
+            "Samba": 5,
+            "ChaChaCha": 5,
+            "Rumba": 5,
+            "Jive": 5
           },
           "1151": {
-            "Samba": 4
+            "Samba": 1,
+            "ChaChaCha": 1,
+            "Rumba": 1,
+            "Jive": 1
           },
           "1216": {
-            "Samba": 4
+            "Samba": 2,
+            "ChaChaCha": 4,
+            "Rumba": 3,
+            "Jive": 3
           },
           "1272": {
-            "Samba": 2
+            "Samba": 6,
+            "ChaChaCha": 6,
+            "Rumba": 6,
+            "Jive": 6
           },
           "1368": {
-            "Samba": 4
+            "Samba": 3,
+            "ChaChaCha": 2,
+            "Rumba": 2,
+            "Jive": 2
           },
           "203": {
-            "Samba": 4
+            "Samba": 4,
+            "ChaChaCha": 3,
+            "Rumba": 4,
+            "Jive": 4
           },
           "808": {
-            "Samba": 2
+            "Samba": 2,
+            "ChaChaCha": 2,
+            "Rumba": 2,
+            "Jive": 2
           }
         },
         "DA": {
           "1060": {
-            "Samba": 4
+            "Samba": 5,
+            "ChaChaCha": 6,
+            "Rumba": 5,
+            "Jive": 6
           },
           "1151": {
-            "Samba": 4
+            "Samba": 4,
+            "ChaChaCha": 4,
+            "Rumba": 4,
+            "Jive": 3
           },
           "1216": {
-            "Samba": 4
+            "Samba": 2,
+            "ChaChaCha": 3,
+            "Rumba": 2,
+            "Jive": 2
           },
           "1272": {
-            "Samba": 4
+            "Samba": 6,
+            "ChaChaCha": 5,
+            "Rumba": 6,
+            "Jive": 5
           },
           "1368": {
-            "Samba": 4
+            "Samba": 3,
+            "ChaChaCha": 2,
+            "Rumba": 3,
+            "Jive": 4
           },
           "203": {
-            "Samba": 4
+            "Samba": 1,
+            "ChaChaCha": 1,
+            "Rumba": 1,
+            "Jive": 1
           },
-          "808": {
-            "Samba": 0
-          }
+          "808": {}
         },
         "DE": {
           "1060": {
-            "Samba": 4
+            "Samba": 3,
+            "ChaChaCha": 3,
+            "Rumba": 3,
+            "Jive": 3
           },
           "1151": {
-            "Samba": 4
+            "Samba": 2,
+            "ChaChaCha": 2,
+            "Rumba": 2,
+            "Jive": 2
           },
           "1216": {
-            "Samba": 4
+            "Samba": 1,
+            "ChaChaCha": 1,
+            "Rumba": 1,
+            "Jive": 1
           },
           "1272": {
-            "Samba": 4
+            "Samba": 5,
+            "ChaChaCha": 5,
+            "Rumba": 4,
+            "Jive": 6
           },
           "1368": {
-            "Samba": 4
+            "Samba": 6,
+            "ChaChaCha": 6,
+            "Rumba": 6,
+            "Jive": 4
           },
           "203": {
-            "Samba": 4
+            "Samba": 4,
+            "ChaChaCha": 4,
+            "Rumba": 5,
+            "Jive": 5
           },
-          "808": {
-            "Samba": 0
-          }
+          "808": {}
         }
       }
     }

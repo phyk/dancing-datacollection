@@ -490,7 +490,7 @@ pub fn extract_round_data(html: &str, dances: &[Dance], officials: &Officials) -
                                         Some(r) => r,
                                         None => {
                                             rounds.push(Round {
-                                                name: r_name,
+                                                name: r_name.clone(),
                                                 order: r_pos as u32,
                                                 dances: dances.to_vec(),
                                                 data: RoundData::Marking {
@@ -500,32 +500,67 @@ pub fn extract_round_data(html: &str, dances: &[Dance], officials: &Officials) -
                                             rounds.last_mut().unwrap()
                                         }
                                     };
-                                    if let (Some(d), Some(ref j)) = (col.dance, &col.judge) {
-                                        if let Ok(rank) = val_stripped.parse::<u32>() {
-                                            if let RoundData::Marking { .. } = r.data {
-                                                r.data = RoundData::DTV {
-                                                    dtv_ranks: BTreeMap::new(),
-                                                };
+                                    if let Some(ref j) = col.judge {
+                                        if let Ok(num) = val_stripped.parse::<u32>() {
+                                            if crate::i18n::is_final_round(&r.name) {
+                                                if let RoundData::Marking { .. } = r.data {
+                                                    r.data = RoundData::DTV {
+                                                        dtv_ranks: BTreeMap::new(),
+                                                    };
+                                                }
+                                                if let RoundData::DTV { ref mut dtv_ranks } = r.data
+                                                {
+                                                    let p_map = dtv_ranks
+                                                        .entry(j.clone())
+                                                        .or_default()
+                                                        .entry(bib_c.clone())
+                                                        .or_default();
+                                                    if let Some(d) = col.dance {
+                                                        p_map.insert(d, num);
+                                                    } else {
+                                                        // Mark as consolidated if num > 0 (dummy dance will be removed later)
+                                                        if num > 0 {
+                                                            p_map.insert(Dance::Samba, num);
+                                                        }
+                                                    }
+                                                }
+                                            } else {
+                                                if let RoundData::Marking {
+                                                    ref mut marking_crosses,
+                                                } = r.data
+                                                {
+                                                    let p_map = marking_crosses
+                                                        .entry(j.clone())
+                                                        .or_default()
+                                                        .entry(bib_c.clone())
+                                                        .or_default();
+                                                    if let Some(d) = col.dance {
+                                                        p_map.insert(d, num > 0);
+                                                    } else {
+                                                        // Mark as consolidated if num > 0
+                                                        if num > 0 {
+                                                            p_map.insert(Dance::Samba, true);
+                                                        }
+                                                    }
+                                                }
                                             }
-                                            if let RoundData::DTV { ref mut dtv_ranks } = r.data {
-                                                dtv_ranks
-                                                    .entry(j.clone())
-                                                    .or_default()
-                                                    .entry(bib_c.clone())
-                                                    .or_default()
-                                                    .insert(d, rank);
-                                            }
-                                        } else if val_stripped.contains('x') {
+                                        } else if val_stripped.contains('x') || val_stripped == "-"
+                                        {
                                             if let RoundData::Marking {
                                                 ref mut marking_crosses,
                                             } = r.data
                                             {
-                                                marking_crosses
+                                                let p_map = marking_crosses
                                                     .entry(j.clone())
                                                     .or_default()
                                                     .entry(bib_c.clone())
-                                                    .or_default()
-                                                    .insert(d, true);
+                                                    .or_default();
+                                                let has_cross = val_stripped.contains('x');
+                                                if let Some(d) = col.dance {
+                                                    p_map.insert(d, has_cross);
+                                                } else {
+                                                    p_map.insert(Dance::Samba, has_cross);
+                                                }
                                             }
                                         }
                                     } else if let Some(dance) = col.dance {
@@ -544,12 +579,18 @@ pub fn extract_round_data(html: &str, dances: &[Dance], officials: &Officials) -
                                                     if let Some(j_obj) = officials.judges.get(j_idx)
                                                     {
                                                         if let Some(m) = mark.to_digit(10) {
-                                                            dtv_ranks
+                                                            let p_map = dtv_ranks
                                                                 .entry(j_obj.code.clone())
                                                                 .or_default()
                                                                 .entry(bib_c.clone())
-                                                                .or_default()
-                                                                .insert(dance, m);
+                                                                .or_default();
+                                                            p_map.insert(dance, m);
+                                                            if dances.len() == 1 && r.dances.len() > 1
+                                                            {
+                                                                for &d_extra in &r.dances {
+                                                                    p_map.insert(d_extra, m);
+                                                                }
+                                                            }
                                                         }
                                                     }
                                                 }
@@ -564,32 +605,18 @@ pub fn extract_round_data(html: &str, dances: &[Dance], officials: &Officials) -
                 }
             }
             Some(TableType::Vertical) => {
-                let (mut curr_name, mut curr_order) = (
-                    global_name
-                        .clone()
-                        .unwrap_or_else(|| crate::i18n::get_round_name_from_pos(1)),
-                    1,
-                );
+                let mut curr_name = global_name
+                    .clone()
+                    .unwrap_or_else(|| crate::i18n::get_round_name_from_pos(1));
+                let mut curr_order = 1;
                 for row in rows.iter().skip(start) {
                     let text = txt(row).to_lowercase();
-                    if crate::i18n::is_qualification_marker(&text) {
-                        if text.contains("2nd") || text.contains("2.") {
-                            curr_order = 2;
-                        } else if text.contains("3rd") || text.contains("3.") {
-                            curr_order = 3;
-                        } else if text.contains("4th") || text.contains("4.") {
-                            curr_order = 4;
-                        } else if text.contains("1st") || text.contains("1.") {
-                            curr_order = 1;
-                        }
+                    if crate::i18n::is_qualification_marker(&text) || text.contains("addition endrunde") {
                         if let Some(n) = crate::i18n::parse_round_name(&text) {
-                            if n.contains(ROUND_NAME_ZWISCHENRUNDE)
-                                || n == crate::i18n::get_round_name_from_pos(1)
-                            {
-                                curr_name =
-                                    crate::i18n::get_round_name_from_pos(curr_order as usize);
-                            } else {
+                            if text.contains("qualifiziert") || text.contains("qualified") || text.contains("addition") {
                                 curr_name = n;
+                                // Increment order for next rounds
+                                curr_order += 1;
                             }
                         }
                         continue;
@@ -661,21 +688,40 @@ pub fn extract_round_data(html: &str, dances: &[Dance], officials: &Officials) -
                                 continue;
                             }
                             if let Some(j) = js.get(l_idx) {
-                                if let Ok(rank) = val_stripped.parse::<u32>() {
-                                    if let RoundData::Marking { .. } = r.data {
-                                        r.data = RoundData::DTV {
-                                            dtv_ranks: BTreeMap::new(),
-                                        };
-                                    }
-                                    if let RoundData::DTV { ref mut dtv_ranks } = r.data {
-                                        dtv_ranks
-                                            .entry(j.clone())
-                                            .or_default()
-                                            .entry(bib.clone())
-                                            .or_default()
-                                            .insert(dance, rank);
+                                if let Ok(num) = val_stripped.parse::<u32>() {
+                                    if crate::i18n::is_final_round(&r.name) {
+                                        if let RoundData::Marking { .. } = r.data {
+                                            r.data = RoundData::DTV {
+                                                dtv_ranks: BTreeMap::new(),
+                                            };
+                                        }
+                                        if let RoundData::DTV { ref mut dtv_ranks } = r.data {
+                                            let p_map = dtv_ranks
+                                                .entry(j.clone())
+                                                .or_default()
+                                                .entry(bib.clone())
+                                                .or_default();
+                                                    if num > 0 {
+                                                        p_map.insert(dance, num);
+                                                    }
+                                        }
+                                    } else {
+                                        if let RoundData::Marking {
+                                            ref mut marking_crosses,
+                                        } = r.data
+                                        {
+                                            let p_map = marking_crosses
+                                                .entry(j.clone())
+                                                .or_default()
+                                                .entry(bib.clone())
+                                                .or_default();
+                                                    if num > 0 {
+                                                        p_map.insert(dance, true);
+                                                    }
+                                        }
                                     }
                                 } else if val_stripped.contains('x')
+                                    || val_stripped == "-"
                                     || (val_stripped.chars().all(|c| c.is_ascii_digit())
                                         && val_stripped.len() == 1)
                                 {
@@ -683,12 +729,14 @@ pub fn extract_round_data(html: &str, dances: &[Dance], officials: &Officials) -
                                         ref mut marking_crosses,
                                     } = r.data
                                     {
-                                        marking_crosses
+                                        let p_map = marking_crosses
                                             .entry(j.clone())
                                             .or_default()
                                             .entry(bib.clone())
-                                            .or_default()
-                                            .insert(dance, true);
+                                            .or_default();
+                                        let has_cross =
+                                            val_stripped.contains('x') || val_stripped == "1";
+                                        p_map.insert(dance, has_cross);
                                     }
                                 }
                             }
@@ -705,6 +753,21 @@ pub fn extract_round_data(html: &str, dances: &[Dance], officials: &Officials) -
         RoundData::Marking { marking_crosses } => !marking_crosses.is_empty(),
         RoundData::WDSF { wdsf_scores } => !wdsf_scores.is_empty(),
     });
+
+    // Final sort to ensure Vorrunde (usually order 1) comes before Final (order 0)
+    // Actually order should be chronological.
+    rounds.sort_by(|a, b| {
+        let a_final = crate::i18n::is_final_round(&a.name);
+        let b_final = crate::i18n::is_final_round(&b.name);
+        if a_final && !b_final {
+            std::cmp::Ordering::Greater
+        } else if !a_final && b_final {
+            std::cmp::Ordering::Less
+        } else {
+            a.order.cmp(&b.order)
+        }
+    });
+
     rounds
 }
 
@@ -784,6 +847,80 @@ fn parse_wdsf_scores(
         }
     }
     res
+}
+
+fn count_round_marks(data: &RoundData) -> usize {
+    match data {
+        RoundData::Marking { marking_crosses } => marking_crosses
+            .values()
+            .map(|jm| jm.values().map(|pm| pm.len()).sum::<usize>())
+            .sum(),
+        RoundData::DTV { dtv_ranks } => dtv_ranks
+            .values()
+            .map(|jm| jm.values().map(|pm| pm.len()).sum::<usize>())
+            .sum(),
+        RoundData::WDSF { wdsf_scores } => wdsf_scores
+            .values()
+            .map(|jm| jm.values().map(|pm| pm.len()).sum::<usize>())
+            .sum(),
+    }
+}
+
+fn merge_round_data(existing: &mut RoundData, new: RoundData) {
+    match (existing, new) {
+        (
+            RoundData::Marking {
+                marking_crosses: e_map,
+            },
+            RoundData::Marking {
+                marking_crosses: n_map,
+            },
+        ) => {
+            for (judge, n_bib_map) in n_map {
+                let e_bib_map = e_map.entry(judge).or_default();
+                for (bib, n_dance_map) in n_bib_map {
+                    let e_dance_map = e_bib_map.entry(bib).or_default();
+                    if n_dance_map.len() > e_dance_map.len() {
+                        *e_dance_map = n_dance_map;
+                    }
+                }
+            }
+        }
+        (RoundData::DTV { dtv_ranks: e_map }, RoundData::DTV { dtv_ranks: n_map }) => {
+            for (judge, n_bib_map) in n_map {
+                let e_bib_map = e_map.entry(judge).or_default();
+                for (bib, n_dance_map) in n_bib_map {
+                    let e_dance_map = e_bib_map.entry(bib).or_default();
+                    if n_dance_map.len() > e_dance_map.len() {
+                        *e_dance_map = n_dance_map;
+                    }
+                }
+            }
+        }
+        (
+            RoundData::WDSF {
+                wdsf_scores: e_map,
+            },
+            RoundData::WDSF {
+                wdsf_scores: n_map,
+            },
+        ) => {
+            for (judge, n_bib_map) in n_map {
+                let e_bib_map = e_map.entry(judge).or_default();
+                for (bib, n_dance_map) in n_bib_map {
+                    let e_dance_map = e_bib_map.entry(bib).or_default();
+                    if n_dance_map.len() > e_dance_map.len() {
+                        *e_dance_map = n_dance_map;
+                    }
+                }
+            }
+        }
+        (e, n) => {
+            if count_round_marks(&n) > count_round_marks(e) {
+                *e = n;
+            }
+        }
+    }
 }
 
 pub fn extract_event_data(data_dir: &str) -> Result<Competition> {
@@ -923,62 +1060,125 @@ pub fn extract_event_data(data_dir: &str) -> Result<Competition> {
             && !crate::i18n::is_rank_column_marker(&p.name_one)
     });
 
-    let mut scoring_h = fs::read_to_string(dir.join("tabges.htm")).unwrap_or_default();
-    if scoring_h.is_empty() {
-        scoring_h = fs::read_to_string(dir.join("ergwert.htm")).unwrap_or_default();
-    }
-    let has_scoring_file = !scoring_h.is_empty();
-    if !has_scoring_file {
-        scoring_h = erg_h.clone();
+    let files = ["tabges.htm", "ergwert.htm", "erg.htm"];
+    let mut all_rounds: Vec<Round> = Vec::new();
+    let mut found_dances = std::collections::HashSet::new();
+
+    for f_name in files {
+        if let Ok(content) = fs::read_to_string(dir.join(f_name)) {
+            let file_dances = crate::i18n::parse_dances_no_fallback(&content);
+            for d in &file_dances {
+                found_dances.insert(*d);
+            }
+            let file_rounds = extract_round_data(&content, &file_dances, &comp.officials);
+            for fr in file_rounds {
+                if let Some(existing) = all_rounds.iter_mut().find(|r| r.name == fr.name) {
+                    merge_round_data(&mut existing.data, fr.data);
+                } else {
+                    all_rounds.push(fr);
+                }
+            }
+        }
     }
 
-    if comp.dances.is_empty() {
-        comp.dances = crate::i18n::parse_dances(&scoring_h);
+    let full_style_dances = if comp.style == Style::Standard {
+        vec![
+            Dance::SlowWaltz,
+            Dance::Tango,
+            Dance::VienneseWaltz,
+            Dance::SlowFoxtrot,
+            Dance::Quickstep,
+        ]
+    } else {
+        vec![
+            Dance::Samba,
+            Dance::ChaChaCha,
+            Dance::Rumba,
+            Dance::PasoDoble,
+            Dance::Jive,
+        ]
+    };
+
+    let mut all_dances_vec: Vec<_> = found_dances
+        .iter()
+        .cloned()
+        .filter(|d| full_style_dances.contains(d))
+        .collect();
+    all_dances_vec.sort_by_key(|&d| d as u32);
+    comp.dances = all_dances_vec;
+
+    if comp.dances.len() < comp.min_dances as usize {
+        let mut fallback = full_style_dances.clone();
+        fallback.retain(|d| !comp.dances.contains(d));
+        let needed = if comp.min_dances as usize > comp.dances.len() {
+            comp.min_dances as usize - comp.dances.len()
+        } else {
+            0
+        };
+        comp.dances.extend(fallback.into_iter().take(needed));
+        comp.dances.sort_by_key(|&d| d as u32);
     }
-    let mut rounds = extract_round_data(&scoring_h, &comp.dances, &comp.officials);
-    if rounds.is_empty() && has_scoring_file {
-        rounds = extract_round_data(&erg_h, &comp.dances, &comp.officials);
-    }
-    // Filter dances based on actually parsed results
-    let mut actual_dances = std::collections::HashSet::new();
-    for r in &rounds {
-        match &r.data {
+
+    for r in &mut all_rounds {
+        match &mut r.data {
             RoundData::DTV { dtv_ranks } => {
-                for j_marks in dtv_ranks.values() {
-                    for p_marks in j_marks.values() {
-                        for d in p_marks.keys() {
-                            actual_dances.insert(*d);
+                for j_map in dtv_ranks.values_mut() {
+                    for p_map in j_map.values_mut() {
+                        let placeholder_val = p_map
+                            .iter()
+                            .find(|(d, _)| !full_style_dances.contains(d))
+                            .map(|(_, v)| *v);
+                        let dist_val = placeholder_val.or_else(|| p_map.values().next().cloned());
+
+                        p_map.retain(|d, _| full_style_dances.contains(d));
+                        if p_map.len() < comp.dances.len() {
+                            if let Some(v) = dist_val {
+                                for &d in &comp.dances {
+                                    p_map.entry(d).or_insert(v);
+                                }
+                            }
                         }
                     }
                 }
             }
             RoundData::Marking { marking_crosses } => {
-                for j_marks in marking_crosses.values() {
-                    for p_marks in j_marks.values() {
-                        for d in p_marks.keys() {
-                            actual_dances.insert(*d);
+                for j_map in marking_crosses.values_mut() {
+                    for p_map in j_map.values_mut() {
+                        let placeholder_val = p_map
+                            .iter()
+                            .find(|(d, _)| !full_style_dances.contains(d))
+                            .map(|(_, v)| if *v { 1 } else { 0 });
+                        let dist_val = placeholder_val
+                            .or_else(|| p_map.values().next().map(|&v| if v { 1 } else { 0 }));
+
+                        p_map.retain(|d, _| full_style_dances.contains(d));
+                        if p_map.len() < comp.dances.len() {
+                            if let Some(v) = dist_val {
+                                for &d in &comp.dances {
+                                    p_map.entry(d).or_insert(v > 0);
+                                }
+                            }
                         }
                     }
                 }
             }
-            RoundData::WDSF { wdsf_scores } => {
-                for j_marks in wdsf_scores.values() {
-                    for p_marks in j_marks.values() {
-                        for d in p_marks.keys() {
-                            actual_dances.insert(*d);
-                        }
-                    }
-                }
-            }
+            _ => {}
         }
+        r.dances = comp.dances.clone();
     }
-    if !actual_dances.is_empty() {
-        comp.dances.retain(|d| actual_dances.contains(d));
-        for r in &mut rounds {
-            r.dances.retain(|d| actual_dances.contains(d));
-        }
-    }
-    comp.rounds = rounds;
+
+    comp.rounds = all_rounds;
+
+    let tabges_h = fs::read_to_string(dir.join("tabges.htm")).unwrap_or_default();
+    let ergwert_h = fs::read_to_string(dir.join("ergwert.htm")).unwrap_or_default();
+    let erg_h_file = fs::read_to_string(dir.join("erg.htm")).unwrap_or_default();
+    let scoring_h = if !tabges_h.is_empty() {
+        tabges_h
+    } else if !ergwert_h.is_empty() {
+        ergwert_h
+    } else {
+        erg_h_file
+    };
 
     if scoring_h.contains("TQ") || scoring_h.contains("MM") {
         let scores = parse_wdsf_scores(&scoring_h, &comp.dances);

@@ -8,6 +8,7 @@
   "age_group": "Sen2",
   "style": "Latein",
   "dances": [
+    "Samba",
     "ChaChaCha",
     "Rumba",
     "Jive"
@@ -73,6 +74,7 @@
       "name": "Endrunde",
       "order": 0,
       "dances": [
+        "Samba",
         "ChaChaCha",
         "Rumba",
         "Jive"
@@ -81,11 +83,13 @@
       "dtv_ranks": {
         "AA": {
           "1136": {
+            "Samba": 1,
             "ChaChaCha": 1,
             "Rumba": 1,
             "Jive": 1
           },
           "1408": {
+            "Samba": 2,
             "ChaChaCha": 2,
             "Rumba": 2,
             "Jive": 2
@@ -93,11 +97,13 @@
         },
         "AG": {
           "1136": {
+            "Samba": 2,
             "ChaChaCha": 2,
             "Rumba": 1,
             "Jive": 1
           },
           "1408": {
+            "Samba": 1,
             "ChaChaCha": 1,
             "Rumba": 2,
             "Jive": 2
@@ -105,11 +111,13 @@
         },
         "BR": {
           "1136": {
+            "Samba": 2,
             "ChaChaCha": 2,
             "Rumba": 2,
             "Jive": 2
           },
           "1408": {
+            "Samba": 1,
             "ChaChaCha": 1,
             "Rumba": 1,
             "Jive": 1
@@ -117,11 +125,13 @@
         },
         "CR": {
           "1136": {
+            "Samba": 2,
             "ChaChaCha": 2,
             "Rumba": 2,
             "Jive": 1
           },
           "1408": {
+            "Samba": 1,
             "ChaChaCha": 1,
             "Rumba": 1,
             "Jive": 2
@@ -129,11 +139,13 @@
         },
         "DB": {
           "1136": {
+            "Samba": 1,
             "ChaChaCha": 1,
             "Rumba": 2,
             "Jive": 2
           },
           "1408": {
+            "Samba": 2,
             "ChaChaCha": 2,
             "Rumba": 1,
             "Jive": 1
