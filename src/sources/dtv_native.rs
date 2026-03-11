@@ -585,7 +585,8 @@ pub fn extract_round_data(html: &str, dances: &[Dance], officials: &Officials) -
                                                                 .entry(bib_c.clone())
                                                                 .or_default();
                                                             p_map.insert(dance, m);
-                                                            if dances.len() == 1 && r.dances.len() > 1
+                                                            if dances.len() == 1
+                                                                && r.dances.len() > 1
                                                             {
                                                                 for &d_extra in &r.dances {
                                                                     p_map.insert(d_extra, m);
@@ -611,9 +612,14 @@ pub fn extract_round_data(html: &str, dances: &[Dance], officials: &Officials) -
                 let mut curr_order = 1;
                 for row in rows.iter().skip(start) {
                     let text = txt(row).to_lowercase();
-                    if crate::i18n::is_qualification_marker(&text) || text.contains("addition endrunde") {
+                    if crate::i18n::is_qualification_marker(&text)
+                        || text.contains("addition endrunde")
+                    {
                         if let Some(n) = crate::i18n::parse_round_name(&text) {
-                            if text.contains("qualifiziert") || text.contains("qualified") || text.contains("addition") {
+                            if text.contains("qualifiziert")
+                                || text.contains("qualified")
+                                || text.contains("addition")
+                            {
                                 curr_name = n;
                                 // Increment order for next rounds
                                 curr_order += 1;
@@ -701,9 +707,9 @@ pub fn extract_round_data(html: &str, dances: &[Dance], officials: &Officials) -
                                                 .or_default()
                                                 .entry(bib.clone())
                                                 .or_default();
-                                                    if num > 0 {
-                                                        p_map.insert(dance, num);
-                                                    }
+                                            if num > 0 {
+                                                p_map.insert(dance, num);
+                                            }
                                         }
                                     } else {
                                         if let RoundData::Marking {
@@ -715,9 +721,9 @@ pub fn extract_round_data(html: &str, dances: &[Dance], officials: &Officials) -
                                                 .or_default()
                                                 .entry(bib.clone())
                                                 .or_default();
-                                                    if num > 0 {
-                                                        p_map.insert(dance, true);
-                                                    }
+                                            if num > 0 {
+                                                p_map.insert(dance, true);
+                                            }
                                         }
                                     }
                                 } else if val_stripped.contains('x')
@@ -897,14 +903,7 @@ fn merge_round_data(existing: &mut RoundData, new: RoundData) {
                 }
             }
         }
-        (
-            RoundData::WDSF {
-                wdsf_scores: e_map,
-            },
-            RoundData::WDSF {
-                wdsf_scores: n_map,
-            },
-        ) => {
+        (RoundData::WDSF { wdsf_scores: e_map }, RoundData::WDSF { wdsf_scores: n_map }) => {
             for (judge, n_bib_map) in n_map {
                 let e_bib_map = e_map.entry(judge).or_default();
                 for (bib, n_dance_map) in n_bib_map {
