@@ -89,3 +89,53 @@ The data cells (typically `<TD class="td5c">` or `<TD class="td5cv">`) contain t
 - **Numeric Precision:** DTV uses whole numbers for ranks and counts; WDSF uses floats for precise scoring.
 - **Rounding Labels:** DTV rounds are usually numbered ("1. Zwischenrunde"), while WDSF rounds are often generic ("2nd round").
 - **Final Logic:** DTV shows "Addition Endrunde" (sum of ranks), while WDSF shows "Result of final" (sum of scores).
+
+## Actual Header Rows and Cell Explanations
+
+Below are the raw HTML structures for the table headers and an explanation of each cell.
+
+### DTV Header Structure (German)
+
+```html
+<TR>
+  <TD class="td2">Anzahl Teilnehmer: 39</TD>
+  <TD class="td2c" colspan="15">Startnummer</TD>
+</TR>
+<TR>
+  <TD class="td1" width="25%">Wertungsrichter</TD>
+  <TD class="td2gc" width="5%">587<span class="tooltip2gc">Markus Kleander / Carina Jungwirth</span></TD>
+  <!-- ... repeated for each Bib number ... -->
+</TR>
+```
+
+#### Row 1 Explanation:
+- **Cell 1 (`td2`):** `Anzahl Teilnehmer: 39`. Displays the total number of registered competitors for this specific event.
+- **Cell 2 (`td2c`, `colspan`):** `Startnummer`. A wide header spanning multiple columns that labels the area where Bib numbers are displayed.
+
+#### Row 2 Explanation:
+- **Cell 1 (`td1`):** `Wertungsrichter`. In `tabges.html`, this row acts as the primary Bib header. Although labeled "Judges" (Wertungsrichter), the row content is actually the list of competitors.
+- **Cell 2+ (`td2gc`):** `587<span class="tooltip2gc">Markus Kleander / Carina Jungwirth</span>`.
+  - The visible text (`587`) is the **Bib Number**.
+  - The hidden span (`tooltip2gc`) contains the **Full Participant Names** (e.g., "Markus Kleander / Carina Jungwirth"). In a browser, this appears as a tooltip when hovering over the Bib number.
+
+### WDSF Header Structure (English)
+
+```html
+<TR>
+  <TD class="td2">No. of participants: 93</TD>
+  <TD class="td2c" colspan="15">Start number</TD>
+</TR>
+<TR>
+  <TD class="td1" width="25%">Adjudicators</TD>
+  <TD class="td2gc" width="5%">108<span class="tooltip2gc">Jean-Pierre Yöndemli / Saskia Maria Skupin</span></TD>
+  <!-- ... repeated for each Bib number ... -->
+</TR>
+```
+
+#### Row 1 Explanation:
+- **Cell 1 (`td2`):** `No. of participants: 93`. The English equivalent of the total participant count.
+- **Cell 2 (`td2c`, `colspan`):** `Start number`. The English label for the Bib number columns.
+
+#### Row 2 Explanation:
+- **Cell 1 (`td1`):** `Adjudicators`. The English equivalent for the Bib header row.
+- **Cell 2+ (`td2gc`):** `108<span class="tooltip2gc">...</span>`. Consistent with the DTV format, showing the Bib number with a hidden name tooltip.
