@@ -251,7 +251,13 @@ pub fn is_bib_column_marker(s: &str) -> bool {
 
 pub fn is_rank_column_marker(s: &str) -> bool {
     let lower = s.to_lowercase();
-    RANK_COLUMN_MARKERS.iter().any(|&m| lower.contains(m))
+    RANK_COLUMN_MARKERS.iter().any(|&m| {
+        if m == "rank" || m == "platz" {
+            lower == m
+        } else {
+            lower.contains(m)
+        }
+    })
 }
 
 pub fn is_sum_column_marker(s: &str) -> bool {

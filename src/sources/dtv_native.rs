@@ -1,14 +1,14 @@
 use crate::assets::*;
 use crate::models::{
     AgeGroup, CommitteeMember, Competition, Dance, IdentityType, Judge, Level, Officials,
-    Participant, Round, RoundData, Style, WDSFScore,
+    Participant, Round, Style,
 };
 use crate::sources::ParsingError;
+use crate::sources::topturnier_table;
 use anyhow::Result;
 use chrono::NaiveDate;
 use regex::Regex;
 use scraper::{ElementRef, Html, Selector};
-use std::collections::BTreeMap;
 use std::fs;
 use std::path::Path;
 use std::sync::LazyLock;
@@ -20,14 +20,10 @@ static SEL_SPAN: LazyLock<Selector> = LazyLock::new(|| Selector::parse(SELECTOR_
 static SEL_I: LazyLock<Selector> = LazyLock::new(|| Selector::parse(SELECTOR_I).unwrap());
 static SEL_TITLE: LazyLock<Selector> = LazyLock::new(|| Selector::parse(SELECTOR_TITLE).unwrap());
 static RE_BIB_PARENS: LazyLock<Regex> = LazyLock::new(|| Regex::new(PATTERN_BIB_PARENS).unwrap());
-static RE_SCORE: LazyLock<Regex> = LazyLock::new(|| Regex::new(PATTERN_SCORE).unwrap());
 static RE_DATE: LazyLock<Regex> = LazyLock::new(|| Regex::new(PATTERN_DATE).unwrap());
 static RE_RANK: LazyLock<Regex> = LazyLock::new(|| Regex::new(PATTERN_RANK).unwrap());
 
 // --- Utilities ---
-fn clean(s: &str) -> String {
-    s.trim().to_string()
-}
 fn txt(el: &ElementRef) -> String {
     el.text().collect::<String>().trim().to_string()
 }
@@ -151,208 +147,6 @@ fn parse_participant_row(row: ElementRef) -> Result<Participant, ParsingError> {
     })
 }
 
-#[derive(Clone, Debug, Default)]
-struct ColumnMap {
-    dance: Option<Dance>,
-    judge: Option<String>,
-    bib: Option<String>,
-    is_sum: bool,
-    is_round: bool,
-}
-enum TableType {
-    Horizontal(usize),
-    Vertical,
-}
-
-fn analyze_table(table: ElementRef) -> (Option<TableType>, Vec<ColumnMap>, usize) {
-    let rows: Vec<_> = table.select(&SEL_TR).collect();
-    if rows.is_empty() {
-        return (None, Vec::new(), 0);
-    }
-    for (r_idx, row) in rows.iter().enumerate().take(5) {
-        let mut bibs = Vec::new();
-        for cell in row.select(&SEL_TD) {
-            let b = cell.text().next().and_then(|s| {
-                let t = s.trim();
-                if let Some(caps) = RE_BIB_PARENS.captures(t) {
-                    Some(caps[1].to_string())
-                } else {
-                    let l = t
-                        .chars()
-                        .take_while(|c| c.is_ascii_digit())
-                        .collect::<String>();
-                    if !l.is_empty() && l.len() <= 4 && t.len() == l.len() {
-                        Some(l)
-                    } else {
-                        None
-                    }
-                }
-            });
-            if let Some(bib) = b {
-                if bibs.last() != Some(&bib) {
-                    bibs.push(bib);
-                }
-            }
-        }
-        if bibs.len() >= 3 {
-            let mut map = vec![ColumnMap::default(); row.select(&SEL_TD).count()];
-            for (i, cell) in row.select(&SEL_TD).enumerate() {
-                map[i].bib = cell.text().next().and_then(|s| {
-                    let t = s.trim();
-                    if let Some(caps) = RE_BIB_PARENS.captures(t) {
-                        Some(caps[1].to_string())
-                    } else {
-                        let l = t
-                            .chars()
-                            .take_while(|c| c.is_ascii_digit())
-                            .collect::<String>();
-                        if !l.is_empty() && l.len() <= 4 && t.len() == l.len() {
-                            Some(l)
-                        } else {
-                            None
-                        }
-                    }
-                });
-            }
-            for row in rows.iter().take(r_idx) {
-                if let Some(d) = crate::i18n::parse_dances(&txt(row)).first() {
-                    for c in &mut map {
-                        if c.bib.is_some() {
-                            c.dance = Some(*d);
-                        }
-                    }
-                }
-            }
-            return (Some(TableType::Vertical), map, r_idx + 1);
-        }
-    }
-    for c_idx in 0..5 {
-        let mut bibs = Vec::new();
-        for row in rows.iter().take(40) {
-            let b = row
-                .select(&SEL_TD)
-                .nth(c_idx)
-                .and_then(|c| c.text().next())
-                .and_then(|s| {
-                    let t = s.trim();
-                    if crate::i18n::is_bib_column_marker(t) || crate::i18n::is_rank_column_marker(t)
-                    {
-                        return None;
-                    }
-                    if let Some(caps) = RE_BIB_PARENS.captures(t) {
-                        Some(caps[1].to_string())
-                    } else {
-                        let l = t
-                            .chars()
-                            .take_while(|c| c.is_ascii_digit())
-                            .collect::<String>();
-                        if !l.is_empty() && l.len() <= 4 && t.len() == l.len() {
-                            Some(l)
-                        } else {
-                            None
-                        }
-                    }
-                });
-            if let Some(bib) = b {
-                if bibs.last() != Some(&bib) {
-                    bibs.push(bib);
-                }
-            }
-        }
-        if bibs.len() >= 2
-            && (bibs.iter().any(|b| b.len() >= 3)
-                || rows
-                    .iter()
-                    .take(5)
-                    .any(|r| crate::i18n::is_participant_marker(&txt(r))))
-        {
-            let start = rows
-                .iter()
-                .position(|r| {
-                    r.select(&SEL_TD).nth(c_idx).is_some_and(|c| {
-                        let t = txt(&c);
-                        t.contains(&bibs[0])
-                            || (t.len() <= 4
-                                && t.chars().all(|ch| ch.is_ascii_digit())
-                                && t == bibs[0])
-                    })
-                })
-                .unwrap_or(0);
-            let mut map = vec![ColumnMap::default(); 100];
-            let mut reserved = vec![0; 100];
-            for row in rows.iter().take(start) {
-                let mut col_ptr = 0;
-                for cell in row.select(&SEL_TD) {
-                    while col_ptr < 100 && reserved[col_ptr] > 0 {
-                        col_ptr += 1;
-                    }
-                    if col_ptr >= 100 {
-                        break;
-                    }
-                    let span = cell
-                        .value()
-                        .attr("colspan")
-                        .and_then(|s| s.parse::<usize>().ok())
-                        .unwrap_or(1);
-                    let rspan = cell
-                        .value()
-                        .attr("rowspan")
-                        .and_then(|s| s.parse::<usize>().ok())
-                        .unwrap_or(1);
-                    let t = txt(&cell);
-                    let ds = crate::i18n::parse_dances(&t);
-                    let j = if !t.is_empty()
-                        && t.chars().next().unwrap().is_ascii_uppercase()
-                        && (t.len() == 1 || !t.chars().nth(1).unwrap().is_ascii_lowercase())
-                        && ds.is_empty()
-                        && !crate::i18n::is_rank_column_marker(&t)
-                    {
-                        let code = t
-                            .chars()
-                            .take_while(|c| c.is_ascii_uppercase() || c.is_ascii_digit())
-                            .collect::<String>();
-                        if code.is_empty() {
-                            None
-                        } else {
-                            Some(code)
-                        }
-                    } else {
-                        None
-                    };
-                    for k in 0..span {
-                        let idx = col_ptr + k;
-                        if idx < 100 {
-                            if !ds.is_empty() {
-                                map[idx].dance = Some(ds[0]);
-                            }
-                            if let Some(ref ref_j) = j {
-                                map[idx].judge = Some(ref_j.clone());
-                            }
-                            if crate::i18n::is_sum_column_marker(&t) {
-                                map[idx].is_sum = true;
-                            }
-                            if crate::i18n::is_round_column_marker(&t) {
-                                map[idx].is_round = true;
-                            }
-                            if rspan > 1 {
-                                reserved[idx] = rspan;
-                            }
-                        }
-                    }
-                    col_ptr += span;
-                }
-                for r in reserved.iter_mut() {
-                    if *r > 0 {
-                        *r -= 1;
-                    }
-                }
-            }
-            return (Some(TableType::Horizontal(c_idx)), map, start);
-        }
-    }
-    (None, Vec::new(), 0)
-}
-
 pub fn extract_participants(html: &str) -> Vec<Participant> {
     Html::parse_document(html)
         .select(&SEL_TR)
@@ -360,525 +154,30 @@ pub fn extract_participants(html: &str) -> Vec<Participant> {
         .collect()
 }
 
-pub fn extract_round_data(html: &str, dances: &[Dance], officials: &Officials) -> Vec<Round> {
-    let doc = Html::parse_document(html);
-    let mut rounds: Vec<Round> = Vec::new();
-    let global_name = doc
-        .select(&Selector::parse(SELECTOR_ROUND_NAME).unwrap())
-        .find_map(|e| crate::i18n::parse_round_name(&txt(&e)));
-
-    for table in doc.select(&Selector::parse(SELECTOR_TABLE).unwrap()) {
-        let (stype, map, start) = analyze_table(table);
-        let rows: Vec<_> = table.select(&SEL_TR).collect();
-        match stype {
-            Some(TableType::Horizontal(bc)) => {
-                let mut s_ids = Vec::new();
-                for row in rows.iter().skip(start) {
-                    if let Some(c) = map
-                        .iter()
-                        .position(|m| m.is_round)
-                        .and_then(|i| row.select(&SEL_TD).nth(i))
-                    {
-                        for p in c
-                            .inner_html()
-                            .to_lowercase()
-                            .replace("<br>", "\n")
-                            .replace("<br/>", "\n")
-                            .split('\n')
-                        {
-                            let id = clean(&p.replace("&nbsp;", ""));
-                            if !id.is_empty() && !s_ids.contains(&id) {
-                                s_ids.push(id);
-                            }
-                        }
-                    }
-                }
-                s_ids.sort_by(|a, b| {
-                    let fa = a.starts_with('f');
-                    let fb = b.starts_with('f');
-                    if fa && !fb {
-                        std::cmp::Ordering::Greater
-                    } else if !fa && fb {
-                        std::cmp::Ordering::Less
-                    } else {
-                        a.chars()
-                            .filter(|c| c.is_ascii_digit())
-                            .collect::<String>()
-                            .parse::<u32>()
-                            .unwrap_or(0)
-                            .cmp(
-                                &b.chars()
-                                    .filter(|c| c.is_ascii_digit())
-                                    .collect::<String>()
-                                    .parse::<u32>()
-                                    .unwrap_or(0),
-                            )
-                    }
-                });
-
-                for row in rows.iter().skip(start) {
-                    let cells = row.select(&SEL_TD).collect::<Vec<_>>();
-                    let bib_text = row
-                        .select(&SEL_TD)
-                        .nth(bc)
-                        .map(|c| txt(&c))
-                        .unwrap_or_default();
-                    let bib_c = RE_BIB_PARENS
-                        .captures(&bib_text)
-                        .map(|c| c[1].to_string())
-                        .unwrap_or(bib_text);
-                    if bib_c.is_empty() || !bib_c.chars().all(|c| c.is_ascii_digit()) {
-                        continue;
-                    }
-
-                    let r_cell = cells.iter().find(|c| {
-                        let cl = c.value().attr("class").unwrap_or("");
-                        crate::i18n::is_result_cell_class(cl)
-                    });
-                    let r_idxs: Vec<usize> = r_cell
-                        .map(|c| {
-                            c.inner_html()
-                                .to_lowercase()
-                                .replace("<br>", "\n")
-                                .replace("<br/>", "\n")
-                                .split('\n')
-                                .filter_map(|p| {
-                                    let t = clean(&p.replace("&nbsp;", ""));
-                                    s_ids.iter().position(|sid| sid == &t)
-                                })
-                                .collect()
-                        })
-                        .unwrap_or_else(|| vec![0]);
-
-                    let mut col_ptr = 0;
-                    for cell in &cells {
-                        let span = cell
-                            .value()
-                            .attr("colspan")
-                            .and_then(|s| s.parse::<usize>().ok())
-                            .unwrap_or(1);
-                        if let Some(col) = map.get(col_ptr) {
-                            if !col.is_sum && (col.dance.is_some() || col.judge.is_some()) {
-                                for (l_idx, val) in cell
-                                    .inner_html()
-                                    .to_lowercase()
-                                    .replace("<br>", "\n")
-                                    .replace("<br/>", "\n")
-                                    .split('\n')
-                                    .enumerate()
-                                {
-                                    let val_stripped = clean(
-                                        &scraper::Html::parse_fragment(val)
-                                            .root_element()
-                                            .text()
-                                            .collect::<String>()
-                                            .replace("&nbsp;", ""),
-                                    );
-                                    if val_stripped.is_empty() || val_stripped == "-" {
-                                        continue;
-                                    }
-                                    let &r_pos =
-                                        r_idxs.get(l_idx).unwrap_or(r_idxs.first().unwrap_or(&0));
-                                    let r_name = if !s_ids.is_empty() {
-                                        crate::i18n::get_round_name_from_id(&s_ids[r_pos])
-                                    } else {
-                                        global_name
-                                            .clone()
-                                            .unwrap_or_else(crate::i18n::get_result_table_name)
-                                    };
-                                    let r = match rounds.iter_mut().find(|r| r.name == r_name) {
-                                        Some(r) => r,
-                                        None => {
-                                            rounds.push(Round {
-                                                name: r_name.clone(),
-                                                order: r_pos as u32,
-                                                dances: dances.to_vec(),
-                                                data: RoundData::Marking {
-                                                    marking_crosses: BTreeMap::new(),
-                                                },
-                                            });
-                                            rounds.last_mut().unwrap()
-                                        }
-                                    };
-                                    if let Some(ref j) = col.judge {
-                                        if let Ok(num) = val_stripped.parse::<u32>() {
-                                            if crate::i18n::is_final_round(&r.name) {
-                                                if let RoundData::Marking { .. } = r.data {
-                                                    r.data = RoundData::DTV {
-                                                        dtv_ranks: BTreeMap::new(),
-                                                    };
-                                                }
-                                                if let RoundData::DTV { ref mut dtv_ranks } = r.data
-                                                {
-                                                    let p_map = dtv_ranks
-                                                        .entry(j.clone())
-                                                        .or_default()
-                                                        .entry(bib_c.clone())
-                                                        .or_default();
-                                                    if let Some(d) = col.dance {
-                                                        p_map.insert(d, num);
-                                                    } else {
-                                                        // Mark as consolidated if num > 0 (dummy dance will be removed later)
-                                                        if num > 0 {
-                                                            p_map.insert(Dance::Samba, num);
-                                                        }
-                                                    }
-                                                }
-                                            } else {
-                                                if let RoundData::Marking {
-                                                    ref mut marking_crosses,
-                                                } = r.data
-                                                {
-                                                    let p_map = marking_crosses
-                                                        .entry(j.clone())
-                                                        .or_default()
-                                                        .entry(bib_c.clone())
-                                                        .or_default();
-                                                    if let Some(d) = col.dance {
-                                                        p_map.insert(d, num > 0);
-                                                    } else {
-                                                        // Mark as consolidated if num > 0
-                                                        if num > 0 {
-                                                            p_map.insert(Dance::Samba, true);
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        } else if val_stripped.contains('x') || val_stripped == "-"
-                                        {
-                                            if let RoundData::Marking {
-                                                ref mut marking_crosses,
-                                            } = r.data
-                                            {
-                                                let p_map = marking_crosses
-                                                    .entry(j.clone())
-                                                    .or_default()
-                                                    .entry(bib_c.clone())
-                                                    .or_default();
-                                                let has_cross = val_stripped.contains('x');
-                                                if let Some(d) = col.dance {
-                                                    p_map.insert(d, has_cross);
-                                                } else {
-                                                    p_map.insert(Dance::Samba, has_cross);
-                                                }
-                                            }
-                                        }
-                                    } else if let Some(dance) = col.dance {
-                                        if val_stripped.len() > 1
-                                            && val_stripped.chars().all(|c| c.is_ascii_digit())
-                                        {
-                                            if let RoundData::Marking { .. } = r.data {
-                                                r.data = RoundData::DTV {
-                                                    dtv_ranks: BTreeMap::new(),
-                                                };
-                                            }
-                                            if let RoundData::DTV { ref mut dtv_ranks } = r.data {
-                                                for (j_idx, mark) in
-                                                    val_stripped.chars().enumerate()
-                                                {
-                                                    if let Some(j_obj) = officials.judges.get(j_idx)
-                                                    {
-                                                        if let Some(m) = mark.to_digit(10) {
-                                                            let p_map = dtv_ranks
-                                                                .entry(j_obj.code.clone())
-                                                                .or_default()
-                                                                .entry(bib_c.clone())
-                                                                .or_default();
-                                                            p_map.insert(dance, m);
-                                                            if dances.len() == 1
-                                                                && r.dances.len() > 1
-                                                            {
-                                                                for &d_extra in &r.dances {
-                                                                    p_map.insert(d_extra, m);
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        col_ptr += span;
-                    }
-                }
-            }
-            Some(TableType::Vertical) => {
-                let mut curr_name = global_name
-                    .clone()
-                    .unwrap_or_else(|| crate::i18n::get_round_name_from_pos(1));
-                let mut curr_order = 1;
-                for row in rows.iter().skip(start) {
-                    let text = txt(row).to_lowercase();
-                    if crate::i18n::is_qualification_marker(&text)
-                        || text.contains("addition endrunde")
-                    {
-                        if let Some(n) = crate::i18n::parse_round_name(&text) {
-                            if text.contains("qualifiziert")
-                                || text.contains("qualified")
-                                || text.contains("addition")
-                            {
-                                curr_name = n;
-                                // Increment order for next rounds
-                                curr_order += 1;
-                            }
-                        }
-                        continue;
-                    }
-                    let mut js = Vec::new();
-                    if let Some(c) = row.select(&SEL_TD).next() {
-                        for line in c
-                            .inner_html()
-                            .to_lowercase()
-                            .replace("<br>", "\n")
-                            .replace("<br/>", "\n")
-                            .split('\n')
-                        {
-                            let t = clean(&line.replace("&nbsp;", ""));
-                            if let Some(pos) = t.find(')') {
-                                let code = t[..pos].trim().to_uppercase();
-                                if !code.is_empty()
-                                    && code
-                                        .chars()
-                                        .all(|ch| ch.is_ascii_uppercase() || ch.is_ascii_digit())
-                                {
-                                    js.push(code);
-                                }
-                            }
-                        }
-                    }
-                    if js.is_empty() {
-                        continue;
-                    }
-                    let r = match rounds.iter_mut().find(|r| r.name == curr_name) {
-                        Some(r) => r,
-                        None => {
-                            rounds.push(Round {
-                                name: curr_name.clone(),
-                                order: curr_order,
-                                dances: dances.to_vec(),
-                                data: RoundData::Marking {
-                                    marking_crosses: BTreeMap::new(),
-                                },
-                            });
-                            rounds.last_mut().unwrap()
-                        }
-                    };
-                    for (i, cell) in row.select(&SEL_TD).enumerate() {
-                        let bib = match map.get(i).and_then(|m| m.bib.as_ref()) {
-                            Some(b) => b,
-                            None => continue,
-                        };
-                        let dance = map[i]
-                            .dance
-                            .or_else(|| dances.first().cloned())
-                            .unwrap_or(Dance::Samba);
-                        for (l_idx, val) in cell
-                            .inner_html()
-                            .to_lowercase()
-                            .replace("<br>", "\n")
-                            .replace("<br/>", "\n")
-                            .split('\n')
-                            .enumerate()
-                        {
-                            let val_stripped = clean(
-                                &scraper::Html::parse_fragment(val)
-                                    .root_element()
-                                    .text()
-                                    .collect::<String>()
-                                    .replace("&nbsp;", ""),
-                            );
-                            if val_stripped.is_empty() || val_stripped == "-" {
-                                continue;
-                            }
-                            if let Some(j) = js.get(l_idx) {
-                                if let Ok(num) = val_stripped.parse::<u32>() {
-                                    if crate::i18n::is_final_round(&r.name) {
-                                        if let RoundData::Marking { .. } = r.data {
-                                            r.data = RoundData::DTV {
-                                                dtv_ranks: BTreeMap::new(),
-                                            };
-                                        }
-                                        if let RoundData::DTV { ref mut dtv_ranks } = r.data {
-                                            let p_map = dtv_ranks
-                                                .entry(j.clone())
-                                                .or_default()
-                                                .entry(bib.clone())
-                                                .or_default();
-                                            if num > 0 {
-                                                p_map.insert(dance, num);
-                                            }
-                                        }
-                                    } else {
-                                        if let RoundData::Marking {
-                                            ref mut marking_crosses,
-                                        } = r.data
-                                        {
-                                            let p_map = marking_crosses
-                                                .entry(j.clone())
-                                                .or_default()
-                                                .entry(bib.clone())
-                                                .or_default();
-                                            if num > 0 {
-                                                p_map.insert(dance, true);
-                                            }
-                                        }
-                                    }
-                                } else if val_stripped.contains('x')
-                                    || val_stripped == "-"
-                                    || (val_stripped.chars().all(|c| c.is_ascii_digit())
-                                        && val_stripped.len() == 1)
-                                {
-                                    if let RoundData::Marking {
-                                        ref mut marking_crosses,
-                                    } = r.data
-                                    {
-                                        let p_map = marking_crosses
-                                            .entry(j.clone())
-                                            .or_default()
-                                            .entry(bib.clone())
-                                            .or_default();
-                                        let has_cross =
-                                            val_stripped.contains('x') || val_stripped == "1";
-                                        p_map.insert(dance, has_cross);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            _ => {}
-        }
-    }
-    rounds.sort_by_key(|r| r.order);
-    rounds.retain(|r| match &r.data {
-        RoundData::DTV { dtv_ranks } => !dtv_ranks.is_empty(),
-        RoundData::Marking { marking_crosses } => !marking_crosses.is_empty(),
-        RoundData::WDSF { wdsf_scores } => !wdsf_scores.is_empty(),
-    });
-
-    // Final sort to ensure Vorrunde (usually order 1) comes before Final (order 0)
-    // Actually order should be chronological.
-    rounds.sort_by(|a, b| {
-        let a_final = crate::i18n::is_final_round(&a.name);
-        let b_final = crate::i18n::is_final_round(&b.name);
-        if a_final && !b_final {
-            std::cmp::Ordering::Greater
-        } else if !a_final && b_final {
-            std::cmp::Ordering::Less
-        } else {
-            a.order.cmp(&b.order)
-        }
-    });
-
-    rounds
-}
-
-fn parse_wdsf_scores(
-    html: &str,
-    dances: &[Dance],
-) -> BTreeMap<String, BTreeMap<String, BTreeMap<Dance, WDSFScore>>> {
-    let mut res = BTreeMap::new();
-    let doc = Html::parse_document(html);
-    for table in doc.select(&Selector::parse(SELECTOR_TABLE).unwrap()) {
-        let (stype, map, start) = analyze_table(table);
-        if stype.is_none() {
-            continue;
-        }
-        for row in table.select(&SEL_TR).skip(start) {
-            let cells: Vec<_> = row.select(&SEL_TD).collect();
-            let bib_text = match stype {
-                Some(TableType::Horizontal(bc)) => row
-                    .select(&SEL_TD)
-                    .nth(bc)
-                    .map(|c| txt(&c))
-                    .unwrap_or_default(),
-                _ => String::new(),
-            };
-            let bib_c = RE_BIB_PARENS
-                .captures(&bib_text)
-                .map(|c| c[1].to_string())
-                .unwrap_or(bib_text);
-            for (i, cell) in cells.iter().enumerate() {
-                if let Some(col) = map.get(i) {
-                    if let (Some(dance), Some(ref j)) =
-                        (col.dance.or_else(|| dances.first().cloned()), &col.judge)
-                    {
-                        for line in cell
-                            .inner_html()
-                            .to_lowercase()
-                            .replace("<br>", "\n")
-                            .replace("<br/>", "\n")
-                            .split('\n')
-                        {
-                            let sc: Vec<f64> = RE_SCORE
-                                .find_iter(line)
-                                .filter_map(|m| m.as_str().replace(',', ".").parse().ok())
-                                .collect();
-                            if !sc.is_empty() {
-                                let s = res
-                                    .entry(j.clone())
-                                    .or_insert_with(BTreeMap::new)
-                                    .entry(bib_c.clone())
-                                    .or_insert_with(BTreeMap::new)
-                                    .entry(dance)
-                                    .or_insert_with(|| WDSFScore {
-                                        technical_quality: 0.0,
-                                        movement_to_music: 0.0,
-                                        partnering_skills: 0.0,
-                                        choreography: 0.0,
-                                        total: 0.0,
-                                    });
-
-                                if let Some(score_type) = crate::i18n::map_wdsf_score_type(line) {
-                                    match score_type {
-                                        "technical_quality" => s.technical_quality = sc[0],
-                                        "movement_to_music" => s.movement_to_music = sc[0],
-                                        "partnering_skills" => {
-                                            s.partnering_skills = *sc.last().unwrap()
-                                        }
-                                        "choreography" => s.choreography = *sc.last().unwrap(),
-                                        "total" => s.total = sc[0],
-                                        _ => {}
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    res
-}
-
-fn count_round_marks(data: &RoundData) -> usize {
+fn count_round_marks(data: &crate::models::RoundData) -> usize {
     match data {
-        RoundData::Marking { marking_crosses } => marking_crosses
+        crate::models::RoundData::Marking { marking_crosses } => marking_crosses
             .values()
             .map(|jm| jm.values().map(|pm| pm.len()).sum::<usize>())
             .sum(),
-        RoundData::DTV { dtv_ranks } => dtv_ranks
+        crate::models::RoundData::DTV { dtv_ranks } => dtv_ranks
             .values()
             .map(|jm| jm.values().map(|pm| pm.len()).sum::<usize>())
             .sum(),
-        RoundData::WDSF { wdsf_scores } => wdsf_scores
+        crate::models::RoundData::WDSF { wdsf_scores } => wdsf_scores
             .values()
             .map(|jm| jm.values().map(|pm| pm.len()).sum::<usize>())
             .sum(),
     }
 }
 
-fn merge_round_data(existing: &mut RoundData, new: RoundData) {
+fn merge_round_data(existing: &mut crate::models::RoundData, new: crate::models::RoundData) {
     match (existing, new) {
         (
-            RoundData::Marking {
+            crate::models::RoundData::Marking {
                 marking_crosses: e_map,
             },
-            RoundData::Marking {
+            crate::models::RoundData::Marking {
                 marking_crosses: n_map,
             },
         ) => {
@@ -892,7 +191,7 @@ fn merge_round_data(existing: &mut RoundData, new: RoundData) {
                 }
             }
         }
-        (RoundData::DTV { dtv_ranks: e_map }, RoundData::DTV { dtv_ranks: n_map }) => {
+        (crate::models::RoundData::DTV { dtv_ranks: e_map }, crate::models::RoundData::DTV { dtv_ranks: n_map }) => {
             for (judge, n_bib_map) in n_map {
                 let e_bib_map = e_map.entry(judge).or_default();
                 for (bib, n_dance_map) in n_bib_map {
@@ -903,7 +202,7 @@ fn merge_round_data(existing: &mut RoundData, new: RoundData) {
                 }
             }
         }
-        (RoundData::WDSF { wdsf_scores: e_map }, RoundData::WDSF { wdsf_scores: n_map }) => {
+        (crate::models::RoundData::WDSF { wdsf_scores: e_map }, crate::models::RoundData::WDSF { wdsf_scores: n_map }) => {
             for (judge, n_bib_map) in n_map {
                 let e_bib_map = e_map.entry(judge).or_default();
                 for (bib, n_dance_map) in n_bib_map {
@@ -1069,12 +368,18 @@ pub fn extract_event_data(data_dir: &str) -> Result<Competition> {
             for d in &file_dances {
                 found_dances.insert(*d);
             }
-            let file_rounds = extract_round_data(&content, &file_dances, &comp.officials);
-            for fr in file_rounds {
-                if let Some(existing) = all_rounds.iter_mut().find(|r| r.name == fr.name) {
-                    merge_round_data(&mut existing.data, fr.data);
-                } else {
-                    all_rounds.push(fr);
+
+            let doc = Html::parse_document(&content);
+            for table in doc.select(&Selector::parse(SELECTOR_TABLE).unwrap()) {
+                 let grid = topturnier_table::TableGrid::from_element(table);
+                 let intermediate = topturnier_table::extract_data(&grid);
+                 let file_rounds = topturnier_table::to_rounds(intermediate, &file_dances, &comp.officials);
+                 for fr in file_rounds {
+                    if let Some(existing) = all_rounds.iter_mut().find(|r| r.name == fr.name) {
+                        merge_round_data(&mut existing.data, fr.data);
+                    } else {
+                        all_rounds.push(fr);
+                    }
                 }
             }
         }
@@ -1120,7 +425,7 @@ pub fn extract_event_data(data_dir: &str) -> Result<Competition> {
 
     for r in &mut all_rounds {
         match &mut r.data {
-            RoundData::DTV { dtv_ranks } => {
+            crate::models::RoundData::DTV { dtv_ranks } => {
                 for j_map in dtv_ranks.values_mut() {
                     for p_map in j_map.values_mut() {
                         let placeholder_val = p_map
@@ -1140,7 +445,7 @@ pub fn extract_event_data(data_dir: &str) -> Result<Competition> {
                     }
                 }
             }
-            RoundData::Marking { marking_crosses } => {
+            crate::models::RoundData::Marking { marking_crosses } => {
                 for j_map in marking_crosses.values_mut() {
                     for p_map in j_map.values_mut() {
                         let placeholder_val = p_map
@@ -1167,36 +472,6 @@ pub fn extract_event_data(data_dir: &str) -> Result<Competition> {
     }
 
     comp.rounds = all_rounds;
-
-    let tabges_h = fs::read_to_string(dir.join("tabges.htm")).unwrap_or_default();
-    let ergwert_h = fs::read_to_string(dir.join("ergwert.htm")).unwrap_or_default();
-    let erg_h_file = fs::read_to_string(dir.join("erg.htm")).unwrap_or_default();
-    let scoring_h = if !tabges_h.is_empty() {
-        tabges_h
-    } else if !ergwert_h.is_empty() {
-        ergwert_h
-    } else {
-        erg_h_file
-    };
-
-    if scoring_h.contains("TQ") || scoring_h.contains("MM") {
-        let scores = parse_wdsf_scores(&scoring_h, &comp.dances);
-        if !scores.is_empty() {
-            if let Some(r) = comp
-                .rounds
-                .iter_mut()
-                .find(|r| crate::i18n::is_final_round(&r.name))
-            {
-                r.data = RoundData::WDSF {
-                    wdsf_scores: scores,
-                };
-            } else if let Some(r) = comp.rounds.last_mut() {
-                r.data = RoundData::WDSF {
-                    wdsf_scores: scores,
-                };
-            }
-        }
-    }
     comp.rounds.sort_by_key(|r| r.order);
 
     if comp.source_url.is_none() {
@@ -1271,7 +546,6 @@ pub fn parse_competition_from_title(title: &str) -> Result<Competition, ParsingE
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::fs;
 
     #[test]
     fn test_parse_participants() {
@@ -1280,43 +554,5 @@ mod tests {
             .unwrap();
         assert_eq!(p.bib_number, 610);
         assert_eq!(p.name_one, "Jonathan Kummetz");
-    }
-
-    #[test]
-    fn test_real_wdsf_world_open_tabges() {
-        let html = fs::read_to_string("tests/44-0507_wdsfworldopenlatadult/tabges.htm").unwrap();
-        let dances = vec![
-            Dance::Samba,
-            Dance::ChaChaCha,
-            Dance::Rumba,
-            Dance::PasoDoble,
-            Dance::Jive,
-        ];
-        let off = Officials {
-            responsible_person: None,
-            assistant: None,
-            judges: (b'A'..=b'X')
-                .map(|c| Judge {
-                    code: (c as char).to_string(),
-                    name: String::new(),
-                    club: None,
-                })
-                .collect(),
-        };
-        let results = extract_round_data(&html, &dances, &off);
-        let found = results.iter().any(|r| match &r.data {
-            RoundData::Marking { marking_crosses } => marking_crosses
-                .get("A")
-                .map_or(false, |m| m.contains_key("284")),
-            RoundData::DTV { dtv_ranks } => {
-                dtv_ranks.get("A").map_or(false, |m| m.contains_key("284"))
-            }
-            _ => false,
-        });
-        assert!(
-            found,
-            "Could not find marks for bib 284 in any round. Rounds found: {}",
-            results.len()
-        );
     }
 }
