@@ -72,7 +72,7 @@ fn extract_text(el: ElementRef) -> String {
             let name = element.value().name();
             if name == "br" {
                 text.push('\n');
-            } else if element.value().attr("class").map_or(false, |c| {
+            } else if element.value().attr("class").is_some_and(|c| {
                 c.contains("tooltip")
             }) {
                 continue;
@@ -178,12 +178,11 @@ pub fn identify_columns(grid: &TableGrid) -> Vec<ColumnType> {
                     let val = &grid.rows[r][c];
                     if val.is_empty() { continue; }
 
-                    if val.len() <= 3 && val.chars().all(|ch| ch.is_ascii_uppercase() || ch.is_ascii_digit()) {
-                        if crate::i18n::parse_dances_no_fallback(val).is_empty() {
-                            col_types[c] = ColumnType::Mark { dance, judge: val.clone() };
-                            found_judge = true;
-                            break;
-                        }
+                    if val.len() <= 3 && val.chars().all(|ch| ch.is_ascii_uppercase() || ch.is_ascii_digit())
+                        && crate::i18n::parse_dances_no_fallback(val).is_empty() {
+                        col_types[c] = ColumnType::Mark { dance, judge: val.clone() };
+                        found_judge = true;
+                        break;
                     }
                 }
                 if !found_judge {
@@ -342,10 +341,9 @@ fn extract_vertical(grid: &TableGrid) -> Vec<IntermediateResult> {
                  if !code.is_empty() && code.chars().all(|ch| ch.is_ascii_uppercase() || ch.is_ascii_digit()) {
                      js.push(code);
                  }
-             } else if t.len() <= 3 && t.chars().all(|ch| ch.is_ascii_uppercase() || ch.is_ascii_digit()) && !t.is_empty() {
-                 if crate::i18n::parse_dances_no_fallback(t).is_empty() {
-                     js.push(t.to_string());
-                 }
+             } else if t.len() <= 3 && t.chars().all(|ch| ch.is_ascii_uppercase() || ch.is_ascii_digit()) && !t.is_empty()
+                 && crate::i18n::parse_dances_no_fallback(t).is_empty() {
+                 js.push(t.to_string());
              }
         }
 

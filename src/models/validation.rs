@@ -1,6 +1,6 @@
 use crate::models::skating::{calculate_dance_ranks, calculate_final_ranks, verify_wdsf_score};
 use crate::models::{Competition, Dance, Judge, Round, RoundData};
-use std::collections::{BTreeMap, HashSet};
+use std::collections::BTreeMap;
 
 /// Helper method to check if all expected data is present in a round.
 fn is_round_complete(
@@ -15,25 +15,7 @@ fn is_round_complete(
 
     for judge in expected_judges {
         for &bib in participants {
-            let bib_str = bib.to_string();
-            let data_present = match &round.data {
-                RoundData::Marking { marking_crosses } => marking_crosses
-                    .get(&judge.code)
-                    .and_then(|judge_map| judge_map.get(&bib_str))
-                    .map(|bib_map| dances.iter().all(|d| bib_map.contains_key(d)))
-                    .unwrap_or(false),
-                RoundData::DTV { dtv_ranks } => dtv_ranks
-                    .get(&judge.code)
-                    .and_then(|judge_map| judge_map.get(&bib_str))
-                    .map(|bib_map| dances.iter().all(|d| bib_map.contains_key(d)))
-                    .unwrap_or(false),
-                RoundData::WDSF { wdsf_scores } => wdsf_scores
-                    .get(&judge.code)
-                    .and_then(|judge_map| judge_map.get(&bib_str))
-                    .map(|bib_map| dances.iter().all(|d| bib_map.contains_key(d)))
-                    .unwrap_or(false),
-            };
-            if !data_present {
+            if !round.data.has_marks_for(&judge.code, bib, dances) {
                 return false;
             }
         }
@@ -57,31 +39,7 @@ pub fn validate_competition_fidelity(comp: &Competition) -> bool {
 
     let mut round_participant_sets = Vec::new();
     for round in &comp.rounds {
-        let mut round_participants = HashSet::new();
-        match &round.data {
-            RoundData::Marking { marking_crosses } => {
-                for judge_map in marking_crosses.values() {
-                    for bib_str in judge_map.keys() {
-                        round_participants.insert(bib_str.parse::<u32>().unwrap_or(0));
-                    }
-                }
-            }
-            RoundData::DTV { dtv_ranks } => {
-                for judge_map in dtv_ranks.values() {
-                    for bib_str in judge_map.keys() {
-                        round_participants.insert(bib_str.parse::<u32>().unwrap_or(0));
-                    }
-                }
-            }
-            RoundData::WDSF { wdsf_scores } => {
-                for judge_map in wdsf_scores.values() {
-                    for bib_str in judge_map.keys() {
-                        round_participants.insert(bib_str.parse::<u32>().unwrap_or(0));
-                    }
-                }
-            }
-        }
-
+        let round_participants = round.data.participant_bibs();
         let participants_vec: Vec<u32> = round_participants.iter().cloned().collect();
         if !is_round_complete(
             round,
