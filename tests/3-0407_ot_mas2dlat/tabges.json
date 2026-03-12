@@ -100,13 +100,13 @@
             "Samba": 2,
             "ChaChaCha": 2,
             "Rumba": 1,
-            "Jive": 1
+            "Jive": 2
           },
           "1408": {
             "Samba": 1,
             "ChaChaCha": 1,
             "Rumba": 2,
-            "Jive": 2
+            "Jive": 1
           }
         },
         "BR": {

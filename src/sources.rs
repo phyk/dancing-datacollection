@@ -21,3 +21,4 @@ pub enum ParsingError {
 }
 
 pub mod dtv_native;
+pub mod topturnier_table;

@@ -150,6 +150,8 @@ pub fn get_round_name_from_id(p: &str) -> String {
         } else {
             p.to_string()
         }
+    } else if let Some(name) = parse_round_name(p) {
+        name
     } else {
         p.to_string()
     }
@@ -251,7 +253,13 @@ pub fn is_bib_column_marker(s: &str) -> bool {
 
 pub fn is_rank_column_marker(s: &str) -> bool {
     let lower = s.to_lowercase();
-    RANK_COLUMN_MARKERS.iter().any(|&m| lower.contains(m))
+    RANK_COLUMN_MARKERS.iter().any(|&m| {
+        if m == "rank" || m == "platz" {
+            lower == m
+        } else {
+            lower.contains(m)
+        }
+    })
 }
 
 pub fn is_sum_column_marker(s: &str) -> bool {
@@ -277,9 +285,10 @@ pub fn is_qualification_marker(s: &str) -> bool {
 }
 
 pub fn map_wdsf_score_type(line: &str) -> Option<&'static str> {
+    let lower = line.to_lowercase();
     WDSF_SCORE_TYPES
         .iter()
-        .find(|&&(marker, _)| line.contains(marker))
+        .find(|&&(marker, _)| lower.contains(marker))
         .map(|&(_, id)| id)
 }
 
