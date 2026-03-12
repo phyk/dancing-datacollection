@@ -194,11 +194,11 @@ pub const PATTERN_DATE: &str = r"(\d{1,2})[\./]([a-zA-Z0-9]{2,3})[\./](\d{4})";
 pub const PATTERN_RANK: &str = r"(\d+)";
 
 // --- Interpretation Markers ---
-pub const BIB_COLUMN_MARKERS: &[&str] = &["nr", "nr.", "startnummer", "no."];
-pub const RANK_COLUMN_MARKERS: &[&str] = &["pl.", "platz"];
+pub const BIB_COLUMN_MARKERS: &[&str] = &["nr", "nr.", "startnummer", "no.", "no"];
+pub const RANK_COLUMN_MARKERS: &[&str] = &["pl.", "platz", "rank", "platz von"];
 pub const SUM_COLUMN_MARKERS: &[&str] = &["su", "summe", "total", "pz", "sum"];
 pub const ROUND_COLUMN_MARKERS: &[&str] = &["r", "round", "runde"];
-pub const PARTICIPANT_MARKERS: &[&str] = &["teilnehmer"];
+pub const PARTICIPANT_MARKERS: &[&str] = &["teilnehmer", "participant", "no. of participants"];
 pub const QUALIFICATION_MARKERS: &[&str] =
     &["result of", "qualified for", "ergebnis", "qualifiziert"];
 pub const LEVEL_S_MARKERS: &[&str] = &["WDSF", "OPEN"];
