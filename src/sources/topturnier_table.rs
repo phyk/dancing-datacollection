@@ -171,22 +171,24 @@ pub fn identify_columns(grid: &TableGrid) -> Vec<ColumnType> {
     }
 
     for c in 0..grid.width {
-        if let Some(dance) = col_dances[c] {
-            let mut found_judge = false;
-            for r in 0..grid.height.min(5) {
-                let val = &grid.rows[r][c];
-                if val.is_empty() { continue; }
+        if col_types[c] == ColumnType::Unknown {
+            if let Some(dance) = col_dances[c] {
+                let mut found_judge = false;
+                for r in 0..grid.height.min(5) {
+                    let val = &grid.rows[r][c];
+                    if val.is_empty() { continue; }
 
-                if val.len() <= 3 && val.chars().all(|ch| ch.is_ascii_uppercase() || ch.is_ascii_digit()) {
-                    if crate::i18n::parse_dances_no_fallback(val).is_empty() {
-                        col_types[c] = ColumnType::Mark { dance, judge: val.clone() };
-                        found_judge = true;
-                        break;
+                    if val.len() <= 3 && val.chars().all(|ch| ch.is_ascii_uppercase() || ch.is_ascii_digit()) {
+                        if crate::i18n::parse_dances_no_fallback(val).is_empty() {
+                            col_types[c] = ColumnType::Mark { dance, judge: val.clone() };
+                            found_judge = true;
+                            break;
+                        }
                     }
                 }
-            }
-            if !found_judge {
-                col_types[c] = ColumnType::Dance(dance);
+                if !found_judge {
+                    col_types[c] = ColumnType::Dance(dance);
+                }
             }
         }
     }
@@ -340,7 +342,7 @@ fn extract_vertical(grid: &TableGrid) -> Vec<IntermediateResult> {
                  if !code.is_empty() && code.chars().all(|ch| ch.is_ascii_uppercase() || ch.is_ascii_digit()) {
                      js.push(code);
                  }
-             } else if t.len() <= 3 && t.chars().all(|c| c.is_ascii_uppercase() || c.is_ascii_digit()) && !t.is_empty() {
+             } else if t.len() <= 3 && t.chars().all(|ch| ch.is_ascii_uppercase() || ch.is_ascii_digit()) && !t.is_empty() {
                  if crate::i18n::parse_dances_no_fallback(t).is_empty() {
                      js.push(t.to_string());
                  }
@@ -378,16 +380,31 @@ fn extract_vertical(grid: &TableGrid) -> Vec<IntermediateResult> {
 pub fn to_rounds(intermediate: Vec<IntermediateResult>, dances: &[Dance], officials: &Officials) -> Vec<Round> {
     let mut rounds_map: BTreeMap<String, Round> = BTreeMap::new();
 
+    // Pass 1: Determine round types
+    let mut round_types: BTreeMap<String, bool> = BTreeMap::new();
+    for res in &intermediate {
+        for (round_id, marks) in &res.marks_by_round {
+            let round_name = crate::i18n::get_round_name_from_id(round_id);
+            if marks.iter().any(|m| crate::i18n::map_wdsf_score_type(&m.value).is_some()) {
+                round_types.insert(round_name, true);
+            }
+        }
+    }
+
     for res in intermediate {
         for (round_id, marks) in res.marks_by_round {
             let round_name = crate::i18n::get_round_name_from_id(&round_id);
+            let is_wdsf = *round_types.get(&round_name).unwrap_or(&false);
+
             let round = rounds_map.entry(round_name.clone()).or_insert_with(|| {
                 let is_final = crate::i18n::is_final_round(&round_name);
                 Round {
                     name: round_name.clone(),
                     order: 0,
                     dances: dances.to_vec(),
-                    data: if is_final {
+                    data: if is_wdsf {
+                        RoundData::WDSF { wdsf_scores: BTreeMap::new() }
+                    } else if is_final {
                         RoundData::DTV { dtv_ranks: BTreeMap::new() }
                     } else {
                         RoundData::Marking { marking_crosses: BTreeMap::new() }
@@ -396,13 +413,6 @@ pub fn to_rounds(intermediate: Vec<IntermediateResult>, dances: &[Dance], offici
             });
 
             for mark in marks {
-                let is_wdsf = mark.value.contains('.') || mark.value.contains(',');
-                if is_wdsf {
-                    if let RoundData::Marking { .. } | RoundData::DTV { .. } = round.data {
-                        round.data = RoundData::WDSF { wdsf_scores: BTreeMap::new() };
-                    }
-                }
-
                 match &mut round.data {
                     RoundData::Marking { marking_crosses } => {
                         if let Some(judge) = mark.judge {
@@ -486,16 +496,18 @@ pub fn to_rounds(intermediate: Vec<IntermediateResult>, dances: &[Dance], offici
     }
 
     let mut rounds: Vec<Round> = rounds_map.into_values().collect();
-    rounds.sort_by(|a, b| {
-        let a_final = crate::i18n::is_final_round(&a.name);
-        let b_final = crate::i18n::is_final_round(&b.name);
-        if a_final && !b_final {
-            std::cmp::Ordering::Greater
-        } else if !a_final && b_final {
-            std::cmp::Ordering::Less
-        } else {
-            a.name.cmp(&b.name)
-        }
+    // Heuristic for chronological order: count participants. Final has fewest.
+    rounds.sort_by_key(|r| {
+         let count = match &r.data {
+             RoundData::Marking { marking_crosses } => marking_crosses.values().next().map(|m| m.len()).unwrap_or(0),
+             RoundData::DTV { dtv_ranks } => dtv_ranks.values().next().map(|m| m.len()).unwrap_or(0),
+             RoundData::WDSF { wdsf_scores } => wdsf_scores.values().next().map(|m| m.len()).unwrap_or(0),
+         };
+         if crate::i18n::is_final_round(&r.name) {
+             1000
+         } else {
+             100 - (count as i32)
+         }
     });
     for (i, r) in rounds.iter_mut().enumerate() {
         r.order = i as u32;

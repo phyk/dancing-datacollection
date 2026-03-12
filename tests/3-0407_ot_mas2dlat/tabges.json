@@ -79,8 +79,79 @@
         "Rumba",
         "Jive"
       ],
-      "round_type": "WDSF",
-      "wdsf_scores": {}
+      "round_type": "DTV",
+      "dtv_ranks": {
+        "AA": {
+          "1136": {
+            "Samba": 1,
+            "ChaChaCha": 1,
+            "Rumba": 1,
+            "Jive": 1
+          },
+          "1408": {
+            "Samba": 2,
+            "ChaChaCha": 2,
+            "Rumba": 2,
+            "Jive": 2
+          }
+        },
+        "AG": {
+          "1136": {
+            "Samba": 2,
+            "ChaChaCha": 2,
+            "Rumba": 1,
+            "Jive": 2
+          },
+          "1408": {
+            "Samba": 1,
+            "ChaChaCha": 1,
+            "Rumba": 2,
+            "Jive": 1
+          }
+        },
+        "BR": {
+          "1136": {
+            "Samba": 2,
+            "ChaChaCha": 2,
+            "Rumba": 2,
+            "Jive": 2
+          },
+          "1408": {
+            "Samba": 1,
+            "ChaChaCha": 1,
+            "Rumba": 1,
+            "Jive": 1
+          }
+        },
+        "CR": {
+          "1136": {
+            "Samba": 2,
+            "ChaChaCha": 2,
+            "Rumba": 2,
+            "Jive": 1
+          },
+          "1408": {
+            "Samba": 1,
+            "ChaChaCha": 1,
+            "Rumba": 1,
+            "Jive": 2
+          }
+        },
+        "DB": {
+          "1136": {
+            "Samba": 1,
+            "ChaChaCha": 1,
+            "Rumba": 2,
+            "Jive": 2
+          },
+          "1408": {
+            "Samba": 2,
+            "ChaChaCha": 2,
+            "Rumba": 1,
+            "Jive": 1
+          }
+        }
+      }
     }
   ]
 }

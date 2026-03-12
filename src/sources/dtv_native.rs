@@ -471,8 +471,20 @@ pub fn extract_event_data(data_dir: &str) -> Result<Competition> {
         r.dances = comp.dances.clone();
     }
 
+    all_rounds.retain(|r| count_round_marks(&r.data) > 0);
+    all_rounds.sort_by(|a, b| {
+        let a_final = crate::i18n::is_final_round(&a.name);
+        let b_final = crate::i18n::is_final_round(&b.name);
+        if a_final && !b_final {
+            std::cmp::Ordering::Greater
+        } else if !a_final && b_final {
+            std::cmp::Ordering::Less
+        } else {
+            a.order.cmp(&b.order)
+        }
+    });
+
     comp.rounds = all_rounds;
-    comp.rounds.sort_by_key(|r| r.order);
 
     if comp.source_url.is_none() {
         if let Ok(index_h) = fs::read_to_string(dir.join("index.htm")) {
