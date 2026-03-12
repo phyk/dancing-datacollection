@@ -154,23 +154,6 @@ pub fn extract_participants(html: &str) -> Vec<Participant> {
         .collect()
 }
 
-fn count_round_marks(data: &crate::models::RoundData) -> usize {
-    match data {
-        crate::models::RoundData::Marking { marking_crosses } => marking_crosses
-            .values()
-            .map(|jm| jm.values().map(|pm| pm.len()).sum::<usize>())
-            .sum(),
-        crate::models::RoundData::DTV { dtv_ranks } => dtv_ranks
-            .values()
-            .map(|jm| jm.values().map(|pm| pm.len()).sum::<usize>())
-            .sum(),
-        crate::models::RoundData::WDSF { wdsf_scores } => wdsf_scores
-            .values()
-            .map(|jm| jm.values().map(|pm| pm.len()).sum::<usize>())
-            .sum(),
-    }
-}
-
 fn merge_round_data(existing: &mut crate::models::RoundData, new: crate::models::RoundData) {
     match (existing, new) {
         (
@@ -214,7 +197,7 @@ fn merge_round_data(existing: &mut crate::models::RoundData, new: crate::models:
             }
         }
         (e, n) => {
-            if count_round_marks(&n) > count_round_marks(e) {
+            if n.count_entries() > e.count_entries() {
                 *e = n;
             }
         }
@@ -471,7 +454,7 @@ pub fn extract_event_data(data_dir: &str) -> Result<Competition> {
         r.dances = comp.dances.clone();
     }
 
-    all_rounds.retain(|r| count_round_marks(&r.data) > 0);
+    all_rounds.retain(|r| r.data.count_entries() > 0);
     all_rounds.sort_by(|a, b| {
         let a_final = crate::i18n::is_final_round(&a.name);
         let b_final = crate::i18n::is_final_round(&b.name);

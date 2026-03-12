@@ -109,68 +109,15 @@ fn load_competition_results(
             comp.source_url = Some(comp_url.clone());
 
             // 3. Apply overrides and Validate
-            // 3a. Filtering Logic
-            if let Some(ref ag_filter) = age_group {
-                let target = crate::i18n::map_age_group(ag_filter)
-                    .or_else(|| crate::i18n::parse_age_group(ag_filter));
-                if let Some(t) = target {
-                    if comp.age_group != t {
-                        let _ = fs::remove_dir_all(&temp_dir);
-                        continue;
-                    }
-                } else {
-                    let _ = fs::remove_dir_all(&temp_dir);
-                    continue;
-                }
-            }
-            if let Some(ref s_filter) = style {
-                let target = crate::i18n::map_discipline(s_filter)
-                    .or_else(|| crate::i18n::parse_style(s_filter));
-                if let Some(t) = target {
-                    if comp.style != t {
-                        let _ = fs::remove_dir_all(&temp_dir);
-                        continue;
-                    }
-                } else {
-                    let _ = fs::remove_dir_all(&temp_dir);
-                    continue;
-                }
-            }
-            if let Some(ref l_filter) = level {
-                let target = crate::i18n::parse_level(l_filter);
-                if let Some(t) = target {
-                    if comp.level != t {
-                        let _ = fs::remove_dir_all(&temp_dir);
-                        continue;
-                    }
-                } else {
-                    let _ = fs::remove_dir_all(&temp_dir);
-                    continue;
-                }
-            }
-
-            if let Some(ref d_str) = date {
-                match crate::sources::dtv_native::parse_date(d_str) {
-                    Some(d) => {
-                        if let Some(comp_date) = comp.date {
-                            if comp_date != d {
-                                let _ = fs::remove_dir_all(&temp_dir);
-                                continue;
-                            }
-                        } else {
-                            comp.date = Some(d);
-                        }
-                        comp.min_dances = crate::i18n::get_min_dances(comp.level, d);
-                    }
-                    None => {
-                        log::error!("Provided date filter '{}' could not be parsed.", d_str);
-                        let _ = fs::remove_dir_all(&temp_dir);
-                        continue;
-                    }
-                }
-            } else if let Some(comp_date) = comp.date {
-                // Ensure min_dances is correct for the parsed event date
-                comp.min_dances = crate::i18n::get_min_dances(comp.level, comp_date);
+            if !apply_filters_and_overrides(
+                &mut comp,
+                &age_group,
+                &style,
+                &level,
+                &date,
+            ) {
+                let _ = fs::remove_dir_all(&temp_dir);
+                continue;
             }
 
             let comp_id = format!("{:?}_{:?}_{:?}", comp.age_group, comp.level, comp.style);
@@ -237,6 +184,78 @@ fn load_competition_results(
         }
         Ok(())
     })
+}
+
+/// Helper to apply filters and overrides to a competition. Returns false if filtered out.
+fn apply_filters_and_overrides(
+    comp: &mut crate::models::Competition,
+    age_group: &Option<String>,
+    style: &Option<String>,
+    level: &Option<String>,
+    date: &Option<String>,
+) -> bool {
+    // 1. Age Group Filter
+    if let Some(ref ag_filter) = age_group {
+        let target = crate::i18n::map_age_group(ag_filter)
+            .or_else(|| crate::i18n::parse_age_group(ag_filter));
+        if let Some(t) = target {
+            if comp.age_group != t {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    // 2. Style Filter
+    if let Some(ref s_filter) = style {
+        let target = crate::i18n::map_discipline(s_filter)
+            .or_else(|| crate::i18n::parse_style(s_filter));
+        if let Some(t) = target {
+            if comp.style != t {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    // 3. Level Filter
+    if let Some(ref l_filter) = level {
+        let target = crate::i18n::parse_level(l_filter);
+        if let Some(t) = target {
+            if comp.level != t {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    // 4. Date Filter & Min Dances Override
+    if let Some(ref d_str) = date {
+        match crate::sources::dtv_native::parse_date(d_str) {
+            Some(d) => {
+                if let Some(comp_date) = comp.date {
+                    if comp_date != d {
+                        return false;
+                    }
+                } else {
+                    comp.date = Some(d);
+                }
+                comp.min_dances = crate::i18n::get_min_dances(comp.level, d);
+            }
+            None => {
+                log::error!("Provided date filter '{}' could not be parsed.", d_str);
+                return false;
+            }
+        }
+    } else if let Some(comp_date) = comp.date {
+        // Ensure min_dances is correct for the parsed event date
+        comp.min_dances = crate::i18n::get_min_dances(comp.level, comp_date);
+    }
+
+    true
 }
 
 #[pymodule]

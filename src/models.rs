@@ -122,6 +122,88 @@ pub enum RoundData {
     },
 }
 
+impl RoundData {
+    /// Counts the total number of entries (marks/ranks/scores) across all judges and participants.
+    pub fn count_entries(&self) -> usize {
+        match self {
+            Self::Marking { marking_crosses } => marking_crosses
+                .values()
+                .map(|jm| jm.values().map(|pm| pm.len()).sum::<usize>())
+                .sum(),
+            Self::DTV { dtv_ranks } => dtv_ranks
+                .values()
+                .map(|jm| jm.values().map(|pm| pm.len()).sum::<usize>())
+                .sum(),
+            Self::WDSF { wdsf_scores } => wdsf_scores
+                .values()
+                .map(|jm| jm.values().map(|pm| pm.len()).sum::<usize>())
+                .sum(),
+        }
+    }
+
+    /// Returns a set of all participant bib numbers present in this round.
+    pub fn participant_bibs(&self) -> std::collections::HashSet<u32> {
+        let mut bibs = std::collections::HashSet::new();
+        match self {
+            Self::Marking { marking_crosses } => {
+                for judge_map in marking_crosses.values() {
+                    for bib_str in judge_map.keys() {
+                        if let Ok(bib) = bib_str.parse::<u32>() {
+                            bibs.insert(bib);
+                        }
+                    }
+                }
+            }
+            Self::DTV { dtv_ranks } => {
+                for judge_map in dtv_ranks.values() {
+                    for bib_str in judge_map.keys() {
+                        if let Ok(bib) = bib_str.parse::<u32>() {
+                            bibs.insert(bib);
+                        }
+                    }
+                }
+            }
+            Self::WDSF { wdsf_scores } => {
+                for judge_map in wdsf_scores.values() {
+                    for bib_str in judge_map.keys() {
+                        if let Ok(bib) = bib_str.parse::<u32>() {
+                            bibs.insert(bib);
+                        }
+                    }
+                }
+            }
+        }
+        bibs
+    }
+
+    /// Checks if a specific judge has provided data for all specified dances for a given participant.
+    pub fn has_marks_for(
+        &self,
+        judge_code: &str,
+        bib: u32,
+        dances: &[Dance],
+    ) -> bool {
+        let bib_str = bib.to_string();
+        match self {
+            Self::Marking { marking_crosses } => marking_crosses
+                .get(judge_code)
+                .and_then(|judge_map| judge_map.get(&bib_str))
+                .map(|bib_map| dances.iter().all(|d| bib_map.contains_key(d)))
+                .unwrap_or(false),
+            Self::DTV { dtv_ranks } => dtv_ranks
+                .get(judge_code)
+                .and_then(|judge_map| judge_map.get(&bib_str))
+                .map(|bib_map| dances.iter().all(|d| bib_map.contains_key(d)))
+                .unwrap_or(false),
+            Self::WDSF { wdsf_scores } => wdsf_scores
+                .get(judge_code)
+                .and_then(|judge_map| judge_map.get(&bib_str))
+                .map(|bib_map| dances.iter().all(|d| bib_map.contains_key(d)))
+                .unwrap_or(false),
+        }
+    }
+}
+
 /// Represents a single round in a competition.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Round {
