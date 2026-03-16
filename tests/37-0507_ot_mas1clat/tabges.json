@@ -132,311 +132,286 @@
       "round_type": "Mark",
       "marking_crosses": {
         "AO": {
-          "203": {
-            "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "Jive": true
-          },
-          "808": {
-            "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "Jive": true
-          },
           "1060": {
             "Samba": true,
-            "ChaChaCha": true,
+            "ChaChaCha": false,
             "Rumba": true,
             "Jive": true
           },
           "1151": {
             "Samba": true,
-            "ChaChaCha": true,
+            "ChaChaCha": false,
             "Rumba": true,
             "Jive": true
           },
           "1216": {
             "Samba": true,
-            "ChaChaCha": true,
+            "ChaChaCha": false,
             "Rumba": true,
             "Jive": true
           },
           "1272": {
             "Samba": true,
-            "ChaChaCha": true,
+            "ChaChaCha": false,
             "Rumba": true,
             "Jive": true
           },
           "1368": {
             "Samba": true,
-            "ChaChaCha": true,
+            "ChaChaCha": false,
             "Rumba": true,
             "Jive": true
+          },
+          "203": {
+            "Samba": true,
+            "ChaChaCha": false,
+            "Rumba": true,
+            "Jive": true
+          },
+          "808": {
+            "Samba": true,
+            "ChaChaCha": true
           }
         },
         "BN": {
-          "203": {
-            "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "Jive": true
-          },
-          "808": {
-            "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "Jive": true
-          },
           "1060": {
             "Samba": true,
-            "ChaChaCha": true,
+            "ChaChaCha": false,
             "Rumba": true,
             "Jive": true
           },
           "1151": {
             "Samba": true,
-            "ChaChaCha": true,
+            "ChaChaCha": false,
             "Rumba": true,
             "Jive": true
           },
           "1216": {
             "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
+            "ChaChaCha": false,
             "Jive": true
           },
           "1272": {
             "Samba": true,
-            "ChaChaCha": true,
+            "ChaChaCha": false,
             "Rumba": true,
             "Jive": true
           },
           "1368": {
             "Samba": true,
-            "ChaChaCha": true,
+            "ChaChaCha": false,
             "Rumba": true,
             "Jive": true
+          },
+          "203": {
+            "Samba": true,
+            "ChaChaCha": false,
+            "Rumba": true,
+            "Jive": true
+          },
+          "808": {
+            "ChaChaCha": false,
+            "Rumba": true
           }
         },
         "BW": {
-          "203": {
-            "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "Jive": true
-          },
-          "808": {
-            "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "Jive": true
-          },
           "1060": {
             "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "Jive": true
+            "ChaChaCha": false,
+            "Rumba": true
           },
           "1151": {
             "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "Jive": true
+            "ChaChaCha": false,
+            "Rumba": true
           },
           "1216": {
             "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "Jive": true
+            "ChaChaCha": false,
+            "Rumba": true
           },
           "1272": {
             "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "Jive": true
+            "ChaChaCha": false,
+            "Rumba": true
           },
           "1368": {
             "Samba": true,
+            "ChaChaCha": false,
+            "Rumba": true
+          },
+          "203": {
+            "Samba": true,
+            "ChaChaCha": false,
+            "Rumba": true
+          },
+          "808": {
             "ChaChaCha": true,
-            "Rumba": true,
-            "Jive": true
+            "Rumba": true
           }
         },
         "CF": {
-          "203": {
-            "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "Jive": true
-          },
-          "808": {
-            "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "Jive": true
-          },
           "1060": {
             "Samba": true,
-            "ChaChaCha": true,
+            "ChaChaCha": false,
             "Rumba": true,
             "Jive": true
           },
           "1151": {
             "Samba": true,
-            "ChaChaCha": true,
+            "ChaChaCha": false,
             "Rumba": true,
             "Jive": true
           },
           "1216": {
             "Samba": true,
-            "ChaChaCha": true,
+            "ChaChaCha": false,
             "Rumba": true,
             "Jive": true
           },
           "1272": {
             "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
+            "ChaChaCha": false,
             "Jive": true
           },
           "1368": {
             "Samba": true,
-            "ChaChaCha": true,
+            "ChaChaCha": false,
             "Rumba": true,
             "Jive": true
+          },
+          "203": {
+            "Samba": true,
+            "ChaChaCha": false,
+            "Rumba": true,
+            "Jive": true
+          },
+          "808": {
+            "ChaChaCha": true,
+            "Rumba": true
           }
         },
         "CY": {
-          "203": {
-            "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "Jive": true
-          },
-          "808": {
-            "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "Jive": true
-          },
           "1060": {
             "Samba": true,
-            "ChaChaCha": true,
+            "ChaChaCha": false,
             "Rumba": true,
             "Jive": true
           },
           "1151": {
             "Samba": true,
-            "ChaChaCha": true,
+            "ChaChaCha": false,
             "Rumba": true,
             "Jive": true
           },
           "1216": {
             "Samba": true,
-            "ChaChaCha": true,
+            "ChaChaCha": false,
             "Rumba": true,
             "Jive": true
           },
           "1272": {
             "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "Jive": true
+            "ChaChaCha": false
           },
           "1368": {
             "Samba": true,
-            "ChaChaCha": true,
+            "ChaChaCha": false,
+            "Rumba": true,
+            "Jive": true
+          },
+          "203": {
+            "Samba": true,
+            "ChaChaCha": false,
+            "Rumba": true,
+            "Jive": true
+          },
+          "808": {
+            "ChaChaCha": false,
             "Rumba": true,
             "Jive": true
           }
         },
         "DA": {
-          "203": {
-            "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "Jive": true
-          },
-          "808": {
-            "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "Jive": true
-          },
           "1060": {
             "Samba": true,
-            "ChaChaCha": true,
+            "ChaChaCha": false,
             "Rumba": true,
             "Jive": true
           },
           "1151": {
             "Samba": true,
-            "ChaChaCha": true,
+            "ChaChaCha": false,
             "Rumba": true,
             "Jive": true
           },
           "1216": {
             "Samba": true,
-            "ChaChaCha": true,
+            "ChaChaCha": false,
             "Rumba": true,
             "Jive": true
           },
           "1272": {
             "Samba": true,
-            "ChaChaCha": true,
+            "ChaChaCha": false,
             "Rumba": true,
             "Jive": true
           },
           "1368": {
             "Samba": true,
-            "ChaChaCha": true,
+            "ChaChaCha": false,
             "Rumba": true,
             "Jive": true
+          },
+          "203": {
+            "Samba": true,
+            "ChaChaCha": false,
+            "Rumba": true,
+            "Jive": true
+          },
+          "808": {
+            "ChaChaCha": false
           }
         },
         "DE": {
-          "203": {
-            "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "Jive": true
-          },
-          "808": {
-            "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "Jive": true
-          },
           "1060": {
             "Samba": true,
-            "ChaChaCha": true,
+            "ChaChaCha": false,
             "Rumba": true,
             "Jive": true
           },
           "1151": {
             "Samba": true,
-            "ChaChaCha": true,
+            "ChaChaCha": false,
             "Rumba": true,
             "Jive": true
           },
           "1216": {
             "Samba": true,
-            "ChaChaCha": true,
+            "ChaChaCha": false,
             "Rumba": true,
             "Jive": true
           },
           "1272": {
             "Samba": true,
-            "ChaChaCha": true,
+            "ChaChaCha": false,
             "Rumba": true,
             "Jive": true
           },
           "1368": {
             "Samba": true,
-            "ChaChaCha": true,
+            "ChaChaCha": false,
             "Rumba": true,
             "Jive": true
+          },
+          "203": {
+            "Samba": true,
+            "ChaChaCha": false,
+            "Rumba": true,
+            "Jive": true
+          },
+          "808": {
+            "ChaChaCha": false
           }
         }
       }
@@ -453,12 +428,6 @@
       "round_type": "DTV",
       "dtv_ranks": {
         "AO": {
-          "203": {
-            "Samba": 1,
-            "ChaChaCha": 2,
-            "Rumba": 2,
-            "Jive": 1
-          },
           "1060": {
             "Samba": 4,
             "ChaChaCha": 4,
@@ -469,7 +438,7 @@
             "Samba": 2,
             "ChaChaCha": 1,
             "Rumba": 1,
-            "Jive": 2
+            "Jive": 1
           },
           "1216": {
             "Samba": 3,
@@ -488,15 +457,15 @@
             "ChaChaCha": 5,
             "Rumba": 5,
             "Jive": 5
+          },
+          "203": {
+            "Samba": 1,
+            "ChaChaCha": 2,
+            "Rumba": 2,
+            "Jive": 2
           }
         },
         "BN": {
-          "203": {
-            "Samba": 1,
-            "ChaChaCha": 1,
-            "Rumba": 3,
-            "Jive": 1
-          },
           "1060": {
             "Samba": 6,
             "ChaChaCha": 5,
@@ -507,7 +476,7 @@
             "Samba": 4,
             "ChaChaCha": 2,
             "Rumba": 1,
-            "Jive": 4
+            "Jive": 1
           },
           "1216": {
             "Samba": 5,
@@ -519,27 +488,27 @@
             "Samba": 3,
             "ChaChaCha": 4,
             "Rumba": 4,
-            "Jive": 3
+            "Jive": 4
           },
           "1368": {
             "Samba": 2,
             "ChaChaCha": 3,
             "Rumba": 2,
             "Jive": 2
+          },
+          "203": {
+            "Samba": 1,
+            "ChaChaCha": 1,
+            "Rumba": 3,
+            "Jive": 3
           }
         },
         "BW": {
-          "203": {
-            "Samba": 1,
-            "ChaChaCha": 1,
-            "Rumba": 3,
-            "Jive": 1
-          },
           "1060": {
             "Samba": 6,
             "ChaChaCha": 5,
             "Rumba": 4,
-            "Jive": 6
+            "Jive": 4
           },
           "1151": {
             "Samba": 2,
@@ -551,28 +520,28 @@
             "Samba": 3,
             "ChaChaCha": 2,
             "Rumba": 1,
-            "Jive": 3
+            "Jive": 1
           },
           "1272": {
             "Samba": 5,
             "ChaChaCha": 6,
             "Rumba": 6,
-            "Jive": 5
+            "Jive": 6
           },
           "1368": {
             "Samba": 4,
             "ChaChaCha": 4,
             "Rumba": 5,
-            "Jive": 4
+            "Jive": 5
+          },
+          "203": {
+            "Samba": 1,
+            "ChaChaCha": 1,
+            "Rumba": 3,
+            "Jive": 3
           }
         },
         "CF": {
-          "203": {
-            "Samba": 3,
-            "ChaChaCha": 2,
-            "Rumba": 1,
-            "Jive": 1
-          },
           "1060": {
             "Samba": 5,
             "ChaChaCha": 5,
@@ -602,15 +571,15 @@
             "ChaChaCha": 4,
             "Rumba": 4,
             "Jive": 5
+          },
+          "203": {
+            "Samba": 3,
+            "ChaChaCha": 2,
+            "Rumba": 1,
+            "Jive": 1
           }
         },
         "CY": {
-          "203": {
-            "Samba": 4,
-            "ChaChaCha": 3,
-            "Rumba": 4,
-            "Jive": 4
-          },
           "1060": {
             "Samba": 5,
             "ChaChaCha": 5,
@@ -640,15 +609,15 @@
             "ChaChaCha": 2,
             "Rumba": 2,
             "Jive": 2
+          },
+          "203": {
+            "Samba": 4,
+            "ChaChaCha": 3,
+            "Rumba": 4,
+            "Jive": 4
           }
         },
         "DA": {
-          "203": {
-            "Samba": 1,
-            "ChaChaCha": 1,
-            "Rumba": 1,
-            "Jive": 1
-          },
           "1060": {
             "Samba": 5,
             "ChaChaCha": 6,
@@ -678,15 +647,15 @@
             "ChaChaCha": 2,
             "Rumba": 3,
             "Jive": 4
+          },
+          "203": {
+            "Samba": 1,
+            "ChaChaCha": 1,
+            "Rumba": 1,
+            "Jive": 1
           }
         },
         "DE": {
-          "203": {
-            "Samba": 4,
-            "ChaChaCha": 4,
-            "Rumba": 5,
-            "Jive": 5
-          },
           "1060": {
             "Samba": 3,
             "ChaChaCha": 3,
@@ -716,6 +685,12 @@
             "ChaChaCha": 6,
             "Rumba": 6,
             "Jive": 4
+          },
+          "203": {
+            "Samba": 4,
+            "ChaChaCha": 4,
+            "Rumba": 5,
+            "Jive": 5
           }
         }
       }

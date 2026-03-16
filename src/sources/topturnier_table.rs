@@ -5,6 +5,7 @@ use regex::Regex;
 use std::sync::LazyLock;
 
 static RE_SCORE: LazyLock<Regex> = LazyLock::new(|| Regex::new(crate::assets::PATTERN_SCORE).unwrap());
+static RE_BIB_PARENS: LazyLock<Regex> = LazyLock::new(|| Regex::new(crate::assets::PATTERN_BIB_PARENS).unwrap());
 
 #[derive(Debug, Clone, Default)]
 pub struct TableGrid {
@@ -119,26 +120,57 @@ pub struct IntermediateResult {
 }
 
 pub fn identify_orientation(grid: &TableGrid) -> TableOrientation {
+    // 1. Check for strong Vertical indicators: stacked judge codes or large bib marker span
     for r in 0..grid.height.min(5) {
+        let first_cell = &grid.rows[r][0];
+        if first_cell.contains(')') && first_cell.contains('\n') {
+            return TableOrientation::Vertical;
+        }
+
         for c in 0..grid.width {
-            if crate::i18n::is_bib_column_marker(&grid.rows[r][c]) {
-                return TableOrientation::Horizontal;
+            let val = &grid.rows[r][c];
+            if crate::i18n::is_bib_column_marker(val) {
+                let mut span = 0;
+                for c2 in c..grid.width {
+                    if &grid.rows[r][c2] == val { span += 1; } else { break; }
+                }
+                if span > 2 {
+                    return TableOrientation::Vertical;
+                }
             }
         }
     }
 
+    // 2. Check for strong Horizontal indicators: Bib marker with small span
+    for r in 0..grid.height.min(5) {
+        for c in 0..grid.width {
+            let val = &grid.rows[r][c];
+            if crate::i18n::is_bib_column_marker(val) {
+                let mut span = 0;
+                for c2 in c..grid.width {
+                    if &grid.rows[r][c2] == val { span += 1; } else { break; }
+                }
+                if span <= 2 {
+                    return TableOrientation::Horizontal;
+                }
+            }
+        }
+    }
+
+    // 3. Fallback: Check for many bib-like digits in a row (Vertical indicator)
     for r in 0..grid.height.min(5) {
         let mut bib_count = 0;
         for c in 0..grid.width {
             let val = grid.rows[r][c].trim();
-            if !val.is_empty() && val.chars().all(|ch| ch.is_ascii_digit()) && val.len() <= 4 {
+            if !val.is_empty() && val.chars().all(|ch| ch.is_ascii_digit()) && val.len() >= 2 {
                 bib_count += 1;
             }
         }
-        if bib_count >= 2 {
-            return TableOrientation::Vertical;
+        if bib_count >= 5 {
+             return TableOrientation::Vertical;
         }
     }
+
     TableOrientation::Horizontal
 }
 
@@ -170,8 +202,15 @@ pub fn identify_columns(grid: &TableGrid) -> Vec<ColumnType> {
         }
     }
 
+    let has_bib_col = col_types.iter().any(|t| matches!(t, ColumnType::Bib));
+
     for c in 0..grid.width {
         if col_types[c] == ColumnType::Unknown {
+            let row_to_check = if grid.height > 2 { 2 } else { 0 };
+            if !has_bib_col && grid.height > 0 && RE_BIB_PARENS.is_match(&grid.rows[row_to_check][c]) {
+                 col_types[c] = ColumnType::Participant;
+            }
+
             if let Some(dance) = col_dances[c] {
                 let mut found_judge = false;
                 for r in 0..grid.height.min(5) {
@@ -208,25 +247,40 @@ fn extract_horizontal(grid: &TableGrid) -> Vec<IntermediateResult> {
     let mut results = Vec::new();
 
     let bib_idx = col_types.iter().position(|t| matches!(t, ColumnType::Bib));
+    let participant_idx = col_types.iter().position(|t| matches!(t, ColumnType::Participant));
     let rank_idx = col_types.iter().position(|t| matches!(t, ColumnType::Rank));
     let round_idx = col_types.iter().position(|t| matches!(t, ColumnType::Round));
 
-    if bib_idx.is_none() {
+    if bib_idx.is_none() && participant_idx.is_none() {
         return results;
     }
-    let bib_idx = bib_idx.unwrap();
 
     let start_row = (0..grid.height).find(|&r| {
-        let val = grid.rows[r][bib_idx].trim();
-        !val.is_empty() && val.chars().all(|c| c.is_ascii_digit())
+        if let Some(idx) = bib_idx {
+            let val = grid.rows[r][idx].trim();
+            !val.is_empty() && val.chars().all(|c| c.is_ascii_digit())
+        } else if let Some(idx) = participant_idx {
+            RE_BIB_PARENS.is_match(&grid.rows[r][idx])
+        } else {
+            false
+        }
     }).unwrap_or(grid.height);
 
     for r in start_row..grid.height {
-        let bib_raw = grid.rows[r][bib_idx].trim();
-        let bib_str = bib_raw.chars().filter(|c| c.is_ascii_digit()).collect::<String>();
-        let bib = match bib_str.parse::<u32>() {
-            Ok(b) => b,
-            Err(_) => continue,
+        let bib = if let Some(idx) = bib_idx {
+            let bib_raw = grid.rows[r][idx].trim();
+            let bib_str = bib_raw.chars().filter(|c| c.is_ascii_digit()).collect::<String>();
+            bib_str.parse::<u32>().ok()
+        } else if let Some(idx) = participant_idx {
+            RE_BIB_PARENS.captures(&grid.rows[r][idx])
+                .and_then(|c| c[1].parse::<u32>().ok())
+        } else {
+            None
+        };
+
+        let bib = match bib {
+            Some(b) => b,
+            None => continue,
         };
 
         let rank = rank_idx.map(|idx| grid.rows[r][idx].clone());
@@ -336,18 +390,33 @@ fn extract_vertical(grid: &TableGrid) -> Vec<IntermediateResult> {
             current_dance = Some(ds[0]);
         }
 
+        if crate::i18n::is_rank_column_marker(first_cell) || crate::i18n::is_sum_column_marker(first_cell) {
+            continue;
+        }
+
         let mut js = Vec::new();
         for line in first_cell.split('\n') {
              let t = line.trim();
+             if t.is_empty() { continue; }
              if let Some(pos) = t.find(')') {
                  let code = t[..pos].trim().to_uppercase();
                  if !code.is_empty() && code.chars().all(|ch| ch.is_ascii_uppercase() || ch.is_ascii_digit()) {
                      js.push(code);
                  }
-             } else if t.len() <= 3 && t.chars().all(|ch| ch.is_ascii_uppercase() || ch.is_ascii_digit()) && !t.is_empty()
+             } else if t.len() <= 3 && t.chars().all(|ch| ch.is_ascii_uppercase() || ch.is_ascii_digit())
                  && crate::i18n::parse_dances_no_fallback(t).is_empty() {
                  js.push(t.to_string());
              }
+        }
+
+        // Lookahead for round name if it's right below the judge list (Vertical layout specific)
+        if r + 1 < grid.height {
+            let next_cell = &grid.rows[r+1][0];
+            if crate::i18n::is_qualification_marker(next_cell) {
+                if let Some(n) = crate::i18n::parse_round_name(next_cell) {
+                    current_round = n;
+                }
+            }
         }
 
         if js.is_empty() {
@@ -432,14 +501,6 @@ pub fn to_rounds(intermediate: Vec<IntermediateResult>, dances: &[Dance], offici
                                             .insert(mark.dance, ch != '0' && ch != '-');
                                     }
                                 }
-                            } else if let Ok(cross_count) = mark.value.parse::<u32>() {
-                                if cross_count > 0 {
-                                    for official_judge in &officials.judges {
-                                        marking_crosses.entry(official_judge.code.clone()).or_default()
-                                            .entry(res.bib).or_default()
-                                            .insert(mark.dance, true);
-                                    }
-                                }
                             }
                         }
                     }
@@ -448,7 +509,7 @@ pub fn to_rounds(intermediate: Vec<IntermediateResult>, dances: &[Dance], offici
                             if let Ok(rank) = mark.value.replace(',', ".").parse::<f64>() {
                                 dtv_ranks.entry(judge).or_default()
                                     .entry(res.bib).or_default()
-                                    .insert(mark.dance, rank as u32);
+                                    .insert(mark.dance, rank.round() as u32);
                             }
                         } else {
                             if mark.value.len() > 1 && mark.value.chars().all(|c| c.is_ascii_digit()) {
@@ -461,6 +522,11 @@ pub fn to_rounds(intermediate: Vec<IntermediateResult>, dances: &[Dance], offici
                                         }
                                     }
                                 }
+                            } else if let Ok(total_rank) = mark.value.replace(',', ".").parse::<f64>() {
+                                // Additive fallback: if we only have a single number and NO judges,
+                                // it might be the calculated rank. We don't distribute it to all judges
+                                // because that's inaccurate. Instead, we do nothing and let other files provide granular marks.
+                                let _ = total_rank;
                             }
                         }
                     }
@@ -529,7 +595,7 @@ mod tests {
             <table>
                 <tr>
                     <td rowspan="2">Rank</td>
-                    <td rowspan="2">Nr</td>
+                    <td rowspan="2">Nr.</td>
                     <td colspan="2">Samba</td>
                 </tr>
                 <tr>
@@ -547,6 +613,10 @@ mod tests {
         let doc = Html::parse_document(html);
         let table = doc.select(&Selector::parse("table").unwrap()).next().unwrap();
         let grid = TableGrid::from_element(table);
+
+        assert_eq!(identify_orientation(&grid), TableOrientation::Horizontal);
+        let col_types = identify_columns(&grid);
+        assert_eq!(col_types[1], ColumnType::Bib);
 
         let results = extract_data(&grid);
         assert_eq!(results.len(), 1);

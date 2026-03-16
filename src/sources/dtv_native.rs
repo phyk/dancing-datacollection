@@ -168,8 +168,10 @@ fn merge_round_data(existing: &mut crate::models::RoundData, new: crate::models:
                 let e_bib_map = e_map.entry(judge).or_default();
                 for (bib, n_dance_map) in n_bib_map {
                     let e_dance_map = e_bib_map.entry(bib).or_default();
-                    if n_dance_map.len() > e_dance_map.len() {
-                        *e_dance_map = n_dance_map;
+                    // Merge dance by dance, prioritizing existing if they are more detailed?
+                    // Or just additive.
+                    for (dance, val) in n_dance_map {
+                        e_dance_map.entry(dance).or_insert(val);
                     }
                 }
             }
@@ -179,8 +181,8 @@ fn merge_round_data(existing: &mut crate::models::RoundData, new: crate::models:
                 let e_bib_map = e_map.entry(judge).or_default();
                 for (bib, n_dance_map) in n_bib_map {
                     let e_dance_map = e_bib_map.entry(bib).or_default();
-                    if n_dance_map.len() > e_dance_map.len() {
-                        *e_dance_map = n_dance_map;
+                    for (dance, val) in n_dance_map {
+                        e_dance_map.entry(dance).or_insert(val);
                     }
                 }
             }
@@ -415,11 +417,11 @@ pub fn extract_event_data(data_dir: &str) -> Result<Competition> {
                             .iter()
                             .find(|(d, _)| !full_style_dances.contains(d))
                             .map(|(_, v)| *v);
-                        let dist_val = placeholder_val.or_else(|| p_map.values().next().cloned());
 
                         p_map.retain(|d, _| full_style_dances.contains(d));
+
                         if p_map.len() < comp.dances.len() {
-                            if let Some(v) = dist_val {
+                            if let Some(v) = placeholder_val {
                                 for &d in &comp.dances {
                                     p_map.entry(d).or_insert(v);
                                 }
@@ -435,12 +437,11 @@ pub fn extract_event_data(data_dir: &str) -> Result<Competition> {
                             .iter()
                             .find(|(d, _)| !full_style_dances.contains(d))
                             .map(|(_, v)| if *v { 1 } else { 0 });
-                        let dist_val = placeholder_val
-                            .or_else(|| p_map.values().next().map(|&v| if v { 1 } else { 0 }));
 
                         p_map.retain(|d, _| full_style_dances.contains(d));
+
                         if p_map.len() < comp.dances.len() {
-                            if let Some(v) = dist_val {
+                            if let Some(v) = placeholder_val {
                                 for &d in &comp.dances {
                                     p_map.entry(d).or_insert(v > 0);
                                 }
