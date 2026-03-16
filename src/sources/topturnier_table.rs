@@ -113,7 +113,7 @@ pub struct IntermediateMark {
 
 #[derive(Debug, Clone)]
 pub struct IntermediateResult {
-    pub bib: String,
+    pub bib: u32,
     pub rank: Option<String>,
     pub marks_by_round: BTreeMap<String, Vec<IntermediateMark>>,
 }
@@ -223,10 +223,11 @@ fn extract_horizontal(grid: &TableGrid) -> Vec<IntermediateResult> {
 
     for r in start_row..grid.height {
         let bib_raw = grid.rows[r][bib_idx].trim();
-        let bib = bib_raw.chars().filter(|c| c.is_ascii_digit()).collect::<String>();
-        if bib.is_empty() {
-            continue;
-        }
+        let bib_str = bib_raw.chars().filter(|c| c.is_ascii_digit()).collect::<String>();
+        let bib = match bib_str.parse::<u32>() {
+            Ok(b) => b,
+            Err(_) => continue,
+        };
 
         let rank = rank_idx.map(|idx| grid.rows[r][idx].clone());
         let round_vals: Vec<String> = round_idx
@@ -308,12 +309,14 @@ fn extract_vertical(grid: &TableGrid) -> Vec<IntermediateResult> {
     }
 
     for &c in &bib_cols {
-        let bib = grid.rows[bib_row.unwrap()][c].clone();
-        results.insert(bib.clone(), IntermediateResult {
-            bib,
-            rank: None,
-            marks_by_round: BTreeMap::new(),
-        });
+        let bib_str = grid.rows[bib_row.unwrap()][c].clone();
+        if let Ok(bib) = bib_str.parse::<u32>() {
+            results.insert(bib, IntermediateResult {
+                bib,
+                rank: None,
+                marks_by_round: BTreeMap::new(),
+            });
+        }
     }
 
     let mut current_round = "Final".to_string();
@@ -352,19 +355,21 @@ fn extract_vertical(grid: &TableGrid) -> Vec<IntermediateResult> {
         }
 
         for &c in &bib_cols {
-            let bib = &grid.rows[bib_row.unwrap()][c];
-            if let Some(res) = results.get_mut(bib) {
-                let cell_val = &grid.rows[r][c];
-                let vals: Vec<&str> = cell_val.split('\n').collect();
-                for (i, judge) in js.iter().enumerate() {
-                    if let Some(&val) = vals.get(i) {
-                        let val = val.trim();
-                        if !val.is_empty() && val != "-" {
-                            res.marks_by_round.entry(current_round.clone()).or_default().push(IntermediateMark {
-                                dance: current_dance.unwrap_or(Dance::Samba),
-                                judge: Some(judge.clone()),
-                                value: val.to_string(),
-                            });
+            let bib_str = &grid.rows[bib_row.unwrap()][c];
+            if let Ok(bib) = bib_str.parse::<u32>() {
+                if let Some(res) = results.get_mut(&bib) {
+                    let cell_val = &grid.rows[r][c];
+                    let vals: Vec<&str> = cell_val.split('\n').collect();
+                    for (i, judge) in js.iter().enumerate() {
+                        if let Some(&val) = vals.get(i) {
+                            let val = val.trim();
+                            if !val.is_empty() && val != "-" {
+                                res.marks_by_round.entry(current_round.clone()).or_default().push(IntermediateMark {
+                                    dance: current_dance.unwrap_or(Dance::Samba),
+                                    judge: Some(judge.clone()),
+                                    value: val.to_string(),
+                                });
+                            }
                         }
                     }
                 }
@@ -416,14 +421,14 @@ pub fn to_rounds(intermediate: Vec<IntermediateResult>, dances: &[Dance], offici
                         if let Some(judge) = mark.judge {
                             let is_cross = mark.value.to_lowercase().contains('x') || mark.value == "1";
                             marking_crosses.entry(judge).or_default()
-                                .entry(res.bib.clone()).or_default()
+                                .entry(res.bib).or_default()
                                 .insert(mark.dance, is_cross);
                         } else {
                             if mark.value.len() > 1 && mark.value.chars().all(|c| c.is_ascii_digit()) {
                                 for (j_idx, ch) in mark.value.chars().enumerate() {
                                     if let Some(official_judge) = officials.judges.get(j_idx) {
                                         marking_crosses.entry(official_judge.code.clone()).or_default()
-                                            .entry(res.bib.clone()).or_default()
+                                            .entry(res.bib).or_default()
                                             .insert(mark.dance, ch != '0' && ch != '-');
                                     }
                                 }
@@ -431,7 +436,7 @@ pub fn to_rounds(intermediate: Vec<IntermediateResult>, dances: &[Dance], offici
                                 if cross_count > 0 {
                                     for official_judge in &officials.judges {
                                         marking_crosses.entry(official_judge.code.clone()).or_default()
-                                            .entry(res.bib.clone()).or_default()
+                                            .entry(res.bib).or_default()
                                             .insert(mark.dance, true);
                                     }
                                 }
@@ -442,7 +447,7 @@ pub fn to_rounds(intermediate: Vec<IntermediateResult>, dances: &[Dance], offici
                         if let Some(judge) = mark.judge {
                             if let Ok(rank) = mark.value.replace(',', ".").parse::<f64>() {
                                 dtv_ranks.entry(judge).or_default()
-                                    .entry(res.bib.clone()).or_default()
+                                    .entry(res.bib).or_default()
                                     .insert(mark.dance, rank as u32);
                             }
                         } else {
@@ -451,7 +456,7 @@ pub fn to_rounds(intermediate: Vec<IntermediateResult>, dances: &[Dance], offici
                                     if let Some(official_judge) = officials.judges.get(j_idx) {
                                         if let Some(rank) = ch.to_digit(10) {
                                             dtv_ranks.entry(official_judge.code.clone()).or_default()
-                                                .entry(res.bib.clone()).or_default()
+                                                .entry(res.bib).or_default()
                                                 .insert(mark.dance, rank);
                                         }
                                     }
@@ -466,7 +471,7 @@ pub fn to_rounds(intermediate: Vec<IntermediateResult>, dances: &[Dance], offici
                                 .collect();
                             if !sc.is_empty() {
                                 let s = wdsf_scores.entry(judge).or_default()
-                                    .entry(res.bib.clone()).or_default()
+                                    .entry(res.bib).or_default()
                                     .entry(mark.dance).or_insert_with(|| WDSFScore {
                                         technical_quality: 0.0,
                                         movement_to_music: 0.0,
@@ -545,7 +550,7 @@ mod tests {
 
         let results = extract_data(&grid);
         assert_eq!(results.len(), 1);
-        assert_eq!(results[0].bib, "101");
+        assert_eq!(results[0].bib, 101);
     }
 
     #[test]

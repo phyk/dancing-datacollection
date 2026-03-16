@@ -101,11 +101,9 @@ pub fn validate_competition_fidelity(comp: &Competition) -> bool {
                 let mut jm_for_dance = BTreeMap::new();
                 for (j_code, bib_map) in dtv_marks {
                     let mut marks = BTreeMap::new();
-                    for (bib_str, d_map) in bib_map {
-                        if let Ok(bib) = bib_str.parse::<u32>() {
-                            if let Some(&mark) = d_map.get(dance) {
-                                marks.insert(bib, mark);
-                            }
+                    for (&bib, d_map) in bib_map {
+                        if let Some(&mark) = d_map.get(dance) {
+                            marks.insert(bib, mark);
                         }
                     }
                     jm_for_dance.insert(j_code.clone(), marks);
@@ -203,7 +201,7 @@ mod tests {
                             let mut bm = BTreeMap::new();
                             bm.insert(Dance::SlowWaltz, 1);
                             bm.insert(Dance::Tango, 1);
-                            jm.insert(101.to_string(), bm);
+                            jm.insert(101, bm);
                             m.insert(j.to_string(), jm);
                         }
                         m
@@ -242,7 +240,7 @@ mod tests {
             let mut bm = BTreeMap::new();
             bm.insert(Dance::SlowWaltz, 1);
             bm.insert(Dance::Tango, 1);
-            dtv_ranks.get_mut("A").unwrap().insert(102.to_string(), bm);
+            dtv_ranks.get_mut("A").unwrap().insert(102, bm);
         }
         assert!(!validate_competition_fidelity(&comp));
     }
@@ -254,7 +252,7 @@ mod tests {
             dtv_ranks
                 .get_mut("A")
                 .unwrap()
-                .get_mut("101")
+                .get_mut(&101)
                 .unwrap()
                 .remove(&Dance::Tango);
         }
@@ -283,7 +281,7 @@ mod tests {
                         };
                         bm.insert(Dance::SlowWaltz, score.clone());
                         bm.insert(Dance::Tango, score);
-                        jm.insert(101.to_string(), bm);
+                        jm.insert(101, bm);
                         m.insert(j.to_string(), jm);
                     }
                     m
@@ -308,7 +306,7 @@ mod tests {
                         let mut bm = BTreeMap::new();
                         bm.insert(Dance::SlowWaltz, 1);
                         bm.insert(Dance::Tango, 2);
-                        jm.insert(101.to_string(), bm);
+                        jm.insert(101, bm);
                         m.insert(j.to_string(), jm);
                     }
                     m
@@ -335,7 +333,7 @@ mod tests {
                             let mut bm = BTreeMap::new();
                             bm.insert(Dance::SlowWaltz, true);
                             bm.insert(Dance::Tango, true);
-                            jm.insert(101.to_string(), bm);
+                            jm.insert(101, bm);
                             m.insert(j.to_string(), jm);
                         }
                         m
@@ -350,12 +348,12 @@ mod tests {
             dtv_ranks
                 .get_mut("A")
                 .unwrap()
-                .insert(102.to_string(), bm.clone());
+                .insert(102, bm.clone());
             dtv_ranks
                 .get_mut("B")
                 .unwrap()
-                .insert(102.to_string(), bm.clone());
-            dtv_ranks.get_mut("C").unwrap().insert(102.to_string(), bm);
+                .insert(102, bm.clone());
+            dtv_ranks.get_mut("C").unwrap().insert(102, bm);
         }
         assert!(!validate_competition_fidelity(&comp));
     }
@@ -377,8 +375,8 @@ mod tests {
                             let mut bm = BTreeMap::new();
                             bm.insert(Dance::SlowWaltz, true);
                             bm.insert(Dance::Tango, true);
-                            jm.insert(101.to_string(), bm.clone());
-                            jm.insert(102.to_string(), bm.clone());
+                            jm.insert(101, bm.clone());
+                            jm.insert(102, bm.clone());
                             m.insert(j.to_string(), jm);
                         }
                         m
@@ -400,7 +398,7 @@ mod tests {
                             let mut bm = BTreeMap::new();
                             bm.insert(Dance::SlowWaltz, true);
                             bm.insert(Dance::Tango, true);
-                            jm.insert(102.to_string(), bm);
+                            jm.insert(102, bm);
                             m.insert(j.to_string(), jm);
                         }
                         m
@@ -417,11 +415,11 @@ mod tests {
         comp.participants[0].final_rank = Some(1);
         if let RoundData::DTV { ref mut dtv_ranks } = comp.rounds[0].data {
             for jm in dtv_ranks.values_mut() {
-                jm.remove("101");
+                jm.remove(&101);
                 let mut bm = BTreeMap::new();
                 bm.insert(Dance::SlowWaltz, 1);
                 bm.insert(Dance::Tango, 1);
-                jm.insert(102.to_string(), bm);
+                jm.insert(102, bm);
             }
         }
         assert!(!validate_competition_fidelity(&comp));
@@ -442,7 +440,7 @@ mod tests {
                         let mut bm = BTreeMap::new();
                         bm.insert(Dance::SlowWaltz, true);
                         bm.insert(Dance::Tango, true);
-                        jm.insert(101.to_string(), bm);
+                        jm.insert(101, bm);
                         m.insert(j.to_string(), jm);
                     }
                     m

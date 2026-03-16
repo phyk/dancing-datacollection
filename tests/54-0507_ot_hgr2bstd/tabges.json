@@ -65,123 +65,11 @@
   "participants": [
     {
       "identity_type": "Couple",
-      "name_one": "Daniel Wohlmuth",
-      "bib_number": 1300,
-      "name_two": "Lina Schneller",
-      "affiliation": "TSC dancepoint, Königsbrunn",
-      "final_rank": 1
-    },
-    {
-      "identity_type": "Couple",
-      "name_one": "Neil Koschier",
-      "bib_number": 1360,
-      "name_two": "Pia Scharfenberg",
-      "affiliation": "Schwarz-Silber, Frankfurt",
-      "final_rank": 2
-    },
-    {
-      "identity_type": "Couple",
-      "name_one": "Max Köllmer",
-      "bib_number": 1380,
-      "name_two": "Liliane Keite",
-      "affiliation": "Club Saltatio Hamburg",
-      "final_rank": 3
-    },
-    {
-      "identity_type": "Couple",
-      "name_one": "Tobias Pöstgens",
-      "bib_number": 1175,
-      "name_two": "Andrea Arping",
-      "affiliation": "TSA d. TSV Bocholt von 1867/1896",
-      "final_rank": 4
-    },
-    {
-      "identity_type": "Couple",
-      "name_one": "Adrian Smeets",
-      "bib_number": 1059,
-      "name_two": "Sabrina Koch",
-      "affiliation": "STC Schwarz-Rot Düsseldorf",
-      "final_rank": 5
-    },
-    {
-      "identity_type": "Couple",
-      "name_one": "Dominik Priebe",
-      "bib_number": 1293,
-      "name_two": "Anna Paszehr",
-      "affiliation": "Bielefelder TC Metropol",
-      "final_rank": 6
-    },
-    {
-      "identity_type": "Couple",
-      "name_one": "Marcel-Felix Klein",
-      "bib_number": 1004,
-      "name_two": "Sonja Klein",
-      "affiliation": "TTC Rot-Weiß Freiburg",
-      "final_rank": 7
-    },
-    {
-      "identity_type": "Couple",
-      "name_one": "Tarik Hennings",
-      "bib_number": 880,
-      "name_two": "Christine Sostmann",
-      "affiliation": "Club Céronne im ETV Hamburg",
-      "final_rank": 8
-    },
-    {
-      "identity_type": "Couple",
-      "name_one": "Steffen Winkler",
-      "bib_number": 1020,
-      "name_two": "Karen Hauke",
-      "affiliation": "TTC Gelb-Weiss i. Post-SV Hannover",
-      "final_rank": 8
-    },
-    {
-      "identity_type": "Couple",
-      "name_one": "Frank Thiemicke",
-      "bib_number": 1225,
-      "name_two": "Lea Offermann",
-      "affiliation": "TSC Astoria Karlsruhe",
-      "final_rank": 10
-    },
-    {
-      "identity_type": "Couple",
       "name_one": "Jean-Pierre Yöndemli",
       "bib_number": 108,
       "name_two": "Saskia Maria Skupin",
       "affiliation": "TSA d. TSG 1861 Grünstadt",
       "final_rank": 11
-    },
-    {
-      "identity_type": "Couple",
-      "name_one": "Jörg Ackermann",
-      "bib_number": 1159,
-      "name_two": "Laura Dahlberg",
-      "affiliation": "TTC Rot-Gold Köln",
-      "final_rank": 12
-    },
-    {
-      "identity_type": "Couple",
-      "name_one": "Nicolas Brauner",
-      "bib_number": 761,
-      "name_two": "Jacqueline Harfst",
-      "affiliation": "Gelb-Schwarz-Casino München",
-      "final_rank": 13
-    },
-    {
-      "identity_type": "Couple",
-      "name_one": "Christian Giesbrecht",
-      "bib_number": 1259,
-      "name_two": "Anna Lena Helmers",
-      "affiliation": "TSA d. TV Jahn Delmenhorst von 1909",
-      "final_rank": 13
-    },
-    {
-      "identity_type": "Couple",
-      "name_one": "Michael Hierer",
-      "bib_number": 1366,
-      "name_two": "Friederike Müller",
-      "affiliation": "TSA Phoenix d. SV Greven 2021",
-      "final_rank": 15
     },
     {
       "identity_type": "Couple",
@@ -193,27 +81,43 @@
     },
     {
       "identity_type": "Couple",
-      "name_one": "Carl Victor Klingenburg",
-      "bib_number": 1227,
-      "name_two": "Viktoria Billhardt",
-      "affiliation": "Tanzsportclub Balance Berlin",
-      "final_rank": 17
+      "name_one": "Nicolas Brauner",
+      "bib_number": 761,
+      "name_two": "Jacqueline Harfst",
+      "affiliation": "Gelb-Schwarz-Casino München",
+      "final_rank": 13
     },
     {
       "identity_type": "Couple",
-      "name_one": "Peter Brantsch",
-      "bib_number": 1413,
-      "name_two": "Luisa Böck",
-      "affiliation": "TSC Astoria Karlsruhe",
-      "final_rank": 18
+      "name_one": "Tarik Hennings",
+      "bib_number": 880,
+      "name_two": "Christine Sostmann",
+      "affiliation": "Club Céronne im ETV Hamburg",
+      "final_rank": 8
     },
     {
       "identity_type": "Couple",
-      "name_one": "Christian Wenzel",
-      "bib_number": 1318,
-      "name_two": "Jannou Catrin Bergsträßer",
-      "affiliation": "Rot-Weiss-Klub Kassel",
-      "final_rank": 19
+      "name_one": "Marcel-Felix Klein",
+      "bib_number": 1004,
+      "name_two": "Sonja Klein",
+      "affiliation": "TTC Rot-Weiß Freiburg",
+      "final_rank": 7
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Steffen Winkler",
+      "bib_number": 1020,
+      "name_two": "Karen Hauke",
+      "affiliation": "TTC Gelb-Weiss i. Post-SV Hannover",
+      "final_rank": 8
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Adrian Smeets",
+      "bib_number": 1059,
+      "name_two": "Sabrina Koch",
+      "affiliation": "STC Schwarz-Rot Düsseldorf",
+      "final_rank": 5
     },
     {
       "identity_type": "Couple",
@@ -225,59 +129,11 @@
     },
     {
       "identity_type": "Couple",
-      "name_one": "André Glade",
-      "bib_number": 1234,
-      "name_two": "Julia Obergfell",
-      "affiliation": "TD Tanzsportclub Düsseldorf Rot-Weiß",
-      "final_rank": 20
-    },
-    {
-      "identity_type": "Couple",
-      "name_one": "Rafael Wirth",
-      "bib_number": 1169,
-      "name_two": "Aileen Gieratz",
-      "affiliation": "Club Céronne im ETV Hamburg",
-      "final_rank": 22
-    },
-    {
-      "identity_type": "Couple",
       "name_one": "Jarves Drechsler",
       "bib_number": 1106,
       "name_two": "Kristin Drechsler",
       "affiliation": "Turniertanzkreis Am Bürgerpark, Berlin",
       "final_rank": 23
-    },
-    {
-      "identity_type": "Couple",
-      "name_one": "Thomas Brunnengräber",
-      "bib_number": 1219,
-      "name_two": "Mirjam Tittlus",
-      "affiliation": "TC Blau-Orange Wiesbaden",
-      "final_rank": 23
-    },
-    {
-      "identity_type": "Couple",
-      "name_one": "Ole Wallenfels",
-      "bib_number": 1178,
-      "name_two": "Jana Kruschinski",
-      "affiliation": "Tanzsportclub Dortmund",
-      "final_rank": 25
-    },
-    {
-      "identity_type": "Couple",
-      "name_one": "Maximilian Keil",
-      "bib_number": 1398,
-      "name_two": "Annalena Krause",
-      "affiliation": "Danceteam Salzburg",
-      "final_rank": 26
-    },
-    {
-      "identity_type": "Couple",
-      "name_one": "Peter Unrau",
-      "bib_number": 1292,
-      "name_two": "Hanna Pulpanek",
-      "affiliation": "TSA Phoenix d. SV Greven 2021",
-      "final_rank": 27
     },
     {
       "identity_type": "Couple",
@@ -289,11 +145,123 @@
     },
     {
       "identity_type": "Couple",
+      "name_one": "Jörg Ackermann",
+      "bib_number": 1159,
+      "name_two": "Laura Dahlberg",
+      "affiliation": "TTC Rot-Gold Köln",
+      "final_rank": 12
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Rafael Wirth",
+      "bib_number": 1169,
+      "name_two": "Aileen Gieratz",
+      "affiliation": "Club Céronne im ETV Hamburg",
+      "final_rank": 22
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Tobias Pöstgens",
+      "bib_number": 1175,
+      "name_two": "Andrea Arping",
+      "affiliation": "TSA d. TSV Bocholt von 1867/1896",
+      "final_rank": 4
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Ole Wallenfels",
+      "bib_number": 1178,
+      "name_two": "Jana Kruschinski",
+      "affiliation": "Tanzsportclub Dortmund",
+      "final_rank": 25
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Thomas Brunnengräber",
+      "bib_number": 1219,
+      "name_two": "Mirjam Tittlus",
+      "affiliation": "TC Blau-Orange Wiesbaden",
+      "final_rank": 23
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Frank Thiemicke",
+      "bib_number": 1225,
+      "name_two": "Lea Offermann",
+      "affiliation": "TSC Astoria Karlsruhe",
+      "final_rank": 10
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Carl Victor Klingenburg",
+      "bib_number": 1227,
+      "name_two": "Viktoria Billhardt",
+      "affiliation": "Tanzsportclub Balance Berlin",
+      "final_rank": 17
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "André Glade",
+      "bib_number": 1234,
+      "name_two": "Julia Obergfell",
+      "affiliation": "TD Tanzsportclub Düsseldorf Rot-Weiß",
+      "final_rank": 20
+    },
+    {
+      "identity_type": "Couple",
       "name_one": "Sullivan Sadzik",
       "bib_number": 1258,
       "name_two": "Laura Mayer",
       "affiliation": "TC Rot-Weiß Kaiserslautern",
       "final_rank": 28
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Christian Giesbrecht",
+      "bib_number": 1259,
+      "name_two": "Anna Lena Helmers",
+      "affiliation": "TSA d. TV Jahn Delmenhorst von 1909",
+      "final_rank": 13
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Peter Unrau",
+      "bib_number": 1292,
+      "name_two": "Hanna Pulpanek",
+      "affiliation": "TSA Phoenix d. SV Greven 2021",
+      "final_rank": 27
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Dominik Priebe",
+      "bib_number": 1293,
+      "name_two": "Anna Paszehr",
+      "affiliation": "Bielefelder TC Metropol",
+      "final_rank": 6
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Daniel Wohlmuth",
+      "bib_number": 1300,
+      "name_two": "Lina Schneller",
+      "affiliation": "TSC dancepoint, Königsbrunn",
+      "final_rank": 1
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Christian Wenzel",
+      "bib_number": 1318,
+      "name_two": "Jannou Catrin Bergsträßer",
+      "affiliation": "Rot-Weiss-Klub Kassel",
+      "final_rank": 19
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Dr. Christian Schönberg",
+      "bib_number": 1333,
+      "name_two": "Julia Dislich",
+      "affiliation": "TTC Oldenburg",
+      "final_rank": 31
     },
     {
       "identity_type": "Couple",
@@ -305,11 +273,43 @@
     },
     {
       "identity_type": "Couple",
-      "name_one": "Dr. Christian Schönberg",
-      "bib_number": 1333,
-      "name_two": "Julia Dislich",
-      "affiliation": "TTC Oldenburg",
-      "final_rank": 31
+      "name_one": "Neil Koschier",
+      "bib_number": 1360,
+      "name_two": "Pia Scharfenberg",
+      "affiliation": "Schwarz-Silber, Frankfurt",
+      "final_rank": 2
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Michael Hierer",
+      "bib_number": 1366,
+      "name_two": "Friederike Müller",
+      "affiliation": "TSA Phoenix d. SV Greven 2021",
+      "final_rank": 15
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Max Köllmer",
+      "bib_number": 1380,
+      "name_two": "Liliane Keite",
+      "affiliation": "Club Saltatio Hamburg",
+      "final_rank": 3
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Maximilian Keil",
+      "bib_number": 1398,
+      "name_two": "Annalena Krause",
+      "affiliation": "Danceteam Salzburg",
+      "final_rank": 26
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Peter Brantsch",
+      "bib_number": 1413,
+      "name_two": "Luisa Böck",
+      "affiliation": "TSC Astoria Karlsruhe",
+      "final_rank": 18
     }
   ],
   "rounds": [
@@ -326,6 +326,34 @@
       "round_type": "Mark",
       "marking_crosses": {
         "AS": {
+          "108": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "210": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "761": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "880": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
           "1004": {
             "SlowWaltz": true,
             "Tango": true,
@@ -348,13 +376,6 @@
             "Quickstep": true
           },
           "1079": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "108": {
             "SlowWaltz": true,
             "Tango": true,
             "VienneseWaltz": true,
@@ -516,27 +537,6 @@
             "Quickstep": true
           },
           "1413": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "210": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "761": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "880": {
             "SlowWaltz": true,
             "Tango": true,
             "VienneseWaltz": true,
@@ -545,6 +545,34 @@
           }
         },
         "AX": {
+          "108": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "210": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "761": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "880": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
           "1004": {
             "SlowWaltz": true,
             "Tango": true,
@@ -567,13 +595,6 @@
             "Quickstep": true
           },
           "1079": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "108": {
             "SlowWaltz": true,
             "Tango": true,
             "VienneseWaltz": true,
@@ -735,27 +756,6 @@
             "Quickstep": false
           },
           "1413": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "210": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "761": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "880": {
             "SlowWaltz": true,
             "Tango": true,
             "VienneseWaltz": true,
@@ -764,6 +764,34 @@
           }
         },
         "BK": {
+          "108": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "210": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "761": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "880": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
           "1004": {
             "SlowWaltz": true,
             "Tango": true,
@@ -786,13 +814,6 @@
             "Quickstep": true
           },
           "1079": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "108": {
             "SlowWaltz": true,
             "Tango": true,
             "VienneseWaltz": true,
@@ -954,27 +975,6 @@
             "Quickstep": true
           },
           "1413": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "210": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "761": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "880": {
             "SlowWaltz": true,
             "Tango": true,
             "VienneseWaltz": true,
@@ -983,6 +983,34 @@
           }
         },
         "BL": {
+          "108": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "210": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "761": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "880": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
           "1004": {
             "SlowWaltz": true,
             "Tango": true,
@@ -1005,13 +1033,6 @@
             "Quickstep": true
           },
           "1079": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "108": {
             "SlowWaltz": true,
             "Tango": true,
             "VienneseWaltz": true,
@@ -1166,27 +1187,6 @@
             "Quickstep": true
           },
           "1413": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "210": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "761": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "880": {
             "SlowWaltz": true,
             "Tango": true,
             "VienneseWaltz": true,
@@ -1195,6 +1195,27 @@
           }
         },
         "CQ": {
+          "108": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "761": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "880": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
           "1004": {
             "SlowWaltz": true,
             "Tango": true,
@@ -1217,13 +1238,6 @@
             "Quickstep": true
           },
           "1079": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "108": {
             "SlowWaltz": true,
             "Tango": true,
             "VienneseWaltz": true,
@@ -1385,20 +1399,6 @@
             "Quickstep": true
           },
           "1413": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "761": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "880": {
             "SlowWaltz": true,
             "Tango": true,
             "VienneseWaltz": true,
@@ -1407,6 +1407,34 @@
           }
         },
         "CW": {
+          "108": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "210": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "761": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "880": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
           "1004": {
             "SlowWaltz": true,
             "Tango": true,
@@ -1429,13 +1457,6 @@
             "Quickstep": true
           },
           "1079": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "108": {
             "SlowWaltz": true,
             "Tango": true,
             "VienneseWaltz": true,
@@ -1595,6 +1616,15 @@
             "VienneseWaltz": true,
             "SlowFoxtrot": true,
             "Quickstep": true
+          }
+        },
+        "DI": {
+          "108": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "210": {
             "SlowWaltz": true,
@@ -1616,9 +1646,7 @@
             "VienneseWaltz": true,
             "SlowFoxtrot": true,
             "Quickstep": true
-          }
-        },
-        "DI": {
+          },
           "1004": {
             "SlowWaltz": true,
             "Tango": true,
@@ -1641,13 +1669,6 @@
             "Quickstep": true
           },
           "1079": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "108": {
             "SlowWaltz": true,
             "Tango": true,
             "VienneseWaltz": true,
@@ -1802,27 +1823,6 @@
             "Quickstep": true
           },
           "1413": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "210": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "761": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "880": {
             "SlowWaltz": true,
             "Tango": true,
             "VienneseWaltz": true,
@@ -1845,6 +1845,34 @@
       "round_type": "Mark",
       "marking_crosses": {
         "AS": {
+          "108": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "210": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "761": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "880": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
           "1004": {
             "SlowWaltz": true,
             "Tango": true,
@@ -1867,13 +1895,6 @@
             "Quickstep": true
           },
           "1079": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "108": {
             "SlowWaltz": true,
             "Tango": true,
             "VienneseWaltz": true,
@@ -1986,27 +2007,6 @@
             "Quickstep": true
           },
           "1413": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "210": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "761": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "880": {
             "SlowWaltz": true,
             "Tango": true,
             "VienneseWaltz": true,
@@ -2015,6 +2015,34 @@
           }
         },
         "AX": {
+          "108": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "210": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "761": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "880": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
           "1004": {
             "SlowWaltz": true,
             "Tango": true,
@@ -2037,13 +2065,6 @@
             "Quickstep": true
           },
           "1079": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "108": {
             "SlowWaltz": true,
             "Tango": true,
             "VienneseWaltz": true,
@@ -2156,27 +2177,6 @@
             "Quickstep": true
           },
           "1413": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "210": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "761": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "880": {
             "SlowWaltz": true,
             "Tango": true,
             "VienneseWaltz": true,
@@ -2185,126 +2185,7 @@
           }
         },
         "BK": {
-          "1004": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "1020": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "1059": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "1079": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
           "108": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "1106": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "1159": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "1169": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "1175": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "1219": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "1225": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "1234": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "1259": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "1293": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "1300": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "1318": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "1360": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "1380": {
             "SlowWaltz": true,
             "Tango": true,
             "VienneseWaltz": true,
@@ -2331,9 +2212,7 @@
             "VienneseWaltz": true,
             "SlowFoxtrot": true,
             "Quickstep": true
-          }
-        },
-        "BL": {
+          },
           "1004": {
             "SlowWaltz": true,
             "Tango": true,
@@ -2356,13 +2235,6 @@
             "Quickstep": true
           },
           "1079": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "108": {
             "SlowWaltz": true,
             "Tango": true,
             "VienneseWaltz": true,
@@ -2459,6 +2331,15 @@
             "VienneseWaltz": true,
             "SlowFoxtrot": true,
             "Quickstep": true
+          }
+        },
+        "BL": {
+          "108": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "761": {
             "SlowWaltz": true,
@@ -2473,9 +2354,14 @@
             "VienneseWaltz": true,
             "SlowFoxtrot": true,
             "Quickstep": true
-          }
-        },
-        "CQ": {
+          },
+          "1004": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
           "1020": {
             "SlowWaltz": true,
             "Tango": true,
@@ -2497,7 +2383,135 @@
             "SlowFoxtrot": true,
             "Quickstep": true
           },
+          "1106": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1159": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1169": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1175": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1219": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1225": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1234": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1259": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1293": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1300": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1318": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1360": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1380": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          }
+        },
+        "CQ": {
           "108": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "761": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "880": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1020": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1059": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "1079": {
             "SlowWaltz": true,
             "Tango": true,
             "VienneseWaltz": true,
@@ -2601,8 +2615,17 @@
             "VienneseWaltz": true,
             "SlowFoxtrot": true,
             "Quickstep": true
+          }
+        },
+        "CW": {
+          "108": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
-          "761": {
+          "210": {
             "SlowWaltz": true,
             "Tango": true,
             "VienneseWaltz": true,
@@ -2615,9 +2638,7 @@
             "VienneseWaltz": true,
             "SlowFoxtrot": true,
             "Quickstep": true
-          }
-        },
-        "CW": {
+          },
           "1004": {
             "SlowWaltz": true,
             "Tango": true,
@@ -2633,13 +2654,6 @@
             "Quickstep": true
           },
           "1079": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "108": {
             "SlowWaltz": true,
             "Tango": true,
             "VienneseWaltz": true,
@@ -2729,8 +2743,17 @@
             "VienneseWaltz": true,
             "SlowFoxtrot": true,
             "Quickstep": true
-          },
+          }
+        },
+        "DI": {
           "210": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "761": {
             "SlowWaltz": true,
             "Tango": true,
             "VienneseWaltz": true,
@@ -2743,9 +2766,7 @@
             "VienneseWaltz": true,
             "SlowFoxtrot": true,
             "Quickstep": true
-          }
-        },
-        "DI": {
+          },
           "1004": {
             "SlowWaltz": true,
             "Tango": true,
@@ -2880,27 +2901,6 @@
             "Quickstep": true
           },
           "1413": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "210": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "761": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "880": {
             "SlowWaltz": true,
             "Tango": true,
             "VienneseWaltz": true,
@@ -2923,6 +2923,20 @@
       "round_type": "Mark",
       "marking_crosses": {
         "AS": {
+          "108": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "880": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
           "1004": {
             "SlowWaltz": true,
             "Tango": true,
@@ -2938,13 +2952,6 @@
             "Quickstep": true
           },
           "1059": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "108": {
             "SlowWaltz": true,
             "Tango": true,
             "VienneseWaltz": true,
@@ -2994,13 +3001,6 @@
             "Quickstep": true
           },
           "1380": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "880": {
             "SlowWaltz": true,
             "Tango": true,
             "VienneseWaltz": true,
@@ -3009,6 +3009,20 @@
           }
         },
         "AX": {
+          "108": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "880": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
           "1004": {
             "SlowWaltz": true,
             "Tango": true,
@@ -3024,13 +3038,6 @@
             "Quickstep": true
           },
           "1059": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "108": {
             "SlowWaltz": true,
             "Tango": true,
             "VienneseWaltz": true,
@@ -3085,16 +3092,16 @@
             "VienneseWaltz": true,
             "SlowFoxtrot": true,
             "Quickstep": true
-          },
-          "880": {
+          }
+        },
+        "BK": {
+          "108": {
             "SlowWaltz": true,
             "Tango": true,
             "VienneseWaltz": true,
             "SlowFoxtrot": true,
             "Quickstep": true
-          }
-        },
-        "BK": {
+          },
           "1004": {
             "SlowWaltz": true,
             "Tango": true,
@@ -3110,13 +3117,6 @@
             "Quickstep": true
           },
           "1059": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "108": {
             "SlowWaltz": true,
             "Tango": true,
             "VienneseWaltz": true,
@@ -3160,14 +3160,14 @@
           }
         },
         "BL": {
-          "1059": {
+          "108": {
             "SlowWaltz": true,
             "Tango": true,
             "VienneseWaltz": true,
             "SlowFoxtrot": true,
             "Quickstep": true
           },
-          "108": {
+          "1059": {
             "SlowWaltz": true,
             "Tango": true,
             "VienneseWaltz": true,
@@ -3218,6 +3218,20 @@
           }
         },
         "CQ": {
+          "108": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
+          "880": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
+          },
           "1020": {
             "SlowWaltz": true,
             "Tango": true,
@@ -3226,13 +3240,6 @@
             "Quickstep": true
           },
           "1059": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "108": {
             "SlowWaltz": true,
             "Tango": true,
             "VienneseWaltz": true,
@@ -3273,6 +3280,15 @@
             "VienneseWaltz": true,
             "SlowFoxtrot": true,
             "Quickstep": true
+          }
+        },
+        "CW": {
+          "108": {
+            "SlowWaltz": true,
+            "Tango": true,
+            "VienneseWaltz": true,
+            "SlowFoxtrot": true,
+            "Quickstep": true
           },
           "880": {
             "SlowWaltz": true,
@@ -3280,9 +3296,7 @@
             "VienneseWaltz": true,
             "SlowFoxtrot": true,
             "Quickstep": true
-          }
-        },
-        "CW": {
+          },
           "1004": {
             "SlowWaltz": true,
             "Tango": true,
@@ -3291,13 +3305,6 @@
             "Quickstep": true
           },
           "1059": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "108": {
             "SlowWaltz": true,
             "Tango": true,
             "VienneseWaltz": true,
@@ -3338,16 +3345,16 @@
             "VienneseWaltz": true,
             "SlowFoxtrot": true,
             "Quickstep": true
-          },
-          "880": {
+          }
+        },
+        "DI": {
+          "108": {
             "SlowWaltz": true,
             "Tango": true,
             "VienneseWaltz": true,
             "SlowFoxtrot": true,
             "Quickstep": true
-          }
-        },
-        "DI": {
+          },
           "1004": {
             "SlowWaltz": true,
             "Tango": true,
@@ -3363,13 +3370,6 @@
             "Quickstep": true
           },
           "1059": {
-            "SlowWaltz": true,
-            "Tango": true,
-            "VienneseWaltz": true,
-            "SlowFoxtrot": true,
-            "Quickstep": true
-          },
-          "108": {
             "SlowWaltz": true,
             "Tango": true,
             "VienneseWaltz": true,

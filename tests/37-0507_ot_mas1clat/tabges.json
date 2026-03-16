@@ -64,14 +64,6 @@
   "participants": [
     {
       "identity_type": "Couple",
-      "name_one": "Falk Heinig",
-      "bib_number": 1151,
-      "name_two": "Verena Sommerer",
-      "affiliation": "Gelb-Schwarz-Casino München",
-      "final_rank": 1
-    },
-    {
-      "identity_type": "Couple",
       "name_one": "Henning Hartmann gen. Schulte",
       "bib_number": 203,
       "name_two": "Nadja Hartwig",
@@ -80,19 +72,11 @@
     },
     {
       "identity_type": "Couple",
-      "name_one": "Marcel Dörr",
-      "bib_number": 1216,
-      "name_two": "Maria Fink",
-      "affiliation": "VTG Grün-Gold Recklinghausen",
-      "final_rank": 3
-    },
-    {
-      "identity_type": "Couple",
-      "name_one": "Johannes Holten",
-      "bib_number": 1368,
-      "name_two": "Dr. Sonja Holten",
-      "affiliation": "TSC Schwarz-Gelb Aachen",
-      "final_rank": 4
+      "name_one": "Thomas May",
+      "bib_number": 808,
+      "name_two": "Manuela Frobenius",
+      "affiliation": "TSA d. Braunschweiger MTV von 1847",
+      "final_rank": 7
     },
     {
       "identity_type": "Couple",
@@ -104,6 +88,22 @@
     },
     {
       "identity_type": "Couple",
+      "name_one": "Falk Heinig",
+      "bib_number": 1151,
+      "name_two": "Verena Sommerer",
+      "affiliation": "Gelb-Schwarz-Casino München",
+      "final_rank": 1
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Marcel Dörr",
+      "bib_number": 1216,
+      "name_two": "Maria Fink",
+      "affiliation": "VTG Grün-Gold Recklinghausen",
+      "final_rank": 3
+    },
+    {
+      "identity_type": "Couple",
       "name_one": "Dominik Flechsig",
       "bib_number": 1272,
       "name_two": "Christin Druwen",
@@ -112,11 +112,11 @@
     },
     {
       "identity_type": "Couple",
-      "name_one": "Thomas May",
-      "bib_number": 808,
-      "name_two": "Manuela Frobenius",
-      "affiliation": "TSA d. Braunschweiger MTV von 1847",
-      "final_rank": 7
+      "name_one": "Johannes Holten",
+      "bib_number": 1368,
+      "name_two": "Dr. Sonja Holten",
+      "affiliation": "TSC Schwarz-Gelb Aachen",
+      "final_rank": 4
     }
   ],
   "rounds": [
@@ -132,6 +132,18 @@
       "round_type": "Mark",
       "marking_crosses": {
         "AO": {
+          "203": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "Jive": true
+          },
+          "808": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "Jive": true
+          },
           "1060": {
             "Samba": true,
             "ChaChaCha": true,
@@ -157,18 +169,6 @@
             "Jive": true
           },
           "1368": {
-            "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "Jive": true
-          },
-          "203": {
-            "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "Jive": true
-          },
-          "808": {
             "Samba": true,
             "ChaChaCha": true,
             "Rumba": true,
@@ -176,6 +176,18 @@
           }
         },
         "BN": {
+          "203": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "Jive": true
+          },
+          "808": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "Jive": true
+          },
           "1060": {
             "Samba": true,
             "ChaChaCha": true,
@@ -201,18 +213,6 @@
             "Jive": true
           },
           "1368": {
-            "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "Jive": true
-          },
-          "203": {
-            "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "Jive": true
-          },
-          "808": {
             "Samba": true,
             "ChaChaCha": true,
             "Rumba": true,
@@ -220,6 +220,18 @@
           }
         },
         "BW": {
+          "203": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "Jive": true
+          },
+          "808": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "Jive": true
+          },
           "1060": {
             "Samba": true,
             "ChaChaCha": true,
@@ -245,18 +257,6 @@
             "Jive": true
           },
           "1368": {
-            "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "Jive": true
-          },
-          "203": {
-            "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "Jive": true
-          },
-          "808": {
             "Samba": true,
             "ChaChaCha": true,
             "Rumba": true,
@@ -264,6 +264,18 @@
           }
         },
         "CF": {
+          "203": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "Jive": true
+          },
+          "808": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "Jive": true
+          },
           "1060": {
             "Samba": true,
             "ChaChaCha": true,
@@ -289,18 +301,6 @@
             "Jive": true
           },
           "1368": {
-            "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "Jive": true
-          },
-          "203": {
-            "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "Jive": true
-          },
-          "808": {
             "Samba": true,
             "ChaChaCha": true,
             "Rumba": true,
@@ -308,6 +308,18 @@
           }
         },
         "CY": {
+          "203": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "Jive": true
+          },
+          "808": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "Jive": true
+          },
           "1060": {
             "Samba": true,
             "ChaChaCha": true,
@@ -333,18 +345,6 @@
             "Jive": true
           },
           "1368": {
-            "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "Jive": true
-          },
-          "203": {
-            "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "Jive": true
-          },
-          "808": {
             "Samba": true,
             "ChaChaCha": true,
             "Rumba": true,
@@ -352,6 +352,18 @@
           }
         },
         "DA": {
+          "203": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "Jive": true
+          },
+          "808": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "Jive": true
+          },
           "1060": {
             "Samba": true,
             "ChaChaCha": true,
@@ -377,18 +389,6 @@
             "Jive": true
           },
           "1368": {
-            "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "Jive": true
-          },
-          "203": {
-            "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "Jive": true
-          },
-          "808": {
             "Samba": true,
             "ChaChaCha": true,
             "Rumba": true,
@@ -396,6 +396,18 @@
           }
         },
         "DE": {
+          "203": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "Jive": true
+          },
+          "808": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "Jive": true
+          },
           "1060": {
             "Samba": true,
             "ChaChaCha": true,
@@ -421,18 +433,6 @@
             "Jive": true
           },
           "1368": {
-            "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "Jive": true
-          },
-          "203": {
-            "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "Jive": true
-          },
-          "808": {
             "Samba": true,
             "ChaChaCha": true,
             "Rumba": true,
@@ -453,6 +453,12 @@
       "round_type": "DTV",
       "dtv_ranks": {
         "AO": {
+          "203": {
+            "Samba": 1,
+            "ChaChaCha": 2,
+            "Rumba": 2,
+            "Jive": 1
+          },
           "1060": {
             "Samba": 4,
             "ChaChaCha": 4,
@@ -482,15 +488,15 @@
             "ChaChaCha": 5,
             "Rumba": 5,
             "Jive": 5
-          },
-          "203": {
-            "Samba": 1,
-            "ChaChaCha": 2,
-            "Rumba": 2,
-            "Jive": 1
           }
         },
         "BN": {
+          "203": {
+            "Samba": 1,
+            "ChaChaCha": 1,
+            "Rumba": 3,
+            "Jive": 1
+          },
           "1060": {
             "Samba": 6,
             "ChaChaCha": 5,
@@ -520,15 +526,15 @@
             "ChaChaCha": 3,
             "Rumba": 2,
             "Jive": 2
-          },
-          "203": {
-            "Samba": 1,
-            "ChaChaCha": 1,
-            "Rumba": 3,
-            "Jive": 1
           }
         },
         "BW": {
+          "203": {
+            "Samba": 1,
+            "ChaChaCha": 1,
+            "Rumba": 3,
+            "Jive": 1
+          },
           "1060": {
             "Samba": 6,
             "ChaChaCha": 5,
@@ -558,15 +564,15 @@
             "ChaChaCha": 4,
             "Rumba": 5,
             "Jive": 4
-          },
-          "203": {
-            "Samba": 1,
-            "ChaChaCha": 1,
-            "Rumba": 3,
-            "Jive": 1
           }
         },
         "CF": {
+          "203": {
+            "Samba": 3,
+            "ChaChaCha": 2,
+            "Rumba": 1,
+            "Jive": 1
+          },
           "1060": {
             "Samba": 5,
             "ChaChaCha": 5,
@@ -596,15 +602,15 @@
             "ChaChaCha": 4,
             "Rumba": 4,
             "Jive": 5
-          },
-          "203": {
-            "Samba": 3,
-            "ChaChaCha": 2,
-            "Rumba": 1,
-            "Jive": 1
           }
         },
         "CY": {
+          "203": {
+            "Samba": 4,
+            "ChaChaCha": 3,
+            "Rumba": 4,
+            "Jive": 4
+          },
           "1060": {
             "Samba": 5,
             "ChaChaCha": 5,
@@ -634,15 +640,15 @@
             "ChaChaCha": 2,
             "Rumba": 2,
             "Jive": 2
-          },
-          "203": {
-            "Samba": 4,
-            "ChaChaCha": 3,
-            "Rumba": 4,
-            "Jive": 4
           }
         },
         "DA": {
+          "203": {
+            "Samba": 1,
+            "ChaChaCha": 1,
+            "Rumba": 1,
+            "Jive": 1
+          },
           "1060": {
             "Samba": 5,
             "ChaChaCha": 6,
@@ -672,15 +678,15 @@
             "ChaChaCha": 2,
             "Rumba": 3,
             "Jive": 4
-          },
-          "203": {
-            "Samba": 1,
-            "ChaChaCha": 1,
-            "Rumba": 1,
-            "Jive": 1
           }
         },
         "DE": {
+          "203": {
+            "Samba": 4,
+            "ChaChaCha": 4,
+            "Rumba": 5,
+            "Jive": 5
+          },
           "1060": {
             "Samba": 3,
             "ChaChaCha": 3,
@@ -710,12 +716,6 @@
             "ChaChaCha": 6,
             "Rumba": 6,
             "Jive": 4
-          },
-          "203": {
-            "Samba": 4,
-            "ChaChaCha": 4,
-            "Rumba": 5,
-            "Jive": 5
           }
         }
       }

@@ -469,6 +469,9 @@ pub fn extract_event_data(data_dir: &str) -> Result<Competition> {
 
     comp.rounds = all_rounds;
 
+    comp.participants.sort_by_key(|p| p.bib_number);
+    comp.officials.judges.sort_by(|a, b| a.code.cmp(&b.code));
+
     if comp.source_url.is_none() {
         if let Ok(index_h) = fs::read_to_string(dir.join("index.htm")) {
             let doc = Html::parse_document(&index_h);

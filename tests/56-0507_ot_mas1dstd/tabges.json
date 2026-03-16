@@ -64,19 +64,19 @@
   "participants": [
     {
       "identity_type": "Couple",
-      "name_one": "Jens Pache",
-      "bib_number": 1144,
-      "name_two": "Anke Pache",
-      "affiliation": "Rot-Weiss-Klub Kassel",
-      "final_rank": 1
-    },
-    {
-      "identity_type": "Couple",
       "name_one": "Michael Karbach",
       "bib_number": 1039,
       "name_two": "Katharina Karbach",
       "affiliation": "Gelb-Schwarz-Casino München",
       "final_rank": 2
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Jens Pache",
+      "bib_number": 1144,
+      "name_two": "Anke Pache",
+      "affiliation": "Rot-Weiss-Klub Kassel",
+      "final_rank": 1
     },
     {
       "identity_type": "Couple",
@@ -88,19 +88,19 @@
     },
     {
       "identity_type": "Couple",
-      "name_one": "Thomas Klöckl",
-      "bib_number": 1358,
-      "name_two": "Bianca Koellges",
-      "affiliation": "TC Blau-Gold Solingen",
-      "final_rank": 4
-    },
-    {
-      "identity_type": "Couple",
       "name_one": "Thorben Macke",
       "bib_number": 1344,
       "name_two": "Renate Enders",
       "affiliation": "TTC Oldenburg",
       "final_rank": 5
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Thomas Klöckl",
+      "bib_number": 1358,
+      "name_two": "Bianca Koellges",
+      "affiliation": "TC Blau-Gold Solingen",
+      "final_rank": 4
     }
   ],
   "rounds": [

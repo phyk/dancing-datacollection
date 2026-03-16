@@ -112,14 +112,58 @@ pub struct WDSFScore {
 pub enum RoundData {
     #[serde(rename = "Mark")]
     Marking {
-        marking_crosses: BTreeMap<String, BTreeMap<String, BTreeMap<Dance, bool>>>,
+        #[serde(serialize_with = "serialize_bib_btreemap", deserialize_with = "deserialize_bib_btreemap")]
+        marking_crosses: BTreeMap<String, BTreeMap<u32, BTreeMap<Dance, bool>>>,
     },
     DTV {
-        dtv_ranks: BTreeMap<String, BTreeMap<String, BTreeMap<Dance, u32>>>,
+        #[serde(serialize_with = "serialize_bib_btreemap", deserialize_with = "deserialize_bib_btreemap")]
+        dtv_ranks: BTreeMap<String, BTreeMap<u32, BTreeMap<Dance, u32>>>,
     },
     WDSF {
-        wdsf_scores: BTreeMap<String, BTreeMap<String, BTreeMap<Dance, WDSFScore>>>,
+        #[serde(serialize_with = "serialize_bib_btreemap", deserialize_with = "deserialize_bib_btreemap")]
+        wdsf_scores: BTreeMap<String, BTreeMap<u32, BTreeMap<Dance, WDSFScore>>>,
     },
+}
+
+fn serialize_bib_btreemap<S, V>(
+    map: &BTreeMap<String, BTreeMap<u32, V>>,
+    serializer: S,
+) -> Result<S::Ok, S::Error>
+where
+    S: serde::Serializer,
+    V: Serialize,
+{
+    use serde::ser::SerializeMap;
+    let mut outer_map = serializer.serialize_map(Some(map.len()))?;
+    for (judge_code, bib_map) in map {
+        let mut string_bib_map = BTreeMap::new();
+        for (bib, value) in bib_map {
+            string_bib_map.insert(bib.to_string(), value);
+        }
+        outer_map.serialize_entry(judge_code, &string_bib_map)?;
+    }
+    outer_map.end()
+}
+
+fn deserialize_bib_btreemap<'de, D, V>(
+    deserializer: D,
+) -> Result<BTreeMap<String, BTreeMap<u32, V>>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+    V: Deserialize<'de>,
+{
+    let outer: BTreeMap<String, BTreeMap<String, V>> = BTreeMap::deserialize(deserializer)?;
+    let mut res = BTreeMap::new();
+    for (judge_code, string_bib_map) in outer {
+        let mut bib_map = BTreeMap::new();
+        for (bib_str, value) in string_bib_map {
+            if let Ok(bib) = bib_str.parse::<u32>() {
+                bib_map.insert(bib, value);
+            }
+        }
+        res.insert(judge_code, bib_map);
+    }
+    Ok(res)
 }
 
 impl RoundData {
@@ -147,28 +191,22 @@ impl RoundData {
         match self {
             Self::Marking { marking_crosses } => {
                 for judge_map in marking_crosses.values() {
-                    for bib_str in judge_map.keys() {
-                        if let Ok(bib) = bib_str.parse::<u32>() {
-                            bibs.insert(bib);
-                        }
+                    for &bib in judge_map.keys() {
+                        bibs.insert(bib);
                     }
                 }
             }
             Self::DTV { dtv_ranks } => {
                 for judge_map in dtv_ranks.values() {
-                    for bib_str in judge_map.keys() {
-                        if let Ok(bib) = bib_str.parse::<u32>() {
-                            bibs.insert(bib);
-                        }
+                    for &bib in judge_map.keys() {
+                        bibs.insert(bib);
                     }
                 }
             }
             Self::WDSF { wdsf_scores } => {
                 for judge_map in wdsf_scores.values() {
-                    for bib_str in judge_map.keys() {
-                        if let Ok(bib) = bib_str.parse::<u32>() {
-                            bibs.insert(bib);
-                        }
+                    for &bib in judge_map.keys() {
+                        bibs.insert(bib);
                     }
                 }
             }
@@ -183,21 +221,20 @@ impl RoundData {
         bib: u32,
         dances: &[Dance],
     ) -> bool {
-        let bib_str = bib.to_string();
         match self {
             Self::Marking { marking_crosses } => marking_crosses
                 .get(judge_code)
-                .and_then(|judge_map| judge_map.get(&bib_str))
+                .and_then(|judge_map| judge_map.get(&bib))
                 .map(|bib_map| dances.iter().all(|d| bib_map.contains_key(d)))
                 .unwrap_or(false),
             Self::DTV { dtv_ranks } => dtv_ranks
                 .get(judge_code)
-                .and_then(|judge_map| judge_map.get(&bib_str))
+                .and_then(|judge_map| judge_map.get(&bib))
                 .map(|bib_map| dances.iter().all(|d| bib_map.contains_key(d)))
                 .unwrap_or(false),
             Self::WDSF { wdsf_scores } => wdsf_scores
                 .get(judge_code)
-                .and_then(|judge_map| judge_map.get(&bib_str))
+                .and_then(|judge_map| judge_map.get(&bib))
                 .map(|bib_map| dances.iter().all(|d| bib_map.contains_key(d)))
                 .unwrap_or(false),
         }
