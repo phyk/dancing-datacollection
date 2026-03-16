@@ -65,43 +65,19 @@
   "participants": [
     {
       "identity_type": "Couple",
-      "name_one": "Valentin Wacker",
-      "bib_number": 1052,
-      "name_two": "Zhanna de Cuveland",
-      "affiliation": "Club Saltatio Hamburg",
-      "final_rank": 1
+      "name_one": "Florian König",
+      "bib_number": 253,
+      "name_two": "Christine Tenhaeff",
+      "affiliation": "TSC Blau-Gold-Rondo Bonn",
+      "final_rank": 10
     },
     {
       "identity_type": "Couple",
-      "name_one": "Alexander Thiemer",
-      "bib_number": 1024,
-      "name_two": "Lorena Thiemer",
-      "affiliation": "Tanzsport Zentrum Heusenstamm",
-      "final_rank": 2
-    },
-    {
-      "identity_type": "Couple",
-      "name_one": "Falk Heinig",
-      "bib_number": 1151,
-      "name_two": "Verena Sommerer",
-      "affiliation": "Gelb-Schwarz-Casino München",
-      "final_rank": 3
-    },
-    {
-      "identity_type": "Couple",
-      "name_one": "Lutz Büttner",
-      "bib_number": 1171,
-      "name_two": "Daniela Büttner",
-      "affiliation": "Boston-Club Düsseldorf",
-      "final_rank": 4
-    },
-    {
-      "identity_type": "Couple",
-      "name_one": "Markus Schraven",
-      "bib_number": 1369,
-      "name_two": "Meryem Köybasi",
-      "affiliation": "TD Tanzsportclub Düsseldorf Rot-Weiß",
-      "final_rank": 5
+      "name_one": "Torsten Andresen",
+      "bib_number": 413,
+      "name_two": "Inga Andresen",
+      "affiliation": "TSA d. TSV Stelle 1907/19",
+      "final_rank": 14
     },
     {
       "identity_type": "Couple",
@@ -113,43 +89,35 @@
     },
     {
       "identity_type": "Couple",
-      "name_one": "Jarves Drechsler",
-      "bib_number": 1106,
-      "name_two": "Kristin Drechsler",
-      "affiliation": "Turniertanzkreis Am Bürgerpark, Berlin",
-      "final_rank": 7
-    },
-    {
-      "identity_type": "Couple",
-      "name_one": "Sven Kuhlen",
-      "bib_number": 1186,
-      "name_two": "Anja Weber",
-      "affiliation": "VfL Bochum 1848, TSA",
-      "final_rank": 8
-    },
-    {
-      "identity_type": "Couple",
-      "name_one": "Philipp Joschua Mathé",
-      "bib_number": 1164,
-      "name_two": "Sonja Mutz",
-      "affiliation": "Regio Tanzclub Freiburg",
-      "final_rank": 9
-    },
-    {
-      "identity_type": "Couple",
-      "name_one": "Florian König",
-      "bib_number": 253,
-      "name_two": "Christine Tenhaeff",
-      "affiliation": "TSC Blau-Gold-Rondo Bonn",
-      "final_rank": 10
-    },
-    {
-      "identity_type": "Couple",
       "name_one": "Wolfram Troeder",
       "bib_number": 1011,
       "name_two": "Claudia Troeder",
       "affiliation": "Tanzsportzentrum Concordia Berlin",
       "final_rank": 11
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Alexander Thiemer",
+      "bib_number": 1024,
+      "name_two": "Lorena Thiemer",
+      "affiliation": "Tanzsport Zentrum Heusenstamm",
+      "final_rank": 2
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Valentin Wacker",
+      "bib_number": 1052,
+      "name_two": "Zhanna de Cuveland",
+      "affiliation": "Club Saltatio Hamburg",
+      "final_rank": 1
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Jarves Drechsler",
+      "bib_number": 1106,
+      "name_two": "Kristin Drechsler",
+      "affiliation": "Turniertanzkreis Am Bürgerpark, Berlin",
+      "final_rank": 7
     },
     {
       "identity_type": "Couple",
@@ -161,6 +129,14 @@
     },
     {
       "identity_type": "Couple",
+      "name_one": "Falk Heinig",
+      "bib_number": 1151,
+      "name_two": "Verena Sommerer",
+      "affiliation": "Gelb-Schwarz-Casino München",
+      "final_rank": 3
+    },
+    {
+      "identity_type": "Couple",
       "name_one": "Sascha Dahmen",
       "bib_number": 1157,
       "name_two": "Alexandra Bidler",
@@ -169,11 +145,35 @@
     },
     {
       "identity_type": "Couple",
-      "name_one": "Torsten Andresen",
-      "bib_number": 413,
-      "name_two": "Inga Andresen",
-      "affiliation": "TSA d. TSV Stelle 1907/19",
-      "final_rank": 14
+      "name_one": "Philipp Joschua Mathé",
+      "bib_number": 1164,
+      "name_two": "Sonja Mutz",
+      "affiliation": "Regio Tanzclub Freiburg",
+      "final_rank": 9
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Lutz Büttner",
+      "bib_number": 1171,
+      "name_two": "Daniela Büttner",
+      "affiliation": "Boston-Club Düsseldorf",
+      "final_rank": 4
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Sven Kuhlen",
+      "bib_number": 1186,
+      "name_two": "Anja Weber",
+      "affiliation": "VfL Bochum 1848, TSA",
+      "final_rank": 8
+    },
+    {
+      "identity_type": "Couple",
+      "name_one": "Markus Schraven",
+      "bib_number": 1369,
+      "name_two": "Meryem Köybasi",
+      "affiliation": "TD Tanzsportclub Düsseldorf Rot-Weiß",
+      "final_rank": 5
     }
   ],
   "rounds": [
@@ -190,6 +190,20 @@
       "round_type": "Mark",
       "marking_crosses": {
         "AH": {
+          "253": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
+          },
+          "413": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
+          },
           "1002": {
             "Samba": true,
             "ChaChaCha": true,
@@ -268,20 +282,6 @@
             "Jive": true
           },
           "1369": {
-            "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "PasoDoble": true,
-            "Jive": true
-          },
-          "253": {
-            "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "PasoDoble": true,
-            "Jive": true
-          },
-          "413": {
             "Samba": true,
             "ChaChaCha": true,
             "Rumba": true,
@@ -290,6 +290,20 @@
           }
         },
         "AP": {
+          "253": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
+          },
+          "413": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
+          },
           "1002": {
             "Samba": true,
             "ChaChaCha": true,
@@ -368,20 +382,6 @@
             "Jive": true
           },
           "1369": {
-            "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "PasoDoble": true,
-            "Jive": true
-          },
-          "253": {
-            "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "PasoDoble": true,
-            "Jive": true
-          },
-          "413": {
             "Samba": true,
             "ChaChaCha": true,
             "Rumba": true,
@@ -390,6 +390,20 @@
           }
         },
         "AT": {
+          "253": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
+          },
+          "413": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
+          },
           "1002": {
             "Samba": true,
             "ChaChaCha": true,
@@ -468,20 +482,6 @@
             "Jive": true
           },
           "1369": {
-            "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "PasoDoble": true,
-            "Jive": true
-          },
-          "253": {
-            "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "PasoDoble": true,
-            "Jive": true
-          },
-          "413": {
             "Samba": true,
             "ChaChaCha": true,
             "Rumba": true,
@@ -490,6 +490,20 @@
           }
         },
         "BF": {
+          "253": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
+          },
+          "413": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
+          },
           "1002": {
             "Samba": true,
             "ChaChaCha": true,
@@ -561,20 +575,6 @@
             "Jive": true
           },
           "1369": {
-            "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "PasoDoble": true,
-            "Jive": true
-          },
-          "253": {
-            "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "PasoDoble": true,
-            "Jive": true
-          },
-          "413": {
             "Samba": true,
             "ChaChaCha": true,
             "Rumba": true,
@@ -583,6 +583,20 @@
           }
         },
         "BQ": {
+          "253": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
+          },
+          "413": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
+          },
           "1002": {
             "Samba": true,
             "ChaChaCha": true,
@@ -661,20 +675,6 @@
             "Jive": true
           },
           "1369": {
-            "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "PasoDoble": true,
-            "Jive": true
-          },
-          "253": {
-            "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "PasoDoble": true,
-            "Jive": true
-          },
-          "413": {
             "Samba": true,
             "ChaChaCha": true,
             "Rumba": true,
@@ -683,6 +683,20 @@
           }
         },
         "CV": {
+          "253": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
+          },
+          "413": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
+          },
           "1002": {
             "Samba": true,
             "ChaChaCha": true,
@@ -761,20 +775,6 @@
             "Jive": true
           },
           "1369": {
-            "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "PasoDoble": true,
-            "Jive": true
-          },
-          "253": {
-            "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "PasoDoble": true,
-            "Jive": true
-          },
-          "413": {
             "Samba": true,
             "ChaChaCha": true,
             "Rumba": true,
@@ -783,6 +783,20 @@
           }
         },
         "WR": {
+          "253": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
+          },
+          "413": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
+          },
           "1002": {
             "Samba": true,
             "ChaChaCha": true,
@@ -861,20 +875,6 @@
             "Jive": true
           },
           "1369": {
-            "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "PasoDoble": true,
-            "Jive": true
-          },
-          "253": {
-            "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "PasoDoble": true,
-            "Jive": true
-          },
-          "413": {
             "Samba": true,
             "ChaChaCha": true,
             "Rumba": true,
@@ -897,6 +897,13 @@
       "round_type": "Mark",
       "marking_crosses": {
         "AH": {
+          "253": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
+          },
           "1002": {
             "Samba": true,
             "ChaChaCha": true,
@@ -961,13 +968,6 @@
             "Jive": true
           },
           "1369": {
-            "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "PasoDoble": true,
-            "Jive": true
-          },
-          "253": {
             "Samba": true,
             "ChaChaCha": true,
             "Rumba": true,
@@ -976,6 +976,13 @@
           }
         },
         "AP": {
+          "253": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
+          },
           "1002": {
             "Samba": true,
             "ChaChaCha": true,
@@ -1040,13 +1047,6 @@
             "Jive": true
           },
           "1369": {
-            "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "PasoDoble": true,
-            "Jive": true
-          },
-          "253": {
             "Samba": true,
             "ChaChaCha": true,
             "Rumba": true,
@@ -1055,6 +1055,13 @@
           }
         },
         "AT": {
+          "253": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
+          },
           "1002": {
             "Samba": true,
             "ChaChaCha": true,
@@ -1119,13 +1126,6 @@
             "Jive": true
           },
           "1369": {
-            "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "PasoDoble": true,
-            "Jive": true
-          },
-          "253": {
             "Samba": true,
             "ChaChaCha": true,
             "Rumba": true,
@@ -1134,6 +1134,13 @@
           }
         },
         "BF": {
+          "253": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
+          },
           "1002": {
             "Samba": true,
             "ChaChaCha": true,
@@ -1184,13 +1191,6 @@
             "Jive": true
           },
           "1369": {
-            "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "PasoDoble": true,
-            "Jive": true
-          },
-          "253": {
             "Samba": true,
             "ChaChaCha": true,
             "Rumba": true,
@@ -1199,6 +1199,13 @@
           }
         },
         "BQ": {
+          "253": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
+          },
           "1011": {
             "Samba": true,
             "ChaChaCha": true,
@@ -1249,13 +1256,6 @@
             "Jive": true
           },
           "1369": {
-            "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "PasoDoble": true,
-            "Jive": true
-          },
-          "253": {
             "Samba": true,
             "ChaChaCha": true,
             "Rumba": true,
@@ -1264,6 +1264,13 @@
           }
         },
         "CV": {
+          "253": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
+          },
           "1002": {
             "Samba": true,
             "ChaChaCha": true,
@@ -1319,16 +1326,16 @@
             "Rumba": true,
             "PasoDoble": true,
             "Jive": true
-          },
+          }
+        },
+        "WR": {
           "253": {
             "Samba": true,
             "ChaChaCha": true,
             "Rumba": true,
             "PasoDoble": true,
             "Jive": true
-          }
-        },
-        "WR": {
+          },
           "1002": {
             "Samba": true,
             "ChaChaCha": true,
@@ -1393,13 +1400,6 @@
             "Jive": true
           },
           "1369": {
-            "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "PasoDoble": true,
-            "Jive": true
-          },
-          "253": {
             "Samba": true,
             "ChaChaCha": true,
             "Rumba": true,
