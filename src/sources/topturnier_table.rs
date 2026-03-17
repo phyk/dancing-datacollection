@@ -65,7 +65,7 @@ impl TableGrid {
     }
 }
 
-fn extract_text(el: ElementRef) -> String {
+pub fn extract_text(el: ElementRef) -> String {
     let mut text = String::new();
 
     for node in el.children() {

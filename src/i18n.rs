@@ -56,9 +56,10 @@ pub fn map_discipline(s: &str) -> Option<Style> {
 }
 
 pub fn map_role(s: &str) -> Option<String> {
+    let lower = s.to_lowercase();
     ROLE_MAPPINGS
         .iter()
-        .find(|&&(k, _)| k == s)
+        .find(|&&(k, _)| k.to_lowercase() == lower)
         .map(|&(_, id)| id.to_string())
 }
 

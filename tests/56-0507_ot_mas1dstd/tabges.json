@@ -66,40 +66,40 @@
       "identity_type": "Couple",
       "name_one": "Michael Karbach",
       "bib_number": 1039,
-      "name_two": "Katharina Karbach\nGelb-Schwarz-Casino München",
-      "affiliation": null,
+      "name_two": "Katharina Karbach",
+      "affiliation": "Gelb-Schwarz-Casino München",
       "final_rank": 2
     },
     {
       "identity_type": "Couple",
       "name_one": "Jens Pache",
       "bib_number": 1144,
-      "name_two": "Anke Pache\nRot-Weiss-Klub Kassel",
-      "affiliation": null,
+      "name_two": "Anke Pache",
+      "affiliation": "Rot-Weiss-Klub Kassel",
       "final_rank": 1
     },
     {
       "identity_type": "Couple",
       "name_one": "René Krüger",
       "bib_number": 1245,
-      "name_two": "Christiane Häselbarth\nTSV Grün-Gold Erfurt",
-      "affiliation": null,
+      "name_two": "Christiane Häselbarth",
+      "affiliation": "TSV Grün-Gold Erfurt",
       "final_rank": 3
     },
     {
       "identity_type": "Couple",
       "name_one": "Thorben Macke",
       "bib_number": 1344,
-      "name_two": "Renate Enders\nTTC Oldenburg",
-      "affiliation": null,
+      "name_two": "Renate Enders",
+      "affiliation": "TTC Oldenburg",
       "final_rank": 5
     },
     {
       "identity_type": "Couple",
       "name_one": "Thomas Klöckl",
       "bib_number": 1358,
-      "name_two": "Bianca Koellges\nTC Blau-Gold Solingen",
-      "affiliation": null,
+      "name_two": "Bianca Koellges",
+      "affiliation": "TC Blau-Gold Solingen",
       "final_rank": 4
     }
   ],

@@ -111,7 +111,10 @@ fn parse_participant_row(row: ElementRef) -> Result<Participant, ParsingError> {
         if let Some(ref c) = club {
             name_bib = name_bib.replace(c, "").trim().to_string();
         } else if data_cells.len() > 1 {
-            club = Some(txt(&data_cells[1]));
+            let next_cell_text = txt(&data_cells[1]);
+            if !crate::i18n::is_bib_column_marker(&next_cell_text) && !next_cell_text.chars().all(|c| c.is_ascii_digit()) {
+                club = Some(next_cell_text);
+            }
         }
 
         if let Some(caps) = RE_BIB_PARENS.captures(&name_bib) {
@@ -120,17 +123,27 @@ fn parse_participant_row(row: ElementRef) -> Result<Participant, ParsingError> {
         } else {
             name = name_bib;
         }
+
+        if club.is_none() && name.contains('\n') {
+            let p: Vec<_> = name.splitn(2, '\n').map(|s| s.to_string()).collect();
+            name = p[0].trim().to_string();
+            club = Some(p[1].replace('\n', " ").trim().to_string());
+        }
     }
     if bib == 0 {
         return Err(ParsingError::MissingRequiredData("Bib".into()));
     }
     let (it, n1, n2) = if name.contains(" / ") {
         let p: Vec<_> = name.split(" / ").collect();
-        (
-            IdentityType::Couple,
-            p[0].trim().into(),
-            Some(p[1].trim().into()),
-        )
+        let mut n2_val = p[1].trim().to_string();
+        if n2_val.contains('\n') {
+            let parts: Vec<_> = n2_val.splitn(2, '\n').map(|s| s.to_string()).collect();
+            n2_val = parts[0].trim().to_string();
+            if club.is_none() {
+                club = Some(parts[1].replace('\n', " ").trim().to_string());
+            }
+        }
+        (IdentityType::Couple, p[0].trim().into(), Some(n2_val))
     } else {
         (IdentityType::Solo, name, None)
     };
@@ -281,13 +294,23 @@ pub fn extract_event_data(data_dir: &str) -> Result<Competition> {
             if let (Some(r_el), Some(d_el)) =
                 (row.select(&role_sel).next(), row.select(&data_sel).next())
             {
-                let r = txt(&r_el).replace(':', "");
-                let n = d_el
-                    .select(&SEL_SPAN)
-                    .next()
-                    .map(|el| txt(&el))
-                    .unwrap_or_default();
-                let c = d_el.select(&SEL_SPAN).nth(1).map(|el| txt(&el));
+                let r_raw = txt(&r_el);
+                let r = r_raw.trim_end_matches(':').trim().to_string();
+
+                let spans: Vec<_> = d_el.select(&SEL_SPAN).collect();
+                let (n, c) = if spans.len() >= 2 {
+                    (txt(&spans[0]), Some(txt(&spans[1])))
+                } else if spans.len() == 1 {
+                    (txt(&spans[0]), None)
+                } else {
+                    let full = topturnier_table::extract_text(d_el);
+                    if full.contains('\n') {
+                        let p: Vec<_> = full.splitn(2, '\n').collect();
+                        (p[0].trim().to_string(), Some(p[1].replace('\n', " ").trim().to_string()))
+                    } else {
+                        (full, None)
+                    }
+                };
 
                 if crate::i18n::is_organizer_marker(&r) {
                     if comp.organizer.is_none() {
@@ -298,13 +321,20 @@ pub fn extract_event_data(data_dir: &str) -> Result<Competition> {
                         comp.hosting_club = Some(txt(&d_el));
                     }
                 } else if let Some(m) = crate::i18n::map_role(&r) {
-                    let mem = CommitteeMember { name: n, club: c };
+                    let mem = CommitteeMember {
+                        name: n.clone(),
+                        club: c.clone(),
+                    };
                     if m == "responsible_person" {
                         off.responsible_person = Some(mem);
                     } else {
-                        off.assistant = Some(mem);
+                        // If there's already an assistant, we might want to keep the "Beisitzer" or "Chairperson"
+                        // but for now we just overwrite or could append. SPEC says "Assistant".
+                        if off.assistant.is_none() || r.to_lowercase().contains("beisitzer") {
+                            off.assistant = Some(mem);
+                        }
                     }
-                } else if (r.len() <= 3 || r.chars().all(|ch| ch.is_ascii_uppercase()))
+                } else if (r.len() <= 3 || r.chars().all(|ch| ch.is_ascii_uppercase() || ch.is_ascii_digit()))
                     && !n.is_empty()
                 {
                     off.judges.push(Judge {
@@ -365,11 +395,18 @@ pub fn extract_event_data(data_dir: &str) -> Result<Competition> {
                              RE_RANK.captures(&grid.rows[r][idx]).and_then(|c| c[1].parse().ok())
                          });
 
-                         let (it, n1, n2) = if name.contains(" / ") {
-                             let p: Vec<_> = name.split(" / ").collect();
+                         let (name_clean, club) = if name.contains('\n') {
+                             let p: Vec<_> = name.splitn(2, '\n').collect();
+                             (p[0].trim().to_string(), Some(p[1].replace('\n', " ").trim().to_string()))
+                         } else {
+                             (name.clone(), None)
+                         };
+
+                         let (it, n1, n2) = if name_clean.contains(" / ") {
+                             let p: Vec<_> = name_clean.split(" / ").collect();
                              (IdentityType::Couple, p[0].trim().into(), Some(p[1].trim().into()))
                          } else {
-                             (IdentityType::Solo, name.clone(), None)
+                             (IdentityType::Solo, name_clean, None)
                          };
 
                          comp.participants.push(Participant {
@@ -377,7 +414,7 @@ pub fn extract_event_data(data_dir: &str) -> Result<Competition> {
                              name_one: n1,
                              bib_number: bib,
                              name_two: n2,
-                             affiliation: None, // Hard to get club from grid without more logic
+                             affiliation: club,
                              final_rank: rank,
                          });
                     }

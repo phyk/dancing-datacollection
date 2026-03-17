@@ -16,8 +16,14 @@
   ],
   "min_dances": 5,
   "officials": {
-    "responsible_person": null,
-    "assistant": null,
+    "responsible_person": {
+      "name": "Lars Erik Pastor",
+      "club": "Germany"
+    },
+    "assistant": {
+      "name": "Heinz Spaeker",
+      "club": "Germany"
+    },
     "judges": [
       {
         "code": "A",
@@ -76,744 +82,744 @@
       "identity_type": "Couple",
       "name_one": "Jean-Pierre Yöndemli",
       "bib_number": 108,
-      "name_two": "Saskia Maria Skupin\nTSA d. TSG 1861 Grünstadt",
-      "affiliation": null,
+      "name_two": "Saskia Maria Skupin",
+      "affiliation": "TSA d. TSG 1861 Grünstadt",
       "final_rank": 78
     },
     {
       "identity_type": "Couple",
       "name_one": "Vicenc Torremade",
       "bib_number": 133,
-      "name_two": "Megija Dana Morite\nLatvia",
-      "affiliation": null,
+      "name_two": "Megija Dana Morite",
+      "affiliation": "Latvia",
       "final_rank": 4
     },
     {
       "identity_type": "Couple",
       "name_one": "Artur Balandin",
       "bib_number": 156,
-      "name_two": "Anna Salita\nT.T.C. Rot-Weiß-Silber Bochum",
-      "affiliation": null,
+      "name_two": "Anna Salita",
+      "affiliation": "T.T.C. Rot-Weiß-Silber Bochum",
       "final_rank": 2
     },
     {
       "identity_type": "Couple",
       "name_one": "Tomer Zveniatsky",
       "bib_number": 165,
-      "name_two": "Elizaveta Pustornakova\nIsrael",
-      "affiliation": null,
+      "name_two": "Elizaveta Pustornakova",
+      "affiliation": "Israel",
       "final_rank": 6
     },
     {
       "identity_type": "Couple",
       "name_one": "Goan Cox",
       "bib_number": 181,
-      "name_two": "Myrthe Wessels\nNetherlands",
-      "affiliation": null,
+      "name_two": "Myrthe Wessels",
+      "affiliation": "Netherlands",
       "final_rank": 66
     },
     {
       "identity_type": "Couple",
       "name_one": "Christian Deike",
       "bib_number": 183,
-      "name_two": "Patrycja Krohn\n1. TSZ im Turn-Klubb zu Hannover",
-      "affiliation": null,
+      "name_two": "Patrycja Krohn",
+      "affiliation": "1. TSZ im Turn-Klubb zu Hannover",
       "final_rank": 85
     },
     {
       "identity_type": "Couple",
       "name_one": "David Jenner",
       "bib_number": 192,
-      "name_two": "Elisabeth Tuigunov\nDie Residenz Münster",
-      "affiliation": null,
+      "name_two": "Elisabeth Tuigunov",
+      "affiliation": "Die Residenz Münster",
       "final_rank": 7
     },
     {
       "identity_type": "Couple",
       "name_one": "Sean Welton",
       "bib_number": 198,
-      "name_two": "Julia Klosa\nTSC Rot-Gold-Casino Nürnberg",
-      "affiliation": null,
+      "name_two": "Julia Klosa",
+      "affiliation": "TSC Rot-Gold-Casino Nürnberg",
       "final_rank": 68
     },
     {
       "identity_type": "Couple",
       "name_one": "Tang Chi Tung",
       "bib_number": 209,
-      "name_two": "Siu Cheuk Yin\nHong Kong, China",
-      "affiliation": null,
+      "name_two": "Siu Cheuk Yin",
+      "affiliation": "Hong Kong, China",
       "final_rank": 51
     },
     {
       "identity_type": "Couple",
       "name_one": "David Vestfrid",
       "bib_number": 225,
-      "name_two": "Christina Miller\nSV Saar 05 Tanzsport, Saarbrücken",
-      "affiliation": null,
+      "name_two": "Christina Miller",
+      "affiliation": "SV Saar 05 Tanzsport, Saarbrücken",
       "final_rank": 56
     },
     {
       "identity_type": "Couple",
       "name_one": "René Libera",
       "bib_number": 230,
-      "name_two": "Juline Carrel\nGrün-Gold-Club Bremen",
-      "affiliation": null,
+      "name_two": "Juline Carrel",
+      "affiliation": "Grün-Gold-Club Bremen",
       "final_rank": 15
     },
     {
       "identity_type": "Couple",
       "name_one": "Rytis Dzemyda",
       "bib_number": 256,
-      "name_two": "Klara Konecna\nCzechia",
-      "affiliation": null,
+      "name_two": "Klara Konecna",
+      "affiliation": "Czechia",
       "final_rank": 35
     },
     {
       "identity_type": "Couple",
       "name_one": "Maximilian Bier",
       "bib_number": 259,
-      "name_two": "Eveline Ishchenko\nSchwarz-Weiß-Club Pforzheim",
-      "affiliation": null,
+      "name_two": "Eveline Ishchenko",
+      "affiliation": "Schwarz-Weiß-Club Pforzheim",
       "final_rank": 24
     },
     {
       "identity_type": "Couple",
       "name_one": "Fynn Rumberg",
       "bib_number": 270,
-      "name_two": "Karina Bernien\nClub Céronne im ETV Hamburg",
-      "affiliation": null,
+      "name_two": "Karina Bernien",
+      "affiliation": "Club Céronne im ETV Hamburg",
       "final_rank": 73
     },
     {
       "identity_type": "Couple",
       "name_one": "Malthe Brinch Rohde",
       "bib_number": 284,
-      "name_two": "Sandra Sorensen\nDenmark",
-      "affiliation": null,
+      "name_two": "Sandra Sorensen",
+      "affiliation": "Denmark",
       "final_rank": 1
     },
     {
       "identity_type": "Couple",
       "name_one": "Eduardo Rizza",
       "bib_number": 296,
-      "name_two": "Calisson Goasdoue\nColombia",
-      "affiliation": null,
+      "name_two": "Calisson Goasdoue",
+      "affiliation": "Colombia",
       "final_rank": 49
     },
     {
       "identity_type": "Couple",
       "name_one": "William Weigle",
       "bib_number": 298,
-      "name_two": "Lisa Stopfer\nTSA d. TSG 1862 Weinheim",
-      "affiliation": null,
+      "name_two": "Lisa Stopfer",
+      "affiliation": "TSA d. TSG 1862 Weinheim",
       "final_rank": 77
     },
     {
       "identity_type": "Couple",
       "name_one": "Victor Selou",
       "bib_number": 301,
-      "name_two": "Lilou Mavillaz-Bois\nFrance",
-      "affiliation": null,
+      "name_two": "Lilou Mavillaz-Bois",
+      "affiliation": "France",
       "final_rank": 54
     },
     {
       "identity_type": "Couple",
       "name_one": "Demid Anisimov",
       "bib_number": 306,
-      "name_two": "Giuliana Domingues da Silva\nGrün-Gold-Club Bremen",
-      "affiliation": null,
+      "name_two": "Giuliana Domingues da Silva",
+      "affiliation": "Grün-Gold-Club Bremen",
       "final_rank": 10
     },
     {
       "identity_type": "Couple",
       "name_one": "Levin Haack",
       "bib_number": 309,
-      "name_two": "Lisa Tran\nTSG Bremerhaven",
-      "affiliation": null,
+      "name_two": "Lisa Tran",
+      "affiliation": "TSG Bremerhaven",
       "final_rank": 73
     },
     {
       "identity_type": "Couple",
       "name_one": "Kevin Baumann",
       "bib_number": 312,
-      "name_two": "Alisa Klemm\nSchwarz-Weiß-Club Pforzheim",
-      "affiliation": null,
+      "name_two": "Alisa Klemm",
+      "affiliation": "Schwarz-Weiß-Club Pforzheim",
       "final_rank": 49
     },
     {
       "identity_type": "Couple",
       "name_one": "Justin Lauer",
       "bib_number": 331,
-      "name_two": "Rita Schumichin\nTSC Saltatio Neustadt im TV 1860 Mußbach",
-      "affiliation": null,
+      "name_two": "Rita Schumichin",
+      "affiliation": "TSC Saltatio Neustadt im TV 1860 Mußbach",
       "final_rank": 12
     },
     {
       "identity_type": "Couple",
       "name_one": "Robin Till",
       "bib_number": 351,
-      "name_two": "Juliane Fellendorf\nRoyal Dance Remseck",
-      "affiliation": null,
+      "name_two": "Juliane Fellendorf",
+      "affiliation": "Royal Dance Remseck",
       "final_rank": 89
     },
     {
       "identity_type": "Couple",
       "name_one": "Wouter Jacobs",
       "bib_number": 353,
-      "name_two": "Iryna Gamova\nBelgium",
-      "affiliation": null,
+      "name_two": "Iryna Gamova",
+      "affiliation": "Belgium",
       "final_rank": 51
     },
     {
       "identity_type": "Couple",
       "name_one": "Markus Schmitz",
       "bib_number": 359,
-      "name_two": "Katharina Schlinke\nT.T.C. Rot-Weiß-Silber Bochum",
-      "affiliation": null,
+      "name_two": "Katharina Schlinke",
+      "affiliation": "T.T.C. Rot-Weiß-Silber Bochum",
       "final_rank": 71
     },
     {
       "identity_type": "Couple",
       "name_one": "Yochai Betser",
       "bib_number": 386,
-      "name_two": "Nora Isabelle Mergner\nTanzsportclub Trier",
-      "affiliation": null,
+      "name_two": "Nora Isabelle Mergner",
+      "affiliation": "Tanzsportclub Trier",
       "final_rank": 62
     },
     {
       "identity_type": "Couple",
       "name_one": "Denis Gudovsky",
       "bib_number": 395,
-      "name_two": "Marie Glistova\nCzechia",
-      "affiliation": null,
+      "name_two": "Marie Glistova",
+      "affiliation": "Czechia",
       "final_rank": 19
     },
     {
       "identity_type": "Couple",
       "name_one": "Serhii Vasyliev",
       "bib_number": 397,
-      "name_two": "Annalena Maria Roscher\nTSC Excelsior Dresden",
-      "affiliation": null,
+      "name_two": "Annalena Maria Roscher",
+      "affiliation": "TSC Excelsior Dresden",
       "final_rank": 33
     },
     {
       "identity_type": "Couple",
       "name_one": "Fabrice Beaumont",
       "bib_number": 401,
-      "name_two": "Mariami Koberidze\nClub Céronne im ETV Hamburg",
-      "affiliation": null,
+      "name_two": "Mariami Koberidze",
+      "affiliation": "Club Céronne im ETV Hamburg",
       "final_rank": 45
     },
     {
       "identity_type": "Couple",
       "name_one": "Lukas Witte",
       "bib_number": 404,
-      "name_two": "Marisa Iglesias den Haan\nGrün-Gold-Club Bremen",
-      "affiliation": null,
+      "name_two": "Marisa Iglesias den Haan",
+      "affiliation": "Grün-Gold-Club Bremen",
       "final_rank": 46
     },
     {
       "identity_type": "Couple",
       "name_one": "Loc Nguyen",
       "bib_number": 405,
-      "name_two": "Merle Lathwesen\nTSG Bremerhaven",
-      "affiliation": null,
+      "name_two": "Merle Lathwesen",
+      "affiliation": "TSG Bremerhaven",
       "final_rank": 59
     },
     {
       "identity_type": "Couple",
       "name_one": "Paul Maskow",
       "bib_number": 414,
-      "name_two": "Maria Bem\nTC Rot-Weiß Leipzig",
-      "affiliation": null,
+      "name_two": "Maria Bem",
+      "affiliation": "TC Rot-Weiß Leipzig",
       "final_rank": 78
     },
     {
       "identity_type": "Couple",
       "name_one": "Leonards Petkevics",
       "bib_number": 422,
-      "name_two": "Palina Kharchanka\nLatvia",
-      "affiliation": null,
+      "name_two": "Palina Kharchanka",
+      "affiliation": "Latvia",
       "final_rank": 25
     },
     {
       "identity_type": "Couple",
       "name_one": "Flavio Martins",
       "bib_number": 423,
-      "name_two": "Angelina Lesniak\nSwitzerland",
-      "affiliation": null,
+      "name_two": "Angelina Lesniak",
+      "affiliation": "Switzerland",
       "final_rank": 31
     },
     {
       "identity_type": "Couple",
       "name_one": "David Janzen",
       "bib_number": 463,
-      "name_two": "Yaroslava Sitenko\nTTC Fortis Nova Maintal",
-      "affiliation": null,
+      "name_two": "Yaroslava Sitenko",
+      "affiliation": "TTC Fortis Nova Maintal",
       "final_rank": 31
     },
     {
       "identity_type": "Couple",
       "name_one": "Dmytro Krestianinov",
       "bib_number": 468,
-      "name_two": "Emilia Montalvo\nGrün-Gold-Club Bremen",
-      "affiliation": null,
+      "name_two": "Emilia Montalvo",
+      "affiliation": "Grün-Gold-Club Bremen",
       "final_rank": 36
     },
     {
       "identity_type": "Couple",
       "name_one": "Florian Baudoux",
       "bib_number": 495,
-      "name_two": "Natalia Sadowska\nFrance",
-      "affiliation": null,
+      "name_two": "Natalia Sadowska",
+      "affiliation": "France",
       "final_rank": 14
     },
     {
       "identity_type": "Couple",
       "name_one": "Kacper Kopec",
       "bib_number": 510,
-      "name_two": "Magdalena Trepa\nAustria",
-      "affiliation": null,
+      "name_two": "Magdalena Trepa",
+      "affiliation": "Austria",
       "final_rank": 38
     },
     {
       "identity_type": "Couple",
       "name_one": "Hermann Seyffarth",
       "bib_number": 511,
-      "name_two": "Berenike Reech\nTC Rot-Weiß Leipzig",
-      "affiliation": null,
+      "name_two": "Berenike Reech",
+      "affiliation": "TC Rot-Weiß Leipzig",
       "final_rank": 46
     },
     {
       "identity_type": "Couple",
       "name_one": "Robin Prause",
       "bib_number": 515,
-      "name_two": "Alina Giersbeck\nTTC Fortis Nova Maintal",
-      "affiliation": null,
+      "name_two": "Alina Giersbeck",
+      "affiliation": "TTC Fortis Nova Maintal",
       "final_rank": 43
     },
     {
       "identity_type": "Couple",
       "name_one": "Lorenzo Bonzi",
       "bib_number": 519,
-      "name_two": "Cara Gabusi\nSan Marino",
-      "affiliation": null,
+      "name_two": "Cara Gabusi",
+      "affiliation": "San Marino",
       "final_rank": 29
     },
     {
       "identity_type": "Couple",
       "name_one": "Stefan Spirig",
       "bib_number": 521,
-      "name_two": "Antonina Marinova\nTTC Rot-Weiß Freiburg",
-      "affiliation": null,
+      "name_two": "Antonina Marinova",
+      "affiliation": "TTC Rot-Weiß Freiburg",
       "final_rank": 76
     },
     {
       "identity_type": "Couple",
       "name_one": "Yehor Boiko",
       "bib_number": 537,
-      "name_two": "Diana Stefania Banciu\nTC Rot-Weiß Kaiserslautern",
-      "affiliation": null,
+      "name_two": "Diana Stefania Banciu",
+      "affiliation": "TC Rot-Weiß Kaiserslautern",
       "final_rank": 43
     },
     {
       "identity_type": "Couple",
       "name_one": "Michael Treiterer",
       "bib_number": 538,
-      "name_two": "Anna-Lena Haeunke\nTSC Rot-Gold-Casino Nürnberg",
-      "affiliation": null,
+      "name_two": "Anna-Lena Haeunke",
+      "affiliation": "TSC Rot-Gold-Casino Nürnberg",
       "final_rank": 59
     },
     {
       "identity_type": "Couple",
       "name_one": "Sebastian Schmidt",
       "bib_number": 544,
-      "name_two": "Lisa Fuchs\nTSA d. TSG 1862 Weinheim",
-      "affiliation": null,
+      "name_two": "Lisa Fuchs",
+      "affiliation": "TSA d. TSG 1862 Weinheim",
       "final_rank": 78
     },
     {
       "identity_type": "Couple",
       "name_one": "Tomasz Ruszkowski",
       "bib_number": 561,
-      "name_two": "Maria Latos\nPoland",
-      "affiliation": null,
+      "name_two": "Maria Latos",
+      "affiliation": "Poland",
       "final_rank": 11
     },
     {
       "identity_type": "Couple",
       "name_one": "Gregor Kralik",
       "bib_number": 570,
-      "name_two": "Pavlina Belava\nSlovak Republic",
-      "affiliation": null,
+      "name_two": "Pavlina Belava",
+      "affiliation": "Slovak Republic",
       "final_rank": 28
     },
     {
       "identity_type": "Couple",
       "name_one": "Robin Goldmann",
       "bib_number": 590,
-      "name_two": "Stefani Ruseva\nBulgaria",
-      "affiliation": null,
+      "name_two": "Stefani Ruseva",
+      "affiliation": "Bulgaria",
       "final_rank": 16
     },
     {
       "identity_type": "Couple",
       "name_one": "Sander Daamen",
       "bib_number": 598,
-      "name_two": "Anna Tovmasyan\nNetherlands",
-      "affiliation": null,
+      "name_two": "Anna Tovmasyan",
+      "affiliation": "Netherlands",
       "final_rank": 23
     },
     {
       "identity_type": "Couple",
       "name_one": "Markus Winter",
       "bib_number": 623,
-      "name_two": "Lena Hofmeier\nTanzsportakademie Ludwigsburg",
-      "affiliation": null,
+      "name_two": "Lena Hofmeier",
+      "affiliation": "Tanzsportakademie Ludwigsburg",
       "final_rank": 92
     },
     {
       "identity_type": "Couple",
       "name_one": "David Stark",
       "bib_number": 631,
-      "name_two": "Naomi Stark\nBlau-Silber Berlin Tanzsportclub",
-      "affiliation": null,
+      "name_two": "Naomi Stark",
+      "affiliation": "Blau-Silber Berlin Tanzsportclub",
       "final_rank": 62
     },
     {
       "identity_type": "Couple",
       "name_one": "Jason Vissers",
       "bib_number": 643,
-      "name_two": "Liesa Van Kerkhoven\nTD Tanzsportclub Düsseldorf Rot-Weiß",
-      "affiliation": null,
+      "name_two": "Liesa Van Kerkhoven",
+      "affiliation": "TD Tanzsportclub Düsseldorf Rot-Weiß",
       "final_rank": 68
     },
     {
       "identity_type": "Couple",
       "name_one": "David Nils Schwake",
       "bib_number": 656,
-      "name_two": "Elise Schinagl\nTC Rot-Weiss Casino Mainz",
-      "affiliation": null,
+      "name_two": "Elise Schinagl",
+      "affiliation": "TC Rot-Weiss Casino Mainz",
       "final_rank": 92
     },
     {
       "identity_type": "Couple",
       "name_one": "Moritz Thede",
       "bib_number": 673,
-      "name_two": "Camilla Seidenzahl\nTSC Excelsior Dresden",
-      "affiliation": null,
+      "name_two": "Camilla Seidenzahl",
+      "affiliation": "TSC Excelsior Dresden",
       "final_rank": 59
     },
     {
       "identity_type": "Couple",
       "name_one": "Matthias Bergler",
       "bib_number": 682,
-      "name_two": "Stefani Weizel\nTSC Rot-Gold-Casino Nürnberg",
-      "affiliation": null,
+      "name_two": "Stefani Weizel",
+      "affiliation": "TSC Rot-Gold-Casino Nürnberg",
       "final_rank": 85
     },
     {
       "identity_type": "Couple",
       "name_one": "Phillip Diaz",
       "bib_number": 683,
-      "name_two": "Lilli Retzbach\nTC Rot-Weiß Leipzig",
-      "affiliation": null,
+      "name_two": "Lilli Retzbach",
+      "affiliation": "TC Rot-Weiß Leipzig",
       "final_rank": 54
     },
     {
       "identity_type": "Couple",
       "name_one": "Özgün Dogan",
       "bib_number": 717,
-      "name_two": "Viktoriia Komarnytska\nTSA d. 1. SC Norderstedt",
-      "affiliation": null,
+      "name_two": "Viktoriia Komarnytska",
+      "affiliation": "TSA d. 1. SC Norderstedt",
       "final_rank": 46
     },
     {
       "identity_type": "Couple",
       "name_one": "Augustinas Trinkus",
       "bib_number": 722,
-      "name_two": "Beatrice Rupslaukyte\nLithuania",
-      "affiliation": null,
+      "name_two": "Beatrice Rupslaukyte",
+      "affiliation": "Lithuania",
       "final_rank": 17
     },
     {
       "identity_type": "Couple",
       "name_one": "Alexander Schrammer",
       "bib_number": 731,
-      "name_two": "Sandina Kecap\n1. TC Ludwigsburg",
-      "affiliation": null,
+      "name_two": "Sandina Kecap",
+      "affiliation": "1. TC Ludwigsburg",
       "final_rank": 73
     },
     {
       "identity_type": "Couple",
       "name_one": "Marvin Ochs",
       "bib_number": 733,
-      "name_two": "Jule Stellrecht\nTC Blau-Orange Wiesbaden",
-      "affiliation": null,
+      "name_two": "Jule Stellrecht",
+      "affiliation": "TC Blau-Orange Wiesbaden",
       "final_rank": 38
     },
     {
       "identity_type": "Couple",
       "name_one": "Daniel Siebrecht",
       "bib_number": 749,
-      "name_two": "Valeria Mast\nSchwarz-Weiß-Club Pforzheim",
-      "affiliation": null,
+      "name_two": "Valeria Mast",
+      "affiliation": "Schwarz-Weiß-Club Pforzheim",
       "final_rank": 78
     },
     {
       "identity_type": "Couple",
       "name_one": "Jeroen Schlief",
       "bib_number": 753,
-      "name_two": "Esmé Rijndertse\nNetherlands",
-      "affiliation": null,
+      "name_two": "Esmé Rijndertse",
+      "affiliation": "Netherlands",
       "final_rank": 84
     },
     {
       "identity_type": "Couple",
       "name_one": "Paul Thorwarth",
       "bib_number": 787,
-      "name_two": "Zorka Kozma\nTSC dancepoint, Königsbrunn",
-      "affiliation": null,
+      "name_two": "Zorka Kozma",
+      "affiliation": "TSC dancepoint, Königsbrunn",
       "final_rank": 66
     },
     {
       "identity_type": "Couple",
       "name_one": "Daniel Dingis",
       "bib_number": 791,
-      "name_two": "Alessia-Allegra Gigli\nGrün-Gold-Club Bremen",
-      "affiliation": null,
+      "name_two": "Alessia-Allegra Gigli",
+      "affiliation": "Grün-Gold-Club Bremen",
       "final_rank": 3
     },
     {
       "identity_type": "Couple",
       "name_one": "Marcel Hammrich",
       "bib_number": 804,
-      "name_two": "Mariia Kuchynska\nTC Blau-Orange Wiesbaden",
-      "affiliation": null,
+      "name_two": "Mariia Kuchynska",
+      "affiliation": "TC Blau-Orange Wiesbaden",
       "final_rank": 38
     },
     {
       "identity_type": "Couple",
       "name_one": "Alessandro Piccato",
       "bib_number": 820,
-      "name_two": "Rachele Simonini\nItaly",
-      "affiliation": null,
+      "name_two": "Rachele Simonini",
+      "affiliation": "Italy",
       "final_rank": 30
     },
     {
       "identity_type": "Couple",
       "name_one": "Maksym Darii",
       "bib_number": 830,
-      "name_two": "Sophie Kondratenko\nTSC Rot-Gold-Casino Nürnberg",
-      "affiliation": null,
+      "name_two": "Sophie Kondratenko",
+      "affiliation": "TSC Rot-Gold-Casino Nürnberg",
       "final_rank": 51
     },
     {
       "identity_type": "Couple",
       "name_one": "Mihai Pruna",
       "bib_number": 838,
-      "name_two": "Lisa Damen\nNetherlands",
-      "affiliation": null,
+      "name_two": "Lisa Damen",
+      "affiliation": "Netherlands",
       "final_rank": 33
     },
     {
       "identity_type": "Couple",
       "name_one": "Leo Werner",
       "bib_number": 841,
-      "name_two": "Fabienne Kirchgeßner\nTC Rot-Weiss Casino Mainz",
-      "affiliation": null,
+      "name_two": "Fabienne Kirchgeßner",
+      "affiliation": "TC Rot-Weiss Casino Mainz",
       "final_rank": 85
     },
     {
       "identity_type": "Couple",
       "name_one": "Viktor Tsanev",
       "bib_number": 843,
-      "name_two": "Patricia Dahl Engelund Kristensen\nDenmark",
-      "affiliation": null,
+      "name_two": "Patricia Dahl Engelund Kristensen",
+      "affiliation": "Denmark",
       "final_rank": 56
     },
     {
       "identity_type": "Couple",
       "name_one": "Vitalii Zakharov",
       "bib_number": 851,
-      "name_two": "Tabea Louisa Thaler\nTC Blau-Orange Wiesbaden",
-      "affiliation": null,
+      "name_two": "Tabea Louisa Thaler",
+      "affiliation": "TC Blau-Orange Wiesbaden",
       "final_rank": 8
     },
     {
       "identity_type": "Couple",
       "name_one": "Ondrej Vokurka",
       "bib_number": 852,
-      "name_two": "Julie Pribylova\nCzechia",
-      "affiliation": null,
+      "name_two": "Julie Pribylova",
+      "affiliation": "Czechia",
       "final_rank": 22
     },
     {
       "identity_type": "Couple",
       "name_one": "Vinzenz Dörlitz",
       "bib_number": 860,
-      "name_two": "Albena Daskalova\nTD Tanzsportclub Düsseldorf Rot-Weiß",
-      "affiliation": null,
+      "name_two": "Albena Daskalova",
+      "affiliation": "TD Tanzsportclub Düsseldorf Rot-Weiß",
       "final_rank": 9
     },
     {
       "identity_type": "Couple",
       "name_one": "Philip Andraus",
       "bib_number": 861,
-      "name_two": "Ekaterina Tsvetkova\nTTC Fortis Nova Maintal",
-      "affiliation": null,
+      "name_two": "Ekaterina Tsvetkova",
+      "affiliation": "TTC Fortis Nova Maintal",
       "final_rank": 21
     },
     {
       "identity_type": "Couple",
       "name_one": "Jupin Asefi",
       "bib_number": 883,
-      "name_two": "Nejla Durakovic\nTanzsport Zentrum Heusenstamm",
-      "affiliation": null,
+      "name_two": "Nejla Durakovic",
+      "affiliation": "Tanzsport Zentrum Heusenstamm",
       "final_rank": 71
     },
     {
       "identity_type": "Couple",
       "name_one": "Daniel Schmuck",
       "bib_number": 897,
-      "name_two": "Irina Tudorache\nTSC Rot-Gold-Casino Nürnberg",
-      "affiliation": null,
+      "name_two": "Irina Tudorache",
+      "affiliation": "TSC Rot-Gold-Casino Nürnberg",
       "final_rank": 13
     },
     {
       "identity_type": "Couple",
       "name_one": "Mikita Senin",
       "bib_number": 898,
-      "name_two": "Michele Mühlig\nBielefelder TC Metropol",
-      "affiliation": null,
+      "name_two": "Michele Mühlig",
+      "affiliation": "Bielefelder TC Metropol",
       "final_rank": 36
     },
     {
       "identity_type": "Couple",
       "name_one": "Yung Gwan Michael Alexander Han",
       "bib_number": 900,
-      "name_two": "Daniele Salaseviciute\nNetherlands",
-      "affiliation": null,
+      "name_two": "Daniele Salaseviciute",
+      "affiliation": "Netherlands",
       "final_rank": 58
     },
     {
       "identity_type": "Couple",
       "name_one": "Paul Josef Wilke",
       "bib_number": 911,
-      "name_two": "Liv Jaane Memmert\nTanzen in Kiel",
-      "affiliation": null,
+      "name_two": "Liv Jaane Memmert",
+      "affiliation": "Tanzen in Kiel",
       "final_rank": 85
     },
     {
       "identity_type": "Couple",
       "name_one": "Karim Moawad",
       "bib_number": 930,
-      "name_two": "Svenja Birke\nAhorn Club, TSA im Polizei-SV Berlin",
-      "affiliation": null,
+      "name_two": "Svenja Birke",
+      "affiliation": "Ahorn Club, TSA im Polizei-SV Berlin",
       "final_rank": 82
     },
     {
       "identity_type": "Couple",
       "name_one": "Tim Gebhardt",
       "bib_number": 932,
-      "name_two": "Renata Gushchina\nTSC Rot-Gold-Casino Nürnberg",
-      "affiliation": null,
+      "name_two": "Renata Gushchina",
+      "affiliation": "TSC Rot-Gold-Casino Nürnberg",
       "final_rank": 82
     },
     {
       "identity_type": "Couple",
       "name_one": "Rostyslav Ridnyy",
       "bib_number": 933,
-      "name_two": "Sofiia Kapustina\nUkraine",
-      "affiliation": null,
+      "name_two": "Sofiia Kapustina",
+      "affiliation": "Ukraine",
       "final_rank": 26
     },
     {
       "identity_type": "Couple",
       "name_one": "Danila Sitovs",
       "bib_number": 936,
-      "name_two": "Sofiia Chernikova\nGrün-Gold-Club Bremen",
-      "affiliation": null,
+      "name_two": "Sofiia Chernikova",
+      "affiliation": "Grün-Gold-Club Bremen",
       "final_rank": 18
     },
     {
       "identity_type": "Couple",
       "name_one": "Bruno Schuttelaars",
       "bib_number": 948,
-      "name_two": "Anastasia Sazonova\nNetherlands",
-      "affiliation": null,
+      "name_two": "Anastasia Sazonova",
+      "affiliation": "Netherlands",
       "final_rank": 91
     },
     {
       "identity_type": "Couple",
       "name_one": "Esa-Petter Osterman",
       "bib_number": 952,
-      "name_two": "Aada Nurmi\nFinland",
-      "affiliation": null,
+      "name_two": "Aada Nurmi",
+      "affiliation": "Finland",
       "final_rank": 62
     },
     {
       "identity_type": "Couple",
       "name_one": "Jens Kothe",
       "bib_number": 955,
-      "name_two": "Vanessa Gergert\nTanzsportzentrum Stuttgart-Feuerbach",
-      "affiliation": null,
+      "name_two": "Vanessa Gergert",
+      "affiliation": "Tanzsportzentrum Stuttgart-Feuerbach",
       "final_rank": 68
     },
     {
       "identity_type": "Couple",
       "name_one": "Egor Kondratenko",
       "bib_number": 965,
-      "name_two": "Mie Lincke Funch\nDenmark",
-      "affiliation": null,
+      "name_two": "Mie Lincke Funch",
+      "affiliation": "Denmark",
       "final_rank": 5
     },
     {
       "identity_type": "Couple",
       "name_one": "Dmitrij Golub",
       "bib_number": 966,
-      "name_two": "Daria Nikuliak\nT.T.C. Rot-Weiß-Silber Bochum",
-      "affiliation": null,
+      "name_two": "Daria Nikuliak",
+      "affiliation": "T.T.C. Rot-Weiß-Silber Bochum",
       "final_rank": 38
     },
     {
       "identity_type": "Couple",
       "name_one": "Giovanni Scalici",
       "bib_number": 969,
-      "name_two": "Nataliia Gorovenko\nRoyal Dance Remseck",
-      "affiliation": null,
+      "name_two": "Nataliia Gorovenko",
+      "affiliation": "Royal Dance Remseck",
       "final_rank": 62
     },
     {
       "identity_type": "Couple",
       "name_one": "Roman Stradetskiy",
       "bib_number": 971,
-      "name_two": "Kateryna Vakarchuk\nUkraine",
-      "affiliation": null,
+      "name_two": "Kateryna Vakarchuk",
+      "affiliation": "Ukraine",
       "final_rank": 26
     },
     {
       "identity_type": "Couple",
       "name_one": "Stefan Scichilone",
       "bib_number": 972,
-      "name_two": "Viktoria Kiesel\nAustria",
-      "affiliation": null,
+      "name_two": "Viktoria Kiesel",
+      "affiliation": "Austria",
       "final_rank": 38
     },
     {
       "identity_type": "Couple",
       "name_one": "Lars Starbaty",
       "bib_number": 997,
-      "name_two": "Laura Salama\nTSA d. TSG 1862 Weinheim",
-      "affiliation": null,
+      "name_two": "Laura Salama",
+      "affiliation": "TSA d. TSG 1862 Weinheim",
       "final_rank": 89
     },
     {
       "identity_type": "Couple",
       "name_one": "Mark Polishchuk",
       "bib_number": 1431,
-      "name_two": "Domenica Erontschenko\nGermany",
-      "affiliation": null,
+      "name_two": "Domenica Erontschenko",
+      "affiliation": "Germany",
       "final_rank": 19
     }
   ],
