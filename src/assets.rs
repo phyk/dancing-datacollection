@@ -174,8 +174,8 @@ pub const HOSTING_CLUB_MARKERS: &[&str] = &["Ausrichter", "Hosting club", "Hosti
 pub const SELECTOR_META_AUTHOR: &str = "meta[name='Author'], meta[name='author']";
 pub const SELECTOR_EVENT_HEAD: &str = ".eventhead td";
 pub const SELECTOR_COMP_HEAD: &str = ".comphead";
-pub const SELECTOR_PARTICIPANT_RANK: &str = "td.td3r, td.td3c";
-pub const SELECTOR_PARTICIPANT_DATA: &str = "td.td2c, td.td5, td.td6";
+pub const SELECTOR_PARTICIPANT_RANK: &str = "td.td3r, td.td3c, td.td3cv";
+pub const SELECTOR_PARTICIPANT_DATA: &str = "td.td2c, td.td5, td.td6, td.td2cv, td.td5v, td.td6v";
 pub const SELECTOR_ROUND_NAME: &str = ".comphead, h2, td.td1";
 pub const SELECTOR_OFFICIAL_ROLE: &str = "td.td2, td.td2r";
 pub const SELECTOR_OFFICIAL_DATA: &str = "td.td5";
@@ -199,7 +199,7 @@ pub const RANK_COLUMN_MARKERS: &[&str] = &["pl.", "platz", "rank", "platz von", 
 pub const SUM_COLUMN_MARKERS: &[&str] = &["su", "summe", "total", "pz", "sum", "total"];
 pub const ROUND_COLUMN_MARKERS: &[&str] = &["r", "round", "runde"];
 pub const PARTICIPANT_MARKERS: &[&str] =
-    &["teilnehmer", "participant", "no. of participants", "country"];
+    &["teilnehmer", "participant", "no. of participants", "country", "paar"];
 pub const QUALIFICATION_MARKERS: &[&str] =
     &["result of", "qualified for", "ergebnis", "qualifiziert"];
 pub const LEVEL_S_MARKERS: &[&str] = &["WDSF", "OPEN"];
