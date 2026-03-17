@@ -97,7 +97,10 @@ pub const LEVEL_MAPPINGS: &[(&str, Level)] = &[
 
 pub const ROLE_MAPPINGS: &[(&str, &str)] = &[
     ("Turnierleiter", "responsible_person"),
+    ("Master of Ceremony", "responsible_person"),
     ("Beisitzer", "assistant"),
+    ("Chairperson", "assistant"),
+    ("Protokoll", "assistant"),
 ];
 
 pub const MONTH_MAPPINGS: &[(&str, u32)] = &[
