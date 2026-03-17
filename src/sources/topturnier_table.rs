@@ -74,7 +74,7 @@ pub fn extract_text(el: ElementRef) -> String {
             if name == "br" {
                 text.push('\n');
             } else if element.value().attr("class").is_some_and(|c| {
-                c.contains("tooltip")
+                c.contains("tooltip") && !c.contains("tooltipnar")
             }) {
                 continue;
             } else {
@@ -131,6 +131,14 @@ pub fn identify_columns(grid: &TableGrid) -> Vec<ColumnType> {
             let val = &grid.rows[r][c];
             if val.is_empty() { continue; }
 
+            let ds = crate::i18n::parse_dances_no_fallback(val);
+            if !ds.is_empty() {
+                col_dances[c] = Some(ds[0]);
+                continue;
+            }
+
+            if col_dances[c].is_some() { continue; }
+
             if crate::i18n::is_rank_column_marker(val) {
                 col_types[c] = ColumnType::Rank;
             } else if crate::i18n::is_participant_marker(val) {
@@ -141,11 +149,6 @@ pub fn identify_columns(grid: &TableGrid) -> Vec<ColumnType> {
                 col_types[c] = ColumnType::Round;
             } else if crate::i18n::is_sum_column_marker(val) {
                 col_types[c] = ColumnType::Sum;
-            } else {
-                let ds = crate::i18n::parse_dances_no_fallback(val);
-                if !ds.is_empty() {
-                    col_dances[c] = Some(ds[0]);
-                }
             }
         }
     }
@@ -290,7 +293,7 @@ pub fn to_rounds(intermediate: Vec<IntermediateResult>, dances: &[Dance], offici
     for res in &intermediate {
         for (round_id, marks) in &res.marks_by_round {
             let round_name = crate::i18n::get_round_name_from_id(round_id);
-            if marks.iter().any(|m| crate::i18n::map_wdsf_score_type(&m.value).is_some()) {
+            if marks.iter().any(|m| !crate::i18n::map_wdsf_score_type(&m.value).is_empty()) {
                 round_types.insert(round_name, true);
             }
         }
@@ -368,7 +371,8 @@ pub fn to_rounds(intermediate: Vec<IntermediateResult>, dances: &[Dance], offici
                             let sc: Vec<f64> = RE_SCORE.find_iter(&mark.value)
                                 .filter_map(|m| m.as_str().replace(',', ".").parse().ok())
                                 .collect();
-                            if !sc.is_empty() {
+                            let score_types = crate::i18n::map_wdsf_score_type(&mark.value);
+                            if !sc.is_empty() && !score_types.is_empty() {
                                 let s = wdsf_scores.entry(judge).or_default()
                                     .entry(res.bib).or_default()
                                     .entry(mark.dance).or_insert_with(|| WDSFScore {
@@ -379,13 +383,20 @@ pub fn to_rounds(intermediate: Vec<IntermediateResult>, dances: &[Dance], offici
                                         total: 0.0,
                                     });
 
-                                if let Some(score_type) = crate::i18n::map_wdsf_score_type(&mark.value) {
-                                    match score_type {
-                                        "technical_quality" => s.technical_quality = sc[0],
-                                        "movement_to_music" => s.movement_to_music = sc[0],
-                                        "partnering_skills" => s.partnering_skills = *sc.last().unwrap(),
-                                        "choreography" => s.choreography = *sc.last().unwrap(),
-                                        "total" => s.total = sc[0],
+                                for (i, st) in score_types.iter().enumerate() {
+                                    let val = if sc.len() == score_types.len() {
+                                        sc[i]
+                                    } else if sc.len() > i {
+                                        sc[i]
+                                    } else {
+                                        sc[0]
+                                    };
+                                    match *st {
+                                        "technical_quality" => s.technical_quality = val,
+                                        "movement_to_music" => s.movement_to_music = val,
+                                        "partnering_skills" => s.partnering_skills = val,
+                                        "choreography" => s.choreography = val,
+                                        "total" => s.total = val,
                                         _ => {}
                                     }
                                 }

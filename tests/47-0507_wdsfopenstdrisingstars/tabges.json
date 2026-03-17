@@ -658,11 +658,13 @@
           "134": {
             "SlowWaltz": true,
             "Tango": true,
+            "SlowFoxtrot": true,
             "Quickstep": true
           },
           "159": {
             "SlowWaltz": true,
             "Tango": true,
+            "SlowFoxtrot": true,
             "Quickstep": true
           },
           "188": {
@@ -687,6 +689,7 @@
           "299": {
             "SlowWaltz": true,
             "Tango": true,
+            "SlowFoxtrot": true,
             "Quickstep": true
           },
           "301": {
@@ -697,6 +700,7 @@
           "302": {
             "SlowWaltz": true,
             "Tango": true,
+            "SlowFoxtrot": true,
             "Quickstep": true
           },
           "303": {
@@ -710,6 +714,7 @@
           "337": {
             "SlowWaltz": true,
             "Tango": true,
+            "SlowFoxtrot": true,
             "Quickstep": true
           },
           "349": {
@@ -729,6 +734,7 @@
           },
           "376": {
             "SlowWaltz": true,
+            "Tango": true,
             "Quickstep": true
           },
           "392": {
@@ -738,6 +744,7 @@
           "426": {
             "SlowWaltz": true,
             "Tango": true,
+            "SlowFoxtrot": true,
             "Quickstep": true
           },
           "430": {
@@ -760,11 +767,13 @@
           "460": {
             "SlowWaltz": true,
             "Tango": true,
+            "SlowFoxtrot": true,
             "Quickstep": true
           },
           "461": {
             "SlowWaltz": true,
             "Tango": true,
+            "SlowFoxtrot": true,
             "Quickstep": true
           },
           "478": {
@@ -773,16 +782,19 @@
           "496": {
             "SlowWaltz": true,
             "Tango": true,
+            "SlowFoxtrot": true,
             "Quickstep": true
           },
           "554": {
             "SlowWaltz": true,
             "Tango": true,
+            "SlowFoxtrot": true,
             "Quickstep": true
           },
           "567": {
             "SlowWaltz": true,
             "Tango": true,
+            "SlowFoxtrot": true,
             "Quickstep": true
           },
           "574": {
@@ -801,6 +813,7 @@
           "632": {
             "SlowWaltz": true,
             "Tango": true,
+            "SlowFoxtrot": true,
             "Quickstep": true
           },
           "663": {
@@ -819,11 +832,13 @@
           "720": {
             "SlowWaltz": true,
             "Tango": true,
+            "SlowFoxtrot": true,
             "Quickstep": true
           },
           "729": {
             "SlowWaltz": true,
             "Tango": true,
+            "SlowFoxtrot": true,
             "Quickstep": true
           },
           "737": {
@@ -839,6 +854,7 @@
           "750": {
             "SlowWaltz": true,
             "Tango": true,
+            "SlowFoxtrot": true,
             "Quickstep": true
           },
           "753": {
@@ -846,6 +862,7 @@
           },
           "768": {
             "SlowWaltz": true,
+            "SlowFoxtrot": true,
             "Quickstep": true
           },
           "781": {
@@ -869,6 +886,7 @@
           "828": {
             "SlowWaltz": true,
             "Tango": true,
+            "SlowFoxtrot": true,
             "Quickstep": true
           },
           "847": {
@@ -887,6 +905,7 @@
           "867": {
             "SlowWaltz": true,
             "Tango": true,
+            "SlowFoxtrot": true,
             "Quickstep": true
           },
           "903": {
@@ -897,6 +916,7 @@
           "968": {
             "SlowWaltz": true,
             "Tango": true,
+            "SlowFoxtrot": true,
             "Quickstep": true
           }
         },
@@ -916,11 +936,13 @@
           "134": {
             "SlowWaltz": true,
             "Tango": true,
+            "SlowFoxtrot": false,
             "Quickstep": true
           },
           "159": {
             "SlowWaltz": true,
             "Tango": true,
+            "SlowFoxtrot": false,
             "Quickstep": false
           },
           "188": {
@@ -946,6 +968,7 @@
           "299": {
             "SlowWaltz": true,
             "Tango": true,
+            "SlowFoxtrot": true,
             "Quickstep": true
           },
           "301": {
@@ -956,6 +979,7 @@
           "302": {
             "SlowWaltz": true,
             "Tango": true,
+            "SlowFoxtrot": false,
             "Quickstep": true
           },
           "303": {
@@ -971,6 +995,7 @@
           "337": {
             "SlowWaltz": true,
             "Tango": true,
+            "SlowFoxtrot": false,
             "Quickstep": true
           },
           "349": {
@@ -994,12 +1019,13 @@
             "Quickstep": true
           },
           "392": {
-            "SlowWaltz": true,
+            "SlowWaltz": false,
             "Quickstep": true
           },
           "426": {
             "SlowWaltz": true,
             "Tango": true,
+            "SlowFoxtrot": false,
             "Quickstep": true
           },
           "430": {
@@ -1024,11 +1050,13 @@
           "460": {
             "SlowWaltz": true,
             "Tango": true,
+            "SlowFoxtrot": true,
             "Quickstep": true
           },
           "461": {
             "SlowWaltz": true,
             "Tango": true,
+            "SlowFoxtrot": false,
             "Quickstep": true
           },
           "478": {
@@ -1038,16 +1066,19 @@
           "496": {
             "SlowWaltz": true,
             "Tango": true,
+            "SlowFoxtrot": false,
             "Quickstep": false
           },
           "554": {
             "SlowWaltz": true,
             "Tango": true,
+            "SlowFoxtrot": true,
             "Quickstep": true
           },
           "567": {
             "SlowWaltz": true,
             "Tango": true,
+            "SlowFoxtrot": true,
             "Quickstep": true
           },
           "602": {
@@ -1062,6 +1093,7 @@
           "632": {
             "SlowWaltz": true,
             "Tango": true,
+            "SlowFoxtrot": false,
             "Quickstep": true
           },
           "663": {
@@ -1080,11 +1112,13 @@
           "720": {
             "SlowWaltz": true,
             "Tango": true,
+            "SlowFoxtrot": false,
             "Quickstep": true
           },
           "729": {
             "SlowWaltz": true,
             "Tango": true,
+            "SlowFoxtrot": true,
             "Quickstep": true
           },
           "737": {
@@ -1099,6 +1133,7 @@
           "750": {
             "SlowWaltz": true,
             "Tango": true,
+            "SlowFoxtrot": true,
             "Quickstep": true
           },
           "753": {
@@ -1109,6 +1144,7 @@
           "768": {
             "SlowWaltz": true,
             "Tango": true,
+            "SlowFoxtrot": true,
             "Quickstep": true
           },
           "781": {
@@ -1131,6 +1167,7 @@
           "828": {
             "SlowWaltz": true,
             "Tango": true,
+            "SlowFoxtrot": false,
             "Quickstep": false
           },
           "847": {
@@ -1149,6 +1186,7 @@
           "867": {
             "SlowWaltz": true,
             "Tango": true,
+            "SlowFoxtrot": false,
             "Quickstep": false
           },
           "903": {
@@ -1158,6 +1196,7 @@
           "968": {
             "SlowWaltz": true,
             "Tango": true,
+            "SlowFoxtrot": true,
             "Quickstep": true
           }
         },
@@ -3420,6 +3459,7 @@
           },
           "461": {
             "SlowWaltz": true,
+            "SlowFoxtrot": true,
             "Quickstep": true
           },
           "496": {
@@ -3617,7 +3657,7 @@
             "Quickstep": true
           },
           "426": {
-            "SlowWaltz": true,
+            "SlowWaltz": false,
             "Tango": true,
             "SlowFoxtrot": true,
             "Quickstep": true
@@ -3659,6 +3699,7 @@
             "Quickstep": true
           },
           "567": {
+            "SlowWaltz": false,
             "Tango": true,
             "SlowFoxtrot": true,
             "Quickstep": true
@@ -3724,7 +3765,7 @@
             "Quickstep": false
           },
           "821": {
-            "SlowWaltz": true,
+            "SlowWaltz": false,
             "Tango": true,
             "SlowFoxtrot": true,
             "Quickstep": true
@@ -5328,6 +5369,7 @@
           },
           "241": {
             "SlowWaltz": true,
+            "Tango": true,
             "SlowFoxtrot": true,
             "Quickstep": true
           },
@@ -5391,6 +5433,7 @@
             "Quickstep": true
           },
           "750": {
+            "SlowWaltz": true,
             "Quickstep": true
           },
           "780": {
@@ -5447,6 +5490,7 @@
           },
           "460": {
             "SlowWaltz": true,
+            "SlowFoxtrot": false,
             "Quickstep": true
           },
           "461": {
@@ -5493,6 +5537,7 @@
             "Quickstep": true
           },
           "750": {
+            "SlowWaltz": false,
             "Tango": true,
             "Quickstep": true
           },

@@ -285,12 +285,15 @@ pub fn is_qualification_marker(s: &str) -> bool {
     QUALIFICATION_MARKERS.iter().any(|&m| lower.contains(m))
 }
 
-pub fn map_wdsf_score_type(line: &str) -> Option<&'static str> {
+pub fn map_wdsf_score_type(line: &str) -> Vec<&'static str> {
     let lower = line.to_lowercase();
-    WDSF_SCORE_TYPES
-        .iter()
-        .find(|&&(marker, _)| lower.contains(marker))
-        .map(|&(_, id)| id)
+    let mut results = Vec::new();
+    for &(marker, id) in WDSF_SCORE_TYPES {
+        if lower.contains(marker) {
+            results.push(id);
+        }
+    }
+    results
 }
 
 pub fn clean_competition_title(title: &str) -> String {
