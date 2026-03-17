@@ -209,9 +209,9 @@ impl Scraper {
             self.save_file(target_dir, filename, &html_content)?;
         }
 
-        // Now download related files: erg.htm, deck.htm, tabges.htm, ergwert.htm
+        // Now download related files: deck.htm, ergwert.htm
         let base_url = Url::parse(url_str)?;
-        let related_files = vec!["erg.htm", "deck.htm", "tabges.htm", "ergwert.htm"];
+        let related_files = vec!["deck.htm", "ergwert.htm"];
 
         for rel_file in related_files {
             let rel_url = base_url.join(rel_file)?;

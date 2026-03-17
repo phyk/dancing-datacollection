@@ -66,56 +66,56 @@
       "identity_type": "Couple",
       "name_one": "Henning Hartmann gen. Schulte",
       "bib_number": 203,
-      "name_two": "Nadja Hartwig",
-      "affiliation": "Grün-Gold TTC Herford",
+      "name_two": "Nadja Hartwig\nGrün-Gold TTC Herford",
+      "affiliation": null,
       "final_rank": 2
     },
     {
       "identity_type": "Couple",
       "name_one": "Thomas May",
       "bib_number": 808,
-      "name_two": "Manuela Frobenius",
-      "affiliation": "TSA d. Braunschweiger MTV von 1847",
+      "name_two": "Manuela Frobenius\nTSA d. Braunschweiger MTV von 1847",
+      "affiliation": null,
       "final_rank": 7
     },
     {
       "identity_type": "Couple",
       "name_one": "Amin Jean Bredimus",
       "bib_number": 1060,
-      "name_two": "Inna Guerassimenko",
-      "affiliation": "Tanzsportclub Trier",
+      "name_two": "Inna Guerassimenko\nTanzsportclub Trier",
+      "affiliation": null,
       "final_rank": 5
     },
     {
       "identity_type": "Couple",
       "name_one": "Falk Heinig",
       "bib_number": 1151,
-      "name_two": "Verena Sommerer",
-      "affiliation": "Gelb-Schwarz-Casino München",
+      "name_two": "Verena Sommerer\nGelb-Schwarz-Casino München",
+      "affiliation": null,
       "final_rank": 1
     },
     {
       "identity_type": "Couple",
       "name_one": "Marcel Dörr",
       "bib_number": 1216,
-      "name_two": "Maria Fink",
-      "affiliation": "VTG Grün-Gold Recklinghausen",
+      "name_two": "Maria Fink\nVTG Grün-Gold Recklinghausen",
+      "affiliation": null,
       "final_rank": 3
     },
     {
       "identity_type": "Couple",
       "name_one": "Dominik Flechsig",
       "bib_number": 1272,
-      "name_two": "Christin Druwen",
-      "affiliation": "Tanz-Sport-Gemeinschaft Hamm",
+      "name_two": "Christin Druwen\nTanz-Sport-Gemeinschaft Hamm",
+      "affiliation": null,
       "final_rank": 6
     },
     {
       "identity_type": "Couple",
       "name_one": "Johannes Holten",
       "bib_number": 1368,
-      "name_two": "Dr. Sonja Holten",
-      "affiliation": "TSC Schwarz-Gelb Aachen",
+      "name_two": "Dr. Sonja Holten\nTSC Schwarz-Gelb Aachen",
+      "affiliation": null,
       "final_rank": 4
     }
   ],
@@ -134,200 +134,196 @@
         "AO": {
           "1060": {
             "Samba": true,
-            "ChaChaCha": false,
+            "ChaChaCha": true,
             "Rumba": true,
             "Jive": true
           },
           "1151": {
             "Samba": true,
-            "ChaChaCha": false,
+            "ChaChaCha": true,
             "Rumba": true,
             "Jive": true
           },
           "1216": {
             "Samba": true,
-            "ChaChaCha": false,
+            "ChaChaCha": true,
             "Rumba": true,
             "Jive": true
           },
           "1272": {
             "Samba": true,
-            "ChaChaCha": false,
+            "ChaChaCha": true,
             "Rumba": true,
             "Jive": true
           },
           "1368": {
             "Samba": true,
-            "ChaChaCha": false,
+            "ChaChaCha": true,
             "Rumba": true,
             "Jive": true
           },
           "203": {
             "Samba": true,
-            "ChaChaCha": false,
+            "ChaChaCha": true,
             "Rumba": true,
             "Jive": true
           },
           "808": {
-            "Samba": true,
-            "ChaChaCha": true
+            "Samba": true
           }
         },
         "BN": {
           "1060": {
             "Samba": true,
-            "ChaChaCha": false,
+            "ChaChaCha": true,
             "Rumba": true,
             "Jive": true
           },
           "1151": {
             "Samba": true,
-            "ChaChaCha": false,
+            "ChaChaCha": true,
             "Rumba": true,
             "Jive": true
           },
           "1216": {
             "Samba": true,
-            "ChaChaCha": false,
+            "ChaChaCha": true,
             "Jive": true
           },
           "1272": {
             "Samba": true,
-            "ChaChaCha": false,
+            "ChaChaCha": true,
             "Rumba": true,
             "Jive": true
           },
           "1368": {
             "Samba": true,
-            "ChaChaCha": false,
+            "ChaChaCha": true,
             "Rumba": true,
             "Jive": true
           },
           "203": {
             "Samba": true,
-            "ChaChaCha": false,
+            "ChaChaCha": true,
             "Rumba": true,
             "Jive": true
           },
           "808": {
-            "ChaChaCha": false,
+            "ChaChaCha": true,
             "Rumba": true
           }
         },
         "BW": {
           "1060": {
             "Samba": true,
-            "ChaChaCha": false,
+            "ChaChaCha": true,
             "Rumba": true
           },
           "1151": {
             "Samba": true,
-            "ChaChaCha": false,
+            "ChaChaCha": true,
             "Rumba": true
           },
           "1216": {
             "Samba": true,
-            "ChaChaCha": false,
+            "ChaChaCha": true,
             "Rumba": true
           },
           "1272": {
             "Samba": true,
-            "ChaChaCha": false,
+            "ChaChaCha": true,
             "Rumba": true
           },
           "1368": {
             "Samba": true,
-            "ChaChaCha": false,
+            "ChaChaCha": true,
             "Rumba": true
           },
           "203": {
             "Samba": true,
-            "ChaChaCha": false,
+            "ChaChaCha": true,
             "Rumba": true
           },
           "808": {
-            "ChaChaCha": true,
             "Rumba": true
           }
         },
         "CF": {
           "1060": {
             "Samba": true,
-            "ChaChaCha": false,
+            "ChaChaCha": true,
             "Rumba": true,
             "Jive": true
           },
           "1151": {
             "Samba": true,
-            "ChaChaCha": false,
+            "ChaChaCha": true,
             "Rumba": true,
             "Jive": true
           },
           "1216": {
             "Samba": true,
-            "ChaChaCha": false,
+            "ChaChaCha": true,
             "Rumba": true,
             "Jive": true
           },
           "1272": {
             "Samba": true,
-            "ChaChaCha": false,
+            "ChaChaCha": true,
             "Jive": true
           },
           "1368": {
             "Samba": true,
-            "ChaChaCha": false,
+            "ChaChaCha": true,
             "Rumba": true,
             "Jive": true
           },
           "203": {
             "Samba": true,
-            "ChaChaCha": false,
+            "ChaChaCha": true,
             "Rumba": true,
             "Jive": true
           },
           "808": {
-            "ChaChaCha": true,
             "Rumba": true
           }
         },
         "CY": {
           "1060": {
             "Samba": true,
-            "ChaChaCha": false,
+            "ChaChaCha": true,
             "Rumba": true,
             "Jive": true
           },
           "1151": {
             "Samba": true,
-            "ChaChaCha": false,
+            "ChaChaCha": true,
             "Rumba": true,
             "Jive": true
           },
           "1216": {
             "Samba": true,
-            "ChaChaCha": false,
+            "ChaChaCha": true,
             "Rumba": true,
             "Jive": true
           },
           "1272": {
             "Samba": true,
-            "ChaChaCha": false
+            "ChaChaCha": true
           },
           "1368": {
             "Samba": true,
-            "ChaChaCha": false,
+            "ChaChaCha": true,
             "Rumba": true,
             "Jive": true
           },
           "203": {
             "Samba": true,
-            "ChaChaCha": false,
+            "ChaChaCha": true,
             "Rumba": true,
             "Jive": true
           },
           "808": {
-            "ChaChaCha": false,
             "Rumba": true,
             "Jive": true
           }
@@ -335,83 +331,77 @@
         "DA": {
           "1060": {
             "Samba": true,
-            "ChaChaCha": false,
+            "ChaChaCha": true,
             "Rumba": true,
             "Jive": true
           },
           "1151": {
             "Samba": true,
-            "ChaChaCha": false,
+            "ChaChaCha": true,
             "Rumba": true,
             "Jive": true
           },
           "1216": {
             "Samba": true,
-            "ChaChaCha": false,
+            "ChaChaCha": true,
             "Rumba": true,
             "Jive": true
           },
           "1272": {
             "Samba": true,
-            "ChaChaCha": false,
+            "ChaChaCha": true,
             "Rumba": true,
             "Jive": true
           },
           "1368": {
             "Samba": true,
-            "ChaChaCha": false,
+            "ChaChaCha": true,
             "Rumba": true,
             "Jive": true
           },
           "203": {
             "Samba": true,
-            "ChaChaCha": false,
+            "ChaChaCha": true,
             "Rumba": true,
             "Jive": true
-          },
-          "808": {
-            "ChaChaCha": false
           }
         },
         "DE": {
           "1060": {
             "Samba": true,
-            "ChaChaCha": false,
+            "ChaChaCha": true,
             "Rumba": true,
             "Jive": true
           },
           "1151": {
             "Samba": true,
-            "ChaChaCha": false,
+            "ChaChaCha": true,
             "Rumba": true,
             "Jive": true
           },
           "1216": {
             "Samba": true,
-            "ChaChaCha": false,
+            "ChaChaCha": true,
             "Rumba": true,
             "Jive": true
           },
           "1272": {
             "Samba": true,
-            "ChaChaCha": false,
+            "ChaChaCha": true,
             "Rumba": true,
             "Jive": true
           },
           "1368": {
             "Samba": true,
-            "ChaChaCha": false,
+            "ChaChaCha": true,
             "Rumba": true,
             "Jive": true
           },
           "203": {
             "Samba": true,
-            "ChaChaCha": false,
+            "ChaChaCha": true,
             "Rumba": true,
             "Jive": true
-          },
-          "808": {
-            "ChaChaCha": false
           }
         }
       }
@@ -431,114 +421,96 @@
           "1060": {
             "Samba": 4,
             "ChaChaCha": 4,
-            "Rumba": 4,
-            "Jive": 4
+            "Rumba": 4
           },
           "1151": {
             "Samba": 2,
             "ChaChaCha": 1,
-            "Rumba": 1,
-            "Jive": 1
+            "Rumba": 1
           },
           "1216": {
             "Samba": 3,
             "ChaChaCha": 3,
-            "Rumba": 3,
-            "Jive": 3
+            "Rumba": 3
           },
           "1272": {
             "Samba": 6,
             "ChaChaCha": 6,
-            "Rumba": 6,
-            "Jive": 6
+            "Rumba": 6
           },
           "1368": {
             "Samba": 5,
             "ChaChaCha": 5,
-            "Rumba": 5,
-            "Jive": 5
+            "Rumba": 5
           },
           "203": {
             "Samba": 1,
             "ChaChaCha": 2,
-            "Rumba": 2,
-            "Jive": 2
+            "Rumba": 2
           }
         },
         "BN": {
           "1060": {
             "Samba": 6,
             "ChaChaCha": 5,
-            "Rumba": 6,
-            "Jive": 6
+            "Rumba": 6
           },
           "1151": {
             "Samba": 4,
             "ChaChaCha": 2,
-            "Rumba": 1,
-            "Jive": 1
+            "Rumba": 1
           },
           "1216": {
             "Samba": 5,
             "ChaChaCha": 6,
-            "Rumba": 5,
-            "Jive": 5
+            "Rumba": 5
           },
           "1272": {
             "Samba": 3,
             "ChaChaCha": 4,
-            "Rumba": 4,
-            "Jive": 4
+            "Rumba": 4
           },
           "1368": {
             "Samba": 2,
             "ChaChaCha": 3,
-            "Rumba": 2,
-            "Jive": 2
+            "Rumba": 2
           },
           "203": {
             "Samba": 1,
             "ChaChaCha": 1,
-            "Rumba": 3,
-            "Jive": 3
+            "Rumba": 3
           }
         },
         "BW": {
           "1060": {
             "Samba": 6,
             "ChaChaCha": 5,
-            "Rumba": 4,
-            "Jive": 4
+            "Rumba": 4
           },
           "1151": {
             "Samba": 2,
             "ChaChaCha": 3,
-            "Rumba": 2,
-            "Jive": 2
+            "Rumba": 2
           },
           "1216": {
             "Samba": 3,
             "ChaChaCha": 2,
-            "Rumba": 1,
-            "Jive": 1
+            "Rumba": 1
           },
           "1272": {
             "Samba": 5,
             "ChaChaCha": 6,
-            "Rumba": 6,
-            "Jive": 6
+            "Rumba": 6
           },
           "1368": {
             "Samba": 4,
             "ChaChaCha": 4,
-            "Rumba": 5,
-            "Jive": 5
+            "Rumba": 5
           },
           "203": {
             "Samba": 1,
             "ChaChaCha": 1,
-            "Rumba": 3,
-            "Jive": 3
+            "Rumba": 3
           }
         },
         "CF": {

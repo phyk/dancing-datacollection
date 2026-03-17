@@ -56,16 +56,16 @@
       "identity_type": "Couple",
       "name_one": "Christian Schöffl",
       "bib_number": 1136,
-      "name_two": "Dr. Susan Schöffl",
-      "affiliation": "TSA d. 1. SSV Saalfeld 92",
+      "name_two": "Dr. Susan Schöffl\nTSA d. 1. SSV Saalfeld 92",
+      "affiliation": null,
       "final_rank": 2
     },
     {
       "identity_type": "Couple",
       "name_one": "Ingo Wanke",
       "bib_number": 1408,
-      "name_two": "Johanna Witt",
-      "affiliation": "TD Tanzsportclub Düsseldorf Rot-Weiß",
+      "name_two": "Johanna Witt\nTD Tanzsportclub Düsseldorf Rot-Weiß",
+      "affiliation": null,
       "final_rank": 1
     }
   ],
@@ -84,25 +84,21 @@
         "AA": {
           "1136": {
             "ChaChaCha": 1,
-            "Rumba": 1,
-            "Jive": 1
+            "Rumba": 1
           },
           "1408": {
             "ChaChaCha": 2,
-            "Rumba": 2,
-            "Jive": 2
+            "Rumba": 2
           }
         },
         "AG": {
           "1136": {
             "ChaChaCha": 2,
-            "Rumba": 1,
-            "Jive": 1
+            "Rumba": 1
           },
           "1408": {
             "ChaChaCha": 1,
-            "Rumba": 2,
-            "Jive": 2
+            "Rumba": 2
           }
         },
         "BR": {

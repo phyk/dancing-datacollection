@@ -208,9 +208,9 @@ fn merge_round_data(existing: &mut crate::models::RoundData, new: crate::models:
 
 pub fn extract_event_data(data_dir: &str) -> Result<Competition> {
     let dir = Path::new(data_dir);
-    let erg_h = fs::read_to_string(dir.join("erg.htm")).unwrap_or_default();
-    let (name, date, mut org, mut club) = parse_metadata(&erg_h);
-    let title = Html::parse_document(&erg_h)
+    let ergwert_h = fs::read_to_string(dir.join("ergwert.htm")).unwrap_or_default();
+    let (name, date, mut org, mut club) = parse_metadata(&ergwert_h);
+    let title = Html::parse_document(&ergwert_h)
         .select(&SEL_TITLE)
         .next()
         .map(|n| n.inner_html())
@@ -336,14 +336,64 @@ pub fn extract_event_data(data_dir: &str) -> Result<Competition> {
     if comp.hosting_club.is_none() {
         comp.hosting_club = club;
     }
-    comp.participants = extract_participants(&erg_h);
+    comp.participants = extract_participants(&ergwert_h);
+
+    if comp.participants.is_empty() {
+        // Fallback: extract participants using the structural table parser if row-based parsing fails
+        let doc = Html::parse_document(&ergwert_h);
+        for table in doc.select(&Selector::parse(SELECTOR_TABLE).unwrap()) {
+            let grid = topturnier_table::TableGrid::from_element(table);
+            if topturnier_table::identify_orientation(&grid) == topturnier_table::TableOrientation::Horizontal {
+                let col_types = topturnier_table::identify_columns(&grid);
+                if let Some(p_idx) = col_types.iter().position(|t| matches!(t, topturnier_table::ColumnType::Participant)) {
+                    let bib_idx = col_types.iter().position(|t| matches!(t, topturnier_table::ColumnType::Bib));
+                    let rank_idx = col_types.iter().position(|t| matches!(t, topturnier_table::ColumnType::Rank));
+
+                    for r in 1..grid.height {
+                         let name = &grid.rows[r][p_idx];
+                         if name.is_empty() || crate::i18n::is_participant_marker(name) { continue; }
+
+                         let bib = if let Some(idx) = bib_idx {
+                             grid.rows[r][idx].parse().ok()
+                         } else {
+                             RE_BIB_PARENS.captures(name).and_then(|c| c[1].parse().ok())
+                         };
+
+                         let bib = match bib { Some(b) => b, None => continue };
+
+                         let rank = rank_idx.and_then(|idx| {
+                             RE_RANK.captures(&grid.rows[r][idx]).and_then(|c| c[1].parse().ok())
+                         });
+
+                         let (it, n1, n2) = if name.contains(" / ") {
+                             let p: Vec<_> = name.split(" / ").collect();
+                             (IdentityType::Couple, p[0].trim().into(), Some(p[1].trim().into()))
+                         } else {
+                             (IdentityType::Solo, name.clone(), None)
+                         };
+
+                         comp.participants.push(Participant {
+                             identity_type: it,
+                             name_one: n1,
+                             bib_number: bib,
+                             name_two: n2,
+                             affiliation: None, // Hard to get club from grid without more logic
+                             final_rank: rank,
+                         });
+                    }
+                }
+            }
+        }
+        comp.participants.dedup_by_key(|p| p.bib_number);
+    }
+
     comp.participants.retain(|p| {
         p.bib_number != 0
             && !crate::i18n::is_participant_marker(&p.name_one)
             && !crate::i18n::is_rank_column_marker(&p.name_one)
     });
 
-    let files = ["tabges.htm", "ergwert.htm", "erg.htm"];
+    let files = ["ergwert.htm"];
     let mut all_rounds: Vec<Round> = Vec::new();
     let mut found_dances = std::collections::HashSet::new();
 

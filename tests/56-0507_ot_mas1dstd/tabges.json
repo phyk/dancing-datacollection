@@ -66,40 +66,40 @@
       "identity_type": "Couple",
       "name_one": "Michael Karbach",
       "bib_number": 1039,
-      "name_two": "Katharina Karbach",
-      "affiliation": "Gelb-Schwarz-Casino München",
+      "name_two": "Katharina Karbach\nGelb-Schwarz-Casino München",
+      "affiliation": null,
       "final_rank": 2
     },
     {
       "identity_type": "Couple",
       "name_one": "Jens Pache",
       "bib_number": 1144,
-      "name_two": "Anke Pache",
-      "affiliation": "Rot-Weiss-Klub Kassel",
+      "name_two": "Anke Pache\nRot-Weiss-Klub Kassel",
+      "affiliation": null,
       "final_rank": 1
     },
     {
       "identity_type": "Couple",
       "name_one": "René Krüger",
       "bib_number": 1245,
-      "name_two": "Christiane Häselbarth",
-      "affiliation": "TSV Grün-Gold Erfurt",
+      "name_two": "Christiane Häselbarth\nTSV Grün-Gold Erfurt",
+      "affiliation": null,
       "final_rank": 3
     },
     {
       "identity_type": "Couple",
       "name_one": "Thorben Macke",
       "bib_number": 1344,
-      "name_two": "Renate Enders",
-      "affiliation": "TTC Oldenburg",
+      "name_two": "Renate Enders\nTTC Oldenburg",
+      "affiliation": null,
       "final_rank": 5
     },
     {
       "identity_type": "Couple",
       "name_one": "Thomas Klöckl",
       "bib_number": 1358,
-      "name_two": "Bianca Koellges",
-      "affiliation": "TC Blau-Gold Solingen",
+      "name_two": "Bianca Koellges\nTC Blau-Gold Solingen",
+      "affiliation": null,
       "final_rank": 4
     }
   ],
@@ -118,55 +118,45 @@
         "AD": {
           "1039": {
             "SlowWaltz": 1,
-            "Tango": 1,
-            "Quickstep": 1
+            "Tango": 1
           },
           "1144": {
             "SlowWaltz": 3,
-            "Tango": 2,
-            "Quickstep": 2
+            "Tango": 2
           },
           "1245": {
             "SlowWaltz": 2,
-            "Tango": 4,
-            "Quickstep": 4
+            "Tango": 4
           },
           "1344": {
             "SlowWaltz": 4,
-            "Tango": 3,
-            "Quickstep": 3
+            "Tango": 3
           },
           "1358": {
             "SlowWaltz": 5,
-            "Tango": 5,
-            "Quickstep": 5
+            "Tango": 5
           }
         },
         "BB": {
           "1039": {
             "SlowWaltz": 1,
-            "Tango": 1,
-            "Quickstep": 1
+            "Tango": 1
           },
           "1144": {
             "SlowWaltz": 2,
-            "Tango": 2,
-            "Quickstep": 2
+            "Tango": 2
           },
           "1245": {
             "SlowWaltz": 3,
-            "Tango": 3,
-            "Quickstep": 3
+            "Tango": 3
           },
           "1344": {
             "SlowWaltz": 4,
-            "Tango": 4,
-            "Quickstep": 4
+            "Tango": 4
           },
           "1358": {
             "SlowWaltz": 5,
-            "Tango": 5,
-            "Quickstep": 5
+            "Tango": 5
           }
         },
         "BI": {
