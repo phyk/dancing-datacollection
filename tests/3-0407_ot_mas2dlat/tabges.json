@@ -8,7 +8,6 @@
   "age_group": "Sen2",
   "style": "Latein",
   "dances": [
-    "Samba",
     "ChaChaCha",
     "Rumba",
     "Jive"
@@ -74,7 +73,6 @@
       "name": "Endrunde",
       "order": 0,
       "dances": [
-        "Samba",
         "ChaChaCha",
         "Rumba",
         "Jive"
@@ -84,21 +82,25 @@
         "AA": {
           "1136": {
             "ChaChaCha": 1,
-            "Rumba": 1
+            "Rumba": 1,
+            "Jive": 1
           },
           "1408": {
             "ChaChaCha": 2,
-            "Rumba": 2
+            "Rumba": 2,
+            "Jive": 2
           }
         },
         "AG": {
           "1136": {
             "ChaChaCha": 2,
-            "Rumba": 1
+            "Rumba": 1,
+            "Jive": 1
           },
           "1408": {
             "ChaChaCha": 1,
-            "Rumba": 2
+            "Rumba": 2,
+            "Jive": 2
           }
         },
         "BR": {

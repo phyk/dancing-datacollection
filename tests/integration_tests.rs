@@ -18,6 +18,8 @@ fn run_full_pipeline_test(dir_name: &str) {
     );
     assert!(!event.rounds.is_empty(), "No rounds parsed in {}", dir_name);
 
+    let fidelity = dancing_datacollection::models::validation::validate_competition_fidelity(&event);
+
     // Verify against Ground Truth if it exists
     let ground_truth_path = dir_path.join("tabges.json");
 
@@ -26,6 +28,12 @@ fn run_full_pipeline_test(dir_name: &str) {
         std::fs::write(&ground_truth_path, json).unwrap();
         return;
     }
+
+    assert!(
+        fidelity,
+        "Fidelity check failed for {}",
+        dir_name
+    );
 
     if ground_truth_path.exists() {
         let ground_truth_json = std::fs::read_to_string(&ground_truth_path).unwrap();

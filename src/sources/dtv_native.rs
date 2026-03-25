@@ -430,33 +430,6 @@ pub fn extract_event_data(data_dir: &str) -> Result<Competition> {
             && !crate::i18n::is_rank_column_marker(&p.name_one)
     });
 
-    let files = ["ergwert.htm"];
-    let mut all_rounds: Vec<Round> = Vec::new();
-    let mut found_dances = std::collections::HashSet::new();
-
-    for f_name in files {
-        if let Ok(content) = fs::read_to_string(dir.join(f_name)) {
-            let file_dances = crate::i18n::parse_dances_no_fallback(&content);
-            for d in &file_dances {
-                found_dances.insert(*d);
-            }
-
-            let doc = Html::parse_document(&content);
-            for table in doc.select(&Selector::parse(SELECTOR_TABLE).unwrap()) {
-                 let grid = topturnier_table::TableGrid::from_element(table);
-                 let intermediate = topturnier_table::extract_data(&grid);
-                 let file_rounds = topturnier_table::to_rounds(intermediate, &file_dances, &comp.officials);
-                 for fr in file_rounds {
-                    if let Some(existing) = all_rounds.iter_mut().find(|r| r.name == fr.name) {
-                        merge_round_data(&mut existing.data, fr.data);
-                    } else {
-                        all_rounds.push(fr);
-                    }
-                }
-            }
-        }
-    }
-
     let full_style_dances = if comp.style == Style::Standard {
         vec![
             Dance::SlowWaltz,
@@ -475,71 +448,105 @@ pub fn extract_event_data(data_dir: &str) -> Result<Competition> {
         ]
     };
 
+    let files = ["ergwert.htm"];
+    let mut all_rounds: Vec<Round> = Vec::new();
+    let mut found_dances = std::collections::HashSet::new();
+
+    for f_name in files {
+        if let Ok(content) = fs::read_to_string(dir.join(f_name)) {
+            let mut file_dances = crate::i18n::parse_dances_no_fallback(&content);
+            file_dances.retain(|d| full_style_dances.contains(d));
+
+            let doc = Html::parse_document(&content);
+            for table in doc.select(&Selector::parse(SELECTOR_TABLE).unwrap()) {
+                 let grid = topturnier_table::TableGrid::from_element(table);
+                 let intermediate = topturnier_table::extract_data(&grid);
+
+                 let col_types = topturnier_table::identify_columns(&grid);
+                 let mut table_dances = Vec::new();
+                 for ct in col_types {
+                     if let topturnier_table::ColumnType::Mark { dance, .. } = ct {
+                         if !table_dances.contains(&dance) { table_dances.push(dance); }
+                     } else if let topturnier_table::ColumnType::Dance(dance) = ct {
+                         if !table_dances.contains(&dance) { table_dances.push(dance); }
+                     }
+                 }
+                 table_dances.retain(|d| full_style_dances.contains(d));
+                 for d in &table_dances {
+                     found_dances.insert(*d);
+                 }
+
+                 let file_rounds = topturnier_table::to_rounds(intermediate, &table_dances, &comp.officials);
+                 for fr in file_rounds {
+                    if let Some(existing) = all_rounds.iter_mut().find(|r| r.name == fr.name) {
+                        merge_round_data(&mut existing.data, fr.data);
+                    } else {
+                        all_rounds.push(fr);
+                    }
+                }
+            }
+        }
+    }
+
     let mut all_dances_vec: Vec<_> = found_dances
         .iter()
         .cloned()
         .filter(|d| full_style_dances.contains(d))
         .collect();
     all_dances_vec.sort_by_key(|&d| d as u32);
-    comp.dances = all_dances_vec;
 
-    if comp.dances.len() < comp.min_dances as usize {
-        let mut fallback = full_style_dances.clone();
-        fallback.retain(|d| !comp.dances.contains(d));
-        let needed = if comp.min_dances as usize > comp.dances.len() {
-            comp.min_dances as usize - comp.dances.len()
-        } else {
-            0
-        };
-        comp.dances.extend(fallback.into_iter().take(needed));
-        comp.dances.sort_by_key(|&d| d as u32);
-    }
+    // Filter dances that actually appear in scoring rounds.
+    let scoring_dances: std::collections::HashSet<Dance> = all_rounds.iter()
+        .flat_map(|r| {
+             let mut ds = std::collections::HashSet::new();
+             match &r.data {
+                 crate::models::RoundData::Marking { marking_crosses } => {
+                     for j_map in marking_crosses.values() {
+                         for p_map in j_map.values() {
+                             for d in p_map.keys() { ds.insert(*d); }
+                         }
+                     }
+                 }
+                 crate::models::RoundData::DTV { dtv_ranks } => {
+                     for j_map in dtv_ranks.values() {
+                         for p_map in j_map.values() {
+                             for d in p_map.keys() { ds.insert(*d); }
+                         }
+                     }
+                 }
+                 crate::models::RoundData::WDSF { wdsf_scores } => {
+                     for j_map in wdsf_scores.values() {
+                         for p_map in j_map.values() {
+                             for d in p_map.keys() { ds.insert(*d); }
+                         }
+                     }
+                 }
+             }
+             ds.into_iter()
+        })
+        .collect();
+    all_dances_vec.retain(|d| scoring_dances.contains(d));
+
+    comp.dances = all_dances_vec;
 
     for r in &mut all_rounds {
         match &mut r.data {
             crate::models::RoundData::DTV { dtv_ranks } => {
                 for j_map in dtv_ranks.values_mut() {
                     for p_map in j_map.values_mut() {
-                        let placeholder_val = p_map
-                            .iter()
-                            .find(|(d, _)| !full_style_dances.contains(d))
-                            .map(|(_, v)| *v);
-
-                        p_map.retain(|d, _| full_style_dances.contains(d));
-
-                        if p_map.len() < comp.dances.len() {
-                            if let Some(v) = placeholder_val {
-                                for &d in &comp.dances {
-                                    p_map.entry(d).or_insert(v);
-                                }
-                            }
-                        }
+                        p_map.retain(|d, _| comp.dances.contains(d));
                     }
                 }
             }
             crate::models::RoundData::Marking { marking_crosses } => {
                 for j_map in marking_crosses.values_mut() {
                     for p_map in j_map.values_mut() {
-                        let placeholder_val = p_map
-                            .iter()
-                            .find(|(d, _)| !full_style_dances.contains(d))
-                            .map(|(_, v)| if *v { 1 } else { 0 });
-
-                        p_map.retain(|d, _| full_style_dances.contains(d));
-
-                        if p_map.len() < comp.dances.len() {
-                            if let Some(v) = placeholder_val {
-                                for &d in &comp.dances {
-                                    p_map.entry(d).or_insert(v > 0);
-                                }
-                            }
-                        }
+                        p_map.retain(|d, _| comp.dances.contains(d));
                     }
                 }
             }
             _ => {}
         }
-        r.dances = comp.dances.clone();
     }
 
     all_rounds.retain(|r| r.data.count_entries() > 0);

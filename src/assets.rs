@@ -74,16 +74,16 @@ pub const STYLE_ID_MAPPINGS: &[(&str, Style)] = &[
 ];
 
 pub const DANCE_ABBREVIATIONS: &[(Dance, &[&str])] = &[
-    (Dance::SlowWaltz, &["SW", "LW", "WALZER", "WALTZ"]),
+    (Dance::SlowWaltz, &["SW", "LW", "LANGSAMER WALZER", "SLOW WALTZ", "ENGLISH WALTZ"]),
     (Dance::Tango, &["TG", "TANGO"]),
-    (Dance::VienneseWaltz, &["VW", "WIENER", "WW"]),
-    (Dance::SlowFoxtrot, &["SF", "SLOW", "FOX"]),
-    (Dance::Quickstep, &["QS", "QU", "QUICK"]),
-    (Dance::ChaChaCha, &["CC", "CHA", "CCC"]),
-    (Dance::Samba, &["SB", "SA", "SAMBA"]),
-    (Dance::Rumba, &["RB", "RU", "RUMBA"]),
-    (Dance::PasoDoble, &["PD", "PASO"]),
-    (Dance::Jive, &["JV", "JI", "JIVE"]),
+    (Dance::VienneseWaltz, &["VW", "WW", "WIENER WALZER", "VIENNESE WALTZ", "V. WALTZ"]),
+    (Dance::SlowFoxtrot, &["SF", "SLOWFOX", "SLOW FOXTROT"]),
+    (Dance::Quickstep, &["QS", "QUICKSTEP"]),
+    (Dance::ChaChaCha, &["CC", "CHA CHA", "CHA CHA CHA"]),
+    (Dance::Samba, &["SB", "SAMBA"]),
+    (Dance::Rumba, &["RB", "RUMBA"]),
+    (Dance::PasoDoble, &["PD", "PASO DOBLE"]),
+    (Dance::Jive, &["JV", "JIVE"]),
 ];
 
 pub const LEVEL_MAPPINGS: &[(&str, Level)] = &[

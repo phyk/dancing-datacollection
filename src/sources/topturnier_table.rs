@@ -25,14 +25,33 @@ impl TableGrid {
 
         for (r_idx, tr) in table.select(&tr_sel).enumerate() {
             let mut c_idx = 0;
-            for td in tr.select(&td_sel) {
+            let cells: Vec<_> = tr.select(&td_sel).collect();
+            for i in 0..cells.len() {
+                let td = cells[i];
+                let is_phantom = td.value().attr("class").is_some_and(|c| c.split_whitespace().any(|cls| cls == "td2ww"));
+
                 while grid.get(&r_idx).and_then(|row| row.get(&c_idx)).is_some() {
                     c_idx += 1;
                 }
 
                 let rowspan = td.value().attr("rowspan").and_then(|s| s.parse::<usize>().ok()).unwrap_or(1);
                 let colspan = td.value().attr("colspan").and_then(|s| s.parse::<usize>().ok()).unwrap_or(1);
-                let content = extract_text(td);
+                let mut content = extract_text(td);
+
+                // Enrich td2w with following td2ww abbreviation if exists
+                if td.value().attr("class").is_some_and(|c| c.split_whitespace().any(|cls| cls == "td2w")) && i + 1 < cells.len() {
+                    let next_td = cells[i+1];
+                    if next_td.value().attr("class").is_some_and(|c| c.split_whitespace().any(|cls| cls == "td2ww")) {
+                        let abbr = extract_text(next_td);
+                        if !abbr.is_empty() {
+                            content = format!("{} ({})", content, abbr);
+                        }
+                    }
+                }
+
+                if is_phantom {
+                    continue;
+                }
 
                 for dr in 0..rowspan {
                     for dc in 0..colspan {
@@ -126,56 +145,88 @@ pub fn identify_columns(grid: &TableGrid) -> Vec<ColumnType> {
     let mut col_types = vec![ColumnType::Unknown; grid.width];
     let mut col_dances = vec![None; grid.width];
 
-    for r in 0..grid.height.min(5) {
+    // 1. Identify dances and basic column types from header rows (0 and 1)
+    for r in 0..grid.height.min(2) {
         for c in 0..grid.width {
             let val = &grid.rows[r][c];
             if val.is_empty() { continue; }
 
-            let ds = crate::i18n::parse_dances_no_fallback(val);
-            if !ds.is_empty() {
-                col_dances[c] = Some(ds[0]);
-                continue;
+            // Identify basic columns
+            if col_types[c] == ColumnType::Unknown {
+                if crate::i18n::is_rank_column_marker(val) {
+                    col_types[c] = ColumnType::Rank;
+                } else if crate::i18n::is_participant_marker(val) {
+                    col_types[c] = ColumnType::Participant;
+                } else if crate::i18n::is_bib_column_marker(val) {
+                    col_types[c] = ColumnType::Bib;
+                } else if crate::i18n::is_round_column_marker(val) {
+                    col_types[c] = ColumnType::Round;
+                } else if crate::i18n::is_sum_column_marker(val) {
+                    col_types[c] = ColumnType::Sum;
+                }
             }
 
-            if col_dances[c].is_some() { continue; }
-
-            if crate::i18n::is_rank_column_marker(val) {
-                col_types[c] = ColumnType::Rank;
-            } else if crate::i18n::is_participant_marker(val) {
-                col_types[c] = ColumnType::Participant;
-            } else if crate::i18n::is_bib_column_marker(val) {
-                col_types[c] = ColumnType::Bib;
-            } else if crate::i18n::is_round_column_marker(val) {
-                col_types[c] = ColumnType::Round;
-            } else if crate::i18n::is_sum_column_marker(val) {
-                col_types[c] = ColumnType::Sum;
+            // Identify dances
+            let ds = crate::i18n::parse_dances_no_fallback(val);
+            if !ds.is_empty() {
+                if col_dances[c].is_none() {
+                    col_dances[c] = Some(ds[0]);
+                }
             }
         }
     }
 
+    // 2. Identify Judges and specialized Sums in dance columns
+    for c in 0..grid.width {
+        if let Some(dance) = col_dances[c] {
+            if col_types[c] == ColumnType::Unknown {
+                // Check header rows for judge codes or sum markers
+                for r in 0..grid.height.min(2) {
+                    let val = &grid.rows[r][c];
+                    if val.is_empty() { continue; }
+
+                    if crate::i18n::is_sum_column_marker(val) {
+                        col_types[c] = ColumnType::Sum;
+                        break;
+                    }
+
+                    // A judge code in row 1 under a dance header in row 0
+                    if val.len() <= 3 && crate::i18n::parse_dances_no_fallback(val).is_empty() {
+                        col_types[c] = ColumnType::Mark { dance, judge: val.clone() };
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    // 2b. If we still have Unknown columns that have a dance, check row 1 again for ANY text that might be a judge code
+    // This handles cases where judge codes might not be all uppercase (rare but possible) or other oddities.
+    for c in 0..grid.width {
+        if let Some(dance) = col_dances[c] {
+            if col_types[c] == ColumnType::Unknown && grid.height > 1 {
+                 let val = &grid.rows[1][c];
+                 if !val.is_empty() && !crate::i18n::is_sum_column_marker(val) && val.len() <= 3 {
+                      col_types[c] = ColumnType::Mark { dance, judge: val.clone() };
+                 }
+            }
+        }
+    }
+
+    // 3. Defaults and Fallbacks
     let has_bib_col = col_types.iter().any(|t| matches!(t, ColumnType::Bib));
 
     for c in 0..grid.width {
         if col_types[c] == ColumnType::Unknown {
+            // Participant/Bib fallback
             let row_to_check = if grid.height > 2 { 2 } else { 0 };
-            if !has_bib_col && grid.height > 0 && RE_BIB_PARENS.is_match(&grid.rows[row_to_check][c]) {
+            if !has_bib_col && grid.height > row_to_check && RE_BIB_PARENS.is_match(&grid.rows[row_to_check][c]) {
                  col_types[c] = ColumnType::Participant;
             }
 
+            // Collapsed dance column fallback
             if let Some(dance) = col_dances[c] {
-                let mut found_judge = false;
-                for r in 0..grid.height.min(5) {
-                    let val = &grid.rows[r][c];
-                    if val.is_empty() { continue; }
-
-                    if val.len() <= 3 && val.chars().all(|ch| ch.is_ascii_uppercase() || ch.is_ascii_digit())
-                        && crate::i18n::parse_dances_no_fallback(val).is_empty() {
-                        col_types[c] = ColumnType::Mark { dance, judge: val.clone() };
-                        found_judge = true;
-                        break;
-                    }
-                }
-                if !found_judge {
+                if col_types[c] == ColumnType::Unknown {
                     col_types[c] = ColumnType::Dance(dance);
                 }
             }
@@ -243,32 +294,24 @@ fn extract_horizontal(grid: &TableGrid) -> Vec<IntermediateResult> {
                     let cell_val = &grid.rows[r][c];
                     let mark_vals: Vec<&str> = cell_val.split('\n').collect();
                     for (i, round_name) in round_vals.iter().enumerate() {
-                        if let Some(&mark_val) = mark_vals.get(i) {
-                            let mark_val = mark_val.trim();
-                            if !mark_val.is_empty() && mark_val != "-" {
-                                marks_by_round.entry(round_name.clone()).or_default().push(IntermediateMark {
-                                    dance: *dance,
-                                    judge: Some(judge.clone()),
-                                    value: mark_val.to_string(),
-                                });
-                            }
-                        }
+                        let mark_val = mark_vals.get(i).unwrap_or(&"").trim();
+                        marks_by_round.entry(round_name.clone()).or_default().push(IntermediateMark {
+                            dance: *dance,
+                            judge: Some(judge.clone()),
+                            value: mark_val.to_string(),
+                        });
                     }
                 }
                 ColumnType::Dance(dance) => {
                     let cell_val = &grid.rows[r][c];
                     let mark_vals: Vec<&str> = cell_val.split('\n').collect();
                     for (i, round_name) in round_vals.iter().enumerate() {
-                        if let Some(&mark_val) = mark_vals.get(i) {
-                            let mark_val = mark_val.trim();
-                            if !mark_val.is_empty() && mark_val != "-" {
-                                marks_by_round.entry(round_name.clone()).or_default().push(IntermediateMark {
-                                    dance: *dance,
-                                    judge: None,
-                                    value: mark_val.to_string(),
-                                });
-                            }
-                        }
+                        let mark_val = mark_vals.get(i).unwrap_or(&"").trim();
+                        marks_by_round.entry(round_name.clone()).or_default().push(IntermediateMark {
+                            dance: *dance,
+                            judge: None,
+                            value: mark_val.to_string(),
+                        });
                     }
                 }
                 _ => {}
@@ -306,10 +349,19 @@ pub fn to_rounds(intermediate: Vec<IntermediateResult>, dances: &[Dance], offici
 
             let round = rounds_map.entry(round_name.clone()).or_insert_with(|| {
                 let is_final = crate::i18n::is_final_round(&round_name);
+                let mut round_dances = Vec::new();
+                for m in marks.iter() {
+                    if !round_dances.contains(&m.dance) {
+                        round_dances.push(m.dance);
+                    }
+                }
+                if round_dances.is_empty() {
+                    round_dances = dances.to_vec();
+                }
                 Round {
                     name: round_name.clone(),
                     order: 0,
-                    dances: dances.to_vec(),
+                    dances: round_dances,
                     data: if is_wdsf {
                         RoundData::WDSF { wdsf_scores: BTreeMap::new() }
                     } else if is_final {
@@ -321,6 +373,9 @@ pub fn to_rounds(intermediate: Vec<IntermediateResult>, dances: &[Dance], offici
             });
 
             for mark in marks {
+                if !round.dances.contains(&mark.dance) {
+                    round.dances.push(mark.dance);
+                }
                 match &mut round.data {
                     RoundData::Marking { marking_crosses } => {
                         if let Some(judge) = mark.judge {
@@ -329,12 +384,14 @@ pub fn to_rounds(intermediate: Vec<IntermediateResult>, dances: &[Dance], offici
                                 .entry(res.bib).or_default()
                                 .insert(mark.dance, is_cross);
                         } else {
-                            if mark.value.len() > 1 && mark.value.chars().all(|c| c.is_ascii_digit()) {
-                                for (j_idx, ch) in mark.value.chars().enumerate() {
-                                    if let Some(official_judge) = officials.judges.get(j_idx) {
-                                        marking_crosses.entry(official_judge.code.clone()).or_default()
-                                            .entry(res.bib).or_default()
-                                            .insert(mark.dance, ch != '0' && ch != '-');
+                            if !mark.value.is_empty() {
+                                if mark.value.len() > 1 && mark.value.chars().all(|c| c.is_ascii_digit()) {
+                                    for (j_idx, ch) in mark.value.chars().enumerate() {
+                                        if let Some(official_judge) = officials.judges.get(j_idx) {
+                                            marking_crosses.entry(official_judge.code.clone()).or_default()
+                                                .entry(res.bib).or_default()
+                                                .insert(mark.dance, ch != '0' && ch != '-');
+                                        }
                                     }
                                 }
                             }
