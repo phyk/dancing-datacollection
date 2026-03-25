@@ -109,13 +109,7 @@ fn load_competition_results(
             comp.source_url = Some(comp_url.clone());
 
             // 3. Apply overrides and Validate
-            if !apply_filters_and_overrides(
-                &mut comp,
-                &age_group,
-                &style,
-                &level,
-                &date,
-            ) {
+            if !apply_filters_and_overrides(&mut comp, &age_group, &style, &level, &date) {
                 let _ = fs::remove_dir_all(&temp_dir);
                 continue;
             }
@@ -209,8 +203,8 @@ fn apply_filters_and_overrides(
 
     // 2. Style Filter
     if let Some(ref s_filter) = style {
-        let target = crate::i18n::map_discipline(s_filter)
-            .or_else(|| crate::i18n::parse_style(s_filter));
+        let target =
+            crate::i18n::map_discipline(s_filter).or_else(|| crate::i18n::parse_style(s_filter));
         if let Some(t) = target {
             if comp.style != t {
                 return false;

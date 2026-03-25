@@ -345,14 +345,8 @@ mod tests {
             let mut bm = BTreeMap::new();
             bm.insert(Dance::SlowWaltz, 1);
             bm.insert(Dance::Tango, 1);
-            dtv_ranks
-                .get_mut("A")
-                .unwrap()
-                .insert(102, bm.clone());
-            dtv_ranks
-                .get_mut("B")
-                .unwrap()
-                .insert(102, bm.clone());
+            dtv_ranks.get_mut("A").unwrap().insert(102, bm.clone());
+            dtv_ranks.get_mut("B").unwrap().insert(102, bm.clone());
             dtv_ranks.get_mut("C").unwrap().insert(102, bm);
         }
         assert!(!validate_competition_fidelity(&comp));

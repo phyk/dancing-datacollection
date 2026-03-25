@@ -74,9 +74,21 @@ pub const STYLE_ID_MAPPINGS: &[(&str, Style)] = &[
 ];
 
 pub const DANCE_ABBREVIATIONS: &[(Dance, &[&str])] = &[
-    (Dance::SlowWaltz, &["SW", "LW", "LANGSAMER WALZER", "SLOW WALTZ", "ENGLISH WALTZ"]),
+    (
+        Dance::SlowWaltz,
+        &[
+            "SW",
+            "LW",
+            "LANGSAMER WALZER",
+            "SLOW WALTZ",
+            "ENGLISH WALTZ",
+        ],
+    ),
     (Dance::Tango, &["TG", "TANGO"]),
-    (Dance::VienneseWaltz, &["VW", "WW", "WIENER WALZER", "VIENNESE WALTZ", "V. WALTZ"]),
+    (
+        Dance::VienneseWaltz,
+        &["VW", "WW", "WIENER WALZER", "VIENNESE WALTZ", "V. WALTZ"],
+    ),
     (Dance::SlowFoxtrot, &["SF", "SLOWFOX", "SLOW FOXTROT"]),
     (Dance::Quickstep, &["QS", "QUICKSTEP"]),
     (Dance::ChaChaCha, &["CC", "CHA CHA", "CHA CHA CHA"]),
@@ -201,8 +213,13 @@ pub const BIB_COLUMN_MARKERS: &[&str] = &["nr", "nr.", "startnummer", "no.", "no
 pub const RANK_COLUMN_MARKERS: &[&str] = &["pl.", "platz", "rank", "platz von", "platz bis"];
 pub const SUM_COLUMN_MARKERS: &[&str] = &["su", "summe", "total", "pz", "sum", "total"];
 pub const ROUND_COLUMN_MARKERS: &[&str] = &["r", "round", "runde"];
-pub const PARTICIPANT_MARKERS: &[&str] =
-    &["teilnehmer", "participant", "no. of participants", "country", "paar"];
+pub const PARTICIPANT_MARKERS: &[&str] = &[
+    "teilnehmer",
+    "participant",
+    "no. of participants",
+    "country",
+    "paar",
+];
 pub const QUALIFICATION_MARKERS: &[&str] =
     &["result of", "qualified for", "ergebnis", "qualifiziert"];
 pub const LEVEL_S_MARKERS: &[&str] = &["WDSF", "OPEN"];

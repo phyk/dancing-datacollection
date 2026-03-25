@@ -3,8 +3,8 @@ use crate::models::{
     AgeGroup, CommitteeMember, Competition, Dance, IdentityType, Judge, Level, Officials,
     Participant, Round, Style,
 };
-use crate::sources::ParsingError;
 use crate::sources::topturnier_table;
+use crate::sources::ParsingError;
 use anyhow::Result;
 use chrono::NaiveDate;
 use regex::Regex;
@@ -112,7 +112,9 @@ fn parse_participant_row(row: ElementRef) -> Result<Participant, ParsingError> {
             name_bib = name_bib.replace(c, "").trim().to_string();
         } else if data_cells.len() > 1 {
             let next_cell_text = txt(&data_cells[1]);
-            if !crate::i18n::is_bib_column_marker(&next_cell_text) && !next_cell_text.chars().all(|c| c.is_ascii_digit()) {
+            if !crate::i18n::is_bib_column_marker(&next_cell_text)
+                && !next_cell_text.chars().all(|c| c.is_ascii_digit())
+            {
                 club = Some(next_cell_text);
             }
         }
@@ -189,7 +191,10 @@ fn merge_round_data(existing: &mut crate::models::RoundData, new: crate::models:
                 }
             }
         }
-        (crate::models::RoundData::DTV { dtv_ranks: e_map }, crate::models::RoundData::DTV { dtv_ranks: n_map }) => {
+        (
+            crate::models::RoundData::DTV { dtv_ranks: e_map },
+            crate::models::RoundData::DTV { dtv_ranks: n_map },
+        ) => {
             for (judge, n_bib_map) in n_map {
                 let e_bib_map = e_map.entry(judge).or_default();
                 for (bib, n_dance_map) in n_bib_map {
@@ -200,7 +205,10 @@ fn merge_round_data(existing: &mut crate::models::RoundData, new: crate::models:
                 }
             }
         }
-        (crate::models::RoundData::WDSF { wdsf_scores: e_map }, crate::models::RoundData::WDSF { wdsf_scores: n_map }) => {
+        (
+            crate::models::RoundData::WDSF { wdsf_scores: e_map },
+            crate::models::RoundData::WDSF { wdsf_scores: n_map },
+        ) => {
             for (judge, n_bib_map) in n_map {
                 let e_bib_map = e_map.entry(judge).or_default();
                 for (bib, n_dance_map) in n_bib_map {
@@ -306,7 +314,10 @@ pub fn extract_event_data(data_dir: &str) -> Result<Competition> {
                     let full = topturnier_table::extract_text(d_el);
                     if full.contains('\n') {
                         let p: Vec<_> = full.splitn(2, '\n').collect();
-                        (p[0].trim().to_string(), Some(p[1].replace('\n', " ").trim().to_string()))
+                        (
+                            p[0].trim().to_string(),
+                            Some(p[1].replace('\n', " ").trim().to_string()),
+                        )
                     } else {
                         (full, None)
                     }
@@ -334,7 +345,9 @@ pub fn extract_event_data(data_dir: &str) -> Result<Competition> {
                             off.assistant = Some(mem);
                         }
                     }
-                } else if (r.len() <= 3 || r.chars().all(|ch| ch.is_ascii_uppercase() || ch.is_ascii_digit()))
+                } else if (r.len() <= 3
+                    || r.chars()
+                        .all(|ch| ch.is_ascii_uppercase() || ch.is_ascii_digit()))
                     && !n.is_empty()
                 {
                     off.judges.push(Judge {
@@ -373,50 +386,73 @@ pub fn extract_event_data(data_dir: &str) -> Result<Competition> {
         let doc = Html::parse_document(&ergwert_h);
         for table in doc.select(&Selector::parse(SELECTOR_TABLE).unwrap()) {
             let grid = topturnier_table::TableGrid::from_element(table);
-            if topturnier_table::identify_orientation(&grid) == topturnier_table::TableOrientation::Horizontal {
+            if topturnier_table::identify_orientation(&grid)
+                == topturnier_table::TableOrientation::Horizontal
+            {
                 let col_types = topturnier_table::identify_columns(&grid);
-                if let Some(p_idx) = col_types.iter().position(|t| matches!(t, topturnier_table::ColumnType::Participant)) {
-                    let bib_idx = col_types.iter().position(|t| matches!(t, topturnier_table::ColumnType::Bib));
-                    let rank_idx = col_types.iter().position(|t| matches!(t, topturnier_table::ColumnType::Rank));
+                if let Some(p_idx) = col_types
+                    .iter()
+                    .position(|t| matches!(t, topturnier_table::ColumnType::Participant))
+                {
+                    let bib_idx = col_types
+                        .iter()
+                        .position(|t| matches!(t, topturnier_table::ColumnType::Bib));
+                    let rank_idx = col_types
+                        .iter()
+                        .position(|t| matches!(t, topturnier_table::ColumnType::Rank));
 
                     for r in 1..grid.height {
-                         let name = &grid.rows[r][p_idx];
-                         if name.is_empty() || crate::i18n::is_participant_marker(name) { continue; }
+                        let name = &grid.rows[r][p_idx];
+                        if name.is_empty() || crate::i18n::is_participant_marker(name) {
+                            continue;
+                        }
 
-                         let bib = if let Some(idx) = bib_idx {
-                             grid.rows[r][idx].parse().ok()
-                         } else {
-                             RE_BIB_PARENS.captures(name).and_then(|c| c[1].parse().ok())
-                         };
+                        let bib = if let Some(idx) = bib_idx {
+                            grid.rows[r][idx].parse().ok()
+                        } else {
+                            RE_BIB_PARENS.captures(name).and_then(|c| c[1].parse().ok())
+                        };
 
-                         let bib = match bib { Some(b) => b, None => continue };
+                        let bib = match bib {
+                            Some(b) => b,
+                            None => continue,
+                        };
 
-                         let rank = rank_idx.and_then(|idx| {
-                             RE_RANK.captures(&grid.rows[r][idx]).and_then(|c| c[1].parse().ok())
-                         });
+                        let rank = rank_idx.and_then(|idx| {
+                            RE_RANK
+                                .captures(&grid.rows[r][idx])
+                                .and_then(|c| c[1].parse().ok())
+                        });
 
-                         let (name_clean, club) = if name.contains('\n') {
-                             let p: Vec<_> = name.splitn(2, '\n').collect();
-                             (p[0].trim().to_string(), Some(p[1].replace('\n', " ").trim().to_string()))
-                         } else {
-                             (name.clone(), None)
-                         };
+                        let (name_clean, club) = if name.contains('\n') {
+                            let p: Vec<_> = name.splitn(2, '\n').collect();
+                            (
+                                p[0].trim().to_string(),
+                                Some(p[1].replace('\n', " ").trim().to_string()),
+                            )
+                        } else {
+                            (name.clone(), None)
+                        };
 
-                         let (it, n1, n2) = if name_clean.contains(" / ") {
-                             let p: Vec<_> = name_clean.split(" / ").collect();
-                             (IdentityType::Couple, p[0].trim().into(), Some(p[1].trim().into()))
-                         } else {
-                             (IdentityType::Solo, name_clean, None)
-                         };
+                        let (it, n1, n2) = if name_clean.contains(" / ") {
+                            let p: Vec<_> = name_clean.split(" / ").collect();
+                            (
+                                IdentityType::Couple,
+                                p[0].trim().into(),
+                                Some(p[1].trim().into()),
+                            )
+                        } else {
+                            (IdentityType::Solo, name_clean, None)
+                        };
 
-                         comp.participants.push(Participant {
-                             identity_type: it,
-                             name_one: n1,
-                             bib_number: bib,
-                             name_two: n2,
-                             affiliation: club,
-                             final_rank: rank,
-                         });
+                        comp.participants.push(Participant {
+                            identity_type: it,
+                            name_one: n1,
+                            bib_number: bib,
+                            name_two: n2,
+                            affiliation: club,
+                            final_rank: rank,
+                        });
                     }
                 }
             }
@@ -459,25 +495,30 @@ pub fn extract_event_data(data_dir: &str) -> Result<Competition> {
 
             let doc = Html::parse_document(&content);
             for table in doc.select(&Selector::parse(SELECTOR_TABLE).unwrap()) {
-                 let grid = topturnier_table::TableGrid::from_element(table);
-                 let intermediate = topturnier_table::extract_data(&grid);
+                let grid = topturnier_table::TableGrid::from_element(table);
+                let intermediate = topturnier_table::extract_data(&grid);
 
-                 let col_types = topturnier_table::identify_columns(&grid);
-                 let mut table_dances = Vec::new();
-                 for ct in col_types {
-                     if let topturnier_table::ColumnType::Mark { dance, .. } = ct {
-                         if !table_dances.contains(&dance) { table_dances.push(dance); }
-                     } else if let topturnier_table::ColumnType::Dance(dance) = ct {
-                         if !table_dances.contains(&dance) { table_dances.push(dance); }
-                     }
-                 }
-                 table_dances.retain(|d| full_style_dances.contains(d));
-                 for d in &table_dances {
-                     found_dances.insert(*d);
-                 }
+                let col_types = topturnier_table::identify_columns(&grid);
+                let mut table_dances = Vec::new();
+                for ct in col_types {
+                    if let topturnier_table::ColumnType::Mark { dance, .. } = ct {
+                        if !table_dances.contains(&dance) {
+                            table_dances.push(dance);
+                        }
+                    } else if let topturnier_table::ColumnType::Dance(dance) = ct {
+                        if !table_dances.contains(&dance) {
+                            table_dances.push(dance);
+                        }
+                    }
+                }
+                table_dances.retain(|d| full_style_dances.contains(d));
+                for d in &table_dances {
+                    found_dances.insert(*d);
+                }
 
-                 let file_rounds = topturnier_table::to_rounds(intermediate, &table_dances, &comp.officials);
-                 for fr in file_rounds {
+                let file_rounds =
+                    topturnier_table::to_rounds(intermediate, &table_dances, &comp.officials);
+                for fr in file_rounds {
                     if let Some(existing) = all_rounds.iter_mut().find(|r| r.name == fr.name) {
                         merge_round_data(&mut existing.data, fr.data);
                     } else {
@@ -496,33 +537,40 @@ pub fn extract_event_data(data_dir: &str) -> Result<Competition> {
     all_dances_vec.sort_by_key(|&d| d as u32);
 
     // Filter dances that actually appear in scoring rounds.
-    let scoring_dances: std::collections::HashSet<Dance> = all_rounds.iter()
+    let scoring_dances: std::collections::HashSet<Dance> = all_rounds
+        .iter()
         .flat_map(|r| {
-             let mut ds = std::collections::HashSet::new();
-             match &r.data {
-                 crate::models::RoundData::Marking { marking_crosses } => {
-                     for j_map in marking_crosses.values() {
-                         for p_map in j_map.values() {
-                             for d in p_map.keys() { ds.insert(*d); }
-                         }
-                     }
-                 }
-                 crate::models::RoundData::DTV { dtv_ranks } => {
-                     for j_map in dtv_ranks.values() {
-                         for p_map in j_map.values() {
-                             for d in p_map.keys() { ds.insert(*d); }
-                         }
-                     }
-                 }
-                 crate::models::RoundData::WDSF { wdsf_scores } => {
-                     for j_map in wdsf_scores.values() {
-                         for p_map in j_map.values() {
-                             for d in p_map.keys() { ds.insert(*d); }
-                         }
-                     }
-                 }
-             }
-             ds.into_iter()
+            let mut ds = std::collections::HashSet::new();
+            match &r.data {
+                crate::models::RoundData::Marking { marking_crosses } => {
+                    for j_map in marking_crosses.values() {
+                        for p_map in j_map.values() {
+                            for d in p_map.keys() {
+                                ds.insert(*d);
+                            }
+                        }
+                    }
+                }
+                crate::models::RoundData::DTV { dtv_ranks } => {
+                    for j_map in dtv_ranks.values() {
+                        for p_map in j_map.values() {
+                            for d in p_map.keys() {
+                                ds.insert(*d);
+                            }
+                        }
+                    }
+                }
+                crate::models::RoundData::WDSF { wdsf_scores } => {
+                    for j_map in wdsf_scores.values() {
+                        for p_map in j_map.values() {
+                            for d in p_map.keys() {
+                                ds.insert(*d);
+                            }
+                        }
+                    }
+                }
+            }
+            ds.into_iter()
         })
         .collect();
     all_dances_vec.retain(|d| scoring_dances.contains(d));
