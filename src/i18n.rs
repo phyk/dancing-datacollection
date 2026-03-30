@@ -77,8 +77,19 @@ pub fn parse_dances_no_fallback(s: &str) -> Vec<Dance> {
 
     for &(dance, aliases) in DANCE_ABBREVIATIONS {
         if aliases.iter().any(|&a| {
-            if a == "SF" {
-                s_up.contains("SF") && !s_up.contains("WDSF")
+            // Use a strict match for all dance aliases to avoid greedy matching (e.g. Walzer vs Wiener Walzer)
+            let escaped = regex::escape(a);
+            let flexible = escaped.replace(r"\ ", r"([\s/.,()<>]|&nbsp;|<[^>]+>)*");
+            let pattern = format!(
+                r"(^|[\s/.,()<>])({}|{})([\s/.,()<>]|&nbsp;|$)",
+                escaped, flexible
+            );
+            if let Ok(re) = regex::Regex::new(&pattern) {
+                if a == "SF" {
+                    re.is_match(&s_up) && !s_up.contains("WDSF")
+                } else {
+                    re.is_match(&s_up)
+                }
             } else {
                 s_up.contains(a)
             }
@@ -285,12 +296,26 @@ pub fn is_qualification_marker(s: &str) -> bool {
     QUALIFICATION_MARKERS.iter().any(|&m| lower.contains(m))
 }
 
-pub fn map_wdsf_score_type(line: &str) -> Option<&'static str> {
+pub fn map_wdsf_score_type(line: &str) -> Vec<&'static str> {
     let lower = line.to_lowercase();
-    WDSF_SCORE_TYPES
-        .iter()
-        .find(|&&(marker, _)| lower.contains(marker))
-        .map(|&(_, id)| id)
+    let mut results = Vec::new();
+
+    // Find all occurrences and their positions
+    let mut found = Vec::new();
+    for &(marker, id) in WDSF_SCORE_TYPES {
+        let mut start = 0;
+        while let Some(pos) = lower[start..].find(marker) {
+            found.push((start + pos, id));
+            start += pos + marker.len();
+        }
+    }
+
+    // Sort by position and collect IDs
+    found.sort_by_key(|&(pos, _)| pos);
+    for (_, id) in found {
+        results.push(id);
+    }
+    results
 }
 
 pub fn clean_competition_title(title: &str) -> String {

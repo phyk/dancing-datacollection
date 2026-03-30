@@ -112,15 +112,24 @@ pub struct WDSFScore {
 pub enum RoundData {
     #[serde(rename = "Mark")]
     Marking {
-        #[serde(serialize_with = "serialize_bib_btreemap", deserialize_with = "deserialize_bib_btreemap")]
+        #[serde(
+            serialize_with = "serialize_bib_btreemap",
+            deserialize_with = "deserialize_bib_btreemap"
+        )]
         marking_crosses: BTreeMap<String, BTreeMap<u32, BTreeMap<Dance, bool>>>,
     },
     DTV {
-        #[serde(serialize_with = "serialize_bib_btreemap", deserialize_with = "deserialize_bib_btreemap")]
+        #[serde(
+            serialize_with = "serialize_bib_btreemap",
+            deserialize_with = "deserialize_bib_btreemap"
+        )]
         dtv_ranks: BTreeMap<String, BTreeMap<u32, BTreeMap<Dance, u32>>>,
     },
     WDSF {
-        #[serde(serialize_with = "serialize_bib_btreemap", deserialize_with = "deserialize_bib_btreemap")]
+        #[serde(
+            serialize_with = "serialize_bib_btreemap",
+            deserialize_with = "deserialize_bib_btreemap"
+        )]
         wdsf_scores: BTreeMap<String, BTreeMap<u32, BTreeMap<Dance, WDSFScore>>>,
     },
 }
@@ -215,12 +224,7 @@ impl RoundData {
     }
 
     /// Checks if a specific judge has provided data for all specified dances for a given participant.
-    pub fn has_marks_for(
-        &self,
-        judge_code: &str,
-        bib: u32,
-        dances: &[Dance],
-    ) -> bool {
+    pub fn has_marks_for(&self, judge_code: &str, bib: u32, dances: &[Dance]) -> bool {
         match self {
             Self::Marking { marking_crosses } => marking_crosses
                 .get(judge_code)

@@ -223,7 +223,11 @@
       "marking_crosses": {
         "AB": {
           "1107": {
-            "Jive": true
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
           },
           "129": {
             "Samba": true,
@@ -233,7 +237,10 @@
             "Jive": true
           },
           "1290": {
-            "PasoDoble": true,
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": false,
             "Jive": true
           },
           "1323": {
@@ -244,14 +251,25 @@
             "Jive": true
           },
           "1338": {
-            "Jive": true
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
           },
           "1362": {
-            "Samba": true,
+            "Samba": false,
             "ChaChaCha": true,
             "Rumba": true,
             "PasoDoble": true,
             "Jive": true
+          },
+          "1371": {
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
           },
           "173": {
             "Samba": true,
@@ -276,8 +294,10 @@
           },
           "351": {
             "Samba": true,
-            "Rumba": true,
-            "Jive": true
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": true,
+            "Jive": false
           },
           "377": {
             "Samba": true,
@@ -287,7 +307,11 @@
             "Jive": true
           },
           "492": {
-            "Samba": true
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
           },
           "521": {
             "Samba": true,
@@ -311,7 +335,11 @@
             "Jive": true
           },
           "924": {
-            "ChaChaCha": true
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": true,
+            "PasoDoble": false,
+            "Jive": false
           },
           "930": {
             "Samba": true,
@@ -338,24 +366,37 @@
           },
           "1290": {
             "Samba": true,
-            "Rumba": true,
+            "ChaChaCha": false,
+            "Rumba": false,
             "PasoDoble": true,
             "Jive": true
           },
           "1323": {
             "Samba": true,
             "ChaChaCha": true,
-            "Jive": true
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
           },
           "1338": {
-            "ChaChaCha": true,
-            "Jive": true
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": true,
+            "PasoDoble": false,
+            "Jive": false
           },
           "1362": {
             "Samba": true,
             "ChaChaCha": true,
             "Rumba": true,
             "PasoDoble": true,
+            "Jive": true
+          },
+          "1371": {
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": false,
             "Jive": false
           },
           "173": {
@@ -366,6 +407,7 @@
             "Jive": true
           },
           "183": {
+            "Samba": false,
             "ChaChaCha": true,
             "Rumba": true,
             "PasoDoble": true,
@@ -373,13 +415,17 @@
           },
           "349": {
             "Samba": true,
-            "ChaChaCha": true,
+            "ChaChaCha": false,
             "Rumba": true,
             "PasoDoble": true,
-            "Jive": false
+            "Jive": true
           },
           "351": {
-            "Jive": true
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
           },
           "377": {
             "Samba": true,
@@ -389,7 +435,11 @@
             "Jive": true
           },
           "492": {
-            "ChaChaCha": true
+            "Samba": false,
+            "ChaChaCha": true,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
           },
           "521": {
             "Samba": true,
@@ -411,6 +461,13 @@
             "Rumba": true,
             "PasoDoble": true,
             "Jive": true
+          },
+          "924": {
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
           },
           "930": {
             "Samba": true,
@@ -422,82 +479,130 @@
         },
         "BB": {
           "1107": {
+            "Samba": false,
             "ChaChaCha": true,
             "Rumba": true,
-            "PasoDoble": true
+            "PasoDoble": false,
+            "Jive": true
           },
           "129": {
             "Samba": true,
             "ChaChaCha": true,
             "Rumba": true,
-            "PasoDoble": true
+            "PasoDoble": true,
+            "Jive": true
           },
           "1290": {
             "Samba": true,
             "ChaChaCha": true,
-            "Rumba": true,
-            "PasoDoble": true
+            "Rumba": false,
+            "PasoDoble": true,
+            "Jive": true
           },
           "1323": {
             "Samba": true,
             "ChaChaCha": true,
             "Rumba": true,
-            "PasoDoble": true
+            "PasoDoble": true,
+            "Jive": true
           },
           "1338": {
             "Samba": true,
             "ChaChaCha": true,
-            "Rumba": true,
-            "PasoDoble": true
+            "Rumba": false,
+            "PasoDoble": true,
+            "Jive": true
+          },
+          "1362": {
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
+          },
+          "1371": {
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
           },
           "173": {
             "Samba": true,
+            "ChaChaCha": false,
             "Rumba": true,
-            "PasoDoble": true
+            "PasoDoble": true,
+            "Jive": true
           },
           "183": {
             "Samba": true,
             "ChaChaCha": true,
             "Rumba": true,
-            "PasoDoble": true
+            "PasoDoble": true,
+            "Jive": true
           },
           "349": {
             "Samba": true,
             "ChaChaCha": true,
             "Rumba": true,
-            "PasoDoble": true
+            "PasoDoble": true,
+            "Jive": true
           },
           "351": {
             "Samba": true,
             "ChaChaCha": true,
-            "Rumba": true
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": false
+          },
+          "377": {
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
+          },
+          "492": {
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
           },
           "521": {
             "Samba": true,
             "ChaChaCha": true,
             "Rumba": true,
-            "PasoDoble": true
+            "PasoDoble": true,
+            "Jive": true
           },
           "650": {
             "Samba": true,
             "ChaChaCha": true,
             "Rumba": true,
-            "PasoDoble": true
+            "PasoDoble": true,
+            "Jive": true
           },
           "761": {
             "Samba": true,
             "ChaChaCha": true,
             "Rumba": true,
-            "PasoDoble": true
+            "PasoDoble": true,
+            "Jive": true
           },
           "924": {
-            "Rumba": true
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": true,
+            "PasoDoble": false,
+            "Jive": false
           },
           "930": {
             "Samba": true,
             "ChaChaCha": true,
             "Rumba": true,
-            "PasoDoble": true
+            "PasoDoble": true,
+            "Jive": true
           }
         },
         "BJ": {
@@ -505,83 +610,137 @@
             "Samba": true,
             "ChaChaCha": true,
             "Rumba": true,
-            "PasoDoble": true
+            "PasoDoble": true,
+            "Jive": true
           },
           "129": {
             "Samba": true,
             "ChaChaCha": true,
             "Rumba": true,
-            "PasoDoble": true
+            "PasoDoble": true,
+            "Jive": true
           },
           "1290": {
-            "PasoDoble": true
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": true,
+            "Jive": false
           },
           "1323": {
+            "Samba": false,
             "ChaChaCha": true,
             "Rumba": true,
-            "PasoDoble": true
+            "PasoDoble": true,
+            "Jive": true
           },
           "1338": {
             "Samba": true,
             "ChaChaCha": true,
-            "Rumba": true
+            "Rumba": true,
+            "PasoDoble": false,
+            "Jive": false
           },
           "1362": {
+            "Samba": false,
             "ChaChaCha": true,
             "Rumba": true,
-            "PasoDoble": true
+            "PasoDoble": true,
+            "Jive": true
+          },
+          "1371": {
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
           },
           "173": {
             "Samba": true,
             "ChaChaCha": true,
             "Rumba": true,
-            "PasoDoble": true
+            "PasoDoble": true,
+            "Jive": true
           },
           "183": {
             "Samba": true,
             "ChaChaCha": true,
             "Rumba": true,
-            "PasoDoble": true
+            "PasoDoble": true,
+            "Jive": true
           },
           "349": {
             "Samba": true,
             "ChaChaCha": true,
             "Rumba": true,
-            "PasoDoble": true
+            "PasoDoble": true,
+            "Jive": true
           },
           "351": {
             "Samba": true,
             "ChaChaCha": true,
-            "PasoDoble": true
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": true
           },
           "377": {
-            "Samba": true
+            "Samba": true,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
+          },
+          "492": {
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
           },
           "521": {
             "Samba": true,
             "ChaChaCha": true,
             "Rumba": true,
-            "PasoDoble": true
+            "PasoDoble": true,
+            "Jive": true
           },
           "650": {
             "Samba": true,
+            "ChaChaCha": false,
             "Rumba": true,
-            "PasoDoble": true
+            "PasoDoble": true,
+            "Jive": true
           },
           "761": {
             "Samba": true,
             "ChaChaCha": true,
             "Rumba": true,
-            "PasoDoble": true
+            "PasoDoble": true,
+            "Jive": true
+          },
+          "924": {
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
           },
           "930": {
             "Samba": true,
             "ChaChaCha": true,
             "Rumba": true,
-            "PasoDoble": true
+            "PasoDoble": true,
+            "Jive": true
           }
         },
         "BS": {
+          "1107": {
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
+          },
           "129": {
             "Samba": true,
             "ChaChaCha": true,
@@ -591,7 +750,10 @@
           },
           "1290": {
             "Samba": true,
-            "PasoDoble": true
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": true,
+            "Jive": false
           },
           "1323": {
             "Samba": true,
@@ -602,12 +764,24 @@
           },
           "1338": {
             "Samba": true,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": false,
             "Jive": true
           },
           "1362": {
             "Samba": true,
             "ChaChaCha": true,
+            "Rumba": false,
+            "PasoDoble": false,
             "Jive": true
+          },
+          "1371": {
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
           },
           "173": {
             "Samba": true,
@@ -624,14 +798,18 @@
             "Jive": true
           },
           "349": {
+            "Samba": false,
             "ChaChaCha": true,
             "Rumba": true,
             "PasoDoble": true,
             "Jive": true
           },
           "351": {
+            "Samba": false,
             "ChaChaCha": true,
-            "PasoDoble": true
+            "Rumba": false,
+            "PasoDoble": true,
+            "Jive": false
           },
           "377": {
             "Samba": true,
@@ -641,7 +819,11 @@
             "Jive": true
           },
           "492": {
-            "Rumba": true
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": true,
+            "PasoDoble": false,
+            "Jive": false
           },
           "521": {
             "Samba": true,
@@ -665,7 +847,11 @@
             "Jive": true
           },
           "924": {
-            "Rumba": true
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": true,
+            "PasoDoble": false,
+            "Jive": false
           },
           "930": {
             "Samba": true,
@@ -677,6 +863,7 @@
         },
         "BU": {
           "1107": {
+            "Samba": false,
             "ChaChaCha": true,
             "Rumba": true,
             "PasoDoble": true,
@@ -691,10 +878,13 @@
           },
           "1290": {
             "Samba": true,
+            "ChaChaCha": false,
+            "Rumba": false,
             "PasoDoble": true,
             "Jive": true
           },
           "1323": {
+            "Samba": false,
             "ChaChaCha": true,
             "Rumba": true,
             "PasoDoble": true,
@@ -704,99 +894,22 @@
             "Samba": true,
             "ChaChaCha": true,
             "Rumba": true,
-            "Jive": true
-          },
-          "173": {
-            "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "PasoDoble": true,
-            "Jive": true
-          },
-          "183": {
-            "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "PasoDoble": true,
-            "Jive": true
-          },
-          "349": {
-            "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "PasoDoble": true,
-            "Jive": true
-          },
-          "351": {
-            "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "PasoDoble": true
-          },
-          "377": {
-            "Samba": true
-          },
-          "521": {
-            "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "PasoDoble": true,
-            "Jive": true
-          },
-          "650": {
-            "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "PasoDoble": true,
-            "Jive": true
-          },
-          "761": {
-            "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "PasoDoble": true,
-            "Jive": true
-          },
-          "930": {
-            "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "PasoDoble": true,
-            "Jive": true
-          }
-        },
-        "CB": {
-          "1107": {
-            "Rumba": true,
-            "Jive": true
-          },
-          "129": {
-            "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "PasoDoble": true,
-            "Jive": true
-          },
-          "1290": {
-            "Samba": true,
-            "PasoDoble": true
-          },
-          "1323": {
-            "Samba": true,
-            "ChaChaCha": true,
-            "Rumba": true,
-            "Jive": true
-          },
-          "1338": {
-            "Samba": true,
-            "ChaChaCha": true,
+            "PasoDoble": false,
             "Jive": true
           },
           "1362": {
-            "ChaChaCha": true,
-            "Rumba": true,
-            "PasoDoble": true,
-            "Jive": true
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
+          },
+          "1371": {
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
           },
           "173": {
             "Samba": true,
@@ -814,18 +927,31 @@
           },
           "349": {
             "Samba": true,
-            "PasoDoble": true
-          },
-          "351": {
-            "Rumba": true,
-            "PasoDoble": true
-          },
-          "377": {
-            "Samba": true,
             "ChaChaCha": true,
             "Rumba": true,
             "PasoDoble": true,
             "Jive": true
+          },
+          "351": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": false
+          },
+          "377": {
+            "Samba": true,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
+          },
+          "492": {
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
           },
           "521": {
             "Samba": true,
@@ -849,7 +975,139 @@
             "Jive": true
           },
           "924": {
-            "ChaChaCha": true
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
+          },
+          "930": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
+          }
+        },
+        "CB": {
+          "1107": {
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": true,
+            "PasoDoble": false,
+            "Jive": true
+          },
+          "129": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
+          },
+          "1290": {
+            "Samba": true,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": true,
+            "Jive": false
+          },
+          "1323": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": false,
+            "Jive": true
+          },
+          "1338": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": true
+          },
+          "1362": {
+            "Samba": false,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
+          },
+          "1371": {
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
+          },
+          "173": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
+          },
+          "183": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
+          },
+          "349": {
+            "Samba": true,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": true,
+            "Jive": false
+          },
+          "351": {
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": false
+          },
+          "377": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
+          },
+          "492": {
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
+          },
+          "521": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
+          },
+          "650": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
+          },
+          "761": {
+            "Samba": true,
+            "ChaChaCha": true,
+            "Rumba": true,
+            "PasoDoble": true,
+            "Jive": true
+          },
+          "924": {
+            "Samba": false,
+            "ChaChaCha": true,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
           },
           "930": {
             "Samba": true,
@@ -874,12 +1132,33 @@
       "round_type": "Mark",
       "marking_crosses": {
         "AB": {
+          "1107": {
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
+          },
           "129": {
             "Samba": true,
             "ChaChaCha": true,
             "Rumba": true,
             "PasoDoble": true,
             "Jive": true
+          },
+          "1323": {
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
+          },
+          "1362": {
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
           },
           "173": {
             "Samba": true,
@@ -889,10 +1168,22 @@
             "Jive": true
           },
           "183": {
-            "Jive": true
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
+          },
+          "349": {
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
           },
           "377": {
-            "ChaChaCha": true,
+            "Samba": false,
+            "ChaChaCha": false,
             "Rumba": true,
             "PasoDoble": true,
             "Jive": true
@@ -906,7 +1197,10 @@
           },
           "650": {
             "Samba": true,
-            "Jive": true
+            "ChaChaCha": true,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
           },
           "761": {
             "Samba": true,
@@ -924,6 +1218,13 @@
           }
         },
         "AF": {
+          "1107": {
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
+          },
           "129": {
             "Samba": true,
             "ChaChaCha": true,
@@ -931,8 +1232,19 @@
             "PasoDoble": true,
             "Jive": true
           },
+          "1323": {
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
+          },
           "1362": {
-            "Rumba": true
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": true,
+            "Jive": false
           },
           "173": {
             "Samba": true,
@@ -942,12 +1254,25 @@
             "Jive": true
           },
           "183": {
+            "Samba": false,
             "ChaChaCha": true,
-            "PasoDoble": true,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": true
+          },
+          "349": {
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": false,
             "Jive": false
           },
           "377": {
-            "Jive": true
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
           },
           "521": {
             "Samba": true,
@@ -958,8 +1283,10 @@
           },
           "650": {
             "Samba": true,
-            "ChaChaCha": true,
-            "Jive": true
+            "ChaChaCha": false,
+            "Rumba": true,
+            "PasoDoble": false,
+            "Jive": false
           },
           "761": {
             "Samba": true,
@@ -977,90 +1304,205 @@
           }
         },
         "BB": {
+          "1107": {
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
+          },
           "129": {
             "Samba": true,
             "ChaChaCha": true,
             "Rumba": true,
-            "PasoDoble": true
+            "PasoDoble": true,
+            "Jive": true
           },
           "1323": {
-            "ChaChaCha": true
+            "Samba": false,
+            "ChaChaCha": true,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
+          },
+          "1362": {
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
+          },
+          "173": {
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
           },
           "183": {
             "Samba": true,
             "ChaChaCha": true,
             "Rumba": true,
-            "PasoDoble": true
+            "PasoDoble": true,
+            "Jive": true
+          },
+          "349": {
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
+          },
+          "377": {
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
           },
           "521": {
             "Samba": true,
             "ChaChaCha": true,
             "Rumba": true,
-            "PasoDoble": true
+            "PasoDoble": true,
+            "Jive": true
           },
           "650": {
             "Samba": true,
+            "ChaChaCha": false,
             "Rumba": true,
-            "PasoDoble": true
+            "PasoDoble": true,
+            "Jive": true
           },
           "761": {
             "Samba": true,
             "ChaChaCha": true,
             "Rumba": true,
-            "PasoDoble": true
+            "PasoDoble": true,
+            "Jive": true
           },
           "930": {
             "Samba": true,
             "ChaChaCha": true,
             "Rumba": true,
-            "PasoDoble": true
+            "PasoDoble": true,
+            "Jive": true
           }
         },
         "BJ": {
+          "1107": {
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
+          },
           "129": {
             "Samba": true,
             "ChaChaCha": true,
             "Rumba": true,
-            "PasoDoble": true
+            "PasoDoble": true,
+            "Jive": true
+          },
+          "1323": {
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
+          },
+          "1362": {
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
           },
           "173": {
             "Samba": true,
             "ChaChaCha": true,
             "Rumba": true,
-            "PasoDoble": true
+            "PasoDoble": true,
+            "Jive": true
           },
           "183": {
             "Samba": true,
             "ChaChaCha": true,
             "Rumba": true,
-            "PasoDoble": true
+            "PasoDoble": true,
+            "Jive": true
+          },
+          "349": {
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
+          },
+          "377": {
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
           },
           "521": {
             "Samba": true,
             "ChaChaCha": true,
             "Rumba": true,
-            "PasoDoble": true
+            "PasoDoble": true,
+            "Jive": true
+          },
+          "650": {
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
           },
           "761": {
             "Samba": true,
             "ChaChaCha": true,
             "Rumba": true,
-            "PasoDoble": true
+            "PasoDoble": true,
+            "Jive": true
           },
           "930": {
             "Samba": true,
             "ChaChaCha": true,
             "Rumba": true,
-            "PasoDoble": true
+            "PasoDoble": true,
+            "Jive": true
           }
         },
         "BS": {
+          "1107": {
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
+          },
           "129": {
             "Samba": true,
-            "ChaChaCha": true
+            "ChaChaCha": true,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
           },
           "1323": {
-            "Rumba": true
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": true,
+            "PasoDoble": false,
+            "Jive": false
+          },
+          "1362": {
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
           },
           "173": {
             "Samba": true,
@@ -1070,8 +1512,18 @@
             "Jive": true
           },
           "183": {
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": false,
             "PasoDoble": true,
             "Jive": true
+          },
+          "349": {
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
           },
           "377": {
             "Samba": true,
@@ -1084,9 +1536,14 @@
             "Samba": true,
             "ChaChaCha": true,
             "Rumba": true,
-            "PasoDoble": true
+            "PasoDoble": true,
+            "Jive": false
           },
           "650": {
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": false,
             "Jive": true
           },
           "761": {
@@ -1105,6 +1562,13 @@
           }
         },
         "BU": {
+          "1107": {
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
+          },
           "129": {
             "Samba": true,
             "ChaChaCha": true,
@@ -1112,9 +1576,26 @@
             "PasoDoble": true,
             "Jive": true
           },
+          "1323": {
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
+          },
           "1362": {
+            "Samba": false,
+            "ChaChaCha": false,
             "Rumba": true,
+            "PasoDoble": false,
             "Jive": true
+          },
+          "173": {
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
           },
           "183": {
             "Samba": true,
@@ -1126,7 +1607,16 @@
           "349": {
             "Samba": true,
             "ChaChaCha": true,
-            "PasoDoble": true
+            "Rumba": false,
+            "PasoDoble": true,
+            "Jive": false
+          },
+          "377": {
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
           },
           "521": {
             "Samba": true,
@@ -1134,6 +1624,13 @@
             "Rumba": true,
             "PasoDoble": true,
             "Jive": true
+          },
+          "650": {
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
           },
           "761": {
             "Samba": true,
@@ -1151,12 +1648,33 @@
           }
         },
         "CB": {
+          "1107": {
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
+          },
           "129": {
             "Samba": true,
             "ChaChaCha": true,
             "Rumba": true,
             "PasoDoble": true,
             "Jive": true
+          },
+          "1323": {
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
+          },
+          "1362": {
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
           },
           "173": {
             "Samba": true,
@@ -1166,7 +1684,18 @@
             "Jive": true
           },
           "183": {
-            "ChaChaCha": true
+            "Samba": false,
+            "ChaChaCha": true,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
+          },
+          "349": {
+            "Samba": false,
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": false,
+            "Jive": false
           },
           "377": {
             "Samba": true,
@@ -1184,7 +1713,10 @@
           },
           "650": {
             "Samba": true,
-            "PasoDoble": true
+            "ChaChaCha": false,
+            "Rumba": false,
+            "PasoDoble": true,
+            "Jive": false
           },
           "761": {
             "Samba": true,
@@ -1194,7 +1726,10 @@
             "Jive": true
           },
           "930": {
+            "Samba": false,
+            "ChaChaCha": false,
             "Rumba": true,
+            "PasoDoble": false,
             "Jive": true
           }
         }
@@ -1215,77 +1750,89 @@
         "AB": {
           "129": {
             "Samba": 4,
-            "ChaChaCha": 2,
+            "ChaChaCha": 4,
             "Rumba": 2,
-            "PasoDoble": 4
+            "PasoDoble": 2,
+            "Jive": 4
           },
           "173": {
             "Samba": 3,
-            "ChaChaCha": 4,
-            "Rumba": 3,
-            "PasoDoble": 2
+            "ChaChaCha": 3,
+            "Rumba": 4,
+            "PasoDoble": 3,
+            "Jive": 2
           },
           "183": {
             "Samba": 6,
             "ChaChaCha": 6,
             "Rumba": 6,
-            "PasoDoble": 6
+            "PasoDoble": 6,
+            "Jive": 6
           },
           "521": {
             "Samba": 2,
-            "ChaChaCha": 3,
-            "Rumba": 4,
-            "PasoDoble": 3
+            "ChaChaCha": 2,
+            "Rumba": 3,
+            "PasoDoble": 4,
+            "Jive": 3
           },
           "761": {
             "Samba": 1,
             "ChaChaCha": 1,
             "Rumba": 1,
-            "PasoDoble": 1
+            "PasoDoble": 1,
+            "Jive": 1
           },
           "930": {
             "Samba": 5,
             "ChaChaCha": 5,
             "Rumba": 5,
-            "PasoDoble": 5
+            "PasoDoble": 5,
+            "Jive": 5
           }
         },
         "AF": {
           "129": {
             "Samba": 4,
-            "ChaChaCha": 4,
-            "Rumba": 6,
-            "PasoDoble": 5
+            "ChaChaCha": 5,
+            "Rumba": 4,
+            "PasoDoble": 6,
+            "Jive": 5
           },
           "173": {
             "Samba": 3,
             "ChaChaCha": 3,
             "Rumba": 3,
-            "PasoDoble": 3
+            "PasoDoble": 3,
+            "Jive": 3
           },
           "183": {
             "Samba": 5,
-            "ChaChaCha": 6,
-            "Rumba": 4,
-            "PasoDoble": 4
+            "ChaChaCha": 4,
+            "Rumba": 6,
+            "PasoDoble": 4,
+            "Jive": 4
           },
           "521": {
             "Samba": 1,
             "ChaChaCha": 1,
-            "Rumba": 2,
-            "PasoDoble": 2
+            "Rumba": 1,
+            "PasoDoble": 2,
+            "Jive": 2
           },
           "761": {
             "Samba": 2,
             "ChaChaCha": 2,
-            "Rumba": 1,
-            "PasoDoble": 1
+            "Rumba": 2,
+            "PasoDoble": 1,
+            "Jive": 1
           },
           "930": {
             "Samba": 6,
-            "ChaChaCha": 5,
+            "ChaChaCha": 6,
             "Rumba": 5,
-            "PasoDoble": 6
+            "PasoDoble": 5,
+            "Jive": 6
           }
         },
         "BB": {
@@ -1293,37 +1840,43 @@
             "Samba": 3,
             "ChaChaCha": 3,
             "Rumba": 3,
-            "PasoDoble": 3
+            "PasoDoble": 3,
+            "Jive": 3
           },
           "173": {
             "Samba": 6,
             "ChaChaCha": 6,
             "Rumba": 6,
-            "PasoDoble": 6
+            "PasoDoble": 6,
+            "Jive": 6
           },
           "183": {
             "Samba": 5,
             "ChaChaCha": 5,
-            "Rumba": 4,
-            "PasoDoble": 5
+            "Rumba": 5,
+            "PasoDoble": 4,
+            "Jive": 5
           },
           "521": {
             "Samba": 1,
             "ChaChaCha": 1,
-            "Rumba": 1,
-            "PasoDoble": 1
+            "Rumba": 2,
+            "PasoDoble": 1,
+            "Jive": 1
           },
           "761": {
             "Samba": 2,
             "ChaChaCha": 2,
-            "Rumba": 2,
-            "PasoDoble": 2
+            "Rumba": 1,
+            "PasoDoble": 2,
+            "Jive": 2
           },
           "930": {
             "Samba": 4,
             "ChaChaCha": 4,
-            "Rumba": 5,
-            "PasoDoble": 4
+            "Rumba": 4,
+            "PasoDoble": 5,
+            "Jive": 4
           }
         },
         "BJ": {
@@ -1331,37 +1884,43 @@
             "Samba": 3,
             "ChaChaCha": 3,
             "Rumba": 4,
-            "PasoDoble": 4
+            "PasoDoble": 3,
+            "Jive": 4
           },
           "173": {
             "Samba": 4,
             "ChaChaCha": 4,
             "Rumba": 3,
-            "PasoDoble": 3
+            "PasoDoble": 4,
+            "Jive": 3
           },
           "183": {
             "Samba": 6,
             "ChaChaCha": 5,
             "Rumba": 5,
-            "PasoDoble": 6
+            "PasoDoble": 5,
+            "Jive": 6
           },
           "521": {
             "Samba": 1,
             "ChaChaCha": 2,
             "Rumba": 1,
-            "PasoDoble": 2
+            "PasoDoble": 2,
+            "Jive": 2
           },
           "761": {
             "Samba": 2,
             "ChaChaCha": 1,
             "Rumba": 2,
-            "PasoDoble": 1
+            "PasoDoble": 1,
+            "Jive": 1
           },
           "930": {
             "Samba": 5,
             "ChaChaCha": 6,
             "Rumba": 6,
-            "PasoDoble": 5
+            "PasoDoble": 6,
+            "Jive": 5
           }
         },
         "BS": {
