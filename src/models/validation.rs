@@ -3,11 +3,7 @@ use crate::models::{Competition, Dance, Judge, Round, RoundData};
 use std::collections::BTreeMap;
 
 /// Helper method to check if all expected data is present in a round.
-fn is_round_complete(
-    round: &Round,
-    expected_judges: &[Judge],
-    dances: &[Dance],
-) -> bool {
+fn is_round_complete(round: &Round, expected_judges: &[Judge], dances: &[Dance]) -> bool {
     let round_participants = round.data.participant_bibs();
     if round_participants.is_empty() {
         return false;
@@ -50,7 +46,8 @@ pub fn validate_competition_fidelity(comp: &Competition) -> bool {
         return false; // Last round must be a scoring round
     }
 
-    let all_valid_bibs: std::collections::BTreeSet<u32> = comp.participants.iter().map(|p| p.bib_number).collect();
+    let all_valid_bibs: std::collections::BTreeSet<u32> =
+        comp.participants.iter().map(|p| p.bib_number).collect();
     let mut round_participant_sets = Vec::new();
 
     for round in &comp.rounds {
@@ -107,12 +104,23 @@ pub fn validate_competition_fidelity(comp: &Competition) -> bool {
                 if rank <= round_set.len() as u32 && !round_set.contains(&participant.bib_number) {
                     // Check if they might have been in a parallel redance instead
                     let mut in_redance = false;
-                    if i + 1 < comp.rounds.len() && crate::i18n::is_redance(&comp.rounds[i+1].name) {
-                        if round_participant_sets[i+1].contains(&participant.bib_number) {
-                            in_redance = true;
+                    if i + 1 < comp.rounds.len()
+                        && crate::i18n::is_redance(&comp.rounds[i + 1].name)
+                        && round_participant_sets[i + 1].contains(&participant.bib_number)
+                    {
+                        in_redance = true;
+                    }
+
+                    // Check if they were seeded into a LATER round
+                    let mut seeded_later = false;
+                    for later_set in &round_participant_sets[i + 1..] {
+                        if later_set.contains(&participant.bib_number) {
+                            seeded_later = true;
+                            break;
                         }
                     }
-                    if !in_redance {
+
+                    if !in_redance && !seeded_later {
                         return false;
                     }
                 }
