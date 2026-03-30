@@ -77,21 +77,18 @@ pub fn parse_dances_no_fallback(s: &str) -> Vec<Dance> {
 
     for &(dance, aliases) in DANCE_ABBREVIATIONS {
         if aliases.iter().any(|&a| {
-            if a.len() <= 3 || a.contains(' ') {
-                // Use a stricter match for short abbreviations or names with spaces
-                let pattern = format!(
-                    r"(^|[\s/.,()<>])({}|{})([\s/.,()<>]|&nbsp;|$)",
-                    regex::escape(a),
-                    regex::escape(a).replace(r"\ ", r"([\s/.,()<>]|&nbsp;|<[^>]+>)*")
-                );
-                if let Ok(re) = regex::Regex::new(&pattern) {
-                    if a == "SF" {
-                        re.is_match(&s_up) && !s_up.contains("WDSF")
-                    } else {
-                        re.is_match(&s_up)
-                    }
+            // Use a strict match for all dance aliases to avoid greedy matching (e.g. Walzer vs Wiener Walzer)
+            let escaped = regex::escape(a);
+            let flexible = escaped.replace(r"\ ", r"([\s/.,()<>]|&nbsp;|<[^>]+>)*");
+            let pattern = format!(
+                r"(^|[\s/.,()<>])({}|{})([\s/.,()<>]|&nbsp;|$)",
+                escaped, flexible
+            );
+            if let Ok(re) = regex::Regex::new(&pattern) {
+                if a == "SF" {
+                    re.is_match(&s_up) && !s_up.contains("WDSF")
                 } else {
-                    s_up.contains(a)
+                    re.is_match(&s_up)
                 }
             } else {
                 s_up.contains(a)

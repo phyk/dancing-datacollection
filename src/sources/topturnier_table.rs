@@ -131,7 +131,11 @@ pub fn extract_text(el: ElementRef) -> String {
             text.push_str(t);
         }
     }
-    text.replace('\u{a0}', " ").trim().to_string()
+    // We trim horizontal whitespace but PRESERVE newlines,
+    // as they separate rounds in TopTurnier tables.
+    text.replace('\u{a0}', " ")
+        .trim_matches(|c: char| c.is_whitespace() && c != '\n')
+        .to_string()
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -173,33 +177,49 @@ pub fn identify_columns(grid: &TableGrid) -> Vec<ColumnType> {
     let mut col_types = vec![ColumnType::Unknown; grid.width];
     let mut col_dances = vec![None; grid.width];
 
-    // 1. Identify dances and basic column types from header rows (0 and 1)
+    // 1. Identify dances first to establish context for judge columns
     for r in 0..grid.height.min(2) {
-        for c in 0..grid.width {
+        for (c, dance_opt) in col_dances.iter_mut().enumerate().take(grid.width) {
             let val = &grid.rows[r][c];
             if val.is_empty() {
                 continue;
             }
 
-            // Identify basic columns
-            if col_types[c] == ColumnType::Unknown {
-                if crate::i18n::is_rank_column_marker(val) {
-                    col_types[c] = ColumnType::Rank;
-                } else if crate::i18n::is_participant_marker(val) {
-                    col_types[c] = ColumnType::Participant;
-                } else if crate::i18n::is_bib_column_marker(val) {
-                    col_types[c] = ColumnType::Bib;
-                } else if crate::i18n::is_round_column_marker(val) {
-                    col_types[c] = ColumnType::Round;
-                } else if crate::i18n::is_sum_column_marker(val) {
-                    col_types[c] = ColumnType::Sum;
-                }
+            let ds = crate::i18n::parse_dances_no_fallback(val);
+            if !ds.is_empty() && dance_opt.is_none() {
+                *dance_opt = Some(ds[0]);
+            }
+        }
+    }
+
+    // 1b. Identify basic column types, prioritizing dance context
+    for r in 0..grid.height.min(2) {
+        for c in 0..grid.width {
+            let val = &grid.rows[r][c];
+            if val.is_empty() || col_types[c] != ColumnType::Unknown {
+                continue;
             }
 
-            // Identify dances
-            let ds = crate::i18n::parse_dances_no_fallback(val);
-            if !ds.is_empty() && col_dances[c].is_none() {
-                col_dances[c] = Some(ds[0]);
+            // High priority: Sum marker (Su, PZ, Summe)
+            if crate::i18n::is_sum_column_marker(val) {
+                col_types[c] = ColumnType::Sum;
+                continue;
+            }
+
+            // If this column is part of a dance, ignore generic markers like "R" or "Nr"
+            // which might clash with judge codes.
+            if col_dances[c].is_some() {
+                continue;
+            }
+
+            if crate::i18n::is_rank_column_marker(val) {
+                col_types[c] = ColumnType::Rank;
+            } else if crate::i18n::is_participant_marker(val) {
+                col_types[c] = ColumnType::Participant;
+            } else if crate::i18n::is_bib_column_marker(val) {
+                col_types[c] = ColumnType::Bib;
+            } else if crate::i18n::is_round_column_marker(val) {
+                col_types[c] = ColumnType::Round;
             }
         }
     }
