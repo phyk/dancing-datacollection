@@ -62,9 +62,9 @@ pub fn calculate_dance_ranks(
 
                 let (b0, c0, s0) = candidates[0];
                 let mut tied = vec![b0];
-                for k in 1..candidates.len() {
-                    if candidates[k].1 == c0 && candidates[k].2 == s0 {
-                        tied.push(candidates[k].0);
+                for cand in candidates.iter().skip(1) {
+                    if cand.1 == c0 && cand.2 == s0 {
+                        tied.push(cand.0);
                     } else {
                         break;
                     }
@@ -93,10 +93,10 @@ pub fn calculate_dance_ranks(
 
                 let winner_bib = tied[0];
                 let mut winners = vec![winner_bib];
-                for k in 1..tied.len() {
+                for &t_bib in tied.iter().skip(1) {
                     let mut identical = true;
                     for check_r in r..=num_participants as u32 {
-                        if get_count_sum(tied[k], check_r, judge_marks)
+                        if get_count_sum(t_bib, check_r, judge_marks)
                             != get_count_sum(winner_bib, check_r, judge_marks)
                         {
                             identical = false;
@@ -104,7 +104,7 @@ pub fn calculate_dance_ranks(
                         }
                     }
                     if identical {
-                        winners.push(tied[k]);
+                        winners.push(t_bib);
                     } else {
                         break;
                     }
@@ -323,7 +323,125 @@ mod tests {
             judge_marks.insert(j.to_string(), jm);
         }
         let ranks = calculate_dance_ranks(&judge_marks);
-        assert_eq!(ranks[&101], 1.0);
-        assert_eq!(ranks[&102], 2.0);
+        assert!((ranks[&101] - 1.0).abs() < 0.001);
+        assert!((ranks[&102] - 2.0).abs() < 0.001);
+    }
+
+    #[test]
+    fn test_rule_7_majority_size() {
+        let mut judge_marks = BTreeMap::new();
+        let marks = vec![
+            ("A", 101, 1),
+            ("A", 102, 2),
+            ("B", 101, 1),
+            ("B", 102, 1),
+            ("C", 101, 1),
+            ("C", 102, 1),
+            ("D", 101, 2),
+            ("D", 102, 2),
+            ("E", 101, 2),
+            ("E", 102, 2),
+        ];
+        for (j, b, m) in marks {
+            judge_marks
+                .entry(j.to_string())
+                .or_insert_with(BTreeMap::new)
+                .insert(b, m);
+        }
+        let ranks = calculate_dance_ranks(&judge_marks);
+        assert!((ranks[&101] - 1.0).abs() < 0.001);
+        assert!((ranks[&102] - 2.0).abs() < 0.001);
+    }
+
+    #[test]
+    fn test_rule_8_sum_of_marks() {
+        let mut judge_marks = BTreeMap::new();
+        let marks = vec![
+            ("A", 101, 1),
+            ("A", 102, 1),
+            ("B", 101, 1),
+            ("B", 102, 2),
+            ("C", 101, 2),
+            ("C", 102, 2),
+            ("D", 101, 2),
+            ("D", 102, 2),
+            ("E", 101, 3),
+            ("E", 102, 3),
+        ];
+        for (j, b, m) in marks {
+            judge_marks
+                .entry(j.to_string())
+                .or_insert_with(BTreeMap::new)
+                .insert(b, m);
+        }
+        let ranks = calculate_dance_ranks(&judge_marks);
+        assert!((ranks[&101] - 1.0).abs() < 0.001);
+        assert!((ranks[&102] - 2.0).abs() < 0.001);
+    }
+
+    #[test]
+    fn test_rule_10_11_final_tie() {
+        let mut dance_ranks = BTreeMap::new();
+        let mut d1 = BTreeMap::new();
+        d1.insert(101, 1.0);
+        d1.insert(102, 2.0);
+        dance_ranks.insert(Dance::SlowWaltz, d1);
+        let mut d2 = BTreeMap::new();
+        d2.insert(101, 2.0);
+        d2.insert(102, 1.0);
+        dance_ranks.insert(Dance::Tango, d2);
+
+        let mut all_judge_marks = BTreeMap::new();
+        let mut sw_marks = BTreeMap::new();
+        let mut tg_marks = BTreeMap::new();
+        for j in &["A", "B", "C"] {
+            let mut jm_sw = BTreeMap::new();
+            jm_sw.insert(101, 1);
+            jm_sw.insert(102, 2);
+            sw_marks.insert(j.to_string(), jm_sw);
+            let mut jm_tg = BTreeMap::new();
+            jm_tg.insert(101, 2);
+            jm_tg.insert(102, 1);
+            tg_marks.insert(j.to_string(), jm_tg);
+        }
+        all_judge_marks.insert(Dance::SlowWaltz, sw_marks);
+        all_judge_marks.insert(Dance::Tango, tg_marks);
+        let final_ranks = calculate_final_ranks(&dance_ranks, Some(&all_judge_marks));
+        assert!(final_ranks[&101] == 1 || final_ranks[&101] == 2);
+    }
+
+    #[test]
+    fn test_unbreakable_tie() {
+        let mut judge_marks = BTreeMap::new();
+        // 3 judges, 2 bibs, exactly same marks
+        for j in &["A", "B", "C"] {
+            let mut jm = BTreeMap::new();
+            jm.insert(101, 1);
+            jm.insert(102, 1);
+            judge_marks.insert(j.to_string(), jm);
+        }
+        let ranks = calculate_dance_ranks(&judge_marks);
+        assert!((ranks[&101] - 1.5).abs() < 0.001);
+        assert!((ranks[&102] - 1.5).abs() < 0.001);
+    }
+
+    #[test]
+    fn test_wdsf_verify() {
+        let score = WDSFScore {
+            technical_quality: 8.5,
+            movement_to_music: 8.0,
+            partnering_skills: 8.5,
+            choreography: 9.0,
+            total: 8.5,
+        };
+        assert!(verify_wdsf_score(&score));
+        let bad_score = WDSFScore {
+            technical_quality: 8.5,
+            movement_to_music: 8.0,
+            partnering_skills: 8.5,
+            choreography: 9.0,
+            total: 9.5,
+        };
+        assert!(!verify_wdsf_score(&bad_score));
     }
 }
