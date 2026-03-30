@@ -112,7 +112,17 @@ pub fn validate_competition_fidelity(comp: &Competition) -> bool {
                             in_redance = true;
                         }
                     }
-                    if !in_redance {
+
+                    // Check if they were seeded into a LATER round
+                    let mut seeded_later = false;
+                    for later_set in &round_participant_sets[i + 1..] {
+                        if later_set.contains(&participant.bib_number) {
+                            seeded_later = true;
+                            break;
+                        }
+                    }
+
+                    if !in_redance && !seeded_later {
                         return false;
                     }
                 }
