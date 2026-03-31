@@ -132,6 +132,39 @@ pub fn calculate_dance_ranks(
     final_ranks
 }
 
+fn compare_final_dtv(
+    a: u32,
+    b: u32,
+    bib_sums: &BTreeMap<u32, f64>,
+    dance_ranks: &BTreeMap<Dance, BTreeMap<u32, f64>>,
+    all_judge_marks: Option<&JudgeMarksMap>,
+) -> std::cmp::Ordering {
+    let sum_a = bib_sums[&a];
+    let sum_b = bib_sums[&b];
+    if (sum_a - sum_b).abs() > 0.001 {
+        return sum_a.partial_cmp(&sum_b).unwrap();
+    }
+
+    let cmp_r11 = break_rule_11_dance_ranks(a, b, dance_ranks);
+    if cmp_r11 != std::cmp::Ordering::Equal {
+        return cmp_r11;
+    }
+
+    let cmp_r11_no_maj = break_rule_11_no_majority(a, b, dance_ranks);
+    if cmp_r11_no_maj != std::cmp::Ordering::Equal {
+        return cmp_r11_no_maj;
+    }
+
+    if let Some(all_marks) = all_judge_marks {
+        let cmp_r12 = break_rule_12(a, b, all_marks);
+        if cmp_r12 != std::cmp::Ordering::Equal {
+            return cmp_r12;
+        }
+    }
+
+    std::cmp::Ordering::Equal
+}
+
 /// Calculates final ranks across all dances (Rules 10-12).
 pub fn calculate_final_ranks(
     dance_ranks: &BTreeMap<Dance, BTreeMap<u32, f64>>,
@@ -150,52 +183,25 @@ pub fn calculate_final_ranks(
     }
 
     bibs.sort_by(|&a, &b| {
-        let sum_a = bib_sums[&a];
-        let sum_b = bib_sums[&b];
-        if (sum_a - sum_b).abs() > 0.001 {
-            sum_a.partial_cmp(&sum_b).unwrap()
+        let cmp = compare_final_dtv(a, b, &bib_sums, dance_ranks, all_judge_marks);
+        if cmp == std::cmp::Ordering::Equal {
+            a.cmp(&b)
         } else {
-            let cmp_r11 = break_rule_11_dance_ranks(a, b, dance_ranks);
-            if cmp_r11 != std::cmp::Ordering::Equal {
-                cmp_r11
-            } else if let Some(all_marks) = all_judge_marks {
-                break_rule_12(a, b, all_marks)
-            } else {
-                a.cmp(&b)
-            }
+            cmp
         }
     });
 
     let mut final_ranks = BTreeMap::new();
     let mut i = 0;
     while i < bibs.len() {
-        let bib = bibs[i];
-        let sum = bib_sums[&bib];
-
-        let mut tie_group = vec![bib];
+        let mut tie_group = vec![bibs[i]];
         let mut j = i + 1;
+
         while j < bibs.len() {
-            let next_bib = bibs[j];
-            let next_sum = bib_sums[&next_bib];
-
-            let tied = if (sum - next_sum).abs() < 0.001 {
-                if break_rule_11_dance_ranks(bib, next_bib, dance_ranks)
-                    == std::cmp::Ordering::Equal
-                {
-                    if let Some(all_marks) = all_judge_marks {
-                        break_rule_12(bib, next_bib, all_marks) == std::cmp::Ordering::Equal
-                    } else {
-                        true
-                    }
-                } else {
-                    false
-                }
-            } else {
-                false
-            };
-
-            if tied {
-                tie_group.push(next_bib);
+            if compare_final_dtv(bibs[i], bibs[j], &bib_sums, dance_ranks, all_judge_marks)
+                == std::cmp::Ordering::Equal
+            {
+                tie_group.push(bibs[j]);
                 j += 1;
             } else {
                 break;
@@ -210,6 +216,7 @@ pub fn calculate_final_ranks(
     final_ranks
 }
 
+/// Rule 10/11 implementation (sequential countback).
 fn break_rule_11_dance_ranks(
     a: u32,
     b: u32,
@@ -247,6 +254,45 @@ fn break_rule_11_dance_ranks(
             if (sum_a - sum_b).abs() > 0.001 {
                 return sum_a.partial_cmp(&sum_b).unwrap();
             }
+        }
+    }
+    std::cmp::Ordering::Equal
+}
+
+/// Fallback for Rule 11 without majority requirement.
+fn break_rule_11_no_majority(
+    a: u32,
+    b: u32,
+    dance_ranks: &BTreeMap<Dance, BTreeMap<u32, f64>>,
+) -> std::cmp::Ordering {
+    let mut ranks_a: Vec<f64> = dance_ranks
+        .values()
+        .filter_map(|m| m.get(&a).cloned())
+        .collect();
+    let mut ranks_b: Vec<f64> = dance_ranks
+        .values()
+        .filter_map(|m| m.get(&b).cloned())
+        .collect();
+    ranks_a.sort_by(|x, y| x.partial_cmp(y).unwrap());
+    ranks_b.sort_by(|x, y| x.partial_cmp(y).unwrap());
+
+    let max_rank = ranks_a
+        .iter()
+        .chain(ranks_b.iter())
+        .cloned()
+        .fold(0.0, f64::max) as u32;
+
+    for r in 1..=max_rank {
+        let count_a = ranks_a.iter().filter(|&&rk| rk <= r as f64).count();
+        let count_b = ranks_b.iter().filter(|&&rk| rk <= r as f64).count();
+
+        if count_a != count_b {
+            return count_b.cmp(&count_a);
+        }
+        let sum_a: f64 = ranks_a.iter().filter(|&&rk| rk <= r as f64).sum();
+        let sum_b: f64 = ranks_b.iter().filter(|&&rk| rk <= r as f64).sum();
+        if (sum_a - sum_b).abs() > 0.001 {
+            return sum_a.partial_cmp(&sum_b).unwrap();
         }
     }
     std::cmp::Ordering::Equal
