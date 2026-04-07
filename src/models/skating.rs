@@ -132,39 +132,6 @@ pub fn calculate_dance_ranks(
     final_ranks
 }
 
-fn compare_final_dtv(
-    a: u32,
-    b: u32,
-    bib_sums: &BTreeMap<u32, f64>,
-    dance_ranks: &BTreeMap<Dance, BTreeMap<u32, f64>>,
-    all_judge_marks: Option<&JudgeMarksMap>,
-) -> std::cmp::Ordering {
-    let sum_a = bib_sums[&a];
-    let sum_b = bib_sums[&b];
-    if (sum_a - sum_b).abs() > 0.001 {
-        return sum_a.partial_cmp(&sum_b).unwrap();
-    }
-
-    let cmp_r11 = break_rule_11_dance_ranks(a, b, dance_ranks);
-    if cmp_r11 != std::cmp::Ordering::Equal {
-        return cmp_r11;
-    }
-
-    let cmp_r11_no_maj = break_rule_11_no_majority(a, b, dance_ranks);
-    if cmp_r11_no_maj != std::cmp::Ordering::Equal {
-        return cmp_r11_no_maj;
-    }
-
-    if let Some(all_marks) = all_judge_marks {
-        let cmp_r12 = break_rule_12(a, b, all_marks);
-        if cmp_r12 != std::cmp::Ordering::Equal {
-            return cmp_r12;
-        }
-    }
-
-    std::cmp::Ordering::Equal
-}
-
 /// Calculates final ranks across all dances (Rules 10-12).
 pub fn calculate_final_ranks(
     dance_ranks: &BTreeMap<Dance, BTreeMap<u32, f64>>,
@@ -182,12 +149,14 @@ pub fn calculate_final_ranks(
         }
     }
 
+    // First sort by sum of ranks (Rule 10)
     bibs.sort_by(|&a, &b| {
-        let cmp = compare_final_dtv(a, b, &bib_sums, dance_ranks, all_judge_marks);
-        if cmp == std::cmp::Ordering::Equal {
-            a.cmp(&b)
+        let sum_a = bib_sums[&a];
+        let sum_b = bib_sums[&b];
+        if (sum_a - sum_b).abs() > 0.001 {
+            sum_a.partial_cmp(&sum_b).unwrap()
         } else {
-            cmp
+            std::cmp::Ordering::Equal
         }
     });
 
@@ -196,85 +165,80 @@ pub fn calculate_final_ranks(
     while i < bibs.len() {
         let mut tie_group = vec![bibs[i]];
         let mut j = i + 1;
+        while j < bibs.len() && (bib_sums[&bibs[i]] - bib_sums[&bibs[j]]).abs() < 0.001 {
+            tie_group.push(bibs[j]);
+            j += 1;
+        }
 
-        while j < bibs.len() {
-            if compare_final_dtv(bibs[i], bibs[j], &bib_sums, dance_ranks, all_judge_marks)
-                == std::cmp::Ordering::Equal
-            {
-                tie_group.push(bibs[j]);
-                j += 1;
-            } else {
-                break;
+        if tie_group.len() > 1 {
+            let place_to_decide = (i + 1) as u32;
+            tie_group.sort_by(|&a, &b| {
+                let mut cmp = break_rule_11_competition(a, b, place_to_decide, dance_ranks);
+                if cmp == std::cmp::Ordering::Equal {
+                    if let Some(all_marks) = all_judge_marks {
+                        cmp = break_rule_12(a, b, all_marks);
+                    }
+                }
+                if cmp == std::cmp::Ordering::Equal {
+                    a.cmp(&b)
+                } else {
+                    cmp
+                }
+            });
+
+            let mut k = 0;
+            while k < tie_group.len() {
+                let mut sub_tie = vec![tie_group[k]];
+                let mut l = k + 1;
+                while l < tie_group.len() {
+                    let mut cmp = break_rule_11_competition(
+                        tie_group[k],
+                        tie_group[l],
+                        place_to_decide,
+                        dance_ranks,
+                    );
+                    if cmp == std::cmp::Ordering::Equal {
+                        if let Some(all_marks) = all_judge_marks {
+                            cmp = break_rule_12(tie_group[k], tie_group[l], all_marks);
+                        }
+                    }
+                    if cmp == std::cmp::Ordering::Equal {
+                        sub_tie.push(tie_group[l]);
+                        l += 1;
+                    } else {
+                        break;
+                    }
+                }
+                for &b in &sub_tie {
+                    final_ranks.insert(b, (i + k + 1) as u32);
+                }
+                k = l;
             }
+        } else {
+            final_ranks.insert(tie_group[0], (i + 1) as u32);
         }
-
-        for &b in &tie_group {
-            final_ranks.insert(b, (i + 1) as u32);
-        }
-        i += tie_group.len();
+        i = j;
     }
     final_ranks
 }
 
-/// Rule 10/11 implementation (sequential countback).
-fn break_rule_11_dance_ranks(
+/// Rule 11 implementation for competition ranking (continuous countback).
+/// Note: Standard Rule 11 for competition ranking starts from rank 1, but
+/// DTV/TopTurnier implementation prioritizes the rank being decided.
+fn break_rule_11_competition(
     a: u32,
     b: u32,
+    place_to_decide: u32,
     dance_ranks: &BTreeMap<Dance, BTreeMap<u32, f64>>,
 ) -> std::cmp::Ordering {
-    let mut ranks_a: Vec<f64> = dance_ranks
+    let ranks_a: Vec<f64> = dance_ranks
         .values()
         .filter_map(|m| m.get(&a).cloned())
         .collect();
-    let mut ranks_b: Vec<f64> = dance_ranks
+    let ranks_b: Vec<f64> = dance_ranks
         .values()
         .filter_map(|m| m.get(&b).cloned())
         .collect();
-    ranks_a.sort_by(|x, y| x.partial_cmp(y).unwrap());
-    ranks_b.sort_by(|x, y| x.partial_cmp(y).unwrap());
-
-    let num_dances = ranks_a.len();
-    let majority = (num_dances / 2) + 1;
-    let max_rank = ranks_a
-        .iter()
-        .chain(ranks_b.iter())
-        .cloned()
-        .fold(0.0, f64::max) as u32;
-
-    for r in 1..=max_rank {
-        let count_a = ranks_a.iter().filter(|&&rk| rk <= r as f64).count();
-        let count_b = ranks_b.iter().filter(|&&rk| rk <= r as f64).count();
-
-        if count_a >= majority || count_b >= majority {
-            if count_a != count_b {
-                return count_b.cmp(&count_a);
-            }
-            let sum_a: f64 = ranks_a.iter().filter(|&&rk| rk <= r as f64).sum();
-            let sum_b: f64 = ranks_b.iter().filter(|&&rk| rk <= r as f64).sum();
-            if (sum_a - sum_b).abs() > 0.001 {
-                return sum_a.partial_cmp(&sum_b).unwrap();
-            }
-        }
-    }
-    std::cmp::Ordering::Equal
-}
-
-/// Fallback for Rule 11 without majority requirement.
-fn break_rule_11_no_majority(
-    a: u32,
-    b: u32,
-    dance_ranks: &BTreeMap<Dance, BTreeMap<u32, f64>>,
-) -> std::cmp::Ordering {
-    let mut ranks_a: Vec<f64> = dance_ranks
-        .values()
-        .filter_map(|m| m.get(&a).cloned())
-        .collect();
-    let mut ranks_b: Vec<f64> = dance_ranks
-        .values()
-        .filter_map(|m| m.get(&b).cloned())
-        .collect();
-    ranks_a.sort_by(|x, y| x.partial_cmp(y).unwrap());
-    ranks_b.sort_by(|x, y| x.partial_cmp(y).unwrap());
 
     let max_rank = ranks_a
         .iter()
@@ -282,13 +246,14 @@ fn break_rule_11_no_majority(
         .cloned()
         .fold(0.0, f64::max) as u32;
 
-    for r in 1..=max_rank {
+    for r in place_to_decide..=max_rank {
         let count_a = ranks_a.iter().filter(|&&rk| rk <= r as f64).count();
         let count_b = ranks_b.iter().filter(|&&rk| rk <= r as f64).count();
 
         if count_a != count_b {
             return count_b.cmp(&count_a);
         }
+
         let sum_a: f64 = ranks_a.iter().filter(|&&rk| rk <= r as f64).sum();
         let sum_b: f64 = ranks_b.iter().filter(|&&rk| rk <= r as f64).sum();
         if (sum_a - sum_b).abs() > 0.001 {
