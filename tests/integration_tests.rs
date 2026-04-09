@@ -27,6 +27,10 @@ fn run_full_pipeline_test(dir_name: &str) {
     if std::env::var("UPDATE_GOLDEN").is_ok() {
         let json = serde_json::to_string_pretty(&event).unwrap();
         std::fs::write(&ground_truth_path, json).unwrap();
+
+        // Also generate reconstructed HTML for visual inspection
+        let html = dancing_datacollection::sources::html_gen::competition_to_html(&event);
+        std::fs::write(dir_path.join("reconstructed_ergwert.html"), html).unwrap();
         return;
     }
 
