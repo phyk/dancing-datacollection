@@ -213,8 +213,32 @@ fn merge_round_data(existing: &mut crate::models::RoundData, new: crate::models:
                 let e_bib_map = e_map.entry(judge).or_default();
                 for (bib, n_dance_map) in n_bib_map {
                     let e_dance_map = e_bib_map.entry(bib).or_default();
-                    if n_dance_map.len() > e_dance_map.len() {
-                        *e_dance_map = n_dance_map;
+                    for (dance, n_score) in n_dance_map {
+                        let e_score = e_dance_map
+                            .entry(dance)
+                            .or_insert_with(|| crate::models::WDSFScore {
+                                technical_quality: 0.0,
+                                movement_to_music: 0.0,
+                                partnering_skills: 0.0,
+                                choreography: 0.0,
+                                total: 0.0,
+                            });
+                        if n_score.technical_quality > 0.0 {
+                            e_score.technical_quality = n_score.technical_quality;
+                        }
+                        if n_score.movement_to_music > 0.0 {
+                            e_score.movement_to_music = n_score.movement_to_music;
+                        }
+                        if n_score.partnering_skills > 0.0 {
+                            e_score.partnering_skills = n_score.partnering_skills;
+                        }
+                        if n_score.choreography > 0.0 {
+                            e_score.choreography = n_score.choreography;
+                        }
+                        e_score.total = e_score.technical_quality
+                            + e_score.movement_to_music
+                            + e_score.partnering_skills
+                            + e_score.choreography;
                     }
                 }
             }

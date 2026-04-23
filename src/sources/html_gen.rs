@@ -333,11 +333,29 @@ fn get_mark(data: &RoundData, judge_code: &str, bib: u32, dance: Dance) -> Strin
                 .unwrap_or_else(|| "&nbsp;".to_string())
         }
         RoundData::WDSF { wdsf_scores } => {
-            wdsf_scores.get(judge_code)
+            let score = wdsf_scores.get(judge_code)
                 .and_then(|jm| jm.get(&bib))
-                .and_then(|pm| pm.get(&dance))
-                .map(|s| format!("{:.2}", s.total))
-                .unwrap_or_else(|| "&nbsp;".to_string())
+                .and_then(|pm| pm.get(&dance));
+
+            if let Some(s) = score {
+                let mut parts = Vec::new();
+                if s.technical_quality > 0.0 {
+                    parts.push(format!("{:.2}", s.technical_quality));
+                }
+                if s.partnering_skills > 0.0 {
+                    parts.push(format!("{:.2}", s.partnering_skills));
+                }
+                if s.movement_to_music > 0.0 {
+                    parts.push(format!("{:.2}", s.movement_to_music));
+                }
+                if s.choreography > 0.0 {
+                    parts.push(format!("{:.2}", s.choreography));
+                }
+                if !parts.is_empty() {
+                    return parts.join("|");
+                }
+            }
+            "&nbsp;".to_string()
         }
     }
 }

@@ -420,7 +420,7 @@ pub fn to_rounds(
             let round_name = crate::i18n::get_round_name_from_id(round_id);
             if marks
                 .iter()
-                .any(|m| !crate::i18n::map_wdsf_score_type(&m.value).is_empty())
+                .any(|m| RE_SCORE.is_match(&m.value.replace(',', ".")))
             {
                 round_types.insert(round_name, true);
             }
@@ -472,12 +472,14 @@ pub fn to_rounds(
                         if let Some(judge) = mark.judge {
                             let is_cross =
                                 mark.value.to_lowercase().contains('x') || mark.value == "1";
-                            marking_crosses
+                            let e_dance_map = marking_crosses
                                 .entry(judge)
                                 .or_default()
                                 .entry(res.bib)
-                                .or_default()
-                                .insert(mark.dance, is_cross);
+                                .or_default();
+                            if is_cross || !e_dance_map.contains_key(&mark.dance) {
+                                e_dance_map.insert(mark.dance, is_cross);
+                            }
                         } else if !mark.value.is_empty()
                             && mark.value.len() > 1
                             && mark.value.chars().all(|c| c.is_ascii_digit())
@@ -552,17 +554,29 @@ pub fn to_rounds(
                                         total: 0.0,
                                     });
 
+                                let sc_with_x: Vec<f64> = RE_SCORE
+                                    .find_iter(&mark.value.replace(',', "."))
+                                    .filter_map(|m| m.as_str().parse().ok())
+                                    .collect();
+
                                 for (i, st) in score_types.iter().enumerate() {
-                                    let val = if sc.len() > i { sc[i] } else { sc[0] };
+                                    let val = if sc_with_x.len() > i {
+                                        sc_with_x[i]
+                                    } else {
+                                        sc_with_x[0]
+                                    };
                                     match *st {
                                         "technical_quality" => s.technical_quality = val,
                                         "movement_to_music" => s.movement_to_music = val,
                                         "partnering_skills" => s.partnering_skills = val,
                                         "choreography" => s.choreography = val,
-                                        "total" => s.total = val,
                                         _ => {}
                                     }
                                 }
+                                s.total = s.technical_quality
+                                    + s.movement_to_music
+                                    + s.partnering_skills
+                                    + s.choreography;
                             }
                         }
                     }
