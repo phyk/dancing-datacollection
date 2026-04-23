@@ -316,8 +316,62 @@ pub fn verify_wdsf_score(score: &WDSFScore) -> bool {
         + score.partnering_skills
         + score.choreography;
 
-    let mean = calculated_sum / 4.0;
-    (mean - score.total).abs() < 0.011 || (calculated_sum - score.total).abs() < 0.011
+    // Check if total is the sum of components
+    (calculated_sum - score.total).abs() < 0.011
+}
+
+/// Calculates the WDSF dance score as the sum of category averages.
+pub fn calculate_wdsf_dance_score(judge_scores: &BTreeMap<String, WDSFScore>) -> f64 {
+    let mut tq_sum = 0.0;
+    let mut tq_count = 0;
+    let mut mm_sum = 0.0;
+    let mut mm_count = 0;
+    let mut ps_sum = 0.0;
+    let mut ps_count = 0;
+    let mut cp_sum = 0.0;
+    let mut cp_count = 0;
+
+    for score in judge_scores.values() {
+        if score.technical_quality > 0.0 {
+            tq_sum += score.technical_quality;
+            tq_count += 1;
+        }
+        if score.movement_to_music > 0.0 {
+            mm_sum += score.movement_to_music;
+            mm_count += 1;
+        }
+        if score.partnering_skills > 0.0 {
+            ps_sum += score.partnering_skills;
+            ps_count += 1;
+        }
+        if score.choreography > 0.0 {
+            cp_sum += score.choreography;
+            cp_count += 1;
+        }
+    }
+
+    let tq_avg = if tq_count > 0 {
+        tq_sum / tq_count as f64
+    } else {
+        0.0
+    };
+    let mm_avg = if mm_count > 0 {
+        mm_sum / mm_count as f64
+    } else {
+        0.0
+    };
+    let ps_avg = if ps_count > 0 {
+        ps_sum / ps_count as f64
+    } else {
+        0.0
+    };
+    let cp_avg = if cp_count > 0 {
+        cp_sum / cp_count as f64
+    } else {
+        0.0
+    };
+
+    tq_avg + mm_avg + ps_avg + cp_avg
 }
 
 #[cfg(test)]
@@ -443,7 +497,7 @@ mod tests {
             movement_to_music: 8.0,
             partnering_skills: 8.5,
             choreography: 9.0,
-            total: 8.5,
+            total: 34.0,
         };
         assert!(verify_wdsf_score(&score));
         let bad_score = WDSFScore {
@@ -454,5 +508,38 @@ mod tests {
             total: 9.5,
         };
         assert!(!verify_wdsf_score(&bad_score));
+    }
+
+    #[test]
+    fn test_calculate_wdsf_dance_score() {
+        let mut judge_scores = BTreeMap::new();
+        judge_scores.insert(
+            "A".to_string(),
+            WDSFScore {
+                technical_quality: 8.0,
+                movement_to_music: 7.0,
+                partnering_skills: 0.0,
+                choreography: 9.0,
+                total: 24.0,
+            },
+        );
+        judge_scores.insert(
+            "B".to_string(),
+            WDSFScore {
+                technical_quality: 9.0,
+                movement_to_music: 0.0,
+                partnering_skills: 8.0,
+                choreography: 8.0,
+                total: 25.0,
+            },
+        );
+
+        // TQ: (8+9)/2 = 8.5
+        // MM: 7/1 = 7.0
+        // PS: 8/1 = 8.0
+        // CP: (9+8)/2 = 8.5
+        // Total: 8.5 + 7.0 + 8.0 + 8.5 = 32.0
+        let score = calculate_wdsf_dance_score(&judge_scores);
+        assert!((score - 32.0).abs() < 0.001);
     }
 }

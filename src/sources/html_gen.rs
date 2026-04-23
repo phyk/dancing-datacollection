@@ -203,20 +203,20 @@ pub fn competition_to_html(comp: &Competition) -> String {
                         }
                     }
                     RoundData::WDSF { wdsf_scores } => {
-                        let mut total_score = 0.0;
-                        let mut count = 0;
+                        let mut judge_scores = BTreeMap::new();
                         for judge in &comp.officials.judges {
                             if let Some(jm) = wdsf_scores.get(&judge.code) {
                                 if let Some(pm) = jm.get(&p.bib_number) {
                                     if let Some(score) = pm.get(&dance) {
-                                        total_score += score.total;
-                                        count += 1;
+                                        judge_scores.insert(judge.code.clone(), score.clone());
                                     }
                                 }
                             }
                         }
-                        if count > 0 {
-                            write!(sum_cell, "{:.2}", total_score).unwrap();
+                        if !judge_scores.is_empty() {
+                            let dance_score =
+                                crate::models::skating::calculate_wdsf_dance_score(&judge_scores);
+                            write!(sum_cell, "{:.2}", dance_score).unwrap();
                         }
                     }
                 }
@@ -280,14 +280,21 @@ pub fn competition_to_html(comp: &Competition) -> String {
                     }
                 }
                 RoundData::WDSF { wdsf_scores } => {
-                    for judge in &comp.officials.judges {
-                        if let Some(jm) = wdsf_scores.get(&judge.code) {
-                            if let Some(pm) = jm.get(&p.bib_number) {
-                                for score in pm.values() {
-                                    round_total += score.total;
-                                    has_data = true;
+                    for &dance in &comp.dances {
+                        let mut judge_scores = BTreeMap::new();
+                        for judge in &comp.officials.judges {
+                            if let Some(jm) = wdsf_scores.get(&judge.code) {
+                                if let Some(pm) = jm.get(&p.bib_number) {
+                                    if let Some(score) = pm.get(&dance) {
+                                        judge_scores.insert(judge.code.clone(), score.clone());
+                                    }
                                 }
                             }
+                        }
+                        if !judge_scores.is_empty() {
+                            round_total +=
+                                crate::models::skating::calculate_wdsf_dance_score(&judge_scores);
+                            has_data = true;
                         }
                     }
                     if has_data {

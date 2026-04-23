@@ -167,6 +167,7 @@ pub fn validate_competition_fidelity(comp: &Competition) -> bool {
             RoundData::WDSF { .. } => {
                 // WDSF rank calculation is complex (averages, drop high/low),
                 // so we rely on verify_round_math for component validity.
+                // We could also verify that calculated sums match if they were provided in the source.
             }
             _ => {}
         }
