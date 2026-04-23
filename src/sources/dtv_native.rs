@@ -214,15 +214,16 @@ fn merge_round_data(existing: &mut crate::models::RoundData, new: crate::models:
                 for (bib, n_dance_map) in n_bib_map {
                     let e_dance_map = e_bib_map.entry(bib).or_default();
                     for (dance, n_score) in n_dance_map {
-                        let e_score = e_dance_map
-                            .entry(dance)
-                            .or_insert_with(|| crate::models::WDSFScore {
-                                technical_quality: 0.0,
-                                movement_to_music: 0.0,
-                                partnering_skills: 0.0,
-                                choreography: 0.0,
-                                total: 0.0,
-                            });
+                        let e_score =
+                            e_dance_map
+                                .entry(dance)
+                                .or_insert_with(|| crate::models::WDSFScore {
+                                    technical_quality: 0.0,
+                                    movement_to_music: 0.0,
+                                    partnering_skills: 0.0,
+                                    choreography: 0.0,
+                                    total: 0.0,
+                                });
                         if n_score.technical_quality > 0.0 {
                             e_score.technical_quality = n_score.technical_quality;
                         }

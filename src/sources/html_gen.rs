@@ -11,16 +11,40 @@ pub fn competition_to_html(comp: &Competition) -> String {
     writeln!(html, "  <meta charset=\"utf-8\">").unwrap();
     writeln!(html, "  <title>{}</title>", comp.name).unwrap();
     writeln!(html, "  <style>").unwrap();
-    writeln!(html, "    body {{ font-family: Arial, sans-serif; font-size: 11px; color: #333; }}").unwrap();
-    writeln!(html, "    table {{ border-collapse: collapse; width: 100%; margin-top: 10px; }}").unwrap();
+    writeln!(
+        html,
+        "    body {{ font-family: Arial, sans-serif; font-size: 11px; color: #333; }}"
+    )
+    .unwrap();
+    writeln!(
+        html,
+        "    table {{ border-collapse: collapse; width: 100%; margin-top: 10px; }}"
+    )
+    .unwrap();
     writeln!(html, "    th, td {{ border: 1px solid #999; padding: 3px; text-align: center; vertical-align: middle; }}").unwrap();
-    writeln!(html, "    .header {{ background-color: #eee; font-weight: bold; }}").unwrap();
+    writeln!(
+        html,
+        "    .header {{ background-color: #eee; font-weight: bold; }}"
+    )
+    .unwrap();
     writeln!(html, "    .left {{ text-align: left; }}").unwrap();
-    writeln!(html, "    .participant {{ font-weight: bold; display: block; }}").unwrap();
-    writeln!(html, "    .affiliation {{ font-style: italic; font-size: 9px; display: block; color: #666; }}").unwrap();
+    writeln!(
+        html,
+        "    .participant {{ font-weight: bold; display: block; }}"
+    )
+    .unwrap();
+    writeln!(
+        html,
+        "    .affiliation {{ font-style: italic; font-size: 9px; display: block; color: #666; }}"
+    )
+    .unwrap();
     writeln!(html, "    h1 {{ font-size: 16px; margin: 5px 0; }}").unwrap();
     writeln!(html, "    p {{ margin: 2px 0; }}").unwrap();
-    writeln!(html, "    .total-cell {{ background-color: #f9f9f9; font-weight: bold; }}").unwrap();
+    writeln!(
+        html,
+        "    .total-cell {{ background-color: #f9f9f9; font-weight: bold; }}"
+    )
+    .unwrap();
     writeln!(html, "  </style>").unwrap();
     writeln!(html, "</head>").unwrap();
     writeln!(html, "<body>").unwrap();
@@ -284,13 +308,32 @@ pub fn competition_to_html(comp: &Competition) -> String {
     writeln!(html, "    <h3>Officials</h3>").unwrap();
     writeln!(html, "    <ul>").unwrap();
     if let Some(ref rp) = comp.officials.responsible_person {
-        writeln!(html, "      <li>Responsible: {} ({})</li>", rp.name, rp.club.as_deref().unwrap_or("-")).unwrap();
+        writeln!(
+            html,
+            "      <li>Responsible: {} ({})</li>",
+            rp.name,
+            rp.club.as_deref().unwrap_or("-")
+        )
+        .unwrap();
     }
     if let Some(ref asst) = comp.officials.assistant {
-        writeln!(html, "      <li>Assistant: {} ({})</li>", asst.name, asst.club.as_deref().unwrap_or("-")).unwrap();
+        writeln!(
+            html,
+            "      <li>Assistant: {} ({})</li>",
+            asst.name,
+            asst.club.as_deref().unwrap_or("-")
+        )
+        .unwrap();
     }
     for judge in &comp.officials.judges {
-        writeln!(html, "      <li>Judge {}: {} ({})</li>", judge.code, judge.name, judge.club.as_deref().unwrap_or("-")).unwrap();
+        writeln!(
+            html,
+            "      <li>Judge {}: {} ({})</li>",
+            judge.code,
+            judge.name,
+            judge.club.as_deref().unwrap_or("-")
+        )
+        .unwrap();
     }
     writeln!(html, "    </ul>").unwrap();
     writeln!(html, "  </div>").unwrap();
@@ -318,22 +361,21 @@ fn dance_name(dance: Dance) -> &'static str {
 
 fn get_mark(data: &RoundData, judge_code: &str, bib: u32, dance: Dance) -> String {
     match data {
-        RoundData::Marking { marking_crosses } => {
-            marking_crosses.get(judge_code)
-                .and_then(|jm| jm.get(&bib))
-                .and_then(|pm| pm.get(&dance))
-                .map(|&m| if m { "x".to_string() } else { "-".to_string() })
-                .unwrap_or_else(|| "&nbsp;".to_string())
-        }
-        RoundData::DTV { dtv_ranks } => {
-            dtv_ranks.get(judge_code)
-                .and_then(|jm| jm.get(&bib))
-                .and_then(|pm| pm.get(&dance))
-                .map(|&r| r.to_string())
-                .unwrap_or_else(|| "&nbsp;".to_string())
-        }
+        RoundData::Marking { marking_crosses } => marking_crosses
+            .get(judge_code)
+            .and_then(|jm| jm.get(&bib))
+            .and_then(|pm| pm.get(&dance))
+            .map(|&m| if m { "x".to_string() } else { "-".to_string() })
+            .unwrap_or_else(|| "&nbsp;".to_string()),
+        RoundData::DTV { dtv_ranks } => dtv_ranks
+            .get(judge_code)
+            .and_then(|jm| jm.get(&bib))
+            .and_then(|pm| pm.get(&dance))
+            .map(|&r| r.to_string())
+            .unwrap_or_else(|| "&nbsp;".to_string()),
         RoundData::WDSF { wdsf_scores } => {
-            let score = wdsf_scores.get(judge_code)
+            let score = wdsf_scores
+                .get(judge_code)
                 .and_then(|jm| jm.get(&bib))
                 .and_then(|pm| pm.get(&dance));
 
