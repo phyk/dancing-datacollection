@@ -109,7 +109,7 @@ pub fn competition_to_html(comp: &Competition) -> String {
             .filter(|r| r.data.participant_bibs().contains(&p.bib_number))
             .collect();
         // Sort descending: Final (highest order) at the top of the cell
-        p_rounds.sort_by(|a, b| b.order.cmp(&a.order));
+        p_rounds.sort_by_key(|r| std::cmp::Reverse(r.order));
 
         if p_rounds.is_empty() {
             continue;
