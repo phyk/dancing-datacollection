@@ -1,5 +1,8 @@
-use crate::models::skating::{calculate_dance_ranks, calculate_final_ranks, verify_wdsf_score};
-use crate::models::{Competition, Dance, Judge, Round, RoundData};
+use crate::models::skating::{
+    calculate_dance_ranks, calculate_final_ranks, calculate_wdsf_dance_score, dance_marks,
+    verify_wdsf_score, wdsf_judge_scores,
+};
+use crate::models::{Competition, Dance, Judge, Participant, Round, RoundData, WDSFScore};
 use std::collections::BTreeMap;
 
 /// Helper method to check if all expected data is present in a round.
@@ -12,13 +15,7 @@ fn is_round_complete(round: &Round, expected_judges: &[Judge], dances: &[Dance])
     for judge in expected_judges {
         // In WDSF, judges might only judge specific dances or rounds.
         // We only expect completeness if the judge has provided ANY data in this round.
-        let judge_has_any_data = match &round.data {
-            RoundData::Marking { marking_crosses } => marking_crosses.contains_key(&judge.code),
-            RoundData::DTV { dtv_ranks } => dtv_ranks.contains_key(&judge.code),
-            RoundData::WDSF { wdsf_scores } => wdsf_scores.contains_key(&judge.code),
-        };
-
-        if !judge_has_any_data {
+        if !round.data.has_judge(&judge.code) {
             continue;
         }
 
@@ -41,7 +38,9 @@ pub fn validate_competition_fidelity(comp: &Competition) -> bool {
         return false;
     }
 
-    let last_round = comp.rounds.last().unwrap();
+    let Some(last_round) = comp.rounds.last() else {
+        return false;
+    };
     if let RoundData::Marking { .. } = &last_round.data {
         return false; // Last round must be a scoring round
     }
@@ -74,19 +73,10 @@ pub fn validate_competition_fidelity(comp: &Competition) -> bool {
     for (i, current_set) in round_participant_sets.iter().enumerate() {
         if i > 0 {
             let prev_set = &round_participant_sets[i - 1];
-            let current_is_redance = crate::i18n::is_redance(&comp.rounds[i].name);
-            let prev_is_redance = crate::i18n::is_redance(&comp.rounds[i - 1].name);
-
-            if current_is_redance {
-                // Redance must be a subset of the previous round
-                if !current_set.is_subset(prev_set) {
-                    return false;
-                }
-            } else if !prev_is_redance {
-                // Normal round: should be a subset of previous round,
-                // UNLESS couples were seeded into this round.
-                // Since we don't explicitly track seeding yet, we relax this to
-                // just checking global validity (already done).
+            // Redance must be a subset of the previous round. Normal rounds are not
+            // checked against the previous round because couples may be seeded in.
+            if crate::i18n::is_redance(&comp.rounds[i].name) && !current_set.is_subset(prev_set) {
+                return false;
             }
         }
     }
@@ -128,52 +118,76 @@ pub fn validate_competition_fidelity(comp: &Competition) -> bool {
         }
     }
 
-    // Skating Math Verification for DTV (skating) and WDSF (average/sum)
-    if let Some(last_round) = comp.rounds.last() {
-        match &last_round.data {
-            RoundData::DTV { dtv_ranks } => {
-                let dtv_marks = dtv_ranks;
-                let mut dance_marks = BTreeMap::new();
-                for dance in &comp.dances {
-                    let mut jm_for_dance = BTreeMap::new();
-                    for (j_code, bib_map) in dtv_marks {
-                        let mut marks = BTreeMap::new();
-                        for (&bib, d_map) in bib_map {
-                            if let Some(&mark) = d_map.get(dance) {
-                                marks.insert(bib, mark);
-                            }
-                        }
-                        jm_for_dance.insert(j_code.clone(), marks);
-                    }
-                    dance_marks.insert(*dance, jm_for_dance);
-                }
+    // Placement verification for the final round: DTV (skating system) and WDSF (score totals)
+    match &last_round.data {
+        RoundData::DTV { dtv_ranks } => {
+            let mut all_dance_marks = BTreeMap::new();
+            for &dance in &comp.dances {
+                all_dance_marks.insert(dance, dance_marks(dtv_ranks, dance));
+            }
 
-                let mut dance_ranks = BTreeMap::new();
-                for (dance, marks) in &dance_marks {
-                    dance_ranks.insert(*dance, calculate_dance_ranks(marks));
-                }
+            let dance_ranks: BTreeMap<Dance, BTreeMap<u32, f64>> = all_dance_marks
+                .iter()
+                .map(|(&dance, marks)| (dance, calculate_dance_ranks(marks)))
+                .collect();
 
-                let final_calc_ranks = calculate_final_ranks(&dance_ranks, Some(&dance_marks));
-                for p in &comp.participants {
-                    if let Some(expected) = p.final_rank {
-                        if let Some(&calc) = final_calc_ranks.get(&p.bib_number) {
-                            if calc != expected {
-                                return false;
-                            }
-                        }
-                    }
+            let final_calc_ranks = calculate_final_ranks(&dance_ranks, Some(&all_dance_marks));
+            let final_bibs = last_round.data.participant_bibs();
+            for p in &comp.participants {
+                let Some(expected) = p.final_rank else {
+                    continue;
+                };
+                if !final_bibs.contains(&p.bib_number) {
+                    continue;
+                }
+                match final_calc_ranks.get(&p.bib_number) {
+                    Some(&calc) if calc == expected => {}
+                    _ => return false,
                 }
             }
-            RoundData::WDSF { .. } => {
-                // WDSF rank calculation is complex (averages, drop high/low),
-                // so we rely on verify_round_math for component validity.
-                // We could also verify that calculated sums match if they were provided in the source.
-            }
-            _ => {}
         }
+        RoundData::WDSF { wdsf_scores } => {
+            if !verify_wdsf_placements(&comp.participants, last_round, wdsf_scores) {
+                return false;
+            }
+        }
+        RoundData::Marking { .. } => {}
     }
 
     true
+}
+
+/// Checks that the final ranks of WDSF finalists are ordered by their total score,
+/// i.e. the sum over the round's dances of `calculate_wdsf_dance_score`.
+/// Totals within 0.001 of each other are treated as ties and may appear in any order.
+fn verify_wdsf_placements(
+    participants: &[Participant],
+    round: &Round,
+    wdsf_scores: &BTreeMap<String, BTreeMap<u32, BTreeMap<Dance, WDSFScore>>>,
+) -> bool {
+    let finalists: Vec<(u32, f64)> = participants
+        .iter()
+        .filter_map(|p| {
+            let rank = p.final_rank?;
+            let mut total = 0.0;
+            let mut has_data = false;
+            for &dance in &round.dances {
+                let judge_scores = wdsf_judge_scores(wdsf_scores, p.bib_number, dance);
+                if !judge_scores.is_empty() {
+                    total += calculate_wdsf_dance_score(&judge_scores);
+                    has_data = true;
+                }
+            }
+            has_data.then_some((rank, total))
+        })
+        .collect();
+
+    // A strictly higher total must never have a worse (numerically greater) rank.
+    finalists.iter().all(|&(rank_a, total_a)| {
+        finalists
+            .iter()
+            .all(|&(rank_b, total_b)| total_a <= total_b + 0.001 || rank_a <= rank_b)
+    })
 }
 
 fn verify_round_math(round: &Round) -> bool {
@@ -189,4 +203,63 @@ fn verify_round_math(round: &Round) -> bool {
         }
     }
     true
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::models::IdentityType;
+
+    type WdsfScores = BTreeMap<String, BTreeMap<u32, BTreeMap<Dance, WDSFScore>>>;
+
+    fn participant(bib: u32, rank: u32) -> Participant {
+        Participant {
+            identity_type: IdentityType::Couple,
+            name_one: format!("P{}", bib),
+            bib_number: bib,
+            name_two: None,
+            affiliation: None,
+            final_rank: Some(rank),
+        }
+    }
+
+    fn wdsf_round(tq_by_bib: &[(u32, f64)]) -> (Round, WdsfScores) {
+        let mut scores: WdsfScores = BTreeMap::new();
+        for &(bib, tq) in tq_by_bib {
+            scores
+                .entry("A".to_string())
+                .or_default()
+                .entry(bib)
+                .or_default()
+                .insert(
+                    Dance::Samba,
+                    WDSFScore {
+                        technical_quality: tq,
+                        total: tq,
+                        ..WDSFScore::default()
+                    },
+                );
+        }
+        let round = Round {
+            name: "Final".to_string(),
+            order: 0,
+            dances: vec![Dance::Samba],
+            data: RoundData::WDSF {
+                wdsf_scores: scores.clone(),
+            },
+        };
+        (round, scores)
+    }
+
+    #[test]
+    fn test_wdsf_placements() {
+        let (round, scores) = wdsf_round(&[(1, 9.0), (2, 8.0)]);
+        let ok = [participant(1, 1), participant(2, 2)];
+        assert!(verify_wdsf_placements(&ok, &round, &scores));
+        let swapped = [participant(1, 2), participant(2, 1)];
+        assert!(!verify_wdsf_placements(&swapped, &round, &scores));
+
+        let (tied_round, tied_scores) = wdsf_round(&[(1, 8.0), (2, 8.0)]);
+        assert!(verify_wdsf_placements(&swapped, &tied_round, &tied_scores));
+    }
 }

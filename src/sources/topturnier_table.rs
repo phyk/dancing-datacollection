@@ -1,4 +1,4 @@
-use crate::models::{Dance, Officials, Round, RoundData, WDSFScore};
+use crate::models::{Dance, Officials, Round, RoundData};
 use regex::Regex;
 use scraper::{ElementRef, Selector};
 use std::collections::BTreeMap;
@@ -6,8 +6,10 @@ use std::sync::LazyLock;
 
 static RE_SCORE: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(crate::assets::PATTERN_SCORE).unwrap());
-static RE_BIB_PARENS: LazyLock<Regex> =
+pub(crate) static RE_BIB_PARENS: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(crate::assets::PATTERN_BIB_PARENS).unwrap());
+static SEL_TR: LazyLock<Selector> = LazyLock::new(|| Selector::parse("tr").unwrap());
+static SEL_CELL: LazyLock<Selector> = LazyLock::new(|| Selector::parse("td, th").unwrap());
 
 #[derive(Debug, Clone, Default)]
 pub struct TableGrid {
@@ -22,12 +24,9 @@ impl TableGrid {
         let mut max_w = 0;
         let mut max_h = 0;
 
-        let tr_sel = Selector::parse("tr").unwrap();
-        let td_sel = Selector::parse("td, th").unwrap();
-
-        for (r_idx, tr) in table.select(&tr_sel).enumerate() {
+        for (r_idx, tr) in table.select(&SEL_TR).enumerate() {
             let mut c_idx = 0;
-            let cells: Vec<_> = tr.select(&td_sel).collect();
+            let cells: Vec<_> = tr.select(&SEL_CELL).collect();
             for i in 0..cells.len() {
                 let td = cells[i];
                 let is_phantom = td
@@ -150,11 +149,6 @@ pub enum ColumnType {
     Unknown,
 }
 
-#[derive(Debug, Clone, PartialEq)]
-pub enum TableOrientation {
-    Horizontal,
-}
-
 #[derive(Debug, Clone)]
 pub struct IntermediateMark {
     pub dance: Dance,
@@ -167,10 +161,6 @@ pub struct IntermediateResult {
     pub bib: u32,
     pub rank: Option<String>,
     pub marks_by_round: BTreeMap<String, Vec<IntermediateMark>>,
-}
-
-pub fn identify_orientation(_grid: &TableGrid) -> TableOrientation {
-    TableOrientation::Horizontal
 }
 
 pub fn identify_columns(grid: &TableGrid) -> Vec<ColumnType> {
@@ -295,12 +285,8 @@ pub fn identify_columns(grid: &TableGrid) -> Vec<ColumnType> {
     col_types
 }
 
-pub fn extract_data(grid: &TableGrid) -> Vec<IntermediateResult> {
-    extract_horizontal(grid)
-}
-
-fn extract_horizontal(grid: &TableGrid) -> Vec<IntermediateResult> {
-    let col_types = identify_columns(grid);
+/// Extracts per-participant marks; `col_types` must come from `identify_columns(grid)`.
+pub fn extract_data(grid: &TableGrid, col_types: &[ColumnType]) -> Vec<IntermediateResult> {
     let mut results = Vec::new();
 
     let bib_idx = col_types.iter().position(|t| matches!(t, ColumnType::Bib));
@@ -506,31 +492,24 @@ pub fn to_rounds(
                                     .or_default()
                                     .insert(mark.dance, rank.round() as u32);
                             }
-                        } else {
-                            if mark.value.len() > 1
-                                && mark.value.chars().all(|c| c.is_ascii_digit())
-                            {
-                                for (j_idx, ch) in mark.value.chars().enumerate() {
-                                    if let Some(official_judge) = officials.judges.get(j_idx) {
-                                        if let Some(rank) = ch.to_digit(10) {
-                                            dtv_ranks
-                                                .entry(official_judge.code.clone())
-                                                .or_default()
-                                                .entry(res.bib)
-                                                .or_default()
-                                                .insert(mark.dance, rank);
-                                        }
+                        } else if mark.value.len() > 1
+                            && mark.value.chars().all(|c| c.is_ascii_digit())
+                        {
+                            for (j_idx, ch) in mark.value.chars().enumerate() {
+                                if let Some(official_judge) = officials.judges.get(j_idx) {
+                                    if let Some(rank) = ch.to_digit(10) {
+                                        dtv_ranks
+                                            .entry(official_judge.code.clone())
+                                            .or_default()
+                                            .entry(res.bib)
+                                            .or_default()
+                                            .insert(mark.dance, rank);
                                     }
                                 }
-                            } else if let Ok(total_rank) =
-                                mark.value.replace(',', ".").parse::<f64>()
-                            {
-                                // Additive fallback: if we only have a single number and NO judges,
-                                // it might be the calculated rank. We don't distribute it to all judges
-                                // because that's inaccurate. Instead, we do nothing and let other files provide granular marks.
-                                let _ = total_rank;
                             }
                         }
+                        // A single total without judge columns is intentionally ignored:
+                        // spreading it across judges would invent per-judge ranks.
                     }
                     RoundData::WDSF { wdsf_scores } => {
                         if let Some(judge) = mark.judge {
@@ -546,13 +525,7 @@ pub fn to_rounds(
                                     .entry(res.bib)
                                     .or_default()
                                     .entry(mark.dance)
-                                    .or_insert_with(|| WDSFScore {
-                                        technical_quality: 0.0,
-                                        movement_to_music: 0.0,
-                                        partnering_skills: 0.0,
-                                        choreography: 0.0,
-                                        total: 0.0,
-                                    });
+                                    .or_default();
 
                                 let sc_with_x: Vec<f64> = RE_SCORE
                                     .find_iter(&mark.value.replace(',', "."))
@@ -644,11 +617,10 @@ mod tests {
             .unwrap();
         let grid = TableGrid::from_element(table);
 
-        assert_eq!(identify_orientation(&grid), TableOrientation::Horizontal);
         let col_types = identify_columns(&grid);
         assert_eq!(col_types[1], ColumnType::Bib);
 
-        let results = extract_data(&grid);
+        let results = extract_data(&grid, &col_types);
         assert_eq!(results.len(), 1);
         assert_eq!(results[0].bib, 101);
     }
@@ -685,7 +657,7 @@ mod tests {
             .next()
             .unwrap();
         let grid = TableGrid::from_element(table);
-        let results = extract_data(&grid);
+        let results = extract_data(&grid, &identify_columns(&grid));
 
         assert_eq!(results.len(), 1);
         let res = &results[0];

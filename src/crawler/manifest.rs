@@ -9,39 +9,41 @@ pub struct Manifest {
 }
 
 impl Manifest {
-    pub fn new() -> Self {
-        Self::default()
-    }
-
     pub fn from_target_folder(target_folder: &Path) -> Self {
         let mut processed_ids = HashSet::new();
         if !target_folder.exists() {
             return Self { processed_ids };
         }
 
-        if let Ok(entries) = fs::read_dir(target_folder) {
-            for entry in entries.flatten() {
-                if entry.path().is_dir() {
-                    if let Ok(sub_entries) = fs::read_dir(entry.path()) {
-                        for sub_entry in sub_entries.flatten() {
-                            if sub_entry
-                                .path()
-                                .extension()
-                                .is_some_and(|ext| ext == "json")
-                            {
-                                if let Ok(content) = fs::read_to_string(sub_entry.path()) {
-                                    if let Ok(event) = serde_json::from_str::<Competition>(&content)
-                                    {
-                                        if let Some(url) = event.source_url {
-                                            processed_ids.insert(url);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+        let Ok(entries) = fs::read_dir(target_folder) else {
+            return Self { processed_ids };
+        };
+
+        for entry in entries.flatten() {
+            let dir = entry.path();
+            if !dir.is_dir() {
+                continue;
             }
+            // Leftover scratch directories from (interrupted) downloads.
+            if entry
+                .file_name()
+                .to_string_lossy()
+                .starts_with("tmp_download_")
+            {
+                continue;
+            }
+            let Ok(sub_entries) = fs::read_dir(&dir) else {
+                continue;
+            };
+
+            let urls = sub_entries
+                .flatten()
+                .map(|sub_entry| sub_entry.path())
+                .filter(|path| path.extension().is_some_and(|ext| ext == "json"))
+                .filter_map(|path| fs::read_to_string(path).ok())
+                .filter_map(|content| serde_json::from_str::<Competition>(&content).ok())
+                .filter_map(|event| event.source_url);
+            processed_ids.extend(urls);
         }
 
         Self { processed_ids }
