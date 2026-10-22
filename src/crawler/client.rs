@@ -1,4 +1,4 @@
-use anyhow::Result;
+use anyhow::{anyhow, Context, Result};
 use robotstxt::DefaultMatcher;
 use scraper::{Html, Selector};
 use std::collections::HashMap;
@@ -7,14 +7,38 @@ use std::path::Path;
 use tokio::time::{sleep, Duration, Instant};
 use url::Url;
 
-#[derive(Default)]
+const USER_AGENT: &str = concat!("dancing-datacollection/", env!("CARGO_PKG_VERSION"));
+/// Pause between requests to the same host when robots.txt sets no Crawl-delay.
+const DEFAULT_CRAWL_DELAY_SECS: f32 = 0.5;
+
+fn build_client() -> reqwest::Client {
+    reqwest::Client::builder()
+        .user_agent(USER_AGENT)
+        .build()
+        .expect("failed to build HTTP client")
+}
+
 pub struct RobotsChecker {
+    client: reqwest::Client,
     matchers: HashMap<String, String>, // base_url -> robots_txt content
+}
+
+impl Default for RobotsChecker {
+    fn default() -> Self {
+        Self::with_client(build_client())
+    }
 }
 
 impl RobotsChecker {
     pub fn new() -> Self {
         Self::default()
+    }
+
+    fn with_client(client: reqwest::Client) -> Self {
+        Self {
+            client,
+            matchers: HashMap::new(),
+        }
     }
 
     pub async fn is_allowed(&mut self, url_str: &str) -> bool {
@@ -27,7 +51,7 @@ impl RobotsChecker {
         let robots_url = format!("{}robots.txt", base_url);
 
         if !self.matchers.contains_key(&base_url) {
-            match reqwest::get(&robots_url).await {
+            match self.client.get(&robots_url).send().await {
                 Ok(resp) => {
                     if resp.status().is_success() {
                         let content = resp.text().await.unwrap_or_default();
@@ -65,15 +89,16 @@ impl RobotsChecker {
             if line.is_empty() || line.starts_with('#') {
                 continue;
             }
-            let line_lower = line.to_lowercase();
-            if line_lower.starts_with("user-agent:") {
-                let ua = line.split(':').nth(1).unwrap_or("").trim();
-                in_relevant_block = ua == "*";
-            } else if in_relevant_block && line_lower.starts_with("crawl-delay:") {
-                if let Some(val_str) = line.split(':').nth(1) {
-                    if let Ok(val) = val_str.trim().parse::<f32>() {
-                        return Some(val);
-                    }
+            let Some((key, value)) = line.split_once(':') else {
+                continue;
+            };
+            let key = key.trim().to_lowercase();
+            let value = value.trim();
+            if key == "user-agent" {
+                in_relevant_block = value == "*";
+            } else if in_relevant_block && key == "crawl-delay" {
+                if let Ok(val) = value.parse::<f32>() {
+                    return Some(val);
                 }
             }
         }
@@ -96,25 +121,36 @@ impl Scraper {
         Self::default()
     }
 
+    /// Fetches `url_str`, honouring robots.txt (allow rules and Crawl-delay).
+    /// Fails if robots.txt disallows the URL or the server responds with a
+    /// non-success status.
     async fn fetch_with_rate_limit(&mut self, url_str: &str) -> Result<String> {
         let url = Url::parse(url_str)?;
         let domain = url.host_str().unwrap_or("").to_string();
 
-        if let Some(delay_secs) = self.robots_checker.get_crawl_delay(url_str) {
-            if let Some(&last_time) = self.last_request_times.get(&domain) {
-                let elapsed = last_time.elapsed();
-                let wait_duration = Duration::from_secs_f32(delay_secs);
-                if elapsed < wait_duration {
-                    let sleep_time = wait_duration - elapsed;
-                    log::debug!("Respecting Crawl-delay: sleeping for {:?}", sleep_time);
-                    sleep(sleep_time).await;
-                }
+        // Also loads robots.txt for this host, so the crawl delay below is known.
+        if !self.robots_checker.is_allowed(url_str).await {
+            return Err(anyhow!("robots.txt disallows {}", url_str));
+        }
+
+        // Fall back to a short pause so hosts without a Crawl-delay aren't hit back to back.
+        let delay_secs = self
+            .robots_checker
+            .get_crawl_delay(url_str)
+            .unwrap_or(DEFAULT_CRAWL_DELAY_SECS);
+        if let Some(&last_time) = self.last_request_times.get(&domain) {
+            let elapsed = last_time.elapsed();
+            let wait_duration = Duration::from_secs_f32(delay_secs);
+            if elapsed < wait_duration {
+                let sleep_time = wait_duration - elapsed;
+                log::debug!("Respecting crawl delay: sleeping for {:?}", sleep_time);
+                sleep(sleep_time).await;
             }
         }
 
-        let resp = self.client.get(url_str).send().await?;
-        let text = resp.text().await?;
+        let resp = self.client.get(url_str).send().await;
         self.last_request_times.insert(domain, Instant::now());
+        let text = resp?.error_for_status()?.text().await?;
         Ok(text)
     }
 
@@ -174,21 +210,6 @@ impl Scraper {
     }
 
     async fn scrape_competition(&mut self, url_str: &str) -> Result<()> {
-        let html_content = self.fetch_with_rate_limit(url_str).await?;
-        let event_name = self.extract_event_name(&html_content)?;
-        let sanitized_event_name = self.sanitize_name(&event_name);
-
-        let data_dir = Path::new("data").join(&sanitized_event_name);
-        fs::create_dir_all(&data_dir)?;
-
-        self.download_competition_files(url_str, &data_dir).await
-    }
-
-    pub async fn download_competition_files(
-        &mut self,
-        url_str: &str,
-        target_dir: &Path,
-    ) -> Result<()> {
         if !self.robots_checker.is_allowed(url_str).await {
             log::warn!("robots.txt disallows scraping {}, skipping", url_str);
             return Ok(());
@@ -196,7 +217,36 @@ impl Scraper {
 
         log::info!("Downloading competition files from: {}", url_str);
         let html_content = self.fetch_with_rate_limit(url_str).await?;
+        let event_name = self.extract_event_name(&html_content)?;
+        let sanitized_event_name = crate::models::sanitize_name(&event_name);
 
+        let data_dir = Path::new("data").join(&sanitized_event_name);
+        fs::create_dir_all(&data_dir)?;
+
+        self.save_competition_files(url_str, &data_dir, &html_content)
+            .await
+    }
+
+    /// Fails unless the page and all related files were downloaded, so callers never parse a partial set.
+    pub async fn download_competition_files(
+        &mut self,
+        url_str: &str,
+        target_dir: &Path,
+    ) -> Result<()> {
+        log::info!("Downloading competition files from: {}", url_str);
+        let html_content = self.fetch_with_rate_limit(url_str).await?;
+        self.save_competition_files(url_str, target_dir, &html_content)
+            .await
+    }
+
+    /// Saves the already-fetched main page into `target_dir` and downloads
+    /// the related files (deck.htm, ergwert.htm) next to it.
+    async fn save_competition_files(
+        &mut self,
+        url_str: &str,
+        target_dir: &Path,
+        html_content: &str,
+    ) -> Result<()> {
         let filename = Path::new(url_str)
             .file_name()
             .and_then(|n| n.to_str())
@@ -204,9 +254,9 @@ impl Scraper {
 
         if !filename.ends_with(".htm") && !filename.ends_with(".html") {
             // If the URL doesn't end in a htm file, assume index.htm
-            self.save_file(target_dir, "index.htm", &html_content)?;
+            self.save_file(target_dir, "index.htm", html_content)?;
         } else {
-            self.save_file(target_dir, filename, &html_content)?;
+            self.save_file(target_dir, filename, html_content)?;
         }
 
         // Now download related files: deck.htm, ergwert.htm
@@ -215,10 +265,6 @@ impl Scraper {
 
         for rel_file in related_files {
             let rel_url = base_url.join(rel_file)?;
-            if !self.robots_checker.is_allowed(rel_url.as_str()).await {
-                continue;
-            }
-
             if target_dir.join(rel_file).exists() {
                 log::debug!(
                     "File {:?} already exists, skipping",
@@ -228,12 +274,12 @@ impl Scraper {
             }
 
             log::info!("Downloading related file: {}", rel_url);
-            match self.fetch_with_rate_limit(rel_url.as_str()).await {
-                Ok(content) => {
-                    self.save_file(target_dir, rel_file, &content)?;
-                }
-                Err(e) => log::error!("Failed to download {}: {}", rel_url, e),
-            }
+            // A missing related file leaves the competition incomplete; abort rather than parse partial data.
+            let content = self
+                .fetch_with_rate_limit(rel_url.as_str())
+                .await
+                .with_context(|| format!("failed to download {}", rel_url))?;
+            self.save_file(target_dir, rel_file, &content)?;
         }
 
         Ok(())
@@ -254,10 +300,6 @@ impl Scraper {
         }
     }
 
-    fn sanitize_name(&self, name: &str) -> String {
-        crate::models::sanitize_name(name)
-    }
-
     fn save_file(&self, dir: &Path, filename: &str, content: &str) -> Result<()> {
         let path = dir.join(filename);
         fs::write(path, content)?;
@@ -267,9 +309,10 @@ impl Scraper {
 
 impl Default for Scraper {
     fn default() -> Self {
+        let client = build_client();
         Self {
-            client: reqwest::Client::new(),
-            robots_checker: RobotsChecker::default(),
+            robots_checker: RobotsChecker::with_client(client.clone()),
+            client,
             last_request_times: HashMap::new(),
         }
     }
@@ -335,6 +378,67 @@ mod tests {
     }
 
     #[test]
+    fn test_crawl_delay_parsing_uppercase_user_agent() {
+        let mut checker = RobotsChecker::new();
+        let base_url = "http://example.com/";
+        let robots_txt = "USER-AGENT:  * \nCRAWL-DELAY: 2";
+        checker
+            .matchers
+            .insert(base_url.to_string(), robots_txt.to_string());
+
+        assert_eq!(checker.get_crawl_delay("http://example.com/x"), Some(2.0));
+    }
+
+    #[test]
+    fn test_crawl_delay_other_agent_ignored() {
+        let mut checker = RobotsChecker::new();
+        let base_url = "http://example.com/";
+        let robots_txt = "User-agent: somebot\nCrawl-delay: 9";
+        checker
+            .matchers
+            .insert(base_url.to_string(), robots_txt.to_string());
+
+        assert_eq!(checker.get_crawl_delay("http://example.com/"), None);
+    }
+
+    #[tokio::test]
+    async fn test_fetch_disallowed_by_robots_errors_without_request() {
+        let mut scraper = Scraper::new();
+        let base_url = "http://robots-blocked.invalid/";
+        scraper.robots_checker.matchers.insert(
+            base_url.to_string(),
+            "User-agent: *\nDisallow: /".to_string(),
+        );
+
+        let err = scraper
+            .fetch_with_rate_limit("http://robots-blocked.invalid/page.htm")
+            .await
+            .unwrap_err();
+        assert!(err.to_string().contains("robots.txt disallows"));
+        // No request was recorded for the domain.
+        assert!(scraper.last_request_times.is_empty());
+    }
+
+    #[tokio::test]
+    async fn test_download_disallowed_competition_errors() {
+        let mut scraper = Scraper::new();
+        scraper.robots_checker.matchers.insert(
+            "http://robots-blocked.invalid/".to_string(),
+            "User-agent: *\nDisallow: /".to_string(),
+        );
+        let dir = std::env::temp_dir().join(format!("ddc_download_{}", std::process::id()));
+        fs::create_dir_all(&dir).unwrap();
+
+        // Callers must not get Ok for a competition whose files weren't downloaded.
+        assert!(scraper
+            .download_competition_files("http://robots-blocked.invalid/comp/index.htm", &dir)
+            .await
+            .is_err());
+        assert_eq!(fs::read_dir(&dir).unwrap().count(), 0);
+        let _ = fs::remove_dir_all(&dir);
+    }
+
+    #[test]
     fn test_extract_competition_links() {
         let scraper = Scraper::new();
         let html = r#"
@@ -376,8 +480,10 @@ mod tests {
 
     #[test]
     fn test_sanitize_name() {
-        let scraper = Scraper::new();
-        assert_eq!(scraper.sanitize_name("Event Name!"), "Event_Name_");
-        assert_eq!(scraper.sanitize_name("A".repeat(100).as_str()).len(), 64);
+        assert_eq!(crate::models::sanitize_name("Event Name!"), "Event_Name_");
+        assert_eq!(
+            crate::models::sanitize_name("A".repeat(100).as_str()).len(),
+            64
+        );
     }
 }

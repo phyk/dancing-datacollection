@@ -40,8 +40,7 @@ pub enum Dance {
 /// Represents the age group of the participants.
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub enum AgeGroup {
-    Juv1,
-    Juv2,
+    Juv,
     Jun1,
     Jun2,
     Youth,
@@ -97,7 +96,7 @@ pub struct Participant {
 }
 
 /// Detailed scores for WDSF competitions.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq)]
 pub struct WDSFScore {
     pub technical_quality: f64,
     pub movement_to_music: f64,
@@ -175,72 +174,67 @@ where
     Ok(res)
 }
 
+/// Judge code -> bib -> dance -> value, the common shape of all round data.
+type JudgeBibDanceMap<V> = BTreeMap<String, BTreeMap<u32, BTreeMap<Dance, V>>>;
+
+fn count_entries_in<V>(map: &JudgeBibDanceMap<V>) -> usize {
+    map.values()
+        .map(|jm| jm.values().map(|pm| pm.len()).sum::<usize>())
+        .sum()
+}
+
+fn bibs_in<V>(map: &JudgeBibDanceMap<V>) -> std::collections::HashSet<u32> {
+    map.values().flat_map(|jm| jm.keys().copied()).collect()
+}
+
+fn has_marks_in<V>(
+    map: &JudgeBibDanceMap<V>,
+    judge_code: &str,
+    bib: u32,
+    dances: &[Dance],
+) -> bool {
+    map.get(judge_code)
+        .and_then(|judge_map| judge_map.get(&bib))
+        .map(|bib_map| dances.iter().all(|d| bib_map.contains_key(d)))
+        .unwrap_or(false)
+}
+
 impl RoundData {
     /// Counts the total number of entries (marks/ranks/scores) across all judges and participants.
     pub fn count_entries(&self) -> usize {
         match self {
-            Self::Marking { marking_crosses } => marking_crosses
-                .values()
-                .map(|jm| jm.values().map(|pm| pm.len()).sum::<usize>())
-                .sum(),
-            Self::DTV { dtv_ranks } => dtv_ranks
-                .values()
-                .map(|jm| jm.values().map(|pm| pm.len()).sum::<usize>())
-                .sum(),
-            Self::WDSF { wdsf_scores } => wdsf_scores
-                .values()
-                .map(|jm| jm.values().map(|pm| pm.len()).sum::<usize>())
-                .sum(),
+            Self::Marking { marking_crosses } => count_entries_in(marking_crosses),
+            Self::DTV { dtv_ranks } => count_entries_in(dtv_ranks),
+            Self::WDSF { wdsf_scores } => count_entries_in(wdsf_scores),
         }
     }
 
     /// Returns a set of all participant bib numbers present in this round.
     pub fn participant_bibs(&self) -> std::collections::HashSet<u32> {
-        let mut bibs = std::collections::HashSet::new();
         match self {
-            Self::Marking { marking_crosses } => {
-                for judge_map in marking_crosses.values() {
-                    for &bib in judge_map.keys() {
-                        bibs.insert(bib);
-                    }
-                }
-            }
-            Self::DTV { dtv_ranks } => {
-                for judge_map in dtv_ranks.values() {
-                    for &bib in judge_map.keys() {
-                        bibs.insert(bib);
-                    }
-                }
-            }
-            Self::WDSF { wdsf_scores } => {
-                for judge_map in wdsf_scores.values() {
-                    for &bib in judge_map.keys() {
-                        bibs.insert(bib);
-                    }
-                }
-            }
+            Self::Marking { marking_crosses } => bibs_in(marking_crosses),
+            Self::DTV { dtv_ranks } => bibs_in(dtv_ranks),
+            Self::WDSF { wdsf_scores } => bibs_in(wdsf_scores),
         }
-        bibs
     }
 
     /// Checks if a specific judge has provided data for all specified dances for a given participant.
     pub fn has_marks_for(&self, judge_code: &str, bib: u32, dances: &[Dance]) -> bool {
         match self {
-            Self::Marking { marking_crosses } => marking_crosses
-                .get(judge_code)
-                .and_then(|judge_map| judge_map.get(&bib))
-                .map(|bib_map| dances.iter().all(|d| bib_map.contains_key(d)))
-                .unwrap_or(false),
-            Self::DTV { dtv_ranks } => dtv_ranks
-                .get(judge_code)
-                .and_then(|judge_map| judge_map.get(&bib))
-                .map(|bib_map| dances.iter().all(|d| bib_map.contains_key(d)))
-                .unwrap_or(false),
-            Self::WDSF { wdsf_scores } => wdsf_scores
-                .get(judge_code)
-                .and_then(|judge_map| judge_map.get(&bib))
-                .map(|bib_map| dances.iter().all(|d| bib_map.contains_key(d)))
-                .unwrap_or(false),
+            Self::Marking { marking_crosses } => {
+                has_marks_in(marking_crosses, judge_code, bib, dances)
+            }
+            Self::DTV { dtv_ranks } => has_marks_in(dtv_ranks, judge_code, bib, dances),
+            Self::WDSF { wdsf_scores } => has_marks_in(wdsf_scores, judge_code, bib, dances),
+        }
+    }
+
+    /// Checks if a specific judge has provided any data in this round.
+    pub fn has_judge(&self, judge_code: &str) -> bool {
+        match self {
+            Self::Marking { marking_crosses } => marking_crosses.contains_key(judge_code),
+            Self::DTV { dtv_ranks } => dtv_ranks.contains_key(judge_code),
+            Self::WDSF { wdsf_scores } => wdsf_scores.contains_key(judge_code),
         }
     }
 }
@@ -275,8 +269,10 @@ pub struct Competition {
 
 /// Sanitizes a string to be used as a filename or directory name.
 pub fn sanitize_name(name: &str) -> String {
-    let mut s: String = name
-        .chars()
+    // 64 chars keeps filenames safe on all major filesystems (FAT32, ext4, APFS).
+    // Truncate by chars, not bytes, so multibyte letters (ü, ß) cannot cause a panic.
+    name.chars()
+        .take(64)
         .map(|c| {
             if c.is_alphanumeric() || c == '-' {
                 c
@@ -284,10 +280,7 @@ pub fn sanitize_name(name: &str) -> String {
                 '_'
             }
         })
-        .collect();
-    // 64 chars keeps filenames safe on all major filesystems (FAT32, ext4, APFS).
-    s.truncate(64);
-    s
+        .collect()
 }
 
 #[cfg(test)]
@@ -297,5 +290,14 @@ mod tests {
     fn test_competition_serde() {
         let json = r#"{"name":"test","level":"D","age_group":"Adult","style":"Standard","dances":[],"min_dances":0,"officials":{"responsible_person":null,"assistant":null,"judges":[]},"participants":[],"rounds":[{"round_type":"DTV","name":"Final","order":0,"dances":[],"dtv_ranks":{"A":{"101":{"SlowWaltz":1}}}}]}"#;
         let _: Competition = serde_json::from_str(json).unwrap();
+    }
+
+    #[test]
+    fn test_sanitize_name_multibyte_truncation() {
+        let long = "ü".repeat(100);
+        let s = sanitize_name(&long);
+        assert_eq!(s.chars().count(), 64);
+        assert!(s.chars().all(|c| c == 'ü'));
+        assert_eq!(sanitize_name("a b/ß-1"), "a_b_ß-1");
     }
 }

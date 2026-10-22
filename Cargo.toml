@@ -23,6 +23,7 @@ regex = "1.10" # Regex for parsing
 log = "0.4" # Logging facade
 env_logger = "0.11" # Logger implementation for CLI
 serde_json = "1.0"
+pyo3-log = "0.12" # Forwards Rust log records to Python's logging module
 
 [features]
 default = ["extension-module"]

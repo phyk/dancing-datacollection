@@ -2,6 +2,44 @@ type JudgeMarksMap = BTreeMap<Dance, BTreeMap<String, BTreeMap<u32, u32>>>;
 use crate::models::{Dance, WDSFScore};
 use std::collections::BTreeMap;
 
+/// Extracts the marks for a single dance from DTV round data (JudgeCode -> Bib -> Mark).
+///
+/// Judges without any mark for `dance` are omitted, so they do not count towards
+/// the majority in [`calculate_dance_ranks`].
+pub fn dance_marks(
+    dtv_ranks: &BTreeMap<String, BTreeMap<u32, BTreeMap<Dance, u32>>>,
+    dance: Dance,
+) -> BTreeMap<String, BTreeMap<u32, u32>> {
+    dtv_ranks
+        .iter()
+        .filter_map(|(judge_code, bib_map)| {
+            let marks: BTreeMap<u32, u32> = bib_map
+                .iter()
+                .filter_map(|(&bib, dm)| dm.get(&dance).map(|&mark| (bib, mark)))
+                .collect();
+            (!marks.is_empty()).then(|| (judge_code.clone(), marks))
+        })
+        .collect()
+}
+
+/// Collects the WDSF scores of one participant for one dance (JudgeCode -> Score).
+/// Judges that did not score this participant/dance are omitted.
+pub fn wdsf_judge_scores(
+    wdsf_scores: &BTreeMap<String, BTreeMap<u32, BTreeMap<Dance, WDSFScore>>>,
+    bib: u32,
+    dance: Dance,
+) -> BTreeMap<String, WDSFScore> {
+    wdsf_scores
+        .iter()
+        .filter_map(|(judge_code, bib_map)| {
+            bib_map
+                .get(&bib)
+                .and_then(|dm| dm.get(&dance))
+                .map(|score| (judge_code.clone(), score.clone()))
+        })
+        .collect()
+}
+
 fn get_count_sum(
     bib: u32,
     r: u32,
@@ -306,7 +344,11 @@ fn break_rule_12(
     std::cmp::Ordering::Equal
 }
 
-/// Verifies WDSF category scores against reported total.
+/// Checks the internal consistency of a single WDSF judge score: `total` must equal
+/// the sum of the four components (a zero total is accepted as "not reported").
+///
+/// Note: parsers derive `total` from the components, so this cannot detect wrong
+/// component values; it does not verify placements (see `validate_competition_fidelity`).
 pub fn verify_wdsf_score(score: &WDSFScore) -> bool {
     if score.total == 0.0 {
         return true;
@@ -321,6 +363,10 @@ pub fn verify_wdsf_score(score: &WDSFScore) -> bool {
 }
 
 /// Calculates the WDSF dance score as the sum of category averages.
+///
+/// Each component is averaged over the judges that scored it (non-zero values);
+/// no high/low trimming is applied, which reproduces the totals published in the
+/// WDSF fixtures (e.g. 191.60 / 184.95 for the 44-0507 Latin final).
 pub fn calculate_wdsf_dance_score(judge_scores: &BTreeMap<String, WDSFScore>) -> f64 {
     let mut tq_sum = 0.0;
     let mut tq_count = 0;
@@ -488,6 +534,26 @@ mod tests {
         let ranks = calculate_dance_ranks(&judge_marks);
         assert!((ranks[&101] - 1.5).abs() < 0.001);
         assert!((ranks[&102] - 1.5).abs() < 0.001);
+    }
+
+    #[test]
+    fn test_dance_marks_omits_judges_without_marks() {
+        let mut dtv_ranks: BTreeMap<String, BTreeMap<u32, BTreeMap<Dance, u32>>> = BTreeMap::new();
+        dtv_ranks
+            .entry("A".to_string())
+            .or_default()
+            .entry(101)
+            .or_default()
+            .insert(Dance::SlowWaltz, 1);
+        dtv_ranks
+            .entry("B".to_string())
+            .or_default()
+            .entry(101)
+            .or_default()
+            .insert(Dance::Tango, 2);
+        let marks = dance_marks(&dtv_ranks, Dance::SlowWaltz);
+        assert_eq!(marks.len(), 1);
+        assert_eq!(marks["A"][&101], 1);
     }
 
     #[test]

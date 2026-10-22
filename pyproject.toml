@@ -1,7 +1,7 @@
 [project]
 name = "dancing-datacollection"
 version = "0.1.0"
-description = "Add your description here"
+description = "High-performance Rust engine with Python bindings to download, parse, and validate dancing competition results (TopTurnier/DTV format)."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = []

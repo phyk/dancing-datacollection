@@ -1,5 +1,6 @@
-//! Assets for DTV Competition Ruleset and Internationalization
-//! This file contains hardcoded constants and mappings.
+//! Raw lookup tables, CSS selectors and regex patterns.
+//! This file holds data only (alias tables, marker lists, selectors, patterns);
+//! the lookup and normalization logic that uses it lives in `crate::i18n`.
 
 use crate::models::{AgeGroup, Dance, Level, Style};
 
@@ -31,21 +32,42 @@ pub const AGE_GROUP_MAPPINGS: &[(&str, AgeGroup)] = &[
     ("Sen.V", AgeGroup::Sen5),
     ("Mas.V", AgeGroup::Sen5),
     ("Senioren V", AgeGroup::Sen5),
-    ("Kinder I", AgeGroup::Juv1),
-    ("Kin.I", AgeGroup::Juv1),
-    ("Kinder II", AgeGroup::Juv2),
-    ("Kin.II", AgeGroup::Juv2),
+    // DTV children's classes are not split into I/II.
+    ("Kinder", AgeGroup::Juv),
+    ("Kin.", AgeGroup::Juv),
     ("Junioren I", AgeGroup::Jun1),
     ("Jun.I", AgeGroup::Jun1),
     ("Junioren II", AgeGroup::Jun2),
     ("Jun.II", AgeGroup::Jun2),
     ("Jugend", AgeGroup::Youth),
     ("Jug.", AgeGroup::Youth),
+    // Spaced and English variants (as used in user-facing filters)
+    ("Hgr. II", AgeGroup::Adult2),
+    ("Sen I", AgeGroup::Sen1),
+    ("Sen II", AgeGroup::Sen2),
+    ("Sen III", AgeGroup::Sen3),
+    ("Sen IV", AgeGroup::Sen4),
+    ("Sen V", AgeGroup::Sen5),
+    ("Mas I", AgeGroup::Sen1),
+    ("Mas II", AgeGroup::Sen2),
+    ("Mas III", AgeGroup::Sen3),
+    ("Mas IV", AgeGroup::Sen4),
+    ("Mas V", AgeGroup::Sen5),
+    ("Senior I", AgeGroup::Sen1),
+    ("Senior II", AgeGroup::Sen2),
+    ("Senior III", AgeGroup::Sen3),
+    ("Senior IV", AgeGroup::Sen4),
+    ("Senior V", AgeGroup::Sen5),
+    ("Juvenile", AgeGroup::Juv),
+    ("Jun I", AgeGroup::Jun1),
+    ("Jun II", AgeGroup::Jun2),
+    ("Junior I", AgeGroup::Jun1),
+    ("Junior II", AgeGroup::Jun2),
+    ("Youth", AgeGroup::Youth),
 ];
 
 pub const AGE_GROUP_ID_MAPPINGS: &[(&str, AgeGroup)] = &[
-    ("juv_1", AgeGroup::Juv1),
-    ("juv_2", AgeGroup::Juv2),
+    ("juv", AgeGroup::Juv),
     ("jun_1", AgeGroup::Jun1),
     ("jun_2", AgeGroup::Jun2),
     ("youth", AgeGroup::Youth),
@@ -71,6 +93,24 @@ pub const STYLE_ID_MAPPINGS: &[(&str, Style)] = &[
     ("lat", Style::Latein),
     ("latin", Style::Latein),
     ("latein", Style::Latein),
+];
+
+/// All Standard dances in canonical order.
+pub const STANDARD_DANCES: &[Dance] = &[
+    Dance::SlowWaltz,
+    Dance::Tango,
+    Dance::VienneseWaltz,
+    Dance::SlowFoxtrot,
+    Dance::Quickstep,
+];
+
+/// All Latin dances in canonical order.
+pub const LATIN_DANCES: &[Dance] = &[
+    Dance::Samba,
+    Dance::ChaChaCha,
+    Dance::Rumba,
+    Dance::PasoDoble,
+    Dance::Jive,
 ];
 
 pub const DANCE_ABBREVIATIONS: &[(Dance, &[&str])] = &[
@@ -115,31 +155,47 @@ pub const ROLE_MAPPINGS: &[(&str, &str)] = &[
     ("Protokoll", "assistant"),
 ];
 
+/// Month names and abbreviations (German and English), lowercase.
 pub const MONTH_MAPPINGS: &[(&str, u32)] = &[
     ("jan", 1),
+    ("jän", 1),
     ("januar", 1),
+    ("jänner", 1),
+    ("january", 1),
     ("feb", 2),
     ("februar", 2),
+    ("february", 2),
     ("mar", 3),
+    ("mär", 3),
+    ("mrz", 3),
     ("märz", 3),
+    ("maerz", 3),
+    ("march", 3),
     ("apr", 4),
     ("april", 4),
     ("may", 5),
     ("mai", 5),
     ("jun", 6),
     ("juni", 6),
+    ("june", 6),
     ("jul", 7),
     ("juli", 7),
+    ("july", 7),
     ("aug", 8),
     ("august", 8),
     ("sep", 9),
+    ("sept", 9),
     ("september", 9),
     ("oct", 10),
+    ("okt", 10),
     ("oktober", 10),
+    ("october", 10),
     ("nov", 11),
     ("november", 11),
     ("dec", 12),
+    ("dez", 12),
     ("dezember", 12),
+    ("december", 12),
 ];
 
 pub const ROUND_NAME_MAPPINGS: &[(&str, &str)] = &[
@@ -161,17 +217,11 @@ pub const ROUND_NAME_MAPPINGS: &[(&str, &str)] = &[
     ("final", ROUND_NAME_ENDRUNDE),
 ];
 
-pub const GENERIC_ROUND_MARKERS: &[&str] = &["runde", "round", "ergebnis", "ranking", "table"];
-pub const SKIP_ROUND_MARKERS: &[&str] = &["ranking report", "table of results"];
 pub const FINAL_ROUND_MARKERS: &[&str] = &["endrunde", "finale", "final", "result of final"];
-pub const RESULT_MARKERS: &[&str] = &["ergebnis", "result"];
 pub const FINAL_ID_MARKER: &str = "F";
 
-pub const ROUND_NAME_FINAL: &str = "Final";
 pub const ROUND_NAME_SEMIFINAL: &str = "Semifinal";
 pub const ROUND_NAME_QUARTERFINAL: &str = "Quarterfinal";
-pub const ROUND_NAME_GENERIC_PREFIX: &str = "Round";
-pub const ROUND_NAME_RESULT_TABLE: &str = "Result Table";
 pub const ROUND_NAME_VORRUNDE: &str = "Vorrunde";
 pub const ROUND_NAME_ENDRUNDE: &str = "Endrunde";
 pub const ROUND_NAME_ZWISCHENRUNDE: &str = "Zwischenrunde";
@@ -182,8 +232,10 @@ pub const STYLE_MARKER_LATIN: &str = "LATIN";
 
 pub const REDANCE_MARKERS: &[&str] = &["redance", "hoffnung", "h-lauf"];
 
-pub const ORGANIZER_MARKERS: &[&str] = &["Veranstalter", "Organizer", "organizer"];
-pub const HOSTING_CLUB_MARKERS: &[&str] = &["Ausrichter", "Hosting club", "Hosting Club"];
+/// Lowercase; matched case-insensitively as substrings.
+pub const ORGANIZER_MARKERS: &[&str] = &["veranstalter", "organizer"];
+/// Lowercase; matched case-insensitively as substrings.
+pub const HOSTING_CLUB_MARKERS: &[&str] = &["ausrichter", "hosting club"];
 
 // --- CSS Selectors ---
 pub const SELECTOR_META_AUTHOR: &str = "meta[name='Author'], meta[name='author']";
@@ -205,13 +257,15 @@ pub const SELECTOR_TABLE: &str = "table";
 // --- Regex Patterns ---
 pub const PATTERN_BIB_PARENS: &str = r"\((\d+)\)";
 pub const PATTERN_SCORE: &str = r"(\d+[\.,]\d+)";
-pub const PATTERN_DATE: &str = r"(\d{1,2})[\./]([a-zA-Z0-9]{2,3})[\./](\d{4})";
+/// Day, month (number or German/English name/abbreviation) and year,
+/// e.g. `05.07.2025`, `05/07/2025`, `12. Okt. 2024`, `12.Oktober.2024`, `5.Mär.2025`.
+pub const PATTERN_DATE: &str = r"(\d{1,2})[\./]\s*([\p{L}\d]{1,9})[\./]\s*(\d{4})";
 pub const PATTERN_RANK: &str = r"(\d+)";
 
 // --- Interpretation Markers ---
 pub const BIB_COLUMN_MARKERS: &[&str] = &["nr", "nr.", "startnummer", "no.", "no", "start number"];
 pub const RANK_COLUMN_MARKERS: &[&str] = &["pl.", "platz", "rank", "platz von", "platz bis"];
-pub const SUM_COLUMN_MARKERS: &[&str] = &["su", "summe", "total", "pz", "sum", "total"];
+pub const SUM_COLUMN_MARKERS: &[&str] = &["su", "summe", "total", "pz", "sum"];
 pub const ROUND_COLUMN_MARKERS: &[&str] = &["r", "round", "runde"];
 pub const PARTICIPANT_MARKERS: &[&str] = &[
     "teilnehmer",
@@ -220,8 +274,6 @@ pub const PARTICIPANT_MARKERS: &[&str] = &[
     "country",
     "paar",
 ];
-pub const QUALIFICATION_MARKERS: &[&str] =
-    &["result of", "qualified for", "ergebnis", "qualifiziert"];
 pub const LEVEL_S_MARKERS: &[&str] = &["WDSF", "OPEN"];
 pub const TITLE_CLEANUP_STRINGS: &[&str] = &[
     "\"GS\"",
@@ -232,7 +284,6 @@ pub const TITLE_CLEANUP_STRINGS: &[&str] = &[
     "&#34;MS&#34;",
     "OT, ",
 ];
-pub const RESULT_CELL_CLASSES: &[&str] = &["td5c", "td5cv", "td3w"];
 
 pub const WDSF_SCORE_TYPES: &[(&str, &str)] = &[
     ("tq", "technical_quality"),

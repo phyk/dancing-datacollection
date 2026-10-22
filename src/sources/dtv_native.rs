@@ -1,9 +1,9 @@
 use crate::assets::*;
 use crate::models::{
-    AgeGroup, CommitteeMember, Competition, Dance, IdentityType, Judge, Level, Officials,
-    Participant, Round, Style,
+    CommitteeMember, Competition, Dance, IdentityType, Judge, Level, Officials, Participant, Round,
+    Style,
 };
-use crate::sources::topturnier_table;
+use crate::sources::topturnier_table::{self, RE_BIB_PARENS};
 use crate::sources::ParsingError;
 use anyhow::Result;
 use chrono::NaiveDate;
@@ -19,13 +19,54 @@ static SEL_TD: LazyLock<Selector> = LazyLock::new(|| Selector::parse(SELECTOR_TD
 static SEL_SPAN: LazyLock<Selector> = LazyLock::new(|| Selector::parse(SELECTOR_SPAN).unwrap());
 static SEL_I: LazyLock<Selector> = LazyLock::new(|| Selector::parse(SELECTOR_I).unwrap());
 static SEL_TITLE: LazyLock<Selector> = LazyLock::new(|| Selector::parse(SELECTOR_TITLE).unwrap());
-static RE_BIB_PARENS: LazyLock<Regex> = LazyLock::new(|| Regex::new(PATTERN_BIB_PARENS).unwrap());
+static SEL_TABLE: LazyLock<Selector> = LazyLock::new(|| Selector::parse(SELECTOR_TABLE).unwrap());
+static SEL_META_AUTHOR: LazyLock<Selector> =
+    LazyLock::new(|| Selector::parse(SELECTOR_META_AUTHOR).unwrap());
+static SEL_EVENT_HEAD: LazyLock<Selector> =
+    LazyLock::new(|| Selector::parse(SELECTOR_EVENT_HEAD).unwrap());
+static SEL_COMP_HEAD: LazyLock<Selector> =
+    LazyLock::new(|| Selector::parse(SELECTOR_COMP_HEAD).unwrap());
+static SEL_PARTICIPANT_RANK: LazyLock<Selector> =
+    LazyLock::new(|| Selector::parse(SELECTOR_PARTICIPANT_RANK).unwrap());
+static SEL_PARTICIPANT_DATA: LazyLock<Selector> =
+    LazyLock::new(|| Selector::parse(SELECTOR_PARTICIPANT_DATA).unwrap());
+static SEL_OFFICIAL_ROLE: LazyLock<Selector> =
+    LazyLock::new(|| Selector::parse(SELECTOR_OFFICIAL_ROLE).unwrap());
+static SEL_OFFICIAL_DATA: LazyLock<Selector> =
+    LazyLock::new(|| Selector::parse(SELECTOR_OFFICIAL_DATA).unwrap());
+static SEL_CANONICAL: LazyLock<Selector> =
+    LazyLock::new(|| Selector::parse(SELECTOR_CANONICAL).unwrap());
 static RE_DATE: LazyLock<Regex> = LazyLock::new(|| Regex::new(PATTERN_DATE).unwrap());
 static RE_RANK: LazyLock<Regex> = LazyLock::new(|| Regex::new(PATTERN_RANK).unwrap());
 
 // --- Utilities ---
 fn txt(el: &ElementRef) -> String {
     el.text().collect::<String>().trim().to_string()
+}
+
+/// TopTurnier puts the club on the lines after the name: "Name\nClub".
+fn split_name_club(s: &str) -> (String, Option<String>) {
+    match s.split_once('\n') {
+        Some((n, c)) => (
+            n.trim().to_string(),
+            Some(c.replace('\n', " ").trim().to_string()),
+        ),
+        None => (s.to_string(), None),
+    }
+}
+
+/// "A / B" is a couple, anything else a solo dancer.
+fn split_couple(name: String) -> (IdentityType, String, Option<String>) {
+    if name.contains(" / ") {
+        let p: Vec<_> = name.split(" / ").collect();
+        (
+            IdentityType::Couple,
+            p[0].trim().into(),
+            Some(p[1].trim().into()),
+        )
+    } else {
+        (IdentityType::Solo, name, None)
+    }
 }
 
 pub fn parse_date(s: &str) -> Option<NaiveDate> {
@@ -50,10 +91,7 @@ pub fn parse_metadata(
 ) {
     let doc = Html::parse_document(html);
     let (mut org, mut club) = (None, None);
-    if let Some(meta_author) = doc
-        .select(&Selector::parse(SELECTOR_META_AUTHOR).unwrap())
-        .next()
-    {
+    if let Some(meta_author) = doc.select(&SEL_META_AUTHOR).next() {
         org = meta_author.value().attr("content").map(|s| s.to_string());
     }
 
@@ -69,12 +107,9 @@ pub fn parse_metadata(
             }
         }
     }
-    let name = doc
-        .select(&Selector::parse(SELECTOR_EVENT_HEAD).unwrap())
-        .next()
-        .map(|el| txt(&el));
+    let name = doc.select(&SEL_EVENT_HEAD).next().map(|el| txt(&el));
     let date = doc
-        .select(&Selector::parse(SELECTOR_COMP_HEAD).unwrap())
+        .select(&SEL_COMP_HEAD)
         .next()
         .map(|el| txt(&el))
         .and_then(|d| parse_date(&d));
@@ -82,17 +117,12 @@ pub fn parse_metadata(
 }
 
 fn parse_participant_row(row: ElementRef) -> Result<Participant, ParsingError> {
-    let rank = row
-        .select(&Selector::parse(SELECTOR_PARTICIPANT_RANK).unwrap())
-        .next()
-        .and_then(|el| {
-            RE_RANK
-                .captures(&txt(&el))
-                .and_then(|c| c[1].parse::<u32>().ok())
-        });
-    let data_cells: Vec<_> = row
-        .select(&Selector::parse(SELECTOR_PARTICIPANT_DATA).unwrap())
-        .collect();
+    let rank = row.select(&SEL_PARTICIPANT_RANK).next().and_then(|el| {
+        RE_RANK
+            .captures(&txt(&el))
+            .and_then(|c| c[1].parse::<u32>().ok())
+    });
+    let data_cells: Vec<_> = row.select(&SEL_PARTICIPANT_DATA).collect();
     if data_cells.is_empty() {
         return Err(ParsingError::ParsingError("NoData".into()));
     }
@@ -127,28 +157,21 @@ fn parse_participant_row(row: ElementRef) -> Result<Participant, ParsingError> {
         }
 
         if club.is_none() && name.contains('\n') {
-            let p: Vec<_> = name.splitn(2, '\n').map(|s| s.to_string()).collect();
-            name = p[0].trim().to_string();
-            club = Some(p[1].replace('\n', " ").trim().to_string());
+            (name, club) = split_name_club(&name);
         }
     }
     if bib == 0 {
         return Err(ParsingError::MissingRequiredData("Bib".into()));
     }
-    let (it, n1, n2) = if name.contains(" / ") {
-        let p: Vec<_> = name.split(" / ").collect();
-        let mut n2_val = p[1].trim().to_string();
-        if n2_val.contains('\n') {
-            let parts: Vec<_> = n2_val.splitn(2, '\n').map(|s| s.to_string()).collect();
-            n2_val = parts[0].trim().to_string();
-            if club.is_none() {
-                club = Some(parts[1].replace('\n', " ").trim().to_string());
-            }
+    let (it, n1, mut n2) = split_couple(name);
+    // The club can also trail the second partner's name.
+    if let Some(n2_val) = n2.as_mut().filter(|n| n.contains('\n')) {
+        let (n, c) = split_name_club(n2_val);
+        *n2_val = n;
+        if club.is_none() {
+            club = c;
         }
-        (IdentityType::Couple, p[0].trim().into(), Some(n2_val))
-    } else {
-        (IdentityType::Solo, name, None)
-    };
+    }
     if n1.is_empty() {
         return Err(ParsingError::MissingRequiredData("Name".into()));
     }
@@ -214,16 +237,7 @@ fn merge_round_data(existing: &mut crate::models::RoundData, new: crate::models:
                 for (bib, n_dance_map) in n_bib_map {
                     let e_dance_map = e_bib_map.entry(bib).or_default();
                     for (dance, n_score) in n_dance_map {
-                        let e_score =
-                            e_dance_map
-                                .entry(dance)
-                                .or_insert_with(|| crate::models::WDSFScore {
-                                    technical_quality: 0.0,
-                                    movement_to_music: 0.0,
-                                    partnering_skills: 0.0,
-                                    choreography: 0.0,
-                                    total: 0.0,
-                                });
+                        let e_score = e_dance_map.entry(dance).or_default();
                         if n_score.technical_quality > 0.0 {
                             e_score.technical_quality = n_score.technical_quality;
                         }
@@ -255,78 +269,61 @@ fn merge_round_data(existing: &mut crate::models::RoundData, new: crate::models:
 pub fn extract_event_data(data_dir: &str) -> Result<Competition> {
     let dir = Path::new(data_dir);
     let ergwert_h = fs::read_to_string(dir.join("ergwert.htm")).unwrap_or_default();
+    let ergwert_doc = Html::parse_document(&ergwert_h);
     let (name, date, mut org, mut club) = parse_metadata(&ergwert_h);
-    let title = Html::parse_document(&ergwert_h)
+    let title = ergwert_doc
         .select(&SEL_TITLE)
         .next()
         .map(|n| n.inner_html())
         .unwrap_or_default();
-
-    let name_for_parse = if let Some(ref n) = name {
-        if n.contains(" - ") {
-            n
-        } else {
-            &title
-        }
-    } else {
-        &title
-    };
-    let mut comp = match parse_competition_from_title(name_for_parse) {
-        Ok(c) => c,
-        Err(_) => Competition {
-            name: name.clone().unwrap_or_else(|| "TODO".into()),
-            date,
-            organizer: None,
-            hosting_club: None,
-            source_url: None,
-            level: Level::S,
-            age_group: AgeGroup::Adult,
-            style: Style::Standard,
-            dances: Vec::new(),
-            min_dances: 0,
-            officials: Officials {
-                responsible_person: None,
-                assistant: None,
-                judges: Vec::new(),
-            },
-            participants: Vec::new(),
-            rounds: Vec::new(),
-        },
+    let deck_h = fs::read_to_string(dir.join("deck.htm")).ok();
+    let (d_name, d_org, d_club) = match deck_h.as_deref().map(parse_metadata) {
+        Some((n, _, o, c)) => (n, o, c),
+        None => (None, None, None),
     };
 
-    if let Ok(deck_h) = fs::read_to_string(dir.join("deck.htm")) {
-        let (d_name, _d_date, d_org, d_club) = parse_metadata(&deck_h);
-        if org.is_none() {
-            org = d_org;
-        }
-        if club.is_none() {
-            club = d_club;
-        }
-        if name.is_none() {
-            if let Some(ref n) = d_name {
-                if let Ok(c) = parse_competition_from_title(n) {
-                    comp.name = c.name;
-                    comp.age_group = c.age_group;
-                    comp.style = c.style;
-                    comp.level = c.level;
-                }
-            }
-        }
+    let name_for_parse = match name {
+        Some(ref n) if n.contains(" - ") => n,
+        _ => &title,
+    };
+    // deck.htm repeats the competition name, so it is the fallback before giving up.
+    let mut comp = parse_competition_from_title(name_for_parse)
+        .or_else(|e| {
+            d_name
+                .as_deref()
+                .map_or(Err(e), parse_competition_from_title)
+        })
+        .map_err(|_| {
+            ParsingError::MissingRequiredData(format!(
+                "cannot determine level/age group/style from title {:?}",
+                title
+            ))
+        })?;
+    // Prefer the explicit .comphead date over one embedded in the title.
+    if let Some(d) = date {
+        comp.date = Some(d);
+        comp.min_dances = crate::i18n::get_min_dances(comp.level, d);
+    }
 
-        let doc = Html::parse_document(&deck_h);
+    if org.is_none() {
+        org = d_org;
+    }
+    if club.is_none() {
+        club = d_club;
+    }
+
+    if let Some(deck_h) = &deck_h {
+        let doc = Html::parse_document(deck_h);
         let mut off = Officials {
             responsible_person: None,
             assistant: None,
             judges: Vec::new(),
         };
         for row in doc.select(&SEL_TR) {
-            let (role_sel, data_sel) = (
-                Selector::parse(SELECTOR_OFFICIAL_ROLE).unwrap(),
-                Selector::parse(SELECTOR_OFFICIAL_DATA).unwrap(),
-            );
-            if let (Some(r_el), Some(d_el)) =
-                (row.select(&role_sel).next(), row.select(&data_sel).next())
-            {
+            if let (Some(r_el), Some(d_el)) = (
+                row.select(&SEL_OFFICIAL_ROLE).next(),
+                row.select(&SEL_OFFICIAL_DATA).next(),
+            ) {
                 let r_raw = txt(&r_el);
                 let r = r_raw.trim_end_matches(':').trim().to_string();
 
@@ -336,16 +333,7 @@ pub fn extract_event_data(data_dir: &str) -> Result<Competition> {
                 } else if spans.len() == 1 {
                     (txt(&spans[0]), None)
                 } else {
-                    let full = topturnier_table::extract_text(d_el);
-                    if full.contains('\n') {
-                        let p: Vec<_> = full.splitn(2, '\n').collect();
-                        (
-                            p[0].trim().to_string(),
-                            Some(p[1].replace('\n', " ").trim().to_string()),
-                        )
-                    } else {
-                        (full, None)
-                    }
+                    split_name_club(&topturnier_table::extract_text(d_el))
                 };
 
                 if crate::i18n::is_organizer_marker(&r) {
@@ -408,77 +396,54 @@ pub fn extract_event_data(data_dir: &str) -> Result<Competition> {
 
     if comp.participants.is_empty() {
         // Fallback: extract participants using the structural table parser if row-based parsing fails
-        let doc = Html::parse_document(&ergwert_h);
-        for table in doc.select(&Selector::parse(SELECTOR_TABLE).unwrap()) {
+        for table in ergwert_doc.select(&SEL_TABLE) {
             let grid = topturnier_table::TableGrid::from_element(table);
-            if topturnier_table::identify_orientation(&grid)
-                == topturnier_table::TableOrientation::Horizontal
+            let col_types = topturnier_table::identify_columns(&grid);
+            if let Some(p_idx) = col_types
+                .iter()
+                .position(|t| matches!(t, topturnier_table::ColumnType::Participant))
             {
-                let col_types = topturnier_table::identify_columns(&grid);
-                if let Some(p_idx) = col_types
+                let bib_idx = col_types
                     .iter()
-                    .position(|t| matches!(t, topturnier_table::ColumnType::Participant))
-                {
-                    let bib_idx = col_types
-                        .iter()
-                        .position(|t| matches!(t, topturnier_table::ColumnType::Bib));
-                    let rank_idx = col_types
-                        .iter()
-                        .position(|t| matches!(t, topturnier_table::ColumnType::Rank));
+                    .position(|t| matches!(t, topturnier_table::ColumnType::Bib));
+                let rank_idx = col_types
+                    .iter()
+                    .position(|t| matches!(t, topturnier_table::ColumnType::Rank));
 
-                    for r in 1..grid.height {
-                        let name = &grid.rows[r][p_idx];
-                        if name.is_empty() || crate::i18n::is_participant_marker(name) {
-                            continue;
-                        }
-
-                        let bib = if let Some(idx) = bib_idx {
-                            grid.rows[r][idx].parse().ok()
-                        } else {
-                            RE_BIB_PARENS.captures(name).and_then(|c| c[1].parse().ok())
-                        };
-
-                        let bib = match bib {
-                            Some(b) => b,
-                            None => continue,
-                        };
-
-                        let rank = rank_idx.and_then(|idx| {
-                            RE_RANK
-                                .captures(&grid.rows[r][idx])
-                                .and_then(|c| c[1].parse().ok())
-                        });
-
-                        let (name_clean, club) = if name.contains('\n') {
-                            let p: Vec<_> = name.splitn(2, '\n').collect();
-                            (
-                                p[0].trim().to_string(),
-                                Some(p[1].replace('\n', " ").trim().to_string()),
-                            )
-                        } else {
-                            (name.clone(), None)
-                        };
-
-                        let (it, n1, n2) = if name_clean.contains(" / ") {
-                            let p: Vec<_> = name_clean.split(" / ").collect();
-                            (
-                                IdentityType::Couple,
-                                p[0].trim().into(),
-                                Some(p[1].trim().into()),
-                            )
-                        } else {
-                            (IdentityType::Solo, name_clean, None)
-                        };
-
-                        comp.participants.push(Participant {
-                            identity_type: it,
-                            name_one: n1,
-                            bib_number: bib,
-                            name_two: n2,
-                            affiliation: club,
-                            final_rank: rank,
-                        });
+                for r in 1..grid.height {
+                    let name = &grid.rows[r][p_idx];
+                    if name.is_empty() || crate::i18n::is_participant_marker(name) {
+                        continue;
                     }
+
+                    let bib = if let Some(idx) = bib_idx {
+                        grid.rows[r][idx].parse().ok()
+                    } else {
+                        RE_BIB_PARENS.captures(name).and_then(|c| c[1].parse().ok())
+                    };
+
+                    let bib = match bib {
+                        Some(b) => b,
+                        None => continue,
+                    };
+
+                    let rank = rank_idx.and_then(|idx| {
+                        RE_RANK
+                            .captures(&grid.rows[r][idx])
+                            .and_then(|c| c[1].parse().ok())
+                    });
+
+                    let (name_clean, club) = split_name_club(name);
+                    let (it, n1, n2) = split_couple(name_clean);
+
+                    comp.participants.push(Participant {
+                        identity_type: it,
+                        name_one: n1,
+                        bib_number: bib,
+                        name_two: n2,
+                        affiliation: club,
+                        final_rank: rank,
+                    });
                 }
             }
         }
@@ -492,64 +457,40 @@ pub fn extract_event_data(data_dir: &str) -> Result<Competition> {
     });
 
     let full_style_dances = if comp.style == Style::Standard {
-        vec![
-            Dance::SlowWaltz,
-            Dance::Tango,
-            Dance::VienneseWaltz,
-            Dance::SlowFoxtrot,
-            Dance::Quickstep,
-        ]
+        STANDARD_DANCES
     } else {
-        vec![
-            Dance::Samba,
-            Dance::ChaChaCha,
-            Dance::Rumba,
-            Dance::PasoDoble,
-            Dance::Jive,
-        ]
+        LATIN_DANCES
     };
 
-    let files = ["ergwert.htm"];
     let mut all_rounds: Vec<Round> = Vec::new();
     let mut found_dances = std::collections::HashSet::new();
 
-    for f_name in files {
-        if let Ok(content) = fs::read_to_string(dir.join(f_name)) {
-            let mut file_dances = crate::i18n::parse_dances_no_fallback(&content);
-            file_dances.retain(|d| full_style_dances.contains(d));
+    for table in ergwert_doc.select(&SEL_TABLE) {
+        let grid = topturnier_table::TableGrid::from_element(table);
+        let col_types = topturnier_table::identify_columns(&grid);
+        let intermediate = topturnier_table::extract_data(&grid, &col_types);
 
-            let doc = Html::parse_document(&content);
-            for table in doc.select(&Selector::parse(SELECTOR_TABLE).unwrap()) {
-                let grid = topturnier_table::TableGrid::from_element(table);
-                let intermediate = topturnier_table::extract_data(&grid);
+        let mut table_dances = Vec::new();
+        for ct in &col_types {
+            if let topturnier_table::ColumnType::Mark { dance, .. }
+            | topturnier_table::ColumnType::Dance(dance) = ct
+            {
+                if !table_dances.contains(dance) {
+                    table_dances.push(*dance);
+                }
+            }
+        }
+        table_dances.retain(|d| full_style_dances.contains(d));
+        for d in &table_dances {
+            found_dances.insert(*d);
+        }
 
-                let col_types = topturnier_table::identify_columns(&grid);
-                let mut table_dances = Vec::new();
-                for ct in col_types {
-                    if let topturnier_table::ColumnType::Mark { dance, .. } = ct {
-                        if !table_dances.contains(&dance) {
-                            table_dances.push(dance);
-                        }
-                    } else if let topturnier_table::ColumnType::Dance(dance) = ct {
-                        if !table_dances.contains(&dance) {
-                            table_dances.push(dance);
-                        }
-                    }
-                }
-                table_dances.retain(|d| full_style_dances.contains(d));
-                for d in &table_dances {
-                    found_dances.insert(*d);
-                }
-
-                let file_rounds =
-                    topturnier_table::to_rounds(intermediate, &table_dances, &comp.officials);
-                for fr in file_rounds {
-                    if let Some(existing) = all_rounds.iter_mut().find(|r| r.name == fr.name) {
-                        merge_round_data(&mut existing.data, fr.data);
-                    } else {
-                        all_rounds.push(fr);
-                    }
-                }
+        let file_rounds = topturnier_table::to_rounds(intermediate, &table_dances, &comp.officials);
+        for fr in file_rounds {
+            if let Some(existing) = all_rounds.iter_mut().find(|r| r.name == fr.name) {
+                merge_round_data(&mut existing.data, fr.data);
+            } else {
+                all_rounds.push(fr);
             }
         }
     }
@@ -559,7 +500,7 @@ pub fn extract_event_data(data_dir: &str) -> Result<Competition> {
         .cloned()
         .filter(|d| full_style_dances.contains(d))
         .collect();
-    all_dances_vec.sort_by_key(|&d| d as u32);
+    all_dances_vec.sort();
 
     // Filter dances that actually appear in scoring rounds.
     let scoring_dances: std::collections::HashSet<Dance> = all_rounds
@@ -643,10 +584,7 @@ pub fn extract_event_data(data_dir: &str) -> Result<Competition> {
     if comp.source_url.is_none() {
         if let Ok(index_h) = fs::read_to_string(dir.join("index.htm")) {
             let doc = Html::parse_document(&index_h);
-            if let Some(link) = doc
-                .select(&Selector::parse(SELECTOR_CANONICAL).unwrap())
-                .next()
-            {
+            if let Some(link) = doc.select(&SEL_CANONICAL).next() {
                 comp.source_url = link.value().attr("href").map(|s| s.to_string());
             }
         }
@@ -684,21 +622,26 @@ pub fn parse_competition_from_title(title: &str) -> Result<Competition, ParsingE
     if lv.is_none() && crate::i18n::is_level_s_marker(&up) {
         lv = Some(Level::S);
     }
-    let date = parse_date(title).unwrap_or_else(|| NaiveDate::from_ymd_opt(2024, 1, 1).unwrap());
-    if ag.is_none() || st.is_none() || lv.is_none() {
+    let (Some(ag), Some(st), Some(lv)) = (ag, st, lv) else {
         return Err(ParsingError::MissingRequiredData(title.into()));
-    }
+    };
+    let date = parse_date(title);
+    // Without a date assume the pre-2026 rule; extract_event_data recomputes once a date is known.
+    let min_dances = crate::i18n::get_min_dances(
+        lv,
+        date.unwrap_or_else(|| NaiveDate::from_ymd_opt(2025, 12, 31).unwrap()),
+    );
     Ok(Competition {
         name: title_clean,
-        date: Some(date),
+        date,
         organizer: None,
         hosting_club: None,
         source_url: None,
-        level: lv.unwrap(),
-        age_group: ag.unwrap(),
-        style: st.unwrap(),
+        level: lv,
+        age_group: ag,
+        style: st,
         dances: crate::i18n::parse_dances(title),
-        min_dances: crate::i18n::get_min_dances(lv.unwrap(), date),
+        min_dances,
         officials: Officials {
             responsible_person: None,
             assistant: None,

@@ -1,7 +1,23 @@
-use crate::models::skating::calculate_dance_ranks;
+use crate::models::skating::{
+    calculate_dance_ranks, calculate_wdsf_dance_score, dance_marks, wdsf_judge_scores,
+};
 use crate::models::{Competition, Dance, Round, RoundData};
-use std::collections::BTreeMap;
 use std::fmt::Write;
+
+/// Escapes text for safe interpolation into HTML content and attribute values.
+fn esc(s: &str) -> String {
+    let mut out = String::with_capacity(s.len());
+    for c in s.chars() {
+        match c {
+            '&' => out.push_str("&amp;"),
+            '<' => out.push_str("&lt;"),
+            '>' => out.push_str("&gt;"),
+            '"' => out.push_str("&quot;"),
+            _ => out.push(c),
+        }
+    }
+    out
+}
 
 pub fn competition_to_html(comp: &Competition) -> String {
     let mut html = String::new();
@@ -9,7 +25,7 @@ pub fn competition_to_html(comp: &Competition) -> String {
     writeln!(html, "<html>").unwrap();
     writeln!(html, "<head>").unwrap();
     writeln!(html, "  <meta charset=\"utf-8\">").unwrap();
-    writeln!(html, "  <title>{}</title>", comp.name).unwrap();
+    writeln!(html, "  <title>{}</title>", esc(&comp.name)).unwrap();
     writeln!(html, "  <style>").unwrap();
     writeln!(
         html,
@@ -50,15 +66,15 @@ pub fn competition_to_html(comp: &Competition) -> String {
     writeln!(html, "<body>").unwrap();
 
     writeln!(html, "  <div class=\"eventhead\">").unwrap();
-    writeln!(html, "    <h1>{}</h1>", comp.name).unwrap();
+    writeln!(html, "    <h1>{}</h1>", esc(&comp.name)).unwrap();
     if let Some(date) = comp.date {
         writeln!(html, "    <p>Date: {}</p>", date.format("%d.%m.%Y")).unwrap();
     }
     if let Some(ref org) = comp.organizer {
-        writeln!(html, "    <p>Organizer: {}</p>", org).unwrap();
+        writeln!(html, "    <p>Organizer: {}</p>", esc(org)).unwrap();
     }
     if let Some(ref club) = comp.hosting_club {
-        writeln!(html, "    <p>Hosting Club: {}</p>", club).unwrap();
+        writeln!(html, "    <p>Hosting Club: {}</p>", esc(club)).unwrap();
     }
     writeln!(html, "  </div>").unwrap();
 
@@ -87,7 +103,7 @@ pub fn competition_to_html(comp: &Competition) -> String {
     writeln!(html, "    <tr class=\"header\">").unwrap();
     for _ in &comp.dances {
         for judge in &comp.officials.judges {
-            writeln!(html, "      <th>{}</th>", judge.code).unwrap();
+            writeln!(html, "      <th>{}</th>", esc(&judge.code)).unwrap();
         }
         writeln!(html, "      <th>Su</th>").unwrap();
     }
@@ -131,7 +147,7 @@ pub fn competition_to_html(comp: &Competition) -> String {
             name_full.push_str(n2);
         }
         let affiliation = p.affiliation.as_deref().unwrap_or("");
-        writeln!(html, "      <td class=\"left\"><span class=\"participant\">{}</span><span class=\"affiliation\">{}</span></td>", name_full, affiliation).unwrap();
+        writeln!(html, "      <td class=\"left\"><span class=\"participant\">{}</span><span class=\"affiliation\">{}</span></td>", esc(&name_full), esc(affiliation)).unwrap();
 
         // Bib
         writeln!(html, "      <td>{}</td>", p.bib_number).unwrap();
@@ -185,37 +201,15 @@ pub fn competition_to_html(comp: &Competition) -> String {
                         write!(sum_cell, "{}", count).unwrap();
                     }
                     RoundData::DTV { dtv_ranks } => {
-                        let mut dance_marks: BTreeMap<String, BTreeMap<u32, u32>> = BTreeMap::new();
-                        for (judge_code, bib_map) in dtv_ranks {
-                            let mut bm = BTreeMap::new();
-                            for (&bib, dm) in bib_map {
-                                if let Some(&rk) = dm.get(&dance) {
-                                    bm.insert(bib, rk);
-                                }
-                            }
-                            if !bm.is_empty() {
-                                dance_marks.insert(judge_code.clone(), bm);
-                            }
-                        }
-                        let ranks = calculate_dance_ranks(&dance_marks);
+                        let ranks = calculate_dance_ranks(&dance_marks(dtv_ranks, dance));
                         if let Some(&rk) = ranks.get(&p.bib_number) {
                             write!(sum_cell, "{:.1}", rk).unwrap();
                         }
                     }
                     RoundData::WDSF { wdsf_scores } => {
-                        let mut judge_scores = BTreeMap::new();
-                        for judge in &comp.officials.judges {
-                            if let Some(jm) = wdsf_scores.get(&judge.code) {
-                                if let Some(pm) = jm.get(&p.bib_number) {
-                                    if let Some(score) = pm.get(&dance) {
-                                        judge_scores.insert(judge.code.clone(), score.clone());
-                                    }
-                                }
-                            }
-                        }
+                        let judge_scores = wdsf_judge_scores(wdsf_scores, p.bib_number, dance);
                         if !judge_scores.is_empty() {
-                            let dance_score =
-                                crate::models::skating::calculate_wdsf_dance_score(&judge_scores);
+                            let dance_score = calculate_wdsf_dance_score(&judge_scores);
                             write!(sum_cell, "{:.2}", dance_score).unwrap();
                         }
                     }
@@ -257,19 +251,7 @@ pub fn competition_to_html(comp: &Competition) -> String {
                 }
                 RoundData::DTV { dtv_ranks } => {
                     for &dance in &comp.dances {
-                        let mut dance_marks: BTreeMap<String, BTreeMap<u32, u32>> = BTreeMap::new();
-                        for (judge_code, bib_map) in dtv_ranks {
-                            let mut bm = BTreeMap::new();
-                            for (&bib, dm) in bib_map {
-                                if let Some(&rk) = dm.get(&dance) {
-                                    bm.insert(bib, rk);
-                                }
-                            }
-                            if !bm.is_empty() {
-                                dance_marks.insert(judge_code.clone(), bm);
-                            }
-                        }
-                        let ranks = calculate_dance_ranks(&dance_marks);
+                        let ranks = calculate_dance_ranks(&dance_marks(dtv_ranks, dance));
                         if let Some(&rk) = ranks.get(&p.bib_number) {
                             round_total += rk;
                             has_data = true;
@@ -281,19 +263,9 @@ pub fn competition_to_html(comp: &Competition) -> String {
                 }
                 RoundData::WDSF { wdsf_scores } => {
                     for &dance in &comp.dances {
-                        let mut judge_scores = BTreeMap::new();
-                        for judge in &comp.officials.judges {
-                            if let Some(jm) = wdsf_scores.get(&judge.code) {
-                                if let Some(pm) = jm.get(&p.bib_number) {
-                                    if let Some(score) = pm.get(&dance) {
-                                        judge_scores.insert(judge.code.clone(), score.clone());
-                                    }
-                                }
-                            }
-                        }
+                        let judge_scores = wdsf_judge_scores(wdsf_scores, p.bib_number, dance);
                         if !judge_scores.is_empty() {
-                            round_total +=
-                                crate::models::skating::calculate_wdsf_dance_score(&judge_scores);
+                            round_total += calculate_wdsf_dance_score(&judge_scores);
                             has_data = true;
                         }
                     }
@@ -318,8 +290,8 @@ pub fn competition_to_html(comp: &Competition) -> String {
         writeln!(
             html,
             "      <li>Responsible: {} ({})</li>",
-            rp.name,
-            rp.club.as_deref().unwrap_or("-")
+            esc(&rp.name),
+            esc(rp.club.as_deref().unwrap_or("-"))
         )
         .unwrap();
     }
@@ -327,8 +299,8 @@ pub fn competition_to_html(comp: &Competition) -> String {
         writeln!(
             html,
             "      <li>Assistant: {} ({})</li>",
-            asst.name,
-            asst.club.as_deref().unwrap_or("-")
+            esc(&asst.name),
+            esc(asst.club.as_deref().unwrap_or("-"))
         )
         .unwrap();
     }
@@ -336,9 +308,9 @@ pub fn competition_to_html(comp: &Competition) -> String {
         writeln!(
             html,
             "      <li>Judge {}: {} ({})</li>",
-            judge.code,
-            judge.name,
-            judge.club.as_deref().unwrap_or("-")
+            esc(&judge.code),
+            esc(&judge.name),
+            esc(judge.club.as_deref().unwrap_or("-"))
         )
         .unwrap();
     }
@@ -406,5 +378,19 @@ fn get_mark(data: &RoundData, judge_code: &str, bib: u32, dance: Dance) -> Strin
             }
             "&nbsp;".to_string()
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_esc() {
+        assert_eq!(
+            esc(r#"A & B <i>"x"</i>"#),
+            "A &amp; B &lt;i&gt;&quot;x&quot;&lt;/i&gt;"
+        );
+        assert_eq!(esc("Müller"), "Müller");
     }
 }
